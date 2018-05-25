@@ -1,9 +1,6 @@
 package com.ys.datatool.service.local;
 
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
-import com.ys.datatool.domain.Stock;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.FBDBConnUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -36,12 +33,55 @@ public class ShangShuaiService {
         JDBCTEMPLATE = new JdbcTemplate(dataSource);*/
 
     @Test
+    public void fetchServiceData() throws Exception{
+        List<Product> products = new ArrayList<>();
+
+        String serviceQuery = "select s.SERVICECODE,s.SERVICENAME,s.STANDPRICE,s.SERVICESORT from TB_SERVICE s ";
+
+        Connection connection = FBDBConnUtil.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(serviceQuery);
+
+    }
+
+    @Test
+    public void fetchItemData() throws Exception {
+        List<Product> products = new ArrayList<>();
+
+        String itemQuery = "select p.PRODUCTNUMBER,p.PRODUCTNAME,p.BARCODE,p.SELLPRICE,P.PRODUCTSORT, " +
+                " P.PRODUCTMODEL,p.PRODUCTUNIT,p.PACTUNIT from TB_PRODUCT p ";
+
+        Connection connection = FBDBConnUtil.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(itemQuery);
+    }
+
+    @Test
+    public void fetchSupplierData() throws Exception {
+        List<Supplier> suppliers = new ArrayList<>();
+
+        String supplierQuery = "select p.CLIENTNAME,p.ADDRESS,p.CLIENTLINKER,p.MOBILEPHONE,p.CLIENTNUMBER from VI_PROVIDER p ";
+
+        Connection connection = FBDBConnUtil.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(supplierQuery);
+    }
+
+    @Test
     public void fetchStockData() throws Exception {
         List<Stock> stocks = new ArrayList<>();
 
-        String stockQuery = "";
+        String stockQuery = "select s.DEPOTNAME,p.PRODUCTNUMBER,p.PRODUCTNAME, " +
+                " p.STOCKPRICE,s.AMOUNT,p.PRODUCTUNIT, " +
+                " p.PACTUNIT,p.PRODUCTMODEL, " +
+                " p.BARCODE,p.SELLPRICE, " +
+                " p.PRODUCTSORT from  TB_STORAGE s " +
+                " inner join TB_PRODUCT p " +
+                "on p.PRODUCTID=S.PRODUCTID";
 
-
+        Connection connection = FBDBConnUtil.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(stockQuery);
     }
 
     @Test
