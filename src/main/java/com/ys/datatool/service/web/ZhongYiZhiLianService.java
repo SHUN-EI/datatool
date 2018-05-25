@@ -79,7 +79,7 @@ public class ZhongYiZhiLianService {
 
     private String endtime = "2018-05-31";
 
-    private String COOKIE = "_uab_collina=152490742855597032748845; acw_tc=AQAAAArcFG2b2AEAi/VvcVnEHc1y8UIb; ASP.NET_SessionId=mdbvfbrjw1cwgtetqe03fdqu; spellName=; u_asec=099%23KAFEwGEKE3FEhYTLEEEEEpEQz0yFD6ATSXyES6AFDrBEW6zFDuyFA6gcDEFET3llsRvuE7EF9mC9u5MTEEylJcZdt3ihE7TBbLs5ti7WadVE99r0Ps8c3fE6OPot6LZpL7nsrReVaQS61W2KzOI6xYPc89YnbIbR97xWnOIdaql3arsTNah6LUQtOqFt%2FHw63MesDzX81YA690naqOR7BEFE13lls6tQTfB%2FsYFETYilssn1tcGTE1LlluZdt3illlllW7sStE7GlllUW%2FiS13llluLet37FBlllWcOStEj9WEFE5YHTuGThsiUSqa7q1nZW2h5YqqsM2e04IwoWvHNlUJ6%2FIJ63iin%2Bq1AnyNU0pu5sM8TCk7Yasn64fBxo8CrtkLFDBFu05RT2qHAo1VGZsiEGRJfXE7EFbOR5DE%3D%3D";
+    private String COOKIE = "_uab_collina=152482180507203105356301; UM_distinctid=1630669539e4d7-0a6eaa05d64647-4323461-144000-1630669539f73c; Hm_lvt_d5f79ec73fc60538d41315484cc9d7ad=1524820957; acw_tc=AQAAAPf8nnN7OwgAndgcDuabEt8/goy1; ASP.NET_SessionId=wggtkgixdmo4ycfnpdijvrj0; spellName=; u_asec=099%23KAFE07EKE3EEhGTLEEEEEpEQz0yFD6ATSu9EQ60ESrioW6NESuREV6fEDqMTEHME8RRW%2FqYWcTZB95esCR4B3R07Fps1HshnPvZ1UfIWPs2CivZBQO4WPsMRiz9Zc0X46dbROq7WcLYf9BZZZy8VHaG65pnB6gXAPGDt89%2BS6VX4iorACmGTEELStE1KXAzdtXQTEEyZtY7EZQlbE7EU1ljrlAKw2hLStTTnsyaZ7%2FiSH3lP%2F3XBt375luZdtdlSt3tusyaSWcYTEHRElIami1bRvFd63uEDRKnykg4OVBAd1PbRJxi4cBSqxbWMXyTY2bsMk6Arti5WxKNf8Z%2Bg2hWy1PbR9lAWoPD2JfgLlB5znPgMnhsDqweokjDfjYFET%2FiDlllP%2F3QTEEx5Lq5jBYFETEEEbOR5E7EFt37EFE%3D%3D";
 
     /**
      * 家喻汽车集团各店(12间)
@@ -103,18 +103,12 @@ public class ZhongYiZhiLianService {
 
     /**
      * 批量更新会员卡到期时间
+     * 系统服务器每次只允许调用接口100次
      *
      * @throws IOException
      */
     @Test
     public void batchUpdateCardValidTime() throws IOException {
-        /*String id1 = "c69e153d0a834456a5508cd7d5004433";
-        String cuId1 = "000fcd49ee014dd997641a705c310443";
-        String txtendtime1 = "2018-07-04";
-        String txtchangetime1 = "2018-07-05";
-        String ctId1 = "915c4a8b580e4279bf2d2501d46f7d5a";
-        ConnectionUtil.doPost(UPDATECARDVALIDTIME_URL,getCardValidTimeParams(id,cuId,txtendtime,txtchangetime,ctId),ACCEPT,COOKIE,CONNECTION,HOST,ORIGIN,REFERER,USER_AGENT,X_REQUESTED_WITH);
-*/
         List<MemberCard> memberCards = new ArrayList<>();
         Response response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
@@ -139,7 +133,7 @@ public class ZhongYiZhiLianService {
                     String id = element.get("ID").asText();
                     String ctId = element.get("CTID").asText();
                     String txtendtime = element.get("MATURITY").asText();
-                    String txtchangetime = "2018-05-25";
+                    String txtchangetime = "2018-05-25";//延期时间
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setMemberCardId(id);
@@ -251,72 +245,6 @@ public class ZhongYiZhiLianService {
         Response response = null;
         int totalPage = 0;
 
-        //服务项目
-        response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
-        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
-        if (totalPage > 0) {
-            int offSet = 0;
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                offSet = offSet + num;
-                Iterator<JsonNode> it = result.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-                    String productName = element.get("NAME").asText();
-                    String code = element.get("CODE").asText();
-                    String price = element.get("SELLPRICE").asText();
-                    String firstCategoryName = element.get("ITEMCLASSNAME").asText();
-                    String id = element.get("ID").asText();
-
-                    Product product = new Product();
-                    product.setId(id);
-                    product.setProductName(productName);
-                    product.setCode(code);
-                    product.setItemType("服务项");
-                    product.setFirstCategoryName(firstCategoryName);
-                    product.setPrice(price);
-                    productMap.put(productName, product);
-                }
-            }
-        }
-
-        //商品
-        response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
-        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
-        if (totalPage > 0) {
-            int offSet = 0;
-
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                offSet = offSet + num;
-                Iterator<JsonNode> it = result.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String code = element.get("CODE").asText();
-                    String productName = element.get("NAME").asText();
-                    String firstCategoryName = element.get("PRODUCTCLASSNAME").asText();
-                    String barCode = element.get("BARCODE").asText();
-                    String price = element.get("SELLPRICE").asText();
-                    String id = element.get("ID").asText();
-
-                    Product product = new Product();
-                    product.setCode(code);
-                    product.setId(id);
-                    product.setProductName(productName);
-                    product.setFirstCategoryName(firstCategoryName);
-                    product.setPrice(price);
-                    product.setItemType("配件");
-                    product.setBarCode(barCode == "null" ? "" : barCode);
-                    productMap.put(productName, product);
-                }
-            }
-        }
-
         //过期会员卡
         response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
         totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
@@ -398,14 +326,6 @@ public class ZhongYiZhiLianService {
             }
         }
 
-        System.out.println("memberCardItems为" + memberCardItems.toString());
-        System.out.println("总页数为" + totalPage);
-        System.out.println("memberCardMap总数为" + memberCardMap.size());
-        System.out.println("productMap总数为" + productMap.size());
-        System.out.println("memberCardItems总数为" + memberCardItems.size());
-
-        String pathname = "D:\\过期卡内项目导出.xlsx";
-        //ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
     }
 
     /**
@@ -923,8 +843,8 @@ public class ZhongYiZhiLianService {
         System.out.println("大小为" + carInfoMap.size());
         System.out.println("结果为" + carInfoMap.toString());
 
-        String pathname = "D:\\中易智联车辆信息导出.xls";
-        //ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        String pathname = "D:\\中易智联车辆信息导出.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
     private String getMemberCardExpireReferer(String cardId, String customerId) {

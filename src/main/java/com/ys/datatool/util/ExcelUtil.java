@@ -335,18 +335,18 @@ public class ExcelUtil {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet(list.get(0).get("sheetName").toString());
         for (int i = 0; i < keys.length; i++) {
-            sheet.setColumnWidth((short) i, (short) (35.7 * 150));
+            sheet.setColumnWidth(i, 15 * 256);
         }
 
-        XSSFRow row = sheet.createRow((short) 0);
+        XSSFRow row = sheet.createRow(0);
         for (int i = 0; i < columnNames.length; i++) {
             XSSFCell cell = row.createCell(i);
             cell.setCellValue(columnNames[i]);
         }
 
-        for (short i = 1; i < list.size(); i++) {
-            XSSFRow r = sheet.createRow((short) i);
-            for (short j = 0; j < keys.length; j++) {
+        for (int i = 1; i < list.size(); i++) {
+            XSSFRow r = sheet.createRow(i);
+            for (int j = 0; j < keys.length; j++) {
                 XSSFCell cell = r.createCell(j);
                 cell.setCellValue(list.get(i).get(keys[j]) == null ? " " : list.get(i).get(keys[j]).toString());
             }
