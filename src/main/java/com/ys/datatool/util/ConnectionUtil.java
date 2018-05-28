@@ -80,13 +80,10 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWithParams(String url, String cookie, String host, String referer, String x_Requested_With) throws IOException {
+    public static Response doGetWithLeastParams(String url, String cookie) throws IOException {
 
         Response response = Request.Get(url)
                 .setHeader("Cookie", cookie)
-                .setHeader("Host", host)
-                .setHeader("Referer", referer)
-                .setHeader("X-Requested-With", x_Requested_With)
                 .execute();
 
         return response;
