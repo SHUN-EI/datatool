@@ -97,6 +97,11 @@ public class CarInfo {
      */
     private String remark;
 
+    /**
+     * 年审
+     */
+    private String AnnualTrial;
+
     public String getCarId() {
         return carId;
     }
@@ -235,6 +240,14 @@ public class CarInfo {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getAnnualTrial() {
+        return AnnualTrial;
+    }
+
+    public void setAnnualTrial(String annualTrial) {
+        AnnualTrial = annualTrial;
     }
 
     @Override

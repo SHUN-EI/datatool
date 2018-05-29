@@ -14,8 +14,6 @@ import org.apache.http.client.fluent.Response;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -56,26 +54,13 @@ public class YiZhiTongVService {
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);
 
-
         String result = "";
         String carNumberRegEx = "#TextBox18";
         String carNumber = document.select(carNumberRegEx).attr("value");
 
-        String brandRegEx = "#DropDownList8";
-        Elements elements = document.select(brandRegEx);
-        for (Element element : elements) {
+        String brandRegEx = "#DropDownList8 > option[selected]";//select框的id
+        String s = document.select(brandRegEx).text();
 
-            if ("selected".equals(element.attr("selected"))) {
-                result = element.text();
-                break;
-            }
-
-        }
-
-        CarInfo carInfo = new CarInfo();
-        carInfo.setBrand(result);
-
-        System.out.println("结果为" + carInfo.toString());
     }
 
     @Test
@@ -101,29 +86,37 @@ public class YiZhiTongVService {
                 String remarkRegEx = "#txtclbz";
                 String remark = document.select(remarkRegEx).attr("value");
 
-                String brandRegEx = "#DropDownList8";
-                String brand = document.select(brandRegEx).attr("value");
+                String brandRegEx = "#DropDownList8 > option[selected]";
+                String brand = document.select(brandRegEx).text();
 
-                String carModelRegEx = "#TextBox1";
-                String carModel = document.select(carModelRegEx).attr("value");
+                String carModelRegEx = "#DropDownList3 > option[selected]";
+                String carModel = document.select(carModelRegEx).text();
 
                 String VINCodeRegEx = "#TextBox32";
                 String VINCode = document.select(VINCodeRegEx).attr("value");
 
-                String tcInsuranceCompanyRegEx = "#DropDownList13 > option:nth-child(2)";
+                String tcInsuranceCompanyRegEx = "#DropDownList13 > option[selected]";
                 String tcInsuranceCompany = document.select(tcInsuranceCompanyRegEx).text();
 
                 String tcInsuranceValidDateRegEx = "#TextBox38";
                 String tcInsuranceValidDate = document.select(tcInsuranceValidDateRegEx).attr("value");
 
-                String vcInsuranceCompanyRegEx = "#DropDownList14 > option:nth-child(2)";
+                String vcInsuranceCompanyRegEx = "#DropDownList14 > option[selected]";
                 String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).text();
 
                 String vcInsuranceValidDateRegEx = "#TextBox39";
                 String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
+                //年审
+                String annualTrialRegEx = "#TextBox23";
+                String annualTrial = document.select(annualTrialRegEx).attr("value");
+
+                //驾照到期时间
+                String registerDateRegEx="#TextBox24";
+                String registerDate=document.select(registerDateRegEx).attr("value");
+
                 CarInfo carInfo = carInfoMap.get(carId);
-                carInfo.setRemark(remark);
+                carInfo.setRemark(annualTrial);
                 carInfo.setBrand(brand);
                 carInfo.setCarModel(carModel);
                 carInfo.setTcInsuranceCompany(tcInsuranceCompany);
@@ -131,6 +124,7 @@ public class YiZhiTongVService {
                 carInfo.setVcInsuranceCompany(vcInsuranceCompany);
                 carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
                 carInfo.setVINcode(VINCode);
+                carInfo.setRegisterDate(registerDate);
                 carInfos.add(carInfo);
             }
         }
