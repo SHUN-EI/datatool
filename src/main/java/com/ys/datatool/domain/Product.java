@@ -52,7 +52,7 @@ public class Product {
     private String itemType;
 
     /**
-     * 单位
+     * 单位(服务项目没有单位)
      */
     private String unit;
 
@@ -104,7 +104,7 @@ public class Product {
     /**
      * 是否启用
      */
-    private String isActive="是 ";
+    private String isActive="是";
 
     /**
      * 备注

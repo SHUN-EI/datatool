@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -31,6 +32,8 @@ import java.util.Map;
 @Service
 public class YiZhiTongVService {
 
+    private String SERVICE_URL = "http://121.41.7.113:200/main/task/task_config/task_config_ration.aspx";
+
     private String CARINFODETAIL_URL = "http://121.41.7.113:200/main/khda/";
 
     private String LOGIN_URL = "http://121.41.7.113:200/chainindex.aspx";
@@ -51,17 +54,64 @@ public class YiZhiTongVService {
 
     @Test
     public void test() throws IOException {
-        Response response = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + "bjcl.aspx?id=3", PRECOOKIE + AFTCOOKIE);
-        String html = response.returnContent().asString();
-        Document document = Jsoup.parse(html);
+        WebClient webClient = getLoginWebClient();
+        HtmlPage servicePage = webClient.getPage(SERVICE_URL);
 
-        String result = "";
-        String carNumberRegEx = "#TextBox18";
-        String carNumber = document.select(carNumberRegEx).attr("value");
+        System.out.println("服务页面为" + servicePage.asXml());
 
-        String brandRegEx = "#DropDownList8 > option[selected]";//select框的id
-        String s = document.select(brandRegEx).text();
 
+    }
+
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        WebClient webClient = getLoginWebClient();
+        HtmlPage servicePage = webClient.getPage(SERVICE_URL);
+        Document doc = Jsoup.parseBodyFragment(servicePage.asXml());
+        String totalRegEx = "#GridView1_ctl33_Label1";
+        String totalStr = doc.select(totalRegEx).text();
+        int total = Integer.parseInt(totalStr);
+
+        pages.add(servicePage);
+        nextPage(servicePage, total);
+
+        for (int i = 0; i < pages.size(); i++) {
+            for (int j = 2; j <= Integer.parseInt("30"); j++) {
+                doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+
+                String productNameRegEx = "#GridView1 > tbody > tr:nth-child({no}) > td:nth-child(4) > a";
+                String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", j + "")).text();
+
+                String codeRegEx = "#GridView1 > tbody > tr:nth-child({no}) > td:nth-child(3) > a";
+                String code = doc.select(StringUtils.replace(codeRegEx, "{no}", j + "")).text();
+
+                String firstCategoryNameRegEx = "#GridView1 > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", j + "")).text();
+
+                String priceRegEx = "#GridView1 > tbody > tr:nth-child({no}) > td:nth-child(8)";
+                String price = doc.select(StringUtils.replace(priceRegEx, "{no}", j + "")).text();
+
+                String remarkRegEx = "#GridView1 > tbody > tr:nth-child({no}) > td:nth-child(11)";
+                String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", j + "")).text();
+
+                Product product = new Product();
+                product.setProductName(productName);
+                product.setCode(code);
+                product.setFirstCategoryName(firstCategoryName);
+                product.setPrice(price);
+                product.setRemark(remark);
+                product.setItemType("服务项");
+                products.add(product);
+            }
+        }
+
+
+        System.out.println("服务项目为" + products.toString());
+        System.out.println("服务共有为" + products.size());
+
+        String pathname = "D:\\上海创磊(御车堂奔宝店)服务项目导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
     @Test
@@ -113,8 +163,8 @@ public class YiZhiTongVService {
                 String annualTrial = document.select(annualTrialRegEx).attr("value");
 
                 //驾照到期时间
-                String registerDateRegEx="#TextBox24";
-                String registerDate=document.select(registerDateRegEx).attr("value");
+                String registerDateRegEx = "#TextBox24";
+                String registerDate = document.select(registerDateRegEx).attr("value");
 
                 CarInfo carInfo = carInfoMap.get(carId);
                 carInfo.setRemark(annualTrial);
