@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -23,6 +24,8 @@ import java.util.List;
  */
 @Service
 public class ZhiHuiCheDianService {
+
+    private String ITEM_URL = "http://39.108.223.171/cs/product/info/list";
 
     private String CARINFO_URL = "http://39.108.223.171/cs/user/info/carList";
 
@@ -45,6 +48,59 @@ public class ZhiHuiCheDianService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("大小为" + carInfos.size());
 
+    }
+
+    @Test
+    public void fetchItemData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String productName = element.get("productName").asText();
+                    String price = element.get("guidePrice").asText();
+                    String unit = element.get("specifications").asText();
+
+                    String firstCategoryName = "";
+                    String secondCategoryName = "";
+                    if (!"null".equals(element.get("category").asText())) {
+                        firstCategoryName = element.get("category").get("category").asText();
+                        secondCategoryName = element.get("category").get("classification").asText();
+                    }
+
+                    Product product = new Product();
+                    product.setProductName(productName);
+                    product.setPrice(price);
+                    product.setUnit(unit);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setSecondCategoryName(secondCategoryName);
+                    product.setItemType("商品");
+                    products.add(product);
+                }
+            }
+
+            String pathname = "D:\\智慧车店商品导出.xls";
+            ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+
+        }
+
+        System.out.println("总页数为" + totalPage);
     }
 
     @Test
@@ -88,7 +144,7 @@ public class ZhiHuiCheDianService {
 
                     CarInfo carInfo = new CarInfo();
                     carInfo.setCarNumber(carNumber);
-                    carInfo.setVINcode(VINCode== "null" ? "" : VINCode);
+                    carInfo.setVINcode(VINCode == "null" ? "" : VINCode);
                     carInfo.setBrand(brand);
                     carInfo.setCarModel(carModel);
                     carInfo.setName(name);
