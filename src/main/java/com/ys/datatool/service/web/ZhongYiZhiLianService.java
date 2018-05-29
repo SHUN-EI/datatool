@@ -116,7 +116,7 @@ public class ZhongYiZhiLianService {
         if (totalPage > 0) {
             int offSet = 0;
 
-            for (int i = 1; i <= 100; i++) {
+            for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 

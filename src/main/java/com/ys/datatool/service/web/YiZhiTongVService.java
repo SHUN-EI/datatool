@@ -25,6 +25,7 @@ import java.util.Map;
 
 /**
  * Created by mo on @date  2018-05-28.
+ * 易智通V+
  */
 
 @Service
@@ -92,7 +93,7 @@ public class YiZhiTongVService {
                 String carModelRegEx = "#DropDownList3 > option[selected]";
                 String carModel = document.select(carModelRegEx).text();
 
-                String VINCodeRegEx = "#TextBox32";
+                String VINCodeRegEx = "#TextBox21";
                 String VINCode = document.select(VINCodeRegEx).attr("value");
 
                 String tcInsuranceCompanyRegEx = "#DropDownList13 > option[selected]";

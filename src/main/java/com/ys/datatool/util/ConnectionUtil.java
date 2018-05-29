@@ -80,6 +80,16 @@ public class ConnectionUtil {
         return response;
     }
 
+    public static Response doPostWithLeastParams(String url, List params, String cookie) throws IOException {
+
+        Response response = Request.Post(url)
+                .setHeader("Cookie", cookie)
+                .bodyForm(params, Charset.forName("utf-8"))
+                .execute();
+
+        return response;
+    }
+
     public static Response doGetWithLeastParams(String url, String cookie) throws IOException {
 
         Response response = Request.Get(url)
