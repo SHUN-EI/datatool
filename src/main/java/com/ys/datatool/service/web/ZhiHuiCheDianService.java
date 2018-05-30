@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -14,9 +15,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018-05-29.
@@ -24,6 +23,8 @@ import java.util.List;
  */
 @Service
 public class ZhiHuiCheDianService {
+
+    private String MEMBERCARD_URL = "http://39.108.223.171/cs/membershipCard/info/list";
 
     private String ITEM_URL = "http://39.108.223.171/cs/product/info/list";
 
@@ -48,6 +49,92 @@ public class ZhiHuiCheDianService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("大小为" + carInfos.size());
 
+    }
+
+    @Test
+    public void fetchMemberCardData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Map<String, CarInfo> carInfoMap = new HashMap<>();
+        int totalPage = 0;
+
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String carNumber = element.get("license").asText();
+
+                    String name = "";
+                    String phone = "";
+                    if (!"null".equals(element.get("carOwner").asText())) {
+                        name = element.get("carOwner").get("name").asText();
+                        phone = element.get("carOwner").get("mobileNumber").asText();
+                    }
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCarNumber(carNumber);
+                    carInfo.setName(name);
+                    carInfo.setPhone(phone);
+                    carInfoMap.put(phone, carInfo);
+                }
+            }
+        }
+
+        response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String memberCardId = element.get("id").asText();
+                    String cardCode = element.get("numberShipNumber").asText();
+                    String balance = element.get("totalAmount").asText();
+                    String phone = element.get("tel").asText();
+                    String name = element.get("memberShipName").asText();
+                    String dateCreated = element.get("createTime").asText();
+
+                    CarInfo carInfo = carInfoMap.get(phone);
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setBalance(balance);
+                    memberCard.setPhone(phone);
+                    memberCard.setName(name);
+                    memberCard.setDateCreated(dateCreated);
+
+                    if (carInfo != null)
+                        memberCard.setCarNumber(carInfo.getCarNumber());
+
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        String pathname = "D:\\智慧车店会员卡导出.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
     }
 
     @Test
@@ -97,7 +184,6 @@ public class ZhiHuiCheDianService {
 
             String pathname = "D:\\智慧车店商品导出.xls";
             ExportUtil.exportProductDataInLocal(products, workbook, pathname);
-
         }
 
         System.out.println("总页数为" + totalPage);
