@@ -466,7 +466,9 @@ public class ZhongYiZhiLianService {
                     String code = element.get("BARCODE").asText();//家喻要求条形码为商品编码
                     String companyName = element.get("SHOPNAME").asText();
                     String storeRoomName = element.get("WAREHOUSENAME").asText();
-                    String num = element.get("NUM").asText();
+
+                    //"ALLOWNUM"-可用库存,"NUM"-实际库存
+                    String num = element.get("ALLOWNUM").asText();
                     String stockId = element.get("PRODUCTSKUID").asText();
                     code = code == "null" ? "" : code;
 

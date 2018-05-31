@@ -61,7 +61,7 @@ public class ZhangShangCheDianService {
     //会员卡页面总页数
     private int memberCardPageNum = 6;
 
-    private String COOKIE = "JSESSIONID=3BCA8A95EE362F19FAD287422EC33977; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUyNzc0MjI2NywibmJmIjoxNTI3NjU1ODY3LCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.UfyBOYLPwMIjbEySptxHWl1RmKhVBh2nqa5oeFsX3BG6tgBnVICRw3L1JghcPc2rAHvVQl3Sl7uKV0-GGuKoqQ; Hm_lvt_678c2a986264dd9650b6a59042718858=1527655868; Hm_lpvt_678c2a986264dd9650b6a59042718858=1527660767; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1527661451|1527655856";
+    private String COOKIE = "JSESSIONID=97E78B331466AF7B5A0FEDA6875BFC50; Hm_lvt_678c2a986264dd9650b6a59042718858=1527655868; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUyNzg1MTIwMSwibmJmIjoxNTI3NzY0ODAxLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.WN_gKPbXdTvVPbYY6CX4LNWmAGlbiiLjT5TctrX8gIzs6L4wBK7zyTgFysBYGnOnFKuvBp54ewU-AuzLCaEIuw; SERVERID=b810ac6d9315e3be005b170045c65755|1527764810|1527764799; Hm_lpvt_678c2a986264dd9650b6a59042718858=1527764810";
 
     @Test
     public void test() throws IOException {
@@ -107,29 +107,21 @@ public class ZhangShangCheDianService {
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
-                    String cardCode = element.get("cardNo").asText();
-                    String carNumber = element.get("carPlateNo").asText();
-                    String name = element.get("userName").asText();
-                    String phone = element.get("telephone").asText();
-                    String dateCreated = element.get("beginDate").asText();
-                    String balance = element.get("valuePrice").asText();
-                    String memberCardName = element.get("cardInfoName").asText();
-
                     MemberCard memberCard = new MemberCard();
-                    memberCard.setCarNumber(carNumber);
-                    memberCard.setName(name);
-                    memberCard.setPhone(phone);
-                    memberCard.setDateCreated(dateCreated);
-                    memberCard.setBalance(balance);
-                    memberCard.setCardCode(cardCode);
-                    memberCard.setMemberCardName(memberCardName);
+                    memberCard.setCarNumber(element.get("carPlateNo") != null ? element.get("carPlateNo").asText() : "");
+                    memberCard.setName(element.get("userName") != null ? element.get("userName").asText() : "");
+                    memberCard.setPhone(element.get("telephone") != null ? element.get("telephone").asText() : "");
+                    memberCard.setDateCreated(element.get("beginDate") != null ? element.get("beginDate").asText() : "");
+                    memberCard.setBalance(element.get("valuePrice") != null ? element.get("valuePrice").asText() : "");
+                    memberCard.setCardCode(element.get("cardNo") != null ? element.get("cardNo").asText() : "");
+                    memberCard.setMemberCardName(element.get("cardInfoName") != null ? element.get("cardInfoName").asText() : "");
                     memberCards.add(memberCard);
                 }
             }
         }
 
-        System.out.println("结果为" + memberCards.toString());
-        System.out.println("大小为" + memberCards.size());
+        String pathname = "D:\\掌上车店会员卡信息.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
