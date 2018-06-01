@@ -30,29 +30,19 @@ import java.util.Set;
 @Service
 public class YuanLeCheBaoService {
 
+    private static final String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
+
     private static final String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
 
     private static final String CARINFOPAGE_URL = "http://www.carbao.vip/Home/car/carTable";
 
     private static final String CARINFODETAIL_URL = "http://www.carbao.vip/Home/car/carDetail";
 
-    private static final String ACCEPT = "text/html, */*; q=0.01";
-
-    private static final String ORIGIN = "http://www.carbao.vip";
-
-    private static final String REFERER = "http://www.carbao.vip/Home/Index/index";
-
-    private static final String HOST = "www.carbao.vip";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
     private String trItemRegEx = "#content-tbody > tr";
 
     private String totalPageRegEx = "totalPage =.*";
+
+    private String totalRegEx = "totalPage=.*";
 
     private Workbook workbook;
 
@@ -72,7 +62,37 @@ public class YuanLeCheBaoService {
     public void fetchServiceData() throws IOException {
         List<Product> products = new ArrayList<>();
 
+        Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getServiceParams("1"), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
 
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalRegEx).replace("totalPage=", "");
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getSupplierParams(String.valueOf(i)), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                for (int j = 1; j <= 10; j++) {
+                    String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                    String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                    String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+
+                    Product product = new Product();
+                    product.setCode(doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(j))).text());
+                    product.setProductName(doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text());
+                    product.setPrice(doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text().replace("￥", ""));
+                    product.setFirstCategoryName(doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text());
+                    products.add(product);
+                }
+            }
+        }
+        System.out.println("结果为" + totalPage);
+        System.out.println("结果为" + products.toString());
+        System.out.println("大小为" + products.size());
     }
 
     @Test
@@ -147,7 +167,7 @@ public class YuanLeCheBaoService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPost(CARINFOPAGE_URL, getCarInfoPageParams(String.valueOf(i)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getCarInfoPageParams(String.valueOf(i)), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -182,7 +202,7 @@ public class YuanLeCheBaoService {
                 String carNum = carInfo.getCarNumber();
                 String mobile = carInfo.getPhone();
 
-                response = ConnectionUtil.doPost(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
