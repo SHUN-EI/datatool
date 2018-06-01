@@ -2,6 +2,8 @@ package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.Stock;
+import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by mo on @date  2018/5/14.
@@ -25,6 +29,8 @@ import java.util.List;
  */
 @Service
 public class YuanLeCheBaoService {
+
+    private static final String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
 
     private static final String CARINFOPAGE_URL = "http://www.carbao.vip/Home/car/carTable";
 
@@ -46,12 +52,21 @@ public class YuanLeCheBaoService {
 
     private String trItemRegEx = "#content-tbody > tr";
 
+    private String totalPageRegEx = "totalPage =.*";
+
     private Workbook workbook;
 
-    private static final String COOKIE = "JSESSIONID=6A602C44A662A61EAE481874254FAF30; usfl=zv2cFTL2dDoAZzvwHez; lk=612958b7a20dbf293e8eb2cbf2fba121";
-
     //车店编号-shopId:82(洗车王国)
-    private String companyId = "82";
+    private String companyId = "284";
+
+    private static final String COOKIE = "JSESSIONID=8617CAAAD8FA6DCF3EB564348E68488E; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
+
+    @Test
+    public void fetchStockData() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+
+
+    }
 
     @Test
     public void fetchServiceData() throws IOException {
@@ -61,14 +76,72 @@ public class YuanLeCheBaoService {
     }
 
     @Test
-    public void fetchCarInfoData() throws IOException {
-        List<CarInfo> carInfos = new ArrayList<>();
+    public void fetchSupplierData() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+        Set<String> supplierDetails = new HashSet<>();
 
-        Response response = ConnectionUtil.doPost(CARINFOPAGE_URL, getCarInfoPageParams("1"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams("1"), COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
-        String totalPageRegEx = "totalPage =.*";
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(i)), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                for (int j = 1; j <= 10; j++) {
+                    String supplierDetailRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5) > a.supplierDetail";
+                    String detailUrl = doc.select(StringUtils.replace(supplierDetailRegEx, "{no}", String.valueOf(j))).attr("content-url");
+
+                    if (StringUtils.isNotBlank(detailUrl))
+                        supplierDetails.add(detailUrl);
+                }
+            }
+        }
+
+        if (supplierDetails.size() > 0) {
+            for (String supplierDetail : supplierDetails) {
+                String preUrl = "http://www.carbao.vip";
+                response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                String nameRegEx = "#content > div > div.row.row-d > div:nth-child(1) > div:nth-child(1) > div.col-md-7";
+                String contactPhoneRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(2) > div.col-md-7";
+                String contactNameRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(1) > div.col-md-7";
+                String remarkRegEx = "#content > div > div.row.row-d > div:nth-child(3) > div > div.col-md-7";
+
+                Supplier supplier = new Supplier();
+                supplier.setName(doc.select(nameRegEx).text());
+                supplier.setContactName(doc.select(contactNameRegEx).text());
+                supplier.setContactPhone(doc.select(contactPhoneRegEx).text());
+                supplier.setRemark(doc.select(remarkRegEx).text());
+                suppliers.add(supplier);
+            }
+        }
+        System.out.println("结果为" + totalPage);
+        System.out.println("结果为" + supplierDetails.toString());
+        System.out.println("大小为" + supplierDetails.size());
+        System.out.println("结果为" + suppliers.toString());
+        System.out.println("大小为" + suppliers.size());
+
+        String pathname = "D:\\元乐车宝供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+
+    }
+
+    @Test
+    public void fetchCarInfoData() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getCarInfoPageParams("1"), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
+
         String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
         int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
 
@@ -137,6 +210,18 @@ public class YuanLeCheBaoService {
 
         String pathname = "D:\\元乐车宝车辆信息导出.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+    private List<BasicNameValuePair> getSupplierParams(String pageNo) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("keyword", ""));
+        params.add(new BasicNameValuePair("payType", ""));
+        params.add(new BasicNameValuePair("shopBranchId", "299"));
+        params.add(new BasicNameValuePair("staffId", "4574"));
+        params.add(new BasicNameValuePair("pageSize", "10"));
+        params.add(new BasicNameValuePair("pageNo", pageNo));
+        params.add(new BasicNameValuePair("shopId", companyId));//车店编号
+        return params;
     }
 
     private List<BasicNameValuePair> getServiceParams(String pageNo) {
