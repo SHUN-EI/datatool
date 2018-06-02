@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Supplier;
-import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.TimeUtil;
@@ -19,7 +18,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -28,7 +26,7 @@ import java.util.*;
 @Service
 public class ZhangShangCheDianService {
 
-    private String MEMBERCARDDETAIL_URL = "http://czbbb.cn/mnt/czbbb/storeMember/czbbbApi.action";
+    private String MEMBERCARDDETAIL_URL = "http://czbbb.cn/mnt/czbbb/card/viewUserCard.action?userCardInfoId=";
 
     private String MEMBERCARD_URL = "http://czbbb.cn/mnt/czbbb/card/findUserCardInfos.action";
 
@@ -61,16 +59,14 @@ public class ZhangShangCheDianService {
     //会员卡页面总页数
     private int memberCardPageNum = 6;
 
-    private String COOKIE = "JSESSIONID=97E78B331466AF7B5A0FEDA6875BFC50; Hm_lvt_678c2a986264dd9650b6a59042718858=1527655868; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUyNzg1MTIwMSwibmJmIjoxNTI3NzY0ODAxLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.WN_gKPbXdTvVPbYY6CX4LNWmAGlbiiLjT5TctrX8gIzs6L4wBK7zyTgFysBYGnOnFKuvBp54ewU-AuzLCaEIuw; SERVERID=b810ac6d9315e3be005b170045c65755|1527764810|1527764799; Hm_lpvt_678c2a986264dd9650b6a59042718858=1527764810";
+    private String COOKIE = "JSESSIONID=4AC7D9310FC4C688C08F57EDCB1993CF; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUyODAxMTk2MywibmJmIjoxNTI3OTI1NTYzLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.iqF2_o22HnynLtTyu3f60cnUjrmnKkHFfXfoxuebwGR9Xvu5JhDE1PfV0fs6cobo92U4h1Kr15HihP3z5Vei3w; Hm_lvt_678c2a986264dd9650b6a59042718858=1527655868,1527925565; SERVERID=b810ac6d9315e3be005b170045c65755|1527926716|1527925561; Hm_lpvt_678c2a986264dd9650b6a59042718858=1527926716";
 
     @Test
     public void test() throws IOException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        Date date = new Date();
-        date.setTime(Long.parseLong("1503664034000"));
-        String result = simpleDateFormat.format(date);
-
-        System.out.println("结果为" + result);
+        Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + "bf91c55d-42a0-4814-bdad-b511603c5f8f", COOKIE);
+        String html = response.returnContent().asString();
+        Document document = Jsoup.parse(html);
+        System.out.println("结果为" + document.html());
     }
 
     @Test
@@ -86,12 +82,10 @@ public class ZhangShangCheDianService {
             String html = response.returnContent().asString();
             Document document = Jsoup.parse(html);
 
-            String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(7) > span > a";
+            String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(14) > p:nth-child(1) > a";
             for (int j = 1; j <= 16; j++) {
                 String cardIdRegEx = StringUtils.replace(getMemberCardIdRegEx, "{no}", j + "");
-                String cardIdStr = document.select(cardIdRegEx).attr("href");
-                String getIdRegEx = "Id=.*";
-                String cardId = CommonUtil.fetchString(cardIdStr, getIdRegEx).replace("Id=", "");
+                String cardId = document.select(cardIdRegEx).attr("data-id");
 
                 if (StringUtils.isNotBlank(cardId))
                     cardIds.add(cardId);
@@ -100,28 +94,37 @@ public class ZhangShangCheDianService {
 
         if (cardIds.size() > 0) {
             for (String cardId : cardIds) {
-                Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARDDETAIL_URL, getMemberCardParams(memberCardMethod, cardId), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
 
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-                Iterator<JsonNode> it = result.get("data").elements();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
 
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setCarNumber(element.get("carPlateNo") != null ? element.get("carPlateNo").asText() : "");
-                    memberCard.setName(element.get("userName") != null ? element.get("userName").asText() : "");
-                    memberCard.setPhone(element.get("telephone") != null ? element.get("telephone").asText() : "");
-                    memberCard.setDateCreated(element.get("beginDate") != null ? element.get("beginDate").asText() : "");
-                    memberCard.setBalance(element.get("valuePrice") != null ? element.get("valuePrice").asText() : "");
-                    memberCard.setCardCode(element.get("cardNo") != null ? element.get("cardNo").asText() : "");
-                    memberCard.setMemberCardName(element.get("cardInfoName") != null ? element.get("cardInfoName").asText() : "");
-                    memberCards.add(memberCard);
-                }
+                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(3) > div:nth-child(2)";
+                String memberCardNameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(2)";
+                String carNumberRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(4)";
+                String nameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(2)";
+                String phoneRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(6)";
+                String balanceRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(6) > div:nth-child(2) > b";
+                String dateCreatedRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(2)";
+
+                MemberCard memberCard = new MemberCard();
+                memberCard.setCardCode(doc.select(cardCodeRegEx).text());
+                memberCard.setMemberCardName(doc.select(memberCardNameRegEx).text());
+                memberCard.setCarNumber(doc.select(carNumberRegEx).text());
+                memberCard.setName(doc.select(nameRegEx).text());
+                memberCard.setPhone(doc.select(phoneRegEx).text());
+                memberCard.setBalance(doc.select(balanceRegEx).text());
+                memberCard.setDateCreated(doc.select(dateCreatedRegEx).text());
+                memberCards.add(memberCard);
+
             }
         }
 
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("大小为" + memberCards.size());
+
         String pathname = "D:\\掌上车店会员卡信息.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+         ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
