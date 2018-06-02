@@ -174,7 +174,7 @@ public class ZhangShangCheDianService {
                 supplier.setContactPhone(element.get("mobilePhone") != null ? element.get("mobilePhone").asText() : "");
                 supplier.setRemark(element.get("supplyType") != null ? element.get("supplyType").asText() : "");
                 supplier.setAddress(element.get("address") != null ? element.get("address").asText() : "");
-                //supplier.setFax(element.get("officePhone") != null ? element.get("officePhone").asText() : "");//"officePhone"
+                supplier.setFax(element.get("officePhone") != null ? element.get("officePhone").asText() : "");//"officePhone"
                 suppliers.add(supplier);
             }
         }
