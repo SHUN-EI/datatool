@@ -30,6 +30,8 @@ import java.util.Set;
 @Service
 public class YuanLeCheBaoService {
 
+    private static final String STOCK_URL = "http://www.carbao.vip/Home/cbstoragepartsinventory/invenManagementTable";
+
     private static final String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
 
     private static final String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
@@ -51,11 +53,50 @@ public class YuanLeCheBaoService {
 
     private static final String COOKIE = "JSESSIONID=DB05335B5CB880C5C67075A3984C8F3F; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
 
+
+    @Test
+    public void test() throws IOException {
+
+    }
+
+
     @Test
     public void fetchStockData() throws IOException {
         List<Stock> stocks = new ArrayList<>();
 
+        Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getStockParams("1"), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
 
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalRegEx).replace("totalPage=", "");
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getStockParams(String.valueOf(i)), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                for (int j = 1; j <= trSize; j++) {
+
+                    String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                    String brandRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                    String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
+                    String inventoryNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6) > span > font";
+
+                    String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
+                    String brand = doc.select(StringUtils.replace(brandRegEx, "{no}", String.valueOf(j))).text();
+                    String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(j))).text();
+                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
+
+                    Stock stock=new Stock();
+                    stock.setGoodsName(firstCategoryName+brand+remark);
+                    stock.setInventoryNum(inventoryNum);
+
+                }
+            }
+        }
     }
 
     @Test
@@ -231,6 +272,16 @@ public class YuanLeCheBaoService {
 
         String pathname = "D:\\元乐车宝车辆信息导出.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+
+    private List<BasicNameValuePair> getStockParams(String pageNo) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("pageSize", "10"));
+        params.add(new BasicNameValuePair("pageNo", pageNo));
+
+        return params;
     }
 
     private List<BasicNameValuePair> getSupplierParams(String pageNo) {

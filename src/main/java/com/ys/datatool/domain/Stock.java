@@ -49,6 +49,26 @@ public class Stock {
      */
     private String remark;
 
+    /**
+     * 一级分类名称
+     */
+    private String firstCategoryName;
+
+    /**
+     * 二级分类名称
+     */
+    private String secondCategoryName;
+
+    /**
+     * 商品类别-配件或服务项
+     */
+    private String itemType;
+
+    /**
+     * 品牌
+     */
+    private String brand;
+
     public String getStoreRoomName() {
         return storeRoomName;
     }
@@ -113,6 +133,38 @@ public class Stock {
         this.companyName = companyName;
     }
 
+    public String getFirstCategoryName() {
+        return firstCategoryName;
+    }
+
+    public void setFirstCategoryName(String firstCategoryName) {
+        this.firstCategoryName = firstCategoryName;
+    }
+
+    public String getSecondCategoryName() {
+        return secondCategoryName;
+    }
+
+    public void setSecondCategoryName(String secondCategoryName) {
+        this.secondCategoryName = secondCategoryName;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
     @Override
     public String toString() {
         return "Stock{" +
@@ -124,6 +176,10 @@ public class Stock {
                 ", inventoryNum='" + inventoryNum + '\'' +
                 ", price='" + price + '\'' +
                 ", remark='" + remark + '\'' +
+                ", firstCategoryName='" + firstCategoryName + '\'' +
+                ", secondCategoryName='" + secondCategoryName + '\'' +
+                ", itemType='" + itemType + '\'' +
+                ", brand='" + brand + '\'' +
                 '}';
     }
 }
