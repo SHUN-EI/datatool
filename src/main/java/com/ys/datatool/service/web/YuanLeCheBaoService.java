@@ -49,7 +49,7 @@ public class YuanLeCheBaoService {
     //车店编号-shopId:82(洗车王国)
     private String companyId = "284";
 
-    private static final String COOKIE = "JSESSIONID=8617CAAAD8FA6DCF3EB564348E68488E; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
+    private static final String COOKIE = "JSESSIONID=DB05335B5CB880C5C67075A3984C8F3F; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
 
     @Test
     public void fetchStockData() throws IOException {
@@ -75,7 +75,8 @@ public class YuanLeCheBaoService {
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
-                for (int j = 1; j <= 10; j++) {
+                int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                for (int j = 1; j <= trSize; j++) {
                     String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
                     String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
                     String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
