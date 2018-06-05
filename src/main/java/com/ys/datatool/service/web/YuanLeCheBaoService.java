@@ -30,6 +30,8 @@ import java.util.Set;
 @Service
 public class YuanLeCheBaoService {
 
+    private static final String STOCKDETAIL_URL = "http://www.carbao.vip/Home/partsinfo/partsInfo";
+
     private static final String STOCK_URL = "http://www.carbao.vip/Home/cbstoragepartsinventory/invenManagementTable";
 
     private static final String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
@@ -49,10 +51,17 @@ public class YuanLeCheBaoService {
     private Workbook workbook;
 
     //车店编号-shopId:82(洗车王国)
+
+    /**
+     * 车店编号-shopId:
+     * 215(冠军养护)、183(迅驰)、208(稳中快)、
+     * 77(石家庄丽雷行)、140(天骐汽车)、132(路胜通汽车)、
+     * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
+     * 79(广州市花都区明杰)
+     */
     private String companyId = "284";
 
-    private static final String COOKIE = "JSESSIONID=DB05335B5CB880C5C67075A3984C8F3F; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
-
+    private static final String COOKIE = "JSESSIONID=AFFAC63705DE1E1E3FED991A9D337C69; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
 
     @Test
     public void test() throws IOException {
@@ -63,6 +72,7 @@ public class YuanLeCheBaoService {
     @Test
     public void fetchStockData() throws IOException {
         List<Stock> stocks = new ArrayList<>();
+        List<String> guids = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getStockParams("1"), COOKIE);
         String html = response.returnContent().asString();
@@ -73,26 +83,40 @@ public class YuanLeCheBaoService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getStockParams(String.valueOf(i)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getStockParams(String.valueOf(i)), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
                 int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
                 for (int j = 1; j <= trSize; j++) {
 
-                    String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                    String brandRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                    String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
-                    String inventoryNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6) > span > font";
+                    String getGUIDRegEx = "(?<=').*(?=')";
+                    String partsGuidRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > div > span.common-font.edit-act";
+                    String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(i))).attr("onclick");
+                    String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
+                    guids.add(guid);
+                }
+            }
+        }
 
-                    String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
-                    String brand = doc.select(StringUtils.replace(brandRegEx, "{no}", String.valueOf(j))).text();
-                    String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(j))).text();
-                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
+        if (guids.size() > 0) {
+            for (String guid : guids) {
+                response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getStockDetailParams(guid), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
 
-                    Stock stock=new Stock();
-                    stock.setGoodsName(firstCategoryName+brand+remark);
-                    stock.setInventoryNum(inventoryNum);
+                String trRegEx = "#set-tbody > tr";
+                int trSize = WebClientUtil.getTRSize(doc, trRegEx);
+                for (int j = 1; j <= trSize; j++) {
+
+                    String firstCategoryNameRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(1) > div:nth-child(2)";
+                    String brandRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div:nth-child(2)";
+                    String remarkRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(1) > div:nth-child(2)";
+
+
+                    String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String inventoryNumRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                    String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
 
                 }
             }
@@ -229,6 +253,8 @@ public class YuanLeCheBaoService {
                         carInfo.setPhone(phone);
                         carInfo.setName(name);
                         carInfo.setCarNumber(carNumber);
+                        carInfo.setCarNum(carnum);
+                        carInfo.setCarArea(cararea);
                         carInfo.setCarId(carId);
                         carInfos.add(carInfo);
                     }
@@ -240,8 +266,8 @@ public class YuanLeCheBaoService {
             for (CarInfo carInfo : carInfos) {
                 String userName = carInfo.getName();
                 String userId = carInfo.getCarId();
-                String carArea = carInfo.getBrand();
-                String carNum = carInfo.getCarNumber();
+                String carArea = carInfo.getCarArea();
+                String carNum = carInfo.getCarNum();
                 String mobile = carInfo.getPhone();
 
                 response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
@@ -256,12 +282,10 @@ public class YuanLeCheBaoService {
                 String VINcode = doc.select(VINRegEx).text().replace("VIN：", "");
                 String carModel = doc.select(carModelRegEx).text().replace("车型：", "");
                 String brand = doc.select(brandRegEx).text().replace("品牌：", "");
-                String carNumber = doc.select(carNumberRegEx).text();
 
-                carInfo.setCarNumber(carNumber);
-                carInfo.setVINcode(VINcode);
-                carInfo.setCarModel(carModel);
-                carInfo.setBrand(brand);
+                carInfo.setVINcode(VINcode.replace("未完善", ""));
+                carInfo.setCarModel(carModel.replace("-", ""));
+                carInfo.setBrand(brand.replace("-", ""));
             }
         }
 
@@ -274,6 +298,22 @@ public class YuanLeCheBaoService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
+
+    private List<BasicNameValuePair> getStockInPriceParams(String partsGuid) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("partsGuid", partsGuid));
+
+        return params;
+    }
+
+    private List<BasicNameValuePair> getStockDetailParams(String partsGuid) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("partsGuid", partsGuid));
+
+        return params;
+    }
 
     private List<BasicNameValuePair> getStockParams(String pageNo) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -309,8 +349,8 @@ public class YuanLeCheBaoService {
     private List<BasicNameValuePair> getCarInfoDetailParams(String userName, String userId, String carArea, String carNum, String mobile) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
-        params.add(new BasicNameValuePair("staffId", "3574"));
-        params.add(new BasicNameValuePair("shopBranchId", "229"));
+        params.add(new BasicNameValuePair("staffId", "1649"));
+        params.add(new BasicNameValuePair("shopBranchId", "95"));
         params.add(new BasicNameValuePair("userName", userName));
         params.add(new BasicNameValuePair("userId", userId));
         params.add(new BasicNameValuePair("carArea", carArea));

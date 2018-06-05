@@ -69,6 +69,16 @@ public class Stock {
      */
     private String brand;
 
+    /**
+     * 规格
+     */
+    private String spec;
+
+    /**
+     * 售价
+     */
+    private String salePrice;
+
     public String getStoreRoomName() {
         return storeRoomName;
     }
@@ -165,6 +175,22 @@ public class Stock {
         this.brand = brand;
     }
 
+    public String getSpec() {
+        return spec;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
+
+    public String getSalePrice() {
+        return salePrice;
+    }
+
+    public void setSalePrice(String salePrice) {
+        this.salePrice = salePrice;
+    }
+
     @Override
     public String toString() {
         return "Stock{" +
@@ -180,6 +206,8 @@ public class Stock {
                 ", secondCategoryName='" + secondCategoryName + '\'' +
                 ", itemType='" + itemType + '\'' +
                 ", brand='" + brand + '\'' +
+                ", spec='" + spec + '\'' +
+                ", salePrice='" + salePrice + '\'' +
                 '}';
     }
 }

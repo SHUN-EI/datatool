@@ -102,6 +102,16 @@ public class CarInfo {
      */
     private String AnnualTrial;
 
+    /**
+     * 元乐车宝-carArea
+     */
+    private String carArea;
+
+    /**
+     * 元乐车宝-carNum
+     */
+    private String carNum;
+
     public String getCarId() {
         return carId;
     }
@@ -223,7 +233,7 @@ public class CarInfo {
     }
 
 
-    public interface CarInfoSimpleView{
+    public interface CarInfoSimpleView {
     }
 
     public String getRemark() {
@@ -248,6 +258,22 @@ public class CarInfo {
 
     public void setAnnualTrial(String annualTrial) {
         AnnualTrial = annualTrial;
+    }
+
+    public String getCarArea() {
+        return carArea;
+    }
+
+    public void setCarArea(String carArea) {
+        this.carArea = carArea;
+    }
+
+    public String getCarNum() {
+        return carNum;
+    }
+
+    public void setCarNum(String carNum) {
+        this.carNum = carNum;
     }
 
     @Override
