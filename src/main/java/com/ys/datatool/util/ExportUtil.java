@@ -16,13 +16,39 @@ import java.util.Map;
  */
 public class ExportUtil {
 
+    public static void exportYuanLeCheBaoStockDataInLocal(List<Stock> stocks, Workbook workbook, String pathname) throws IOException {
+
+        List<Map<String, Object>> list = ExcelUtil.createStockList(stocks);
+        String[] keys = new String[]{"companyName", "storeRoomName", "goodsName", "firstCategoryName",
+                "brand", "remark", "spec", "salePrice", "inventoryNum",
+                "price", "locationName", "productCode"};
+
+        OutputStream outputStream = null;
+        try {
+            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.YuanLeCheBaoStockDatas);
+            File file = new File(pathname);
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void exportCarInfoDataInLocal(List<CarInfo> carInfos, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createCarInfoList(carInfos);
         String[] keys = new String[]{"companyName", "name", "carNumber", "brand",
-                "carModel", "mobile", "registerDate","engineNumber",
-                "VINcode", "vcInsuranceValidDate","vcInsuranceCompany",
-                "tcInsuranceValidDate","tcInsuranceCompany","remark"};
+                "carModel", "mobile", "registerDate", "engineNumber",
+                "VINcode", "vcInsuranceValidDate", "vcInsuranceCompany",
+                "tcInsuranceValidDate", "tcInsuranceCompany", "remark"};
 
         OutputStream outputStream = null;
         try {

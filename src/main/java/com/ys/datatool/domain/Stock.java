@@ -79,6 +79,11 @@ public class Stock {
      */
     private String salePrice;
 
+    /**
+     * 元乐车宝-partsGuid
+     */
+    private String partsGuid;
+
     public String getStoreRoomName() {
         return storeRoomName;
     }
@@ -189,6 +194,14 @@ public class Stock {
 
     public void setSalePrice(String salePrice) {
         this.salePrice = salePrice;
+    }
+
+    public String getPartsGuid() {
+        return partsGuid;
+    }
+
+    public void setPartsGuid(String partsGuid) {
+        this.partsGuid = partsGuid;
     }
 
     @Override

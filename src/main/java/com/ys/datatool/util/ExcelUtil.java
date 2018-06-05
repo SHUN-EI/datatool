@@ -91,8 +91,12 @@ public class ExcelUtil {
             mapValue.put("inventoryNum", stock.getInventoryNum());
             mapValue.put("price", stock.getPrice());
             mapValue.put("productCode", stock.getProductCode());
-            mapValue.put("remark", stock.getRemark());
             mapValue.put("companyName", stock.getCompanyName());
+            mapValue.put("firstCategoryName", stock.getFirstCategoryName());
+            mapValue.put("brand", stock.getBrand());
+            mapValue.put("remark", stock.getRemark());
+            mapValue.put("spec", stock.getSpec());
+            mapValue.put("salePrice", stock.getSalePrice());
             listMap.add(mapValue);
         }
         return listMap;

@@ -5,6 +5,9 @@ package com.ys.datatool.domain;
  */
 public class ExcelDatas {
 
+    public static String[] YuanLeCheBaoStockDatas = new String[]{"车店名称", "仓库",
+            "商品名称", "配件类型", "品牌", "型号", "规格", "销售价","库存数量", "入库单价", "仓位", "商品编码"};
+
     public static String[] stockDatas = new String[]{"车店名称", "仓库",
             "商品名称", "库存数量", "入库单价", "仓位", "商品编码"};
 

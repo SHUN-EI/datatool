@@ -18,10 +18,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018/5/14.
@@ -29,6 +26,10 @@ import java.util.Set;
  */
 @Service
 public class YuanLeCheBaoService {
+
+    private static final String STOCKINSEARCH_URL = "http://www.carbao.vip/Home/storage/storageInSearchByPartsGuid";
+
+    private static final String STOCKINDIV_URL = "http://www.carbao.vip/Home/partsinfo/storageInDiv";
 
     private static final String STOCKDETAIL_URL = "http://www.carbao.vip/Home/partsinfo/partsInfo";
 
@@ -66,13 +67,26 @@ public class YuanLeCheBaoService {
     @Test
     public void test() throws IOException {
 
+        Map<String, String> specificationGuids = new HashMap<>();
+        Response response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getStockDetailParams("11d81f5b-6d17-40e8-ac36-b99837235616"), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
+
+        String optionRegEx = "#specification_search_in > option";
+        int optionSize = getOptionSize(doc, optionRegEx);
+
+        System.out.println("optionSize结果为" + optionSize);
+        System.out.println("specificationGuids大小为" + specificationGuids.size());
+        System.out.println("specificationGuids结果为" + specificationGuids.toString());
+
     }
 
 
     @Test
     public void fetchStockData() throws IOException {
         List<Stock> stocks = new ArrayList<>();
-        List<String> guids = new ArrayList<>();
+        Set<String> guids = new HashSet<>();
+        Map<String, String> specificationGuids = new HashMap<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getStockParams("1"), COOKIE);
         String html = response.returnContent().asString();
@@ -101,26 +115,92 @@ public class YuanLeCheBaoService {
 
         if (guids.size() > 0) {
             for (String guid : guids) {
+                response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getStockDetailParams(guid), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                String optionRegEx = "#specification_search_in > option";
+                int optionSize = getOptionSize(doc, optionRegEx);
+
+                if (optionSize > 0) {
+                    for (int i = 2; i <= optionSize; i++) {
+                        String specRegEx = "#specification_search_in > option:nth-child({no})";
+                        String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).text();
+                        String specValue = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).attr("value");
+
+                        specificationGuids.put(spec, specValue);
+                    }
+                }
+            }
+        }
+
+        if (guids.size() > 0) {
+            for (String guid : guids) {
                 response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getStockDetailParams(guid), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
+
+                String firstCategoryNameRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(1) > div:nth-child(2)";
+                String brandRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div:nth-child(2)";
+                String remarkRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(1) > div:nth-child(2)";
+
+                String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+                String brand = doc.select(brandRegEx).text();
+                String remark = doc.select(remarkRegEx).text();//配件型号
 
                 String trRegEx = "#set-tbody > tr";
                 int trSize = WebClientUtil.getTRSize(doc, trRegEx);
                 for (int j = 1; j <= trSize; j++) {
 
-                    String firstCategoryNameRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(1) > div:nth-child(2)";
-                    String brandRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div:nth-child(2)";
-                    String remarkRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(1) > div:nth-child(2)";
-
-
                     String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
                     String inventoryNumRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(5)";
                     String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
 
+                    String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(j))).text();
+                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
+                    String salePrice = doc.select(StringUtils.replace(salePriceRegEx, "{no}", String.valueOf(j))).text();
+
+                    //拼接商品名称
+                    String goodsName = firstCategoryName + brand + remark + spec;
+
+                    Stock stock = new Stock();
+                    stock.setGoodsName(goodsName);
+                    stock.setFirstCategoryName(firstCategoryName);
+                    stock.setBrand(brand);
+                    stock.setRemark(remark);
+                    stock.setSpec(spec);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setSalePrice(salePrice.replace("￥", ""));
+                    stock.setPartsGuid(guid);
+                    stocks.add(stock);
                 }
             }
         }
+
+        if (stocks.size() > 0) {
+            for (Stock stock : stocks) {
+                String spec = stock.getSpec();
+                String partsGuid = stock.getPartsGuid();
+                String specificationGuid = specificationGuids.get(spec);
+
+                if (specificationGuid != null) {
+                    response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
+                    html = response.returnContent().asString();
+                    doc = Jsoup.parse(html);
+
+                    //取第一条入库记录中的成本价
+                    String priceRegEx = "#content-tbody > tr:nth-child(1) > td:nth-child(7)";
+                    String price = doc.select(priceRegEx).text().replace("￥", "");
+                    stock.setPrice(price);
+                }
+            }
+        }
+
+        System.out.println("结果为" + stocks.toString());
+        System.out.println("大小为" + stocks.size());
+
+        String pathname = "D:\\元乐车宝库存导出.xls";
+        ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks, workbook, pathname);
     }
 
     @Test
@@ -159,6 +239,10 @@ public class YuanLeCheBaoService {
         System.out.println("结果为" + totalPage);
         System.out.println("结果为" + products.toString());
         System.out.println("大小为" + products.size());
+
+
+        String pathname = "D:\\元乐车宝服务项目导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
     @Test
@@ -298,10 +382,18 @@ public class YuanLeCheBaoService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
-
-    private List<BasicNameValuePair> getStockInPriceParams(String partsGuid) {
+    private List<BasicNameValuePair> getStockInPriceParams(String partsGuid, String specificationGuid) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("branchId", "299"));
+        params.add(new BasicNameValuePair("staffId", "4574"));
+        params.add(new BasicNameValuePair("beginTimeStr", ""));
+        params.add(new BasicNameValuePair("endTimeStr", ""));
+        params.add(new BasicNameValuePair("partsProperty", ""));
+        params.add(new BasicNameValuePair("pageNo", "1"));
+        params.add(new BasicNameValuePair("pageSize", "5"));
+        params.add(new BasicNameValuePair("orderBy", "-1"));
+        params.add(new BasicNameValuePair("specificationGuid", specificationGuid));
         params.add(new BasicNameValuePair("partsGuid", partsGuid));
 
         return params;
@@ -368,6 +460,12 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
         return params;
+    }
+
+    private int getOptionSize(Document document, String optionRegEx) {
+        int optionSize = document.select(optionRegEx).tagName("option").size();
+
+        return optionSize > 0 ? optionSize : 0;
     }
 
 }
