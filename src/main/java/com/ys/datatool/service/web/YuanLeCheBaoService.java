@@ -51,8 +51,6 @@ public class YuanLeCheBaoService {
 
     private Workbook workbook;
 
-    //车店编号-shopId:82(洗车王国)
-
     /**
      * 车店编号-shopId:
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
