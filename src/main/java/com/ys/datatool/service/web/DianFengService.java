@@ -1,6 +1,7 @@
 package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -26,8 +27,11 @@ import java.util.Set;
 @Service
 public class DianFengService {
 
+    private String REPAIRITEM_URL = "http://www.jmlijun.com/index.php?g=portal&m=adminrepair&a=orders&menuid=203&p=";
 
     private String CARINFO_URL = "http://www.jmlijun.com/index.php?g=portal&m=admincars&a=index&menuid=199&p=";
+
+    private String preUrl = "http://www.jmlijun.com";
 
     private String trItemRegEx = "body > div.wrap > table > tbody > tr";
 
@@ -37,9 +41,68 @@ public class DianFengService {
 
 
     @Test
-    public void test() throws IOException {
-        List<CarInfo> carInfos = new ArrayList<>();
-        Set<String> carIds = new HashSet<>();
+    public void fetchRepairItemData() throws IOException {
+        List<Product> products = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(REPAIRITEM_URL + "1", COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
+
+        String getTotalRegEx = "(?<=p=).*(?=\">尾页)";
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), getTotalRegEx);
+        int totalPage = Integer.parseInt(totalPageStr);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(REPAIRITEM_URL + String.valueOf(i), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+                        String idRegEx = "body > div.wrap > table > tbody > tr:nth-child({no}) > td:nth-child(9) > a";
+                        String id = doc.select(StringUtils.replace(idRegEx, "{no}", String.valueOf(j))).attr("href");
+                        ids.add(id);
+                    }
+                }
+            }
+        }
+
+        if (ids.size() > 0) {
+            for (String id : ids) {
+
+                response = ConnectionUtil.doGetWithLeastParams(preUrl + id, COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                String trRegEx = "#baoyang > tbody:nth-child(2) > tr";
+                int trSize = WebClientUtil.getTRSize(doc, trRegEx);
+
+                if (trSize > 0) {
+                    for (int i = 1; i < trSize; i++) {
+
+                        String productNameRegEx = "#baoyang > tbody:nth-child(2) > tr:nth-child({no}) > td.xiangmu.editable";
+                        String priceRegEx = "#baoyang > tbody:nth-child(2) > tr:nth-child({no}) > td.danjia.editable";
+
+                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(i))).text();
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
+
+                        Product product = new Product();
+                        product.setProductName(productName);
+                        product.setPrice(price);
+                        products.add(product);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+        System.out.println("结果为" + products.size());
+
+        String pathname = "D:\\点疯网络商品.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
 
     }
 
@@ -75,7 +138,6 @@ public class DianFengService {
 
         if (carIds.size() > 0) {
             for (String carId : carIds) {
-                String preUrl = "http://www.jmlijun.com";
                 response = ConnectionUtil.doGetWithLeastParams(preUrl + carId, COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
