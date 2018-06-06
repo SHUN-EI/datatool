@@ -54,11 +54,6 @@ public class YiZhiTongVService {
 
     @Test
     public void test() throws IOException {
-        WebClient webClient = getLoginWebClient();
-        HtmlPage servicePage = webClient.getPage(SERVICE_URL);
-
-        System.out.println("服务页面为" + servicePage.asXml());
-
 
     }
 
