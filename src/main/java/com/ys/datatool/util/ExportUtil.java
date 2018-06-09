@@ -16,6 +16,33 @@ import java.util.Map;
  */
 public class ExportUtil {
 
+    public static void exportMemberCardSomeFieldDataInLocal(List<MemberCard> memberCards, Workbook workbook, String pathname) throws IOException {
+
+        List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
+        String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
+                "cardType", "cardSort", "dateCreated", "balance",
+                "name", "phone", "grade","discount","remark"};
+
+        OutputStream outputStream = null;
+        try {
+            workbook = ExcelUtil.createXSSFWorkbook(list, keys, ExcelDatas.memberCardSomeFields);
+            File file = new File(pathname);
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
     public static void exportMemberCardItemSomeFieldDataInLocal(List<MemberCardItem> memberCardItems, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createMemberCardItemList(memberCardItems);

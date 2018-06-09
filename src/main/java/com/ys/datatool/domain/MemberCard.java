@@ -22,6 +22,11 @@ public class MemberCard {
     private String cardCode;
 
     /**
+     * 卡品种
+     */
+    private String cardSort;
+
+    /**
      * 会员卡名称
      */
     private String memberCardName;
@@ -47,12 +52,12 @@ public class MemberCard {
     private String balance;
 
     /**
-     *充值金额
+     * 充值金额
      */
     private String firstCharge;
 
     /**
-     *赠送金额
+     * 赠送金额
      */
     private String firstGift;
 
@@ -105,6 +110,16 @@ public class MemberCard {
      * 家喻客户ID
      */
     private String cuId;
+
+    /**
+     * 元乐车宝-会员等级
+     */
+    private String grade;
+
+    /**
+     * 元乐车宝-会员折扣
+     */
+    private String discount;
 
     public String getRemark() {
         return remark;
@@ -264,6 +279,30 @@ public class MemberCard {
 
     public void setCuId(String cuId) {
         this.cuId = cuId;
+    }
+
+    public String getCardSort() {
+        return cardSort;
+    }
+
+    public void setCardSort(String cardSort) {
+        this.cardSort = cardSort;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
     }
 
     @Override

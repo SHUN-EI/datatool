@@ -252,6 +252,9 @@ public class ExcelUtil {
             mapValue.put("companyName", memberCard.getCompanyName());
             mapValue.put("state", memberCard.getState());
             mapValue.put("memberCardId", memberCard.getMemberCardId());
+            mapValue.put("grade", memberCard.getGrade());
+            mapValue.put("discount", memberCard.getDiscount());
+            mapValue.put("cardSort", memberCard.getCardSort());
             listMap.add(mapValue);
         }
         return listMap;

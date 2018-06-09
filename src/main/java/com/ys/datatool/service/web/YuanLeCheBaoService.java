@@ -1,9 +1,6 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Stock;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -18,6 +15,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -27,27 +25,33 @@ import java.util.*;
 @Service
 public class YuanLeCheBaoService {
 
-    private static final String STOCKINSEARCH_URL = "http://www.carbao.vip/Home/storage/storageInSearchByPartsGuid";
+    private String MEMBERCARD_URL = "http://www.carbao.vip/Home/memberManagement/gerMemberUserLists";
 
-    private static final String STOCKINDIV_URL = "http://www.carbao.vip/Home/partsinfo/storageInDiv";
+    private String MEMBERCARDOVERVIEW_URL = "http://www.carbao.vip/Home/memberManagement/memberList?shopBranchId=127&staffId=2341&shopId=";
 
-    private static final String STOCKDETAIL_URL = "http://www.carbao.vip/Home/partsinfo/partsInfo";
+    private String STOCKINSEARCH_URL = "http://www.carbao.vip/Home/storage/storageInSearchByPartsGuid";
 
-    private static final String STOCK_URL = "http://www.carbao.vip/Home/cbstoragepartsinventory/invenManagementTable";
+    private String STOCKINDIV_URL = "http://www.carbao.vip/Home/partsinfo/storageInDiv";
 
-    private static final String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
+    private String STOCKDETAIL_URL = "http://www.carbao.vip/Home/partsinfo/partsInfo";
 
-    private static final String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
+    private String STOCK_URL = "http://www.carbao.vip/Home/cbstoragepartsinventory/invenManagementTable";
 
-    private static final String CARINFOPAGE_URL = "http://www.carbao.vip/Home/car/carTable";
+    private String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
 
-    private static final String CARINFODETAIL_URL = "http://www.carbao.vip/Home/car/carDetail";
+    private String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
+
+    private String CARINFOPAGE_URL = "http://www.carbao.vip/Home/car/carTable";
+
+    private String CARINFODETAIL_URL = "http://www.carbao.vip/Home/car/carDetail";
 
     private String trItemRegEx = "#content-tbody > tr";
 
     private String totalPageRegEx = "totalPage =.*";
 
     private String totalRegEx = "totalPage=.*";
+
+    private Charset charset = Charset.forName("UTF-8");
 
     private Workbook workbook;
 
@@ -66,20 +70,100 @@ public class YuanLeCheBaoService {
     @Test
     public void test() throws IOException {
 
-        Map<String, String> specificationGuids = new HashMap<>();
-        Response response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getStockDetailParams("11d81f5b-6d17-40e8-ac36-b99837235616"), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parse(html);
-
-        String optionRegEx = "#specification_search_in > option";
-        int optionSize = getOptionSize(doc, optionRegEx);
-
-        System.out.println("optionSize结果为" + optionSize);
-        System.out.println("specificationGuids大小为" + specificationGuids.size());
-        System.out.println("specificationGuids结果为" + specificationGuids.toString());
-
     }
 
+
+    @Test
+    public void fetchMemberCardSort() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDOVERVIEW_URL + companyId, COOKIE);
+        String html = response.returnContent().asString(charset);
+        Document doc = Jsoup.parse(html);
+
+        int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+        if (trSize > 0) {
+            for (int i = 1; i <= trSize; i++) {
+
+                String gradeIdRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6) > a";
+                String gradeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                String discountRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td.ruleContent";
+
+                String gradeId = doc.select(StringUtils.replace(gradeIdRegEx, "{no}", String.valueOf(i))).attr("gradeid");
+                String grade = doc.select(StringUtils.replace(gradeRegEx, "{no}", String.valueOf(i))).text();
+                String discount = doc.select(StringUtils.replace(discountRegEx, "{no}", String.valueOf(i))).text();
+                String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+
+                MemberCard memberCard = new MemberCard();
+                memberCard.setGrade(grade);
+                memberCard.setDiscount(discount);
+                memberCard.setRemark(remark);
+                memberCardMap.put(gradeId, memberCard);
+            }
+        }
+
+        for (String gradeId : memberCardMap.keySet()) {
+            MemberCard memberCard = memberCardMap.get(gradeId);
+            int total = 0;
+
+            if ("219".equals(gradeId) || "56".equals(gradeId) ||
+                    "327".equals(gradeId) || "390".equals(gradeId) ||
+                    "391".equals(gradeId) || "392".equals(gradeId) ||
+                    "393".equals(gradeId) || "220".equals(gradeId))
+                total = 1;
+
+            if ("340".equals(gradeId) || "342".equals(gradeId))
+                total = 2;
+
+            if ("325".equals(gradeId))
+                total = 6;
+
+            if ("221".equals(gradeId))
+                total = 12;
+
+            if ("216".equals(gradeId))
+                total = 43;
+
+            for (int i = 1; i <= total; i++) {
+                Response res= ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i), gradeId), COOKIE);
+                String page = res.returnContent().asString(charset);
+                doc = Jsoup.parse(page);
+
+                trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                if (trSize > 0) {
+
+                    for (int j = 1; j <= trSize; j++) {
+
+                        String cardCodeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                        String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+
+                        String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(i))).text();
+                        String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(i))).text();
+                        String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(i))).text();
+
+                        MemberCard m = new MemberCard();
+                        m.setCardCode(cardCode);
+                        m.setName(name);
+                        m.setPhone(cardCode);
+                        m.setBalance(balance);
+                        m.setGrade(memberCard.getGrade());
+                        m.setDiscount(memberCard.getDiscount());
+                        m.setRemark(memberCard.getRemark());
+                        memberCards.add(m);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("大小为" + memberCards.size());
+
+        String pathname = "D:\\会员卡导出.xls";
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+    }
 
     @Test
     public void fetchStockData() throws IOException {
@@ -379,6 +463,19 @@ public class YuanLeCheBaoService {
 
         String pathname = "D:\\元乐车宝车辆信息导出.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+    private List<BasicNameValuePair> getMemberCardParams(String pageNo, String gradeId) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("pageNo", pageNo));
+        params.add(new BasicNameValuePair("pageSize", "10"));
+        params.add(new BasicNameValuePair("shopGradeId", gradeId));
+        params.add(new BasicNameValuePair("keyWord", ""));
+        params.add(new BasicNameValuePair("shopBranchId", "127"));
+        params.add(new BasicNameValuePair("staffId", "2341"));
+
+        return params;
     }
 
     private List<BasicNameValuePair> getStockInPriceParams(String partsGuid, String specificationGuid) {
