@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by mo on @date  2018/5/14.
@@ -68,13 +70,26 @@ public class YuanLeCheBaoService {
 
 
     @Test
-    public void test() throws IOException {
+    public void test() throws Exception {
+        Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams("1", "392"), COOKIE);
+        String html = res.returnContent().asString(charset);
+        Document doc = Jsoup.parse(html);
+
+        String regEx = "[\\s\\S]*var pageNo[\\s\\S]*var totalPage = (\\d+)[\\s\\S]*";
+        String str = doc.toString();
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(str);
+
+        System.out.println("获得的doc为" + doc);
+
+        if (m.matches())
+            System.out.println("结果为" + m.group(1));
 
     }
 
 
     @Test
-    public void fetchMemberCardSort() throws IOException {
+    public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
@@ -106,53 +121,44 @@ public class YuanLeCheBaoService {
 
         for (String gradeId : memberCardMap.keySet()) {
             MemberCard memberCard = memberCardMap.get(gradeId);
-            int total = 0;
 
-            if ("219".equals(gradeId) || "56".equals(gradeId) ||
-                    "327".equals(gradeId) || "390".equals(gradeId) ||
-                    "391".equals(gradeId) || "392".equals(gradeId) ||
-                    "393".equals(gradeId) || "220".equals(gradeId))
-                total = 1;
+            Response r = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams("1", gradeId), COOKIE);
+            String content = r.returnContent().asString(charset);
+            doc = Jsoup.parse(content);
 
-            if ("340".equals(gradeId) || "342".equals(gradeId))
-                total = 2;
+            String regEx = "[\\s\\S]*var pageNo[\\s\\S]*var totalPage = (\\d+)[\\s\\S]*";
+            String totalStr = CommonUtil.filterString(doc.toString(), regEx);
+            int total = Integer.parseInt(totalStr);
 
-            if ("325".equals(gradeId))
-                total = 6;
+            if (total > 0) {
+                for (int i = 1; i <= total; i++) {
+                    Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i), gradeId), COOKIE);
+                    String page = res.returnContent().asString(charset);
+                    doc = Jsoup.parse(page);
 
-            if ("221".equals(gradeId))
-                total = 12;
+                    trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                    if (trSize > 0) {
 
-            if ("216".equals(gradeId))
-                total = 43;
+                        for (int j = 1; j <= trSize; j++) {
 
-            for (int i = 1; i <= total; i++) {
-                Response res= ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i), gradeId), COOKIE);
-                String page = res.returnContent().asString(charset);
-                doc = Jsoup.parse(page);
+                            String cardCodeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                            String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                            String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
 
-                trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
-                if (trSize > 0) {
+                            String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(j))).text();
+                            String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+                            String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
 
-                    for (int j = 1; j <= trSize; j++) {
-
-                        String cardCodeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
-
-                        String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(i))).text();
-                        String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(i))).text();
-                        String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(i))).text();
-
-                        MemberCard m = new MemberCard();
-                        m.setCardCode(cardCode);
-                        m.setName(name);
-                        m.setPhone(cardCode);
-                        m.setBalance(balance);
-                        m.setGrade(memberCard.getGrade());
-                        m.setDiscount(memberCard.getDiscount());
-                        m.setRemark(memberCard.getRemark());
-                        memberCards.add(m);
+                            MemberCard m = new MemberCard();
+                            m.setCardCode(cardCode);
+                            m.setName(name);
+                            m.setPhone(cardCode);
+                            m.setBalance(balance);
+                            m.setGrade(memberCard.getGrade());
+                            m.setDiscount(memberCard.getDiscount());
+                            m.setRemark(memberCard.getRemark());
+                            memberCards.add(m);
+                        }
                     }
                 }
             }
