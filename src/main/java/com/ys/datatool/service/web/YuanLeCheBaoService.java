@@ -56,11 +56,12 @@ public class YuanLeCheBaoService {
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
      * 77(石家庄丽雷行)、140(天骐汽车)、132(路胜通汽车)、
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
-     * 79(广州市花都区明杰)
+     * 79(广州市花都区明杰)、113(新蔡爱卡汽车)
      */
-    private String companyId = "284";
+    private String companyId = "113";
 
-    private static final String COOKIE = "JSESSIONID=AFFAC63705DE1E1E3FED991A9D337C69; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
+    private static final String COOKIE = "JSESSIONID=9E6C6FCFA2FF5D765A05A807E330A089; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
+
 
     @Test
     public void test() throws IOException {
