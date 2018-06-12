@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.domain.Stock;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
@@ -39,6 +40,51 @@ public class FourCService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Workbook workbook;
+
+    @Test
+    public void fetchItemData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String productName = element.get("Name").asText();
+                    String code = element.get("PartCode").asText();
+                    String barCode = element.get("BarCode").asText();
+                    String price = element.get("Price").asText();
+                    String firstCategoryName = element.get("Stype").asText();
+                    String brandName = element.get("Brand").asText();
+                    String carModel = element.get("Fit").asText();
+
+                    Product product = new Product();
+                    product.setProductName(productName == "null" ? "" : productName);
+                    product.setCode(code == "null" ? "" : code);
+                    product.setBarCode(barCode == "null" ? "" : barCode);
+                    product.setPrice(price == "null" ? "" : price);
+                    product.setFirstCategoryName(firstCategoryName == "null" ? "" : firstCategoryName);
+                    product.setBrandName(brandName == "null" ? "" : brandName);
+                    product.setCarModel(carModel == "null" ? "" : carModel);
+                    product.setItemType("配件");
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+        System.out.println("结果为" + products.size());
+
+        String pathname = "D:\\4C商品导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+    }
 
     @Test
     public void fetchStockData() throws IOException {
@@ -85,10 +131,14 @@ public class FourCService {
                     String id = element.get("ID").asText();
                     String price = element.get("InPrice").asText();
                     String code = element.get("PartCode").asText();
+                    String storeRoomName = element.get("StoreName").asText();
+                    String locationName = element.get("StoreLocation").asText();
 
                     Stock stock = new Stock();
                     stock.setProductCode(code == "null" ? "" : code);
                     stock.setPrice(price == "null" ? "" : price);
+                    stock.setStoreRoomName(storeRoomName == "null" ? "" : storeRoomName);
+                    stock.setLocationName(locationName == "null" ? "" : locationName);
                     itemMap.put(id, stock);
                 }
             }
@@ -101,6 +151,8 @@ public class FourCService {
 
                 stock.setPrice(s.getPrice());
                 stock.setProductCode(s.getProductCode());
+                stock.setStoreRoomName(s.getStoreRoomName());
+                stock.setLocationName(s.getLocationName());
                 stocks.add(stock);
             }
         }
