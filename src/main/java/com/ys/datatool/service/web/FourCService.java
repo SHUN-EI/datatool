@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ys.datatool.domain.Stock;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -13,9 +14,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018-06-12.
@@ -24,6 +23,10 @@ import java.util.List;
 
 @Service
 public class FourCService {
+
+    private String STOCK_URL = "http://www.car-cloud.cn/Wy/wyInventory/LoadInventoryData";
+
+    private String ITEM_URL = "http://www.car-cloud.cn/Wy/wyProduct/LoadData";
 
     private String SUPPLIER_URL = "http://www.car-cloud.cn/Wy/WySupplier/LoadData";
 
@@ -36,6 +39,77 @@ public class FourCService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Workbook workbook;
+
+    @Test
+    public void fetchStockData() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        Map<String, Stock> stockMap = new HashMap<>();
+        Map<String, Stock> itemMap = new HashMap<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("ProductID").asText();
+                    String goodsName = element.get("ProductName").asText();
+                    String inventoryNum = element.get("FinalQty").asText();
+
+                    Stock stock = new Stock();
+                    stock.setGoodsName(goodsName == "null" ? "" : goodsName);
+                    stock.setInventoryNum(inventoryNum == "null" ? "" : inventoryNum);
+                    stockMap.put(id, stock);
+                }
+            }
+        }
+
+        Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1"), COOKIE);
+        int itemTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+
+        if (itemTotalPage > 0) {
+            for (int i = 1; i <= itemTotalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("ID").asText();
+                    String price = element.get("InPrice").asText();
+                    String code = element.get("PartCode").asText();
+
+                    Stock stock = new Stock();
+                    stock.setProductCode(code == "null" ? "" : code);
+                    stock.setPrice(price == "null" ? "" : price);
+                    itemMap.put(id, stock);
+                }
+            }
+        }
+
+        if (stockMap.size() > 0) {
+            for (String id : stockMap.keySet()) {
+                Stock stock = stockMap.get(id);
+                Stock s = itemMap.get(id);
+
+                stock.setPrice(s.getPrice());
+                stock.setProductCode(s.getProductCode());
+                stocks.add(stock);
+            }
+        }
+        System.out.println("结果为" + stocks.toString());
+        System.out.println("大小为" + stocks.size());
+
+        String pathname = "D:\\4C库存导出.xls";
+        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+    }
 
     @Test
     public void fetchSupplierData() throws IOException {

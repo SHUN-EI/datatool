@@ -81,7 +81,7 @@ public class ExportUtil {
 
         OutputStream outputStream = null;
         try {
-            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.YuanLeCheBaoStockDatas);
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.YuanLeCheBaoStockDatas);
             File file = new File(pathname);
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
@@ -133,7 +133,7 @@ public class ExportUtil {
 
         OutputStream outputStream = null;
         try {
-            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.stockDatas);
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.stockDatas);
             File file = new File(pathname);
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
@@ -160,7 +160,7 @@ public class ExportUtil {
 
         OutputStream outputStream = null;
         try {
-            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.itemDatas);
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.itemDatas);
             File file = new File(pathname);
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
@@ -186,7 +186,7 @@ public class ExportUtil {
 
         OutputStream outputStream = null;
         try {
-            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.supplierDatas);
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.supplierDatas);
             File file = new File(pathname);
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
@@ -238,7 +238,7 @@ public class ExportUtil {
         OutputStream outputStream = null;
 
         try {
-            workbook = ExcelUtil.createWorkBook(list, keys, ExcelDatas.memberCardDatas);
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.memberCardDatas);
             CellStyle cellStyle = workbook.createCellStyle(); //换行样式
             File file = new File(pathname);
 

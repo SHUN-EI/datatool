@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class MarsService {
 
     private String URL = "https://mars.tyreplus.com.cn/MARS/WebClient/cbs";
 
-    private String COOKIE = "SessionId=lugygb1app4a2rxyhhczw1jz; .ASPXAUTH=3960B2499FA184F3FD5FC67A4FD21BBFEFF071B56ED257B249E536D9ED929AD20321A0E09B468BFF889690A82C63C516D69C4969A3511D474B201DE3701959502524B5F40062DCC41F515476A767DAF4D0A805B0946EDAB21EFB3CA243A79D1757676492273935514EB27CD41D1CC330CE111DA55CEA3730CFD40BCDF6D3C5BD; 4C633A=1536759|-1|1156|0; 24ECBC=1536759|-1|1156|0; 24EFF1=1536759|-1|1243|0; .ASPXAUTH=9362661E3D3D6C07EA6B1C3D0F225DBAC520B9DED49CD7279A3DE16022AA76BAF76AE752FA3EA3AA7C2385A4F5EB07384F240E4B8D6F6FD0166854178229AD770966004B0F39D1E7FBC9D325EECFA43763F6E680AA58368BC473283B69D72DAA4578F062C5D02721C26C146CF37ACB06D6938DC91F0789C94FEF91CC40549AF5; 48EF0A=1536759|-1|1156|0; 49451C=1536759|-1|1156|0; 49457E=1536759|-1|1156|0; 4945E4=1536759|-1|1156|0; 4950A3=1536759|-1|1214|0; 495815=1536759|-1|1214|0; 3BA0CD=1536759|-1|1214|0; 1A4AA=1536759|-1|1156|0; 1A528=1536759|-1|1214|0; 60DFD=1536759|-1|1231|0; 61C56=1536759|-1|1231|0; 65527=1536759|-1|1156|0; 656CF=1536759|-1|1231|0; 665E9=1536759|-1|1231|0";
+    private String COOKIE = "SessionId=le4utoy4igkcx2puwk3q3y1e; .ASPXAUTH=3C565734F1952F3943E4F9D280AB398782F1DE0B8EDEB94B42A9DF6164818F4DE7523F1D899CC895C205829DEABF54AC4AEA386C47A76E016D75A1B31DE687C445280D46D3FC6CE54B27BA08F29C4ADB95A54A29B7B4CA2E68B0BC5F7ED3447DA21B4D47D2399BAE1731B5018AB41CEA2D9B81B10AB6BA344F32FFE422EE281A; 4C633A=1536759|-1|1156|0; 24ECBC=1536759|-1|1156|0; 24EFF1=1536759|-1|1243|0; 48EF0A=1536759|-1|1156|0; 49451C=1536759|-1|1156|0; 49457E=1536759|-1|1156|0; 4945E4=1536759|-1|1156|0; 4950A3=1536759|-1|1214|0; 495815=1536759|-1|1214|0; 3BA0CD=1536759|-1|1214|0; 1A4AA=1536759|-1|1156|0; 1A528=1536759|-1|1214|0; 60DFD=1536759|-1|1231|0; 61C56=1536759|-1|1231|0; 65527=1536759|-1|1156|0; 656CF=1536759|-1|1231|0; 665E9=1536759|-1|1231|0; .ASPXAUTH=9BE759848EC8C8B94F11538FBD9DE50E8C6C8F17C5CB33D9CAD54C81A94981A85974FE8A7CEF206A3F1E45C6ED41CAF14CF1EF18B6B1084C501362A1EC1FE62C1F631AE011C75C445D7A6EA96BA979E98A39FC6744FAFCD0718D2CEEFA92FA341EA7A44D08348D3C5AB05877AAE29B4CC2E83A4B1EFB81B39A5BF542E634EDE4";
 
     private Workbook workbook;
 
@@ -34,16 +35,19 @@ public class MarsService {
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        String param = "{\"jsonrpc\":\"2.0\",\"method\":\"Invoke\",\"params\":[{\"openFormIds\":[\"104E29\"],\"interactionsToInvoke\":[{\"namedParameters\":\"{\\\"NodeId\\\":\\\"8c433257-a286-4e5f-bdc4-3fde5b0ba3c4\\\"}\",\"interactionName\":\"Navigate\",\"controlId\":\"104E2A\",\"formId\":\"104E29\",\"callbackId\":\"6\"}],\"sessionId\":\"lugygb1app4a2rxyhhczw1jzR5DEALER135812Tyreplus 135812User\",\"requestToken\":\"rba0n0vdsm5pekapw0hxhyhj\",\"sequenceNo\":\"ji5tdzl2#6\",\"navigationContext\":{\"location\":\"https://mars.tyreplus.com.cn/MARS/WebClient/?company=Tyreplus%20135812&bookmark=17%3bDQAAAAJ7AzUANwAx&node=956d575b-4c5e-4bba-bcca-7fd69052857d&mode=View&page=14&spa=1&dc=0&inapp=false&i=104E29&tenant=r5dealer135812&ni=2EE\",\"isDialog\":false,\"isSpa\":true,\"spaInstanceId\":\"ji5tdza9\",\"isInApp\":false,\"deviceCategory\":0,\"nativePageType\":\"ListApplicationPage\"}}],\"id\":1}";
+        String param = "{\"jsonrpc\":\"2.0\",\"method\":\"Invoke\",\"params\":[{\"openFormIds\":[\"318C79\",\"318AEC\",\"3180F4\"],\"interactionsToInvoke\":[{\"namedParameters\":\"{\\\"Delta\\\":1}\",\"interactionName\":\"ScrollRepeater\",\"controlId\":\"318C7D\",\"formId\":\"318C79\",\"callbackId\":\"7\"}],\"sessionId\":\"le4utoy4igkcx2puwk3q3y1eR5DEALER135812Tyreplus 135812User\",\"requestToken\":\"dab0rnzjciprm02twthlgocg\",\"sequenceNo\":\"jibeye9i#7\",\"navigationContext\":{\"location\":\"https://mars.tyreplus.com.cn/Mars/WebClient/?company=Tyreplus%20135812&bookmark=41%3bFwAAAAJ7%2f1YARAAxADMANQA4ADEAMgAvADEAMAAwADAAOAA3&node=e34ce138-75b7-4118-9255-92b02ca59213&mode=Edit&page=27&filter=Vendor.%27Service%20Center%27%20IS%20%27135812%27&spa=1&dc=0&inapp=false&i=318C79&tenant=r5dealer135812&IsDlg=1\",\"isDialog\":true,\"isSpa\":true,\"spaInstanceId\":\"jibeye17\",\"isInApp\":false,\"deviceCategory\":0,\"nativePageType\":\"ListApplicationPage\"}}],\"id\":1}";
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(URL, param, COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
-        JsonNode res = result.get("result");
-        System.out.println("结果为" + result);
+        JsonNode res = result.get("result").get("parameters");
+        Iterator<JsonNode> it =res.iterator();
+        while (it.hasNext()) {
 
-        if (res != null)
-            System.out.println("结果为" + res);
+            JsonNode element = it.next();
+        }
+
+        System.out.println("结果为" + result);
 
 
     }

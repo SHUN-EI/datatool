@@ -1,6 +1,9 @@
 package com.ys.datatool.util;
 
 import com.ys.datatool.domain.*;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -8,7 +11,10 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mo on  2017/5/30.
@@ -331,6 +337,35 @@ public class ExcelUtil {
             listMap.add(mapValue);
         }
         return listMap;
+    }
+
+    /**
+     * excel-xls格式
+     *
+     * @return
+     */
+    public static HSSFWorkbook createHSSFWorkbook(List<Map<String, Object>> list, String[] keys, String[] columnNames) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet(list.get(0).get("sheetName").toString());
+        for (int i = 0; i < keys.length; i++) {
+            sheet.setColumnWidth(i, 15 * 256);
+        }
+
+        HSSFRow row = sheet.createRow(0);
+        for (int i = 0; i < columnNames.length; i++) {
+            HSSFCell cell = row.createCell(i);
+            cell.setCellValue(columnNames[i]);
+        }
+
+        for (int i = 1; i < list.size(); i++) {
+            HSSFRow r = sheet.createRow(i);
+            for (int j = 0; j < keys.length; j++) {
+                HSSFCell cell = r.createCell(j);
+                cell.setCellValue(list.get(i).get(keys[j]) == null ? " " : list.get(i).get(keys[j]).toString());
+            }
+        }
+
+        return workbook;
     }
 
     /**
