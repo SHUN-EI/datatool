@@ -54,6 +54,16 @@ public class Supplier {
      */
     private String code;
 
+    /**
+     * 4C系统-业务经理
+     */
+    private String manager;
+
+    /**
+     * 4C-经理手机号
+     */
+    private String managerPhone;
+
     public String getName() {
         return name;
     }
@@ -124,6 +134,22 @@ public class Supplier {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
+    public String getManagerPhone() {
+        return managerPhone;
+    }
+
+    public void setManagerPhone(String managerPhone) {
+        this.managerPhone = managerPhone;
     }
 
     @Override
