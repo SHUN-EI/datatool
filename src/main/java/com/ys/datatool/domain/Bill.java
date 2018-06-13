@@ -24,7 +24,7 @@ public class Bill {
     /**
      * 车牌号
      */
-    private String carLicense;
+    private String carNumber;
 
     /**
      * 车型
@@ -52,7 +52,7 @@ public class Bill {
     private String totalAmount;
 
     /**
-     * 实收
+     * 实收 paid = total*(discount/10)
      */
     private String actualAmount;
 
@@ -93,14 +93,24 @@ public class Bill {
     private String state;
 
     /**
-     *是否在店等
+     * 是否在店等
      */
-    private String waitInStore;
+    private String waitInStore="否";
 
     /**
      * 支付类型
      */
     private String payType;
+
+    /**
+     * 车品牌
+     */
+    private String brand;
+
+    /**
+     * 车型
+     */
+    private String carModel;
 
     public String getId() {
         return id;
@@ -118,12 +128,13 @@ public class Bill {
         this.billNo = billNo;
     }
 
-    public String getCarLicense() {
-        return carLicense;
+
+    public String getCarNumber() {
+        return carNumber;
     }
 
-    public void setCarLicense(String carLicense) {
-        this.carLicense = carLicense;
+    public void setCarNumber(String carNumber) {
+        this.carNumber = carNumber;
     }
 
     public String getAutomodel() {
@@ -254,13 +265,31 @@ public class Bill {
         this.payType = payType;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getCarModel() {
+        return carModel;
+    }
+
+    public void setCarModel(String carModel) {
+        this.carModel = carModel;
+    }
+
+
+
+
     @Override
     public String toString() {
         return "Bill{" +
                 "id='" + id + '\'' +
                 ", billNo='" + billNo + '\'' +
                 ", cardCode='" + cardCode + '\'' +
-                ", carLicense='" + carLicense + '\'' +
                 ", automodel='" + automodel + '\'' +
                 ", clientName='" + clientName + '\'' +
                 ", clientPhone='" + clientPhone + '\'' +

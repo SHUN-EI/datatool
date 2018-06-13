@@ -5,6 +5,14 @@ package com.ys.datatool.domain;
  */
 public class ExcelDatas {
 
+    public static String[] billSomeFields = new String[]{"车店名称", "单据号",
+            "车牌号", "里程", "联系手机", "联系人", "单据总价", "单据折扣",
+            "实收金额","是否在店等","计划完成时间","支付类型","备注","开单时间","结账时间"};
+
+    public static String[] billDetailSomeFields = new String[]{"车店名称", "单据号",
+            "商品名称", "数量", "售价(折扣价)", "折扣", "类别", "一级分类名称",
+            "二级分类名称","商品编码","原价","车牌","开单时间"};
+
     public static String[] memberCardSomeFields = new String[]{"车店名称", "卡号",
             "会员卡名称", "车牌号", "卡类型", "卡品种名称", "开卡日期", "卡内余额",
             "联系人姓名","联系人手机", "会员等级","会员折扣","备注"};

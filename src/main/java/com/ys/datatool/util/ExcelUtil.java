@@ -118,8 +118,8 @@ public class ExcelUtil {
         for (int i = 0; i < bills.size(); i++) {
             bill = bills.get(i);
             Map<String, Object> mapValue = new HashMap<String, Object>();
-            mapValue.put("no", bill.getBillNo());
-            mapValue.put("car_license", bill.getCarLicense());
+            mapValue.put("billNo", bill.getBillNo());
+            mapValue.put("carNumber", bill.getCarNumber());
             mapValue.put("cardCode", bill.getCardCode());
             mapValue.put("automodel", bill.getAutomodel());
             mapValue.put("clientName", bill.getClientName());
@@ -150,13 +150,14 @@ public class ExcelUtil {
         for (int i = 0; i < billDetails.size(); i++) {
             billDetail = billDetails.get(i);
             Map<String, Object> mapValue = new HashMap<String, Object>();
-            mapValue.put("name", billDetail.getItemName());
+            mapValue.put("itemName", billDetail.getItemName());
+            mapValue.put("companyName", billDetail.getCompanyName());
             mapValue.put("salePrice", billDetail.getSalePrice());
             mapValue.put("workingHour", billDetail.getWorkingHour());
             mapValue.put("quantity", billDetail.getQuantity());
             mapValue.put("itemType", billDetail.getItemType());
             mapValue.put("itemCode", billDetail.getItemCode());
-            mapValue.put("no", billDetail.getNo());
+            mapValue.put("billNo", billDetail.getBillNo());
             mapValue.put("discountRate", billDetail.getDiscountRate());
             mapValue.put("deduction", billDetail.getDeduction());
             mapValue.put("totalAmount", billDetail.getTotalAmount());
@@ -166,10 +167,11 @@ public class ExcelUtil {
             mapValue.put("dateAdded", billDetail.getDateAdded());
             mapValue.put("dateExpect", billDetail.getDateExpect());
             mapValue.put("dateEnd", billDetail.getDateEnd());
-            mapValue.put("carLicense", billDetail.getCarLicense());
+            mapValue.put("carNumber", billDetail.getCarNumber());
             mapValue.put("clientName", billDetail.getClientName());
             mapValue.put("firstCategoryName", billDetail.getFirstCategoryName());
             mapValue.put("secondCategoryName", billDetail.getSecondCategoryName());
+            mapValue.put("discount", billDetail.getDiscount());
             listMap.add(mapValue);
         }
         return listMap;

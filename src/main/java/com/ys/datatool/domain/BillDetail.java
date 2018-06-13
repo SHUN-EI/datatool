@@ -12,9 +12,14 @@ public class BillDetail {
     private String detailId;
 
     /**
+     * 车店名称
+     */
+    private String companyName;
+
+    /**
      * 单据号
      */
-    private String no;
+    private String billNo;
 
     /**
      * 商品名称
@@ -94,7 +99,7 @@ public class BillDetail {
     /**
      * 车牌号
      */
-    private String carLicense;
+    private String carNumber;
 
     /**
      * 客户名称
@@ -111,6 +116,11 @@ public class BillDetail {
      */
     private String secondCategoryName;
 
+    /**
+     * 折扣
+     */
+    private String discount;
+
     public String getDetailId() {
         return detailId;
     }
@@ -119,12 +129,12 @@ public class BillDetail {
         this.detailId = detailId;
     }
 
-    public String getNo() {
-        return no;
+    public String getBillNo() {
+        return billNo;
     }
 
-    public void setNo(String no) {
-        this.no = no;
+    public void setBillNo(String billNo) {
+        this.billNo = billNo;
     }
 
     public String getItemType() {
@@ -239,12 +249,12 @@ public class BillDetail {
         this.payment = payment;
     }
 
-    public String getCarLicense() {
-        return carLicense;
+    public String getCarNumber() {
+        return carNumber;
     }
 
-    public void setCarLicense(String carLicense) {
-        this.carLicense = carLicense;
+    public void setCarNumber(String carNumber) {
+        this.carNumber = carNumber;
     }
 
     public String getClientName() {
@@ -279,11 +289,26 @@ public class BillDetail {
         this.itemCode = itemCode;
     }
 
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     @Override
     public String toString() {
         return "BillDetail{" +
                 "detailId='" + detailId + '\'' +
-                ", no='" + no + '\'' +
                 ", itemName='" + itemName + '\'' +
                 ", itemCode='" + itemCode + '\'' +
                 ", itemType='" + itemType + '\'' +
@@ -299,7 +324,6 @@ public class BillDetail {
                 ", dateAdded='" + dateAdded + '\'' +
                 ", dateExpect='" + dateExpect + '\'' +
                 ", dateEnd='" + dateEnd + '\'' +
-                ", carLicense='" + carLicense + '\'' +
                 ", clientName='" + clientName + '\'' +
                 ", firstCategoryName='" + firstCategoryName + '\'' +
                 ", secondCategoryName='" + secondCategoryName + '\'' +

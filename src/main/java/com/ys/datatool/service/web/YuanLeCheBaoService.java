@@ -1,10 +1,9 @@
 package com.ys.datatool.service.web;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
  */
 @Service
 public class YuanLeCheBaoService {
+
+    private String BILL_URL = "http://www.carbao.vip/Home/workbench/ajaxGetInServiceList";
 
     private String MEMBERCARD_URL = "http://www.carbao.vip/Home/memberManagement/gerMemberUserLists";
 
@@ -53,7 +55,13 @@ public class YuanLeCheBaoService {
 
     private String totalRegEx = "totalPage=.*";
 
+    private String fieldName = "totalCount";
+
     private Charset charset = Charset.forName("UTF-8");
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private int num = 10;
 
     private Workbook workbook;
 
@@ -64,9 +72,9 @@ public class YuanLeCheBaoService {
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)
      */
-    private String companyId = "113";
+    private String companyId = "82";
 
-    private static final String COOKIE = "JSESSIONID=9E6C6FCFA2FF5D765A05A807E330A089; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
+    private static final String COOKIE = "JSESSIONID=ADFCB13A650399758E5EA5559F8914DD; usfl=FxnbV6HgdGzEhcgHWdE; lk=f47446288e43e1cf9d797b7d1749b653";
 
 
     @Test
@@ -85,6 +93,137 @@ public class YuanLeCheBaoService {
         if (m.matches())
             System.out.println("结果为" + m.group(1));
 
+    }
+
+    @Test
+    public void fetchBillData() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("orderCode").asText();
+                    String dateAdded = element.get("orderDate").asText();
+                    String totalAmount = element.get("totalAmount").asText();
+                    String carNumber = element.get("carNumber").asText();
+
+                    String clientName = "";
+                    String clientPhone = "";
+                    if (element.get("userInfo") != null) {
+                        clientName = element.get("userInfo").get("name").asText();
+                        clientPhone = element.get("userInfo").get("mobile").asText();
+                    }
+
+                    String brand = "";
+                    String carModel = "";
+                    String mileage = "";
+                    if (element.get("userCarInfo") != null) {
+                        brand = element.get("userCarInfo").get("brand").asText();
+                        carModel = element.get("userCarInfo").get("modelName").asText();
+                        mileage = element.get("userCarInfo").get("lastMaintainMiles").asText();
+                    }
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setDateAdded(dateAdded);
+                    bill.setDateEnd(dateAdded);
+                    bill.setDateExpect(dateAdded);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setActualAmount(totalAmount);
+                    bill.setCarNumber(carNumber);
+                    bill.setClientName(clientName);
+                    bill.setClientPhone(clientPhone);
+                    bill.setBrand(brand);
+                    bill.setCarModel(carModel);
+                    bill.setMileage(mileage);
+                    bills.add(bill);
+                }
+            }
+        }
+
+
+        System.out.println("结果为" + bills.toString());
+        System.out.println("大小为" + bills.size());
+
+        String pathname = "D:\\单据导出.xls";
+        ExportUtil.exportBillSomeFieldDataInLocal(bills, workbook, pathname);
+    }
+
+    @Test
+    public void fetchBillDetailData() throws IOException {
+        List<BillDetail> billDetails = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String carNumber = element.get("carNumber").asText();
+                    String totalAmount = element.get("totalAmount").asText();
+                    String dateAdded = element.get("orderDate").asText();
+                    String billNo = element.get("orderCode").asText();
+
+                    Iterator<JsonNode> details = element.get("orderItemInfo").iterator();
+                    while (details.hasNext()) {
+                        JsonNode e = details.next();
+
+                        String itemName = e.get("itemName").asText();
+                        String salePrice = e.get("itemPrice").asText();//原价
+                        String price = e.get("dealPrice").asText();//折扣价
+                        String quantity = e.get("quantity").asText();
+                        String itemType = "";
+
+                        if (e.get("serviceInfo") != null)
+                            itemType = "服务项";
+
+                        if (e.get("partsInfo") != null) {
+                            itemType = "配件";
+
+                            String categoryName = e.get("partsInfo").get("categoryName").asText();
+                            String brandName = e.get("partsInfo").get("brandName").asText();
+                            String partsName = e.get("partsInfo").get("partsName").asText();
+
+                            itemName = categoryName + "-" + brandName + "-" + partsName;
+                        }
+
+
+                        BillDetail billDetail = new BillDetail();
+                        billDetail.setBillNo(billNo);
+                        billDetail.setCarNumber(carNumber);
+                        billDetail.setDateAdded(dateAdded);
+                        billDetail.setTotalAmount(totalAmount);
+                        billDetail.setItemName(itemName);
+                        billDetail.setPrice(price);
+                        billDetail.setSalePrice(salePrice);
+                        billDetail.setQuantity(quantity);
+                        billDetail.setItemType(itemType);
+                        billDetails.add(billDetail);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + billDetails.toString());
+        System.out.println("大小为" + billDetails.size());
+
+        String pathname = "D:\\单据明细导出.xls";
+        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, workbook, pathname);
     }
 
 
@@ -397,7 +536,7 @@ public class YuanLeCheBaoService {
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getCarInfoPageParams("1"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams("1"), COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
@@ -406,7 +545,7 @@ public class YuanLeCheBaoService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getCarInfoPageParams(String.valueOf(i)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -554,10 +693,10 @@ public class YuanLeCheBaoService {
         return params;
     }
 
-    private List<BasicNameValuePair> getCarInfoPageParams(String pageNo) {
+    private List<BasicNameValuePair> getPageInfoParams(String pageNo) {
         List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopBranchId", "229"));
-        params.add(new BasicNameValuePair("staffId", "3468"));
+        params.add(new BasicNameValuePair("shopBranchId", "96"));
+        params.add(new BasicNameValuePair("staffId", "1711"));
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
@@ -568,6 +707,16 @@ public class YuanLeCheBaoService {
         int optionSize = document.select(optionRegEx).tagName("option").size();
 
         return optionSize > 0 ? optionSize : 0;
+    }
+
+    private String getDiscount(String salePrice, String price) {
+        int sp = Integer.parseInt(salePrice);
+        int p = Integer.parseInt(price);
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        String res = df.format((float) p / (float) sp);
+
+        return res;
     }
 
 }
