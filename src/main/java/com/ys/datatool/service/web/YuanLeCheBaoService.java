@@ -113,7 +113,7 @@ public class YuanLeCheBaoService {
 
                     String billNo = element.get("orderCode").asText();
                     String dateAdded = element.get("orderDate").asText();
-                    String totalAmount = element.get("totalAmount").asText();
+                    String totalAmount = element.get("dealAmount").asText();//totalAmount
                     String carNumber = element.get("carNumber").asText();
 
                     String clientName = "";

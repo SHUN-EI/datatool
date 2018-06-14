@@ -2,9 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Stock;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -25,13 +23,15 @@ import java.util.*;
 @Service
 public class FourCService {
 
+    private String MEMBERCARDITEM_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerPackages";
+
+    private String CAR_URL = "http://www.car-cloud.cn/Wy/WyCarOwner/LoadData";
+
     private String STOCK_URL = "http://www.car-cloud.cn/Wy/wyInventory/LoadInventoryData";
 
     private String ITEM_URL = "http://www.car-cloud.cn/Wy/wyProduct/LoadData";
 
     private String SUPPLIER_URL = "http://www.car-cloud.cn/Wy/WySupplier/LoadData";
-
-    private String COOKIE = "UM_distinctid=163f1c740ba313-099c2ef31601ab-4323461-144000-163f1c740bbb5a; ASP.NET_SessionId=ek2lhloypptuxmnqta35vxsf; CNZZDATA1263794507=1449725428-1528765268-%7C1528767908; .ASPXAUTH=EB177373C5D4D769B1AB0FE0FD84010A6B64DABC93C767830D01AE71DB4CB808DF972A8AA970F0A38E1C4AE5B92C24F4A7C0FC8BE5BD6E82B53B26F8DEDE3F37C324FC2CB84659D408C3607E56D7FDBDDE85AA483D8E8BCA876788D86D49AE67C6B02372A6953B4AC294BEF811F5E835DD4525685B6338AC371BFE4BB67844D30E974FFF39A57E132D270584DA95920DB9A5E02EBFE1BEDBBE42F333EEE033A90CFA37601CF76617ACEE4C4153C2B1034EA3B1C6B65ED4927DA949C06BE5702FFF49C70B9FC8CF3AF5D29D5E2305B5EA9606D6EEBDFE0C7934606F82B5717CE1F8EFC3B9E1A5B6FCB7890869CDE0119CE6B6253727B1F99EC74198A1FD86798B7238B2D2857251CDC19C120B9FE5E2D3F53340FB3CBFC61ACA33878B08F276436D41A7AA3C066ABC3D2A704A297149B61229DE3B8326FC7F1F643B975FAC20FB49DF61EB93C1D8645A9B12A4EFF08E92EED9773C4CBB2B66B8C5C2FB945197FABA5C21146B176A5CE6D6410DB0574D2DFCBE179E2119B288BCC20561884381C3A958FCCA09537BDA06CE62EA733B01FC9FDCBE6241CAAB8F52E7E54FD93C6A0D573D8AFE281B7E55CB1C04F0DFD597997F44CFE853AA20AAF19FC4853BC1D517363DF6E398CB6EC6CA2D653A690E1CC813C58E73E68989D4F4F4A87DFE4BBC7A532A3FB780E38E9B04A0CBCD7D06F7126B32856DEEA156E3112D04D4CDFD349549EACD2C2883D290AC67BE1C4EFE58DDBD753182E8486B14826BC84FB04A24865353D3C9347AEA2BB28793F46E5E5DE6ED7198BB7E007F1F6039A425EC8593782D304BFD4EF14427732D67137E2355039B591455A15497E9C9203B08A4C5DEF4B0CEA4B5B0C1A2FEA0D8753D587B69CC55F7C3F9C09179F6DD2D44C3607EF1FA6E46E864BE26101A35BAF28FA07488F670642C9AF4EA9C10BD644B427E14E1F292404A5795A0221E86BF7F22A30B7E02";
 
     private String fieldName = "total";
 
@@ -40,6 +40,135 @@ public class FourCService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Workbook workbook;
+
+    private String COOKIE = "UM_distinctid=163f1c740ba313-099c2ef31601ab-4323461-144000-163f1c740bbb5a; ASP.NET_SessionId=ek2lhloypptuxmnqta35vxsf; CNZZDATA1263794507=1449725428-1528765268-%7C1528956347; .ASPXAUTH=61856F7FB14B6076604F1D47D38FBFE2F891FC40F29387D7D9C1C020BDE2452445A4CE63F8E998DD91690AE3370C93B245C8BCB71BE2942673FBEA8B22AE792CED4F289E79268918FA7145F9BDEC0386CA98157D37BA0D1F46A1510FC451023B38231F0E02DEFD16C612C9DE21649E778E531957265C969DF15C28847085D76D972F01321E8E6D57A6142520E92790F7D09D2938B5112FEE45A733D61286EF29272F5BB561DA60746C7C8E376D22EBC4AA8618142F60F6C3807504666CCCEB13E03EFDF236F1BD60C6D8A5C2098A4C1380F22FAD0CB903A0EC4CF5A00DA63A400B910A9CE605F3953333319019FA3A34EC5DB342E403AC03B6841B0AA2E6DA9AB356F9729B43AD7FFEC1A871F979ACAD7D7C967B94A077D408B6A50D9E8684167C9DBE52AA70A6E490FEFD8E72D9192FCBC53A33F9EA10031DB4827D310D2B62884E24496E6B024C455C73BD1587BC19A76126E61D7577F97C6B9DA1C2330BADF32D50E6CFDBE826193DB1258615BBF5E20E70619D00994C40F4866B542D065EE5327A02EF0D5893AF8C00C2C12D089573970613E332B1F8FAC85F24806616DF61C83C39990446A09888C6939BFE0982DD6EE1959261FD5B73F0774ECB9161CA1EB09F4038AADB2DC6DB350A147EF6D15740CB6E411919DB9048938BA171B60B6F43C39AE2ED4559DB043AB74AF48EB8A58E307E5B0986F9424F2B8B8F1A974B4E2C7FF84300139C3A565BD6F450B0EE6C65C0494277B4421DE406B9652EA1B3B755848D30499339825525BFC74097B0741075FD2302B295684760FB8CF516B4F75A546DA11BA2259204FA928E162A3A7EFFFD7F1BE6DD0CCCA3FF71B40B8E06E8EE8EEADA7A683BA736B3C341EACE9DC19697E8F233A4154B4731CE9F0B5C403C2325DDB79BC8E14BA27086CC14A36891AAFB41CEE37A267C1CDF31607C00C9EBD5540E63184D251BB90B2BC7D33A6D";
+
+
+    @Test
+    public void fetchMemberCardData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Response response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String cardCode = element.get("ClubCard").asText();
+
+                    if ("null".equals(cardCode))
+                        continue;
+
+                    String memberCardName = element.get("ClubGrade").asText();
+                    String balance = element.get("Amount").asText();
+                    String name = element.get("Name").asText();
+                    String phone = element.get("Phone").asText();
+                    String dateCreated = element.get("DataTime").asText();
+                    String carNumber = element.get("CarCard").asText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setName(name);
+                    memberCard.setPhone(phone);
+                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setBalance(balance);
+                    memberCard.setMemberCardName(memberCardName);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setCarNumber(carNumber);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("大小为" + memberCards.size());
+
+        String pathname = "D:\\4C会员卡导出.xls";
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+    }
+
+    @Test
+    public void fetchMemberCardItemData() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCardItem> memberCardItemMap = new HashMap<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("ID").asText();
+                    String cardCode = element.get("ClubCard").asText();
+                    String memberCardName = element.get("ClubGrade").asText();
+                    String balance = element.get("Amount").asText();
+                    String name = element.get("Name").asText();
+                    String phone = element.get("Phone").asText();
+                    String dateCreated = element.get("DataTime").asText();
+
+                    MemberCardItem memberCardItem = new MemberCardItem();
+                    memberCardItem.setCardCode(cardCode == "null" ? "" : cardCode);
+                    memberCardItem.setMemberCardName(memberCardName);
+                    memberCardItem.setBalance(balance);
+                    memberCardItem.setName(name);
+                    memberCardItem.setPhone(phone);
+                    memberCardItem.setDateCreated(dateCreated);
+                    memberCardItemMap.put(id, memberCardItem);
+                }
+            }
+        }
+
+        for (String id : memberCardItemMap.keySet()) {
+            Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, getCardDetailParams(id), COOKIE);
+            JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+            int size = result.get("rows").size();
+            if (size > 0) {
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String itemName = element.get("ObjectName").asText();
+                    String num = element.get("Qty").asText();
+                    String price = element.get("UnitPrice").asText();
+                    String validTime = element.get("ExpireDateTime").asText();
+                    String code = element.get("ObjectID").asText();
+
+                    MemberCardItem memberCardItem = memberCardItemMap.get(id);
+                    MemberCardItem m = new MemberCardItem();
+                    m.setItemName(itemName);
+                    m.setNum(num);
+                    m.setOriginalNum(num);
+                    m.setPrice(price);
+                    m.setValidTime(validTime);
+                    m.setCode(code);
+                    m.setCardCode(memberCardItem.getCardCode());
+                    m.setName(memberCardItem.getName());
+                    m.setPhone(memberCardItem.getPhone());
+                    m.setPrice(memberCardItem.getPrice());
+                    m.setDateCreated(memberCardItem.getDateCreated());
+                    m.setMemberCardName(memberCardItem.getMemberCardName());
+                    memberCardItems.add(m);
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCardItems.toString());
+        System.out.println("大小为" + memberCardItems.size());
+
+        String pathname = "D:\\4C卡内项目导出.xls";
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
+    }
 
     @Test
     public void fetchItemData() throws IOException {
@@ -211,6 +340,15 @@ public class FourCService {
         String pathname = "D:\\4C供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
 
+    }
+
+    private List<BasicNameValuePair> getCardDetailParams(String carOwnerID) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("CarOwnerID", carOwnerID));
+        params.add(new BasicNameValuePair("page", "1"));
+        params.add(new BasicNameValuePair("rows", "200"));
+
+        return params;
     }
 
     private List<BasicNameValuePair> getParams(String pageNo) {
