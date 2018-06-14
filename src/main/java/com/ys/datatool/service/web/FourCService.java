@@ -23,6 +23,10 @@ import java.util.*;
 @Service
 public class FourCService {
 
+    private String RECHARGERECORD_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerRechargeRecord";
+
+    private String BUYPACKAGES_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerBuyPackages";
+
     private String MEMBERCARDITEM_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerPackages";
 
     private String CAR_URL = "http://www.car-cloud.cn/Wy/WyCarOwner/LoadData";
@@ -47,6 +51,7 @@ public class FourCService {
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
+        Map<String, String> memberCardMap = new HashMap<>();
         Response response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams("1"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
@@ -64,24 +69,62 @@ public class FourCService {
                     if ("null".equals(cardCode))
                         continue;
 
+                    String id = element.get("ID").asText();
                     String memberCardName = element.get("ClubGrade").asText();
                     String balance = element.get("Amount").asText();
                     String name = element.get("Name").asText();
                     String phone = element.get("Phone").asText();
-                    String dateCreated = element.get("DataTime").asText();
                     String carNumber = element.get("CarCard").asText();
+                    String dateCreated = element.get("DataTime").asText();
 
                     MemberCard memberCard = new MemberCard();
-                    memberCard.setName(name);
-                    memberCard.setPhone(phone);
-                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setMemberCardId(id);
+                    memberCard.setName(name == "null" ? "" : name);
+                    memberCard.setPhone(phone == "null" ? "" : phone);
                     memberCard.setBalance(balance);
-                    memberCard.setMemberCardName(memberCardName);
-                    memberCard.setCardCode(cardCode);
-                    memberCard.setCarNumber(carNumber);
+                    memberCard.setMemberCardName(memberCardName == "null" ? "" : memberCardName);
+                    memberCard.setCardCode(cardCode == "null" ? "" : cardCode);
+                    memberCard.setCarNumber(carNumber == "null" ? "" : carNumber);
+                    memberCard.setDateCreated(dateCreated);
                     memberCards.add(memberCard);
                 }
             }
+        }
+
+        for (MemberCard m : memberCards) {
+            Response res = ConnectionUtil.doPostWithLeastParams(BUYPACKAGES_URL, getCardDetailParams(m.getMemberCardId()), COOKIE);
+            JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+            int size = result.get("rows").size();
+            if (size > 0) {
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String dateCreated = element.get("PurchaseDateTime").asText();
+                    String carOwnerID = element.get("CarOwnerID").asText();
+                    memberCardMap.put(carOwnerID, dateCreated);
+                }
+            } else {
+                Response respon = ConnectionUtil.doPostWithLeastParams(RECHARGERECORD_URL, getCardDetailParams(m.getMemberCardId()), COOKIE);
+                JsonNode resultNode = MAPPER.readTree(respon.returnContent().asString());
+
+                int resultSize = resultNode.get("rows").size();
+                if (resultSize > 0) {
+                    Iterator<JsonNode> it = resultNode.get("rows").iterator();
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String carOwnerID = element.get("CarOwnerID").asText();
+                        String dateCreated = element.get("RechargeTime").asText();
+                        memberCardMap.put(carOwnerID, dateCreated);
+                    }
+                }
+            }
+        }
+
+        for (MemberCard memberCard : memberCards) {
+            memberCard.setDateCreated(memberCardMap.get(memberCard.getMemberCardId()));
         }
 
         System.out.println("结果为" + memberCards.toString());
