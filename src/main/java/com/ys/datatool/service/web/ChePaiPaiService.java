@@ -42,7 +42,6 @@ public class ChePaiPaiService {
         String totalPageStr = CommonUtil.fetchString(doc.toString(), totalRegEx).replace("totalPage = ", "");
         int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
 
-
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doGetWithLeastParams(TEMPCLIENT_URL + String.valueOf(i), COOKIE);

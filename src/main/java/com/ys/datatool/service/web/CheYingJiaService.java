@@ -1,10 +1,87 @@
 package com.ys.datatool.service.web;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
+import org.apache.http.entity.ContentType;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+
 /**
  * Created by mo on @date  2018/6/20.
  * 车赢家系统
  */
 public class CheYingJiaService {
+
+
+    String url = "http://61.186.130.102:803/YCKService.asmx";
+
+    String HOST = "61.186.130.102:803";
+
+    String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
+
+    String USER_AGENT = "Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 4.0.30319.42000)";
+
+    String CONTENT_TYPE = "text/xml; charset=utf-8";
+
+    private Charset charset = Charset.forName("UTF-8");
+
+
+    @Test
+    public void testSOAP() throws IOException {
+
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8D51324FB76D92C19E625024B66AC76F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;LEAGUERNUM desc,LEAGUERNAME,MOBILE&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;ID,LEAGUERNUM,MERID,LEAGUERNAME,ABBREVIATION,ZJTYPE,ZJNUM,SEX,BIRTHDAY,EMAIL,PHONE,MOBILE,ADDRESS,ZIPCODE,EDULEVEL,TRADETYPE,POST,COMTYPE,LEAGUERAREA,PIN,REGTIME,LOGOUTTIME,LEAGUERSTATE,C_SORTINDEX,CREATEDATE,CREATEEMP,LASTUPDATEDATE,UPDATEEMP,BAKONE,BAKTWO,BAKTHREE,BAKFOUR,BAKFIVE,BAKSIX,BAKSEVEN,BAKEIGHT,BAKNINE,BAKTEN,LEAGUERTYPEID,LEAGUERTYPE,MERNAME,STORESID,STORESNAME,ISONCREDIT,MAXCREDIT,ACCOUNTDAY,CLIENTMANAGERID,CLIENTMANAGER,CUSTOMERSOURCEID,CUSTOMERSOURCE,CARNUMBER,INTYPE,HYMONEY,INTEGRAL,MOBILEONE,case CUSTOMERSOURCE when '微信' then '微信' else '' end as ISWEIXIN, case leaguerState when '2' then '冻结客户' when '3' then '领养客户' else '正常客户' end as StateName,ADOPTTIME,LEVELNAME,LASTONSTORETIME,LASTVISITTIME,SumConsumptionAccount,SumConsumptionCount,FirstOnStoreDate &lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb35d0b3080015d0ce0879e30af'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_leaguerInfo&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+        String p = StringUtils.replace(param, "{no}", "2");
+        Response response = Request.Post(url)
+                .setHeader("SOAPAction", SOAPAction)
+                .bodyString(p, ContentType.TEXT_XML)
+                .execute();
+
+        String html = response.returnContent().asString(charset);
+        Document doc = Jsoup.parseBodyFragment(html);
+
+        String aRegEx = "NewDataSet";
+        Elements elements = doc.select(aRegEx);
+
+        String cRegEx = "newdataset > id";
+        int size = doc.select(cRegEx).tagName("id").size();
+
+        System.out.println("doc结果为" + doc);
+        System.out.println("size 结果为" +size );
+
+    }
 
 
 }
