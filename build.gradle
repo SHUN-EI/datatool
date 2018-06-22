@@ -50,6 +50,7 @@ dependencies {
 	compile group: 'com.alibaba', name: 'fastjson',version: '1.2.38'
 	compile group: 'junit', name: 'junit', version: '4.12'
 	compile group: 'org.firebirdsql.jdbc', name: 'jaybird-jdk18', version: '2.2.14'
+	compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
 	compile ('org.springframework.boot:spring-boot-starter-test')
 
 	runtime('mysql:mysql-connector-java')
