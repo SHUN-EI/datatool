@@ -100,7 +100,7 @@ public class CheYingJiaService {
             Element diff = result.element("diffgram");
             Element dataSet = diff.element("NewDataSet");
 
-            String target="_x0035_511";
+            String target = "_x0035_511";
             List<Element> dataList = dataSet.elements(target);
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -125,12 +125,17 @@ public class CheYingJiaService {
                     if (companyNameElement != null)
                         companyName = companyNameElement.getText();
 
+                    String remark = "";
+                    Element remarkElement = node.element("PHONE");
+                    if (remarkElement != null)
+                        remark = remarkElement.getText();
 
                     CarInfo carInfo = new CarInfo();
                     carInfo.setCompanyName(companyName);
                     carInfo.setName(name);
                     carInfo.setPhone(phone);
                     carInfo.setCarNumber(carNumber);
+                    carInfo.setRemark(remark);
                     carInfos.add(carInfo);
                 }
             }
