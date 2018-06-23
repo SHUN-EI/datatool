@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -44,7 +45,14 @@ public class CheYingJiaService {
 
 
     @Test
-    public void testSOAP() throws IOException, DocumentException {
+    public void fetchSupplierData() throws IOException, DocumentException {
+        List<Supplier> suppliers = new ArrayList<>();
+
+
+    }
+
+    @Test
+    public void fetchCarInfoData() throws IOException, DocumentException {
         List<CarInfo> carInfos = new ArrayList<>();
 
         String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8D51324FB76D92C19E625024B66AC76F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
@@ -77,27 +85,28 @@ public class CheYingJiaService {
 
         for (int i = 1; i <= carInfoNum; i++) {
 
-            String p = StringUtils.replace(param, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
             Response response = Request.Post(url)
                     .setHeader("SOAPAction", SOAPAction)
-                    .bodyString(p, ContentType.TEXT_XML)
+                    .bodyString(params, ContentType.TEXT_XML)
                     .execute();
 
             String html = response.returnContent().asString(charset);
             Document doc = DocumentHelper.parseText(html);
             Element root = doc.getRootElement();
             Element body = root.element("Body");
-            Element resp= body.element("RunProcedureAndGetTotalRecordResponse");
+            Element resp = body.element("RunProcedureAndGetTotalRecordResponse");
             Element result = resp.element("RunProcedureAndGetTotalRecordResult");
             Element diff = result.element("diffgram");
             Element dataSet = diff.element("NewDataSet");
 
-            List<Element> dataList = dataSet.elements("_x0035_508");
+            String target="_x0035_511";
+            List<Element> dataList = dataSet.elements(target);
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
 
                     String phone = "";
-                    Element phoneElement = node.element("PHONE");
+                    Element phoneElement = node.element("MOBILE");
                     if (phoneElement != null)
                         phone = phoneElement.getText();
 
@@ -111,7 +120,14 @@ public class CheYingJiaService {
                     if (carNumberElement != null)
                         carNumber = carNumberElement.getText();
 
+                    String companyName = "";
+                    Element companyNameElement = node.element("STORESNAME");
+                    if (companyNameElement != null)
+                        companyName = companyNameElement.getText();
+
+
                     CarInfo carInfo = new CarInfo();
+                    carInfo.setCompanyName(companyName);
                     carInfo.setName(name);
                     carInfo.setPhone(phone);
                     carInfo.setCarNumber(carNumber);
@@ -123,7 +139,7 @@ public class CheYingJiaService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("结果为" + carInfos.size());
 
-        String pathname = "D:\\车赢家车辆信息导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家车辆信息导出.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
