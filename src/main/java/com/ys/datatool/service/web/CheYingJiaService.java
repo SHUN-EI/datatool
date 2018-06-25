@@ -47,6 +47,114 @@ public class CheYingJiaService {
 
     private int serviceNum = 20;
 
+    private int itemNum = 108;
+
+
+    @Test
+    public void fetchItemData() throws IOException, DocumentException {
+        List<Product> products = new ArrayList<>();
+
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;stockno&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt; id, states, productname,'0' IsPrintCode, productcode, stockno, pinyinno, brand, specmodel, unit, supplier, supplerid, storenum, appinnum, trueinnum, appoutnum, trueoutnum, customname, customcode, customid, warehousename, warehousecode, warehouseid, createper, createperid, createdates, productcage, productcageid, protypeid, protypecode, protypename, createdate, createemp, lastupdatedate, updateemp, bakone, baktwo, bakthree, bakfour, bakfive, baksix, bakseven, bakeight, baknine, bakten, productid, applymodel, picstore, applymodelid, tenantname, tenantid, picsrc, picstore1, picstore2, picstore3, picstore4, picstore5, picstore6, picstore7, viceunit, price, saleprice, lowsaleprice, wholesaleprice1, wholesaleprice2, memsaleprice1, memsaleprice2, inprice, outnumprice, storeprice, avgprice, wholesaleprice, storesaleprice, allotsaleprice, shopsaleprice, memsaleprice, promsaleprice,storeID,storeName&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;TenantID= '297edeb35d0b3080015d0ce0879e30af' and states &amp;lt;&amp;gt; 2 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_ProductInfo&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+
+        for (int i = 1; i <= itemNum; i++) {
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+
+            String html = response.returnContent().asString(charset);
+            String target = "_x0032_147";
+            List<Element> dataList = getDataList(html, target);
+
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+                    String productName = "";
+                    Element productNameElement = node.element("PRODUCTNAME");
+                    if (productNameElement != null)
+                        productName = productNameElement.getText();
+
+                    String code = "";
+                    Element codeElement = node.element("STOCKNO");
+                    if (codeElement != null)
+                        code = codeElement.getText();
+
+                    String unit = "";
+                    Element unitElement = node.element("UNIT");
+                    if (unitElement != null)
+                        unit = unitElement.getText();
+
+                    String price = "";
+                    Element priceElement = node.element("SALEPRICE");
+                    if (priceElement != null)
+                        price = priceElement.getText();
+
+                    String firstCategoryName = "";
+                    Element firstCategoryNameElement = node.element("PROTYPENAME");
+                    if (firstCategoryNameElement != null)
+                        firstCategoryName = firstCategoryNameElement.getText();
+
+                    String brandName = "";
+                    Element brandNameElement = node.element("BRAND");
+                    if (brandNameElement != null)
+                        brandName = brandNameElement.getText();
+
+                    String origin = "";
+                    Element originElement = node.element("PRODUCTCAGE");
+                    if (originElement != null)
+                        origin = originElement.getText();
+
+                    String carModel = "";
+                    Element carModelElement = node.element("APPLYMODEL");
+                    if (carModelElement != null)
+                        carModel = carModelElement.getText();
+
+                    Product product = new Product();
+                    product.setProductName(productName);
+                    product.setCode(code);
+                    product.setUnit(unit);
+                    product.setPrice(price);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setBrandName(brandName);
+                    product.setOrigin(origin);
+                    product.setCarModel(carModel);
+                    product.setItemType("商品");
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+        System.out.println("大小为" + products.size());
+
+        String pathname = "C:\\exportExcel\\车赢家商品导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+
+    }
 
     @Test
     public void fetchServiceData() throws IOException, DocumentException {
@@ -114,6 +222,7 @@ public class CheYingJiaService {
                     product.setCode(code);
                     product.setRemark(remark);
                     product.setPrice(price);
+                    product.setItemType("服务项");
                     products.add(product);
                 }
             }
