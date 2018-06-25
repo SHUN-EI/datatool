@@ -150,7 +150,7 @@ public class CheKuKeService {
         }
 
         String pathname = "C:\\exportExcel\\卡内项目.xls";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
     }
 
     @Test
@@ -168,9 +168,6 @@ public class CheKuKeService {
 
         String dateCreatedTD4RegEx = "#card_tab > tbody > tr:nth-child({no}) > td:nth-child(3)";
         String dateCreatedTD3RegEx = "#card_tab > tbody > tr:nth-child({no}) > td:nth-child(2)";
-
-        String editTD4XPath = "//*[@id=\"card_tab\"]/tbody/tr[{no}]/td[4]/input[2]";
-        String editTD3XPath = "//*[@id=\"card_tab\"]/tbody/tr[{no}]/td[3]/input[2]";
 
         for (int i = 0; i < pages.size(); i++) {
             HtmlPage cardPage = pages.get(i);
