@@ -13,6 +13,15 @@ import java.util.List;
  */
 public class ConnectionUtil {
 
+    public static Response doPostWithSOAP(String url, String SOAPAction, String param) throws IOException {
+        Response response = Request.Post(url)
+                .setHeader("SOAPAction", SOAPAction)
+                .bodyString(param, ContentType.TEXT_XML)
+                .execute();
+
+        return response;
+    }
+
     public static Response doGetWithAuthority(String url, String accept, String cookie, String referer, String authority, String x_Requested_With, String user_Agent) throws IOException {
 
         Response response = Request.Get(url)
@@ -80,7 +89,7 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doPostWithLeastParamJson(String url, String param, String cookie) throws IOException{
+    public static Response doPostWithLeastParamJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)

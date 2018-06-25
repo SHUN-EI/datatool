@@ -3,11 +3,10 @@ package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.apache.http.entity.ContentType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -43,12 +42,111 @@ public class CheYingJiaService {
 
     private int carInfoNum = 276;
 
+    private int supplierNum = 6;
+
 
     @Test
     public void fetchSupplierData() throws IOException, DocumentException {
         List<Supplier> suppliers = new ArrayList<>();
 
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;comCode&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;payType,id,tenantID,tenantCode,tenantName,comCode,company,comGroup,comType,email,contacts,conTel,fax,mobile,comPage,county,province,city,post,address,openBank,bankAccount,taxNum,state,remark,createEmp,createEmpId,createDate,storeID,storeName&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;tenantID='297edeb35d0b3080015d0ce0879e30af'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_supplierManager&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
+        for (int i = 1; i <= supplierNum; i++) {
+
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+
+            String html = response.returnContent().asString(charset);
+            String target = "_x0031_16";
+            List<Element> dataList = getDataList(html, target);
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+                    String companyName = "";
+                    Element companyNameElement = node.element("STORENAME");
+                    if (companyNameElement != null)
+                        companyName = companyNameElement.getText();
+
+                    String address = "";
+                    Element addressElement = node.element("ADDRESS");
+                    if (addressElement != null)
+                        address = addressElement.getText();
+
+                    String contactName = "";
+                    Element contactNameElement = node.element("CONTACTS");
+                    if (contactNameElement != null)
+                        contactName = contactNameElement.getText();
+
+                    String contactPhone = "";
+                    Element contactPhoneElement = node.element("MOBILE");
+                    if (contactPhoneElement != null)
+                        contactPhone = contactPhoneElement.getText();
+
+                    String name = "";
+                    Element nameElement = node.element("COMPANY");
+                    if (nameElement != null)
+                        name = nameElement.getText();
+
+                    String phone = "";
+                    Element phoneElement = node.element("CONTEL");
+                    if (phoneElement != null)
+                        phone = phoneElement.getText();
+
+                    String code = "";
+                    Element codeElement = node.element("COMCODE");
+                    if (codeElement != null)
+                        code = codeElement.getText();
+
+                    String remark = "";
+                    Element remarkElement = node.element("REMARK");
+                    if (remarkElement != null)
+                        remark = remarkElement.getText();
+
+                    Supplier supplier = new Supplier();
+                    supplier.setCompanyName(companyName);
+                    supplier.setName(name);
+                    supplier.setPhone(phone);
+                    supplier.setContactName(contactName);
+                    supplier.setContactPhone(contactPhone);
+                    supplier.setCode(code);
+                    supplier.setRemark(remark);
+                    supplier.setAddress(address);
+                    supplier.setFax(phone);//固话
+                    suppliers.add(supplier);
+                }
+            }
+        }
+
+        System.out.println("结果为" + suppliers.toString());
+        System.out.println("大小为" + suppliers.size());
+
+        String pathname = "C:\\exportExcel\\车赢家供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
     }
 
     @Test
@@ -86,22 +184,11 @@ public class CheYingJiaService {
         for (int i = 1; i <= carInfoNum; i++) {
 
             String params = StringUtils.replace(param, "{no}", String.valueOf(i));
-            Response response = Request.Post(url)
-                    .setHeader("SOAPAction", SOAPAction)
-                    .bodyString(params, ContentType.TEXT_XML)
-                    .execute();
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            Document doc = DocumentHelper.parseText(html);
-            Element root = doc.getRootElement();
-            Element body = root.element("Body");
-            Element resp = body.element("RunProcedureAndGetTotalRecordResponse");
-            Element result = resp.element("RunProcedureAndGetTotalRecordResult");
-            Element diff = result.element("diffgram");
-            Element dataSet = diff.element("NewDataSet");
-
             String target = "_x0035_511";
-            List<Element> dataList = dataSet.elements(target);
+            List<Element> dataList = getDataList(html, target);
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
 
@@ -148,5 +235,16 @@ public class CheYingJiaService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
+    private List<Element> getDataList(String response, String target) throws DocumentException {
+        Document doc = DocumentHelper.parseText(response);
+        Element root = doc.getRootElement();
+        Element body = root.element("Body");
+        Element resp = body.element("RunProcedureAndGetTotalRecordResponse");
+        Element result = resp.element("RunProcedureAndGetTotalRecordResult");
+        Element diff = result.element("diffgram");
+        Element dataSet = diff.element("NewDataSet");
+        List<Element> dataList = dataSet.elements(target);
 
+        return dataList;
+    }
 }
