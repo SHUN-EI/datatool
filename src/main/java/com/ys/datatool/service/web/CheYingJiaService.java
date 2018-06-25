@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -44,6 +45,86 @@ public class CheYingJiaService {
 
     private int supplierNum = 6;
 
+    private int serviceNum = 20;
+
+
+    @Test
+    public void fetchServiceData() throws IOException, DocumentException {
+        List<Product> products = new ArrayList<>();
+
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;code&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;id,code,name,description,costPrice,salePrice,minSalePrice,workTime,workTimePrice,workTypeId,workType,settleType,merId,merName,storesId,storesName,commission,constructionNum,constructionCost,proCostPrice,invCostPrice,isOnlyCar,mnemonicCode,ApplyModel,costObjectId,costObjectName &lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;merid='297edeb35d0b3080015d0ce0879e30af' and (bakFive ='A' or bakFive is null or bakFive = '') and (storesid like '%297edeb35d1206b6015d169619a1254d%'or storesid='ALL')  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;YCK_SERVICEITEM&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+        for (int i = 1; i <= serviceNum; i++) {
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+            String html = response.returnContent().asString(charset);
+            String target = "_x0034_00";
+            List<Element> dataList = getDataList(html, target);
+
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+                    String productName = "";
+                    Element productNameElement = node.element("NAME");
+                    if (productNameElement != null)
+                        productName = productNameElement.getText();
+
+                    String code = "";
+                    Element codeElement = node.element("CODE");
+                    if (codeElement != null)
+                        code = codeElement.getText();
+
+                    String remark = "";
+                    Element remarkElement = node.element("DESCRIPTION");
+                    if (remarkElement != null)
+                        remark = remarkElement.getText();
+
+                    String price = "";
+                    Element priceElement = node.element("SALEPRICE");
+                    if (priceElement != null)
+                        price = priceElement.getText();
+
+                    Product product = new Product();
+                    product.setProductName(productName);
+                    product.setCode(code);
+                    product.setRemark(remark);
+                    product.setPrice(price);
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+        System.out.println("大小为" + products.size());
+
+        String pathname = "C:\\exportExcel\\车赢家服务项目导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+    }
 
     @Test
     public void fetchSupplierData() throws IOException, DocumentException {
