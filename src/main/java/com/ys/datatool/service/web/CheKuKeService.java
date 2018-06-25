@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.ys.datatool.domain.MemberCard;
+import com.ys.datatool.domain.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -24,6 +25,8 @@ import java.util.List;
  * 车酷客系统
  */
 public class CheKuKeService {
+
+    private String MEMBERCARDINFO_URL = "http://sa.chekuke.com/MemberManage/ShopUserCardInfo.aspx?id={id}";
 
     private String MEMBERCARDITEM_URL = "http://sa.chekuke.com/MemberManage/ShopUserCardEdit.aspx?id={id}";
 
@@ -63,6 +66,91 @@ public class CheKuKeService {
     public void test() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
+    }
+
+    @Test
+    public void fetchMemberCardItemData() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllMemberCardPages(webClient);
+
+        String trMemberCardInfoRegEx = "#form1 > table > tbody > tr:nth-child(3) > td > table > tbody > tr";
+        String idTD4RegEx = "#card_tab > tbody > tr:nth-child({no}) > td:nth-child(4) > input:nth-child(1)";
+        String idTD3RegEx = "#card_tab > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
+        String tdMemberCardRegEx = "#card_tab > tbody > tr:nth-child({no}) > td";
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            HtmlPage cardPage = pages.get(i);
+            Document doc = Jsoup.parseBodyFragment(cardPage.asXml());
+            int trSize = WebClientUtil.getTRSize(doc, trMemberCardRegEx);
+
+            if (trSize > 0) {
+                for (int j = 2; j <= trSize; j++) {
+
+                    //判断有多少个td
+                    int tdSize = doc.select(StringUtils.replace(tdMemberCardRegEx, "{no}", j + "")).tagName("td").size();
+                    if (tdSize == 4) {
+
+                        String idStr = doc.select(StringUtils.replace(idTD4RegEx, "{no}", j + "")).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+
+                        //会员卡详情页面
+                        HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
+                        Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
+
+                        int trMemberCardInfoSize = WebClientUtil.getTRSize(document, trMemberCardInfoRegEx);
+                        if (trMemberCardInfoSize > 0) {
+                            for (int k = 2; k <= trMemberCardInfoSize; k++) {
+
+                                String itemNameRegEx = "#form1 > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                                String itemName = document.select(StringUtils.replace(itemNameRegEx, "{no}", k + "")).text();
+
+                                String numRegEx = "#form1 > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child({no}) > td:nth-child(2)";
+                                String numStr = document.select(StringUtils.replace(numRegEx, "{no}", k + "")).text();
+                                String num = numStr.replaceAll("次", "");
+
+                                MemberCardItem memberCardItem = new MemberCardItem();
+                                memberCardItem.setMemberCardItemId(id);
+                                memberCardItem.setItemName(itemName);
+                                memberCardItem.setNum(num);
+                                memberCardItem.setOriginalNum(num);
+                                memberCardItems.add(memberCardItem);
+                            }
+                        }
+                    } else {
+                        String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", j + "")).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+
+                        HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
+                        Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
+
+                        int trMemberCardInfoSize = WebClientUtil.getTRSize(document, trMemberCardInfoRegEx);
+                        if (trMemberCardInfoSize > 0) {
+                            for (int k = 2; k <= trMemberCardInfoSize; k++) {
+
+                                String itemNameRegEx = "#form1 > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                                String itemName = document.select(StringUtils.replace(itemNameRegEx, "{no}", k + "")).text();
+
+                                String numRegEx = "#form1 > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child({no}) > td:nth-child(2)";
+                                String numStr = document.select(StringUtils.replace(numRegEx, "{no}", k + "")).text();
+                                String num = numStr.replaceAll("次", "");
+
+                                MemberCardItem memberCardItem = new MemberCardItem();
+                                memberCardItem.setItemName(itemName);
+                                memberCardItem.setMemberCardItemId(id);
+                                memberCardItem.setNum(num);
+                                memberCardItem.setOriginalNum(num);
+                                memberCardItems.add(memberCardItem);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\卡内项目.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
     }
 
     @Test
@@ -168,7 +256,7 @@ public class CheKuKeService {
         }
 
         String pathname = "C:\\exportExcel\\会员卡信息.xls";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards,workbook,pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
     private void getAllMemberCardPages(WebClient webClient) throws IOException {
@@ -236,7 +324,7 @@ public class CheKuKeService {
         if (count > 10)
             anchorXPath = "//*[@id=\"AspNetPager1\"]/a[14]";
         if (count > 20)
-            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[6]";//change
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[6]";//最后几页的下一页
 
         HtmlAnchor nextPage = page.getFirstByXPath(anchorXPath);
 
