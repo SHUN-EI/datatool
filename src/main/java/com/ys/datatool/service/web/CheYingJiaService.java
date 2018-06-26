@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
@@ -49,6 +50,116 @@ public class CheYingJiaService {
 
     private int itemNum = 108;
 
+    private int memberCardNum = 323;
+
+    @Test
+    public void fetchMemberCardData() throws IOException, DocumentException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>97ECCB8B1E6864097A1B1A44A3523C5F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\" /&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;'0' as IsSelect,SALESNAME,id,cardId,cardClassId,cardClassName,subCardFlag,subOrder,tranPassId,quryPassId,membId,membName,leaguerNum,membPhone,smsFlag,makeCardDate,validDate,activeDate,closeDate,lastActiDate,makeCardFileid,sellType,cardYesdBal,cardBal,cardSubAcctNub,track1,track2,track3,cardCVV,disCrank,merId,merName,branchCompId,agentCompId,projMangId,projAssitId,stats,lastOperId,lastOperName,createEmpName,lastOperDate,batchNo,storesId,storesName,memberCarId,memberCar,ciCarNumber,bakThree,bakFour,bakFive,Remark&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb35d0b3080015d0ce0879e30af' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_cardInfo&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+        for (int i = 1; i <= memberCardNum; i++) {
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+
+            String html = response.returnContent().asString(charset);
+            String target = "_x0036_444";
+            List<Element> dataList = getDataList(html, target);
+
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+                    String memberCardName = "";
+                    Element memberCardNameElement = node.element("CARDCLASSNAME");
+                    if (memberCardNameElement != null)
+                        memberCardName = memberCardNameElement.getText();
+
+                    String cardCode = "";
+                    Element cardCodeElement = node.element("CARDID");
+                    if (cardCodeElement != null)
+                        cardCode = cardCodeElement.getText();
+
+                    String name = "";
+                    Element nameElement = node.element("MEMBNAME");
+                    if (nameElement != null)
+                        name = nameElement.getText();
+
+                    String phone = "";
+                    Element phoneElement = node.element("MEMBPHONE");
+                    if (phoneElement != null)
+                        phone = phoneElement.getText();
+
+                    String dateCreated = "";
+                    Element dateCreatedElement = node.element("ACTIVEDATE");
+                    if (dateCreatedElement != null)
+                        dateCreated = dateCreatedElement.getText();
+
+                    String validTime = "";
+                    Element validTimeElement = node.element("VALIDDATE");
+                    if (validTimeElement != null)
+                        validTime = validTimeElement.getText();
+
+                    String companyName = "";
+                    Element companyNameElement = node.element("STORESNAME");
+                    if (companyNameElement != null)
+                        companyName = companyNameElement.getText();
+
+                    String carNumber = "";
+                    Element carNumberElement = node.element("CICARNUMBER");
+                    if (carNumberElement != null)
+                        carNumber = carNumberElement.getText();
+
+                    String balance = "";
+                    Element balanceElement = node.element("CARDBAL");
+                    if (balanceElement != null)
+                        balance = balanceElement.getText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setMemberCardName(memberCardName);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setName(name);
+                    memberCard.setPhone(phone);
+                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setValidTime(validTime);
+                    memberCard.setCompanyName(companyName);
+                    memberCard.setCarNumber(carNumber);
+                    memberCard.setBalance(balance);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("大小为" + memberCards.size());
+
+        String pathname = "C:\\exportExcel\\车赢家会员卡导出.xls";
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+    }
 
     @Test
     public void fetchItemData() throws IOException, DocumentException {
