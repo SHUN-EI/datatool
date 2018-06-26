@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -332,13 +333,6 @@ public class ZhongYiZhiLianService {
             String originalNum = element.get("SUMACOUNT").asText();
             String num = element.get("NUM").asText();
             String validTime = element.get("EXPIRYTIME").asText();
-            String isValidForever = "";
-
-            if (StringUtils.isNotBlank(validTime) || validTime != null) {
-                isValidForever = "否";
-            } else {
-                isValidForever = "是";
-            }
 
             Product product = productMap.get(id);
             MemberCardItem memberCardItem = new MemberCardItem();
@@ -349,7 +343,7 @@ public class ZhongYiZhiLianService {
             memberCardItem.setNum(num);
             memberCardItem.setOriginalNum(originalNum);
             memberCardItem.setValidTime(validTime);
-            memberCardItem.setIsValidForever(isValidForever);
+            memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
             memberCardItem.setPrice(product.getPrice());
             memberCardItem.setFirstCategoryName(product.getFirstCategoryName());
             memberCardItem.setCode(product.getCode());

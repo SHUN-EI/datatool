@@ -1,5 +1,7 @@
 package com.ys.datatool.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -73,6 +75,17 @@ public class CommonUtil {
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(str);
         return m.replaceAll("").trim();
+    }
+
+    public static String getIsValidForever(String validTime) {
+        String isValidForever = "";
+        if (StringUtils.isNotBlank(validTime) || validTime != null) {
+            isValidForever = "否";
+        } else {
+            isValidForever = "是";
+        }
+
+        return isValidForever;
     }
 
 

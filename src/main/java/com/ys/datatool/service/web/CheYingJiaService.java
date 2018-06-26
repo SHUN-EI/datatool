@@ -1,10 +1,8 @@
 package com.ys.datatool.service.web;
 
 
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +17,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mo on @date  2018/6/20.
@@ -33,6 +33,8 @@ public class CheYingJiaService {
     String HOST = "61.186.130.102:803";
 
     String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
+
+    String QUERYSOAPAction = "http://tempuri.org/Query";
 
     String USER_AGENT = "Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 4.0.30319.42000)";
 
@@ -50,7 +52,159 @@ public class CheYingJiaService {
 
     private int itemNum = 108;
 
-    private int memberCardNum = 323;
+    private int memberCardNum = 323;//323
+
+    @Test
+    public void fetchMemberCardItemData() throws IOException, DocumentException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
+
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>97ECCB8B1E6864097A1B1A44A3523C5F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\" /&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;'0' as IsSelect,SALESNAME,id,cardId,cardClassId,cardClassName,subCardFlag,subOrder,tranPassId,quryPassId,membId,membName,leaguerNum,membPhone,smsFlag,makeCardDate,validDate,activeDate,closeDate,lastActiDate,makeCardFileid,sellType,cardYesdBal,cardBal,cardSubAcctNub,track1,track2,track3,cardCVV,disCrank,merId,merName,branchCompId,agentCompId,projMangId,projAssitId,stats,lastOperId,lastOperName,createEmpName,lastOperDate,batchNo,storesId,storesName,memberCarId,memberCar,ciCarNumber,bakThree,bakFour,bakFive,Remark&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb35d0b3080015d0ce0879e30af' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_cardInfo&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+        String cardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName>" +
+                "<PassWord>31DA01AD07722FCBA210270E00504C44</PassWord>" +
+                "<CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken>" +
+                "<CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\">" +
+                "<SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  " +
+                "where cardInfoId='{no}'</SQLString>" +
+                "</Query></soap:Body></soap:Envelope>";
+
+        for (int i = 1; i <= memberCardNum; i++) {
+            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+
+            String html = response.returnContent().asString(charset);
+            String target = "_x0036_445";
+            List<Element> dataList = getDataList(html, target);
+
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+                    String cardId = "";
+                    Element cardIdElement = node.element("ID");
+                    if (cardIdElement != null)
+                        cardId = cardIdElement.getText();
+
+                    String cardCode = "";
+                    Element cardCodeElement = node.element("CARDID");
+                    if (cardCodeElement != null)
+                        cardCode = cardCodeElement.getText();
+
+                    String validTime = "";
+                    Element validTimeElement = node.element("VALIDDATE");
+                    if (validTimeElement != null)
+                        validTime = validTimeElement.getText();
+
+                    String companyName = "";
+                    Element companyNameElement = node.element("STORESNAME");
+                    if (companyNameElement != null)
+                        companyName = companyNameElement.getText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setMemberCardId(cardId);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setCompanyName(companyName);
+                    memberCard.setValidTime(validTime);
+                    memberCardMap.put(cardId, memberCard);
+                }
+            }
+        }
+
+        if (memberCardMap.size() > 0) {
+            for (String id : memberCardMap.keySet()) {
+                String params = StringUtils.replace(cardItemParam, "{no}", id);
+                Response resp = ConnectionUtil.doPostWithSOAP(url, QUERYSOAPAction, params);
+
+                String html = resp.returnContent().asString(charset);
+                if (html.contains("</NewDataSet>")) {
+                    String target = "ds";
+                    List<Element> dataList = getQueryDataList(html, target);
+
+                    if (dataList.size() > 0) {
+                        for (Element node : dataList) {
+                            String itemName = "";
+                            Element itemNameElement = node.element("ITEMNAME");
+                            if (itemNameElement != null)
+                                itemName = itemNameElement.getText();
+
+                            String code = "";
+                            Element codeElement = node.element("ITEMCODE");
+                            if (codeElement != null)
+                                code = codeElement.getText();
+
+                            String price = "";
+                            Element priceElement = node.element("PRICE");
+                            if (priceElement != null)
+                                price = priceElement.getText();
+
+                            String originalNum = "";
+                            Element originalNumElement = node.element("NUM");
+                            if (originalNumElement != null)
+                                originalNum = originalNumElement.getText();
+
+                            String num = "";
+                            Element numElement = node.element("SURPLUSNUM");
+                            if (numElement != null)
+                                num = numElement.getText();
+
+                            //有效期(月)
+                            String validTime = "";
+                            Element validTimeElement = node.element("DAYNUM");
+                            if (validTimeElement != null)
+                                validTime = validTimeElement.getText();
+
+                            MemberCard memberCard = memberCardMap.get(id);
+                            MemberCardItem memberCardItem = new MemberCardItem();
+                            memberCardItem.setItemName(itemName);
+                            memberCardItem.setCode(code);
+                            memberCardItem.setPrice(price);
+                            memberCardItem.setOriginalNum(originalNum);
+                            memberCardItem.setNum(num);
+                            memberCardItem.setCardCode(memberCard.getCardCode());
+                            memberCardItem.setCompanyName(memberCard.getCompanyName());
+                            memberCardItem.setValidTime(memberCard.getValidTime());
+                            memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(memberCard.getValidTime()));
+                            memberCardItems.add(memberCardItem);
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println("memberCardMap结果为" + memberCardMap.toString());
+        System.out.println("memberCardMap大小为" + memberCardMap.size());
+        System.out.println("memberCardItems结果为" + memberCardItems.toString());
+        System.out.println("memberCardItems大小为" + memberCardItems.size());
+
+        String pathname = "C:\\exportExcel\\车赢家卡内项目导出.xlsx";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+    }
 
     @Test
     public void fetchMemberCardData() throws IOException, DocumentException {
@@ -157,7 +311,7 @@ public class CheYingJiaService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("大小为" + memberCards.size());
 
-        String pathname = "C:\\exportExcel\\车赢家会员卡导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家会员卡导出.xlsx";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
@@ -542,6 +696,19 @@ public class CheYingJiaService {
         Element body = root.element("Body");
         Element resp = body.element("RunProcedureAndGetTotalRecordResponse");
         Element result = resp.element("RunProcedureAndGetTotalRecordResult");
+        Element diff = result.element("diffgram");
+        Element dataSet = diff.element("NewDataSet");
+        List<Element> dataList = dataSet.elements(target);
+
+        return dataList;
+    }
+
+    private List<Element> getQueryDataList(String response, String target) throws DocumentException {
+        Document doc = DocumentHelper.parseText(response);
+        Element root = doc.getRootElement();
+        Element body = root.element("Body");
+        Element resp = body.element("QueryResponse");
+        Element result = resp.element("QueryResult");
         Element diff = result.element("diffgram");
         Element dataSet = diff.element("NewDataSet");
         List<Element> dataList = dataSet.elements(target);
