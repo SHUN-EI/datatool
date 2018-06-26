@@ -19,7 +19,7 @@ import java.util.*;
 
 /**
  * Created by mo on @date  2018/4/27.
- * 中易智联
+ * 中易智联系统
  */
 @Service
 public class ZhongYiZhiLianService {

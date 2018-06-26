@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Created by mo on @date  2018-05-28.
- * 易智通V+
+ * 易智通V+系统
  */
 
 @Service

@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Created by mo on @date  2018/6/15.
+ * 车拍拍系统
  */
 public class ChePaiPaiService {
 

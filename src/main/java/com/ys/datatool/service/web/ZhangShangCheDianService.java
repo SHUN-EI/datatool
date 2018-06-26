@@ -22,7 +22,7 @@ import java.util.*;
 
 /**
  * Created by mo on @date  2018-05-30.
- * 掌上车店
+ * 掌上车店系统
  */
 @Service
 public class ZhangShangCheDianService {
