@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
+import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
@@ -17,14 +18,17 @@ import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018/6/21.
  * 车酷客系统
  */
 public class CheKuKeService {
+
+    private String CARINFODETAIL_URL = "http://sa.chekuke.com/MemberManage/ShopUserDriverEdit.aspx?t=1&&id=";
+
+    private String CARINFO_URL = "http://sa.chekuke.com/MemberManage/ShopUserDriverList.aspx";
 
     private String MEMBERCARDINFO_URL = "http://sa.chekuke.com/MemberManage/ShopUserCardInfo.aspx?id={id}";
 
@@ -52,7 +56,11 @@ public class CheKuKeService {
 
     private String trMemberCardRegEx = "#card_tab > tbody > tr";
 
-    private String getIdRegEx = "(?<=\\().*(?=\\))";
+    private String trCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr";
+
+    private String getmemberCardIdRegEx = "(?<=\\().*(?=\\))";
+
+    private String getCarInfoIdRegEx = "(?<=,).*(?=\\))";
 
     private List<HtmlPage> pages = new ArrayList();
 
@@ -60,11 +68,151 @@ public class CheKuKeService {
 
     private int sign = 0;//会员卡对应的行数
 
+    private int memberCardEnd = 20;//会员卡最后几页
+
+    private int carEnd = 170;//车辆最后几页
+
     private Workbook workbook;
 
     @Test
-    public void test() throws IOException {
-        List<MemberCard> memberCards = new ArrayList<>();
+    public void fetchCarInfoData() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllCarInfoPages(webClient);
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            String idTD2RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(2) > input:nth-child(1)";
+            String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
+
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
+
+            String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
+            if (trSize > 0) {
+                for (int j = 2; j <= trSize; j++) {
+                    String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String phoneRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
+
+                    String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+                    String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
+
+                    //判断有多少个td
+                    int tdSize = doc.select(StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j))).tagName("td").size();
+                    if (tdSize == 3) {
+                        String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
+
+                        //车辆修改页面
+                        HtmlPage cardDetailPage = webClient.getPage(CARINFODETAIL_URL + id);
+                        Document document = Jsoup.parseBodyFragment(cardDetailPage.asXml());
+
+                        String carNumberProRegEx = "#selPro > option[selected]";
+                        String carNumberLetRegEx = "#selLet > option[selected]";
+                        String carNumberValueRegEx = "#tb_number";//value
+
+                        String VINCodeRegEx = "#tb_fdj";
+                        String engineNumberRegEx = "#tb_cjh";
+                        String vcInsuranceCompanyRegEx = "#txtBXGS";
+                        String vcInsuranceValidDateRegEx = "#txtBXTime";
+
+                        String brandRegEx = "#sel_brand > option[selected]";
+                        String brandOutsideRegEx = "#txtBrand";//text
+
+                        String carSeriesRegEx = "#sel_model > option[selected]";
+                        String carSeriesOutsideRegEx = "#txtModel";//text
+
+                        String carModelRegEx = "#sel_style > option[selected]";
+                        String carModelOutsideRegEx = "#txtStyle";
+
+                        String carNumberPro = document.select(carNumberProRegEx).text();
+                        String carNumberLet = document.select(carNumberLetRegEx).text();
+                        String carNumberValue = document.select(carNumberValueRegEx).attr("value");
+                        String carNumber = carNumberPro + carNumberLet + carNumberValue;
+
+                        String VINCode = document.select(VINCodeRegEx).attr("value");
+                        String engineNumber = document.select(engineNumberRegEx).attr("value");
+                        String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
+                        String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
+
+                        String brand = document.select(brandRegEx).text();
+                        String carModel = document.select(carModelRegEx).text();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setVINcode(VINCode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfos.add(carInfo);
+                    }
+
+                    if (tdSize == 2) {
+                        String idStr = doc.select(StringUtils.replace(idTD2RegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
+
+                        //车辆修改页面
+                        HtmlPage cardDetailPage = webClient.getPage(CARINFODETAIL_URL + id);
+                        Document document = Jsoup.parseBodyFragment(cardDetailPage.asXml());
+
+                        String carNumberProRegEx = "#selPro > option[selected]";
+                        String carNumberLetRegEx = "#selLet > option[selected]";
+                        String carNumberValueRegEx = "#tb_number";//value
+
+                        String brandRegEx = "#sel_brand > option[selected]";
+                        String brandOutsideRegEx = "#txtBrand";//text
+
+                        String carSeriesRegEx = "#sel_model > option[selected]";
+                        String carSeriesOutsideRegEx = "#txtModel";//text
+
+                        String carModelRegEx = "#sel_style > option[selected]";
+                        String carModelOutsideRegEx = "#txtStyle";
+
+                        String VINCodeRegEx = "#tb_fdj";
+                        String engineNumberRegEx = "#tb_cjh";
+                        String vcInsuranceCompanyRegEx = "#txtBXGS";
+                        String vcInsuranceValidDateRegEx = "#txtBXTime";
+
+                        String carNumberPro = document.select(carNumberProRegEx).text();
+                        String carNumberLet = document.select(carNumberLetRegEx).text();
+                        String carNumberValue = document.select(carNumberValueRegEx).attr("value");
+                        String carNumber = carNumberPro + carNumberLet + carNumberValue;
+
+                        String VINCode = document.select(VINCodeRegEx).attr("value");
+                        String engineNumber = document.select(engineNumberRegEx).attr("value");
+                        String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
+                        String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
+
+                        String brand = document.select(brandRegEx).text();
+                        String carModel = document.select(carModelRegEx).text();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setVINcode(VINCode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+
+
+        System.out.println("carInfos结果为" + carInfos.toString());
+        System.out.println("carInfos大小为" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\车酷客车辆信息.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
 
     }
 
@@ -93,7 +241,7 @@ public class CheKuKeService {
                     if (tdSize == 4) {
 
                         String idStr = doc.select(StringUtils.replace(idTD4RegEx, "{no}", j + "")).attr("onclick");
-                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+                        String id = CommonUtil.fetchString(idStr, getmemberCardIdRegEx);
 
                         //会员卡详情页面
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
@@ -118,9 +266,11 @@ public class CheKuKeService {
                                 memberCardItems.add(memberCardItem);
                             }
                         }
-                    } else {
+                    }
+
+                    if (tdSize == 3) {
                         String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", j + "")).attr("onclick");
-                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+                        String id = CommonUtil.fetchString(idStr, getmemberCardIdRegEx);
 
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
                         Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
@@ -189,7 +339,7 @@ public class CheKuKeService {
 
                         //根据会员id获取会员卡卡内项目,跳转到会员卡编辑页面
                         String idStr = doc.select(StringUtils.replace(idTD4RegEx, "{no}", j + "")).attr("onclick");
-                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+                        String id = CommonUtil.fetchString(idStr, getmemberCardIdRegEx);
 
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDITEM_URL, "{id}", id));
                         Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
@@ -218,11 +368,13 @@ public class CheKuKeService {
                      /* 跳转到会员卡编辑页面
                         HtmlInput memberCardDetail = cardPage.getFirstByXPath(StringUtils.replace(editTD4XPath, "{no}", j + ""));
                         HtmlPage memberCardDetailPage = memberCardDetail.click();*/
-                    } else {
+                    }
+
+                    if (tdSize == 3) {
 
                         //根据会员id获取会员卡卡内项目,跳转到会员卡编辑页面
                         String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", j + "")).attr("onclick");
-                        String id = CommonUtil.fetchString(idStr, getIdRegEx);
+                        String id = CommonUtil.fetchString(idStr, getmemberCardIdRegEx);
 
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDITEM_URL, "{id}", id));
                         Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
@@ -256,6 +408,15 @@ public class CheKuKeService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
+    private void getAllCarInfoPages(WebClient webClient) throws IOException {
+        login(webClient);
+        HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
+        String total = getTotalPage(carInfoPage);
+
+        pages.add(carInfoPage);
+        nextPage(carInfoPage, Integer.parseInt(total), carEnd);//车辆信息总页数
+    }
+
     private void getAllMemberCardPages(WebClient webClient) throws IOException {
         login(webClient);
 
@@ -271,13 +432,9 @@ public class CheKuKeService {
         HtmlInput allMemberCard = memberCardPage.getFirstByXPath(queryXPath);
         HtmlPage allMemberCardPage = allMemberCard.click();
 
-        Document doc = Jsoup.parseBodyFragment(allMemberCardPage.asXml());
-        String lastLabelRegEx = "(?<=\\<a href=).*(?= 尾页)";
-        String lastRegEx = "(?<=,').*(?=')";
-        String lastLabel = CommonUtil.fetchString(doc.toString(), lastLabelRegEx);
-        String total = CommonUtil.fetchString(lastLabel, lastRegEx);
+        String total = getTotalPage(allMemberCardPage);
         pages.add(allMemberCardPage);
-        nextPage(allMemberCardPage, Integer.parseInt(total));//会员卡总页数
+        nextPage(allMemberCardPage, Integer.parseInt(total), memberCardEnd);//会员卡总页数
     }
 
     private void login(WebClient webClient) throws IOException {
@@ -312,7 +469,17 @@ public class CheKuKeService {
         btnLogin.click();
     }
 
-    private void nextPage(HtmlPage page, int num) throws IOException {
+    private String getTotalPage(HtmlPage htmlPage) {
+        Document doc = Jsoup.parseBodyFragment(htmlPage.asXml());
+        String lastLabelRegEx = "(?<=\\<a href=).*(?= 尾页)";
+        String lastRegEx = "(?<=,').*(?=')";
+        String lastLabel = CommonUtil.fetchString(doc.toString(), lastLabelRegEx);
+        String total = CommonUtil.fetchString(lastLabel, lastRegEx);
+
+        return total;
+    }
+
+    private void nextPage(HtmlPage page, int num, int end) throws IOException {
         ++count;
         if (count == num)
             return;
@@ -320,13 +487,15 @@ public class CheKuKeService {
         String anchorXPath = "//*[@id=\"AspNetPager1\"]/a[13]";
         if (count > 10)
             anchorXPath = "//*[@id=\"AspNetPager1\"]/a[14]";
-        if (count > 20)
-            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[6]";//最后几页的下一页
+
+        //最后几页的下一页按钮
+        if (count > end)
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[6]";
 
         HtmlAnchor nextPage = page.getFirstByXPath(anchorXPath);
 
         HtmlPage htmlPage = nextPage.click();
         pages.add(htmlPage);
-        nextPage(htmlPage, num);//num为总页数
+        nextPage(htmlPage, num, end);//num为总页数
     }
 }
