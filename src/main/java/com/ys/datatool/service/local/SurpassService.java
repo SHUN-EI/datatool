@@ -49,6 +49,10 @@ public class SurpassService {
         JDBC_TEMPLATE = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * 会员卡
+     * @throws Exception
+     */
     @Test
     public void fetchMemberCardData() throws Exception {
         List<MemberCard> memberCards = new ArrayList<>();
@@ -86,6 +90,11 @@ public class SurpassService {
 
     }
 
+
+    /**
+     * 卡内项目
+     * @throws Exception
+     */
     @Test
     public void fetchMemberCardItemData() throws Exception {
 

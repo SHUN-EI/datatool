@@ -52,6 +52,10 @@ public class CheDianEJiaService {
     }
 
 
+    /**
+     * 卡内项目
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardItemData() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();

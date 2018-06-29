@@ -57,6 +57,10 @@ public class YiZhiTongVService {
 
     }
 
+    /**
+     * 服务项目
+     * @throws IOException
+     */
     @Test
     public void fetchServiceData() throws IOException {
         List<Product> products = new ArrayList<>();
@@ -109,6 +113,10 @@ public class YiZhiTongVService {
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
+    /**
+     * 车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();

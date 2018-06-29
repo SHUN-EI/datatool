@@ -74,6 +74,10 @@ public class CheKuKeService {
 
     private Workbook workbook;
 
+    /**
+     * 车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
@@ -216,6 +220,10 @@ public class CheKuKeService {
 
     }
 
+    /**
+     * 卡内项目
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardItemData() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
@@ -303,6 +311,11 @@ public class CheKuKeService {
         ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
     }
 
+
+    /**
+     * 会员卡
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();

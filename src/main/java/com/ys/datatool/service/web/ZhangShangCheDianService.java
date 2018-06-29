@@ -70,6 +70,10 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + document.html());
     }
 
+    /**
+     * 会员卡
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
@@ -129,6 +133,10 @@ public class ZhangShangCheDianService {
 
     }
 
+    /**
+     * 车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
@@ -157,6 +165,10 @@ public class ZhangShangCheDianService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
+    /**
+     * 供应商
+     * @throws IOException
+     */
     @Test
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();

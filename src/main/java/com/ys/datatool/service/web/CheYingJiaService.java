@@ -101,7 +101,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0036_445";
+            String target = "_x0036_454";
             List<Element> dataList = getDataList(html, target);
 
             if (dataList.size() > 0) {
@@ -243,7 +243,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0036_444";
+            String target = "_x0036_454";
             List<Element> dataList = getDataList(html, target);
 
             if (dataList.size() > 0) {

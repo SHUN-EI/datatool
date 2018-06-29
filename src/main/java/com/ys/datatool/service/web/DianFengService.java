@@ -41,6 +41,10 @@ public class DianFengService {
     private String COOKIE = "PHPSESSID=r3tuga77uj20tukn5mvqkji895; admin_username=lijun; refersh_time=0";
 
 
+    /**
+     * 维修项目(单据里面)
+     * @throws IOException
+     */
     @Test
     public void fetchRepairItemData() throws IOException {
         List<Product> products = new ArrayList<>();
@@ -107,6 +111,10 @@ public class DianFengService {
 
     }
 
+    /**
+     *车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();

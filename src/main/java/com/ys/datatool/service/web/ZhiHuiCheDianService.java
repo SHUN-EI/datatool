@@ -51,6 +51,10 @@ public class ZhiHuiCheDianService {
 
     }
 
+    /**
+     * 会员卡
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
@@ -137,6 +141,10 @@ public class ZhiHuiCheDianService {
         ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
     }
 
+    /**
+     * 商品
+     * @throws IOException
+     */
     @Test
     public void fetchItemData() throws IOException {
         List<Product> products = new ArrayList<>();
@@ -189,6 +197,10 @@ public class ZhiHuiCheDianService {
         System.out.println("总页数为" + totalPage);
     }
 
+    /**
+     * 车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();

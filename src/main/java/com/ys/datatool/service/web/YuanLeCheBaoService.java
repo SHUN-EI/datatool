@@ -95,6 +95,10 @@ public class YuanLeCheBaoService {
 
     }
 
+    /**
+     * 单据
+     * @throws IOException
+     */
     @Test
     public void fetchBillData() throws IOException {
         List<Bill> bills = new ArrayList<>();
@@ -158,6 +162,10 @@ public class YuanLeCheBaoService {
         ExportUtil.exportBillSomeFieldDataInLocal(bills, workbook, pathname);
     }
 
+    /**
+     * 单据明细
+     * @throws IOException
+     */
     @Test
     public void fetchBillDetailData() throws IOException {
         List<BillDetail> billDetails = new ArrayList<>();
@@ -227,6 +235,10 @@ public class YuanLeCheBaoService {
     }
 
 
+    /**
+     * 会员卡
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
@@ -310,6 +322,10 @@ public class YuanLeCheBaoService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
+    /**
+     * 库存
+     * @throws IOException
+     */
     @Test
     public void fetchStockData() throws IOException {
         List<Stock> stocks = new ArrayList<>();
@@ -431,6 +447,10 @@ public class YuanLeCheBaoService {
         ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks, workbook, pathname);
     }
 
+    /**
+     * 服务项目
+     * @throws IOException
+     */
     @Test
     public void fetchServiceData() throws IOException {
         List<Product> products = new ArrayList<>();
@@ -473,6 +493,10 @@ public class YuanLeCheBaoService {
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
+    /**
+     * 供应商
+     * @throws IOException
+     */
     @Test
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
@@ -532,6 +556,10 @@ public class YuanLeCheBaoService {
 
     }
 
+    /**
+     * 车辆信息
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
