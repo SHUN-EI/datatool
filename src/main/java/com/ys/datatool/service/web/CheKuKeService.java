@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageReader;
 import javax.swing.*;
@@ -24,6 +25,7 @@ import java.util.*;
  * Created by mo on @date  2018/6/21.
  * 车酷客系统
  */
+@Service
 public class CheKuKeService {
 
     private String CARINFODETAIL_URL = "http://sa.chekuke.com/MemberManage/ShopUserDriverEdit.aspx?t=1&&id=";

@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +21,7 @@ import java.util.*;
  * Created by mo on @date  2018/6/30.
  * 笛威偲腾
  */
+@Service
 public class SITENService {
 
     private static final String STOCK_URL = "http://erp.51sten.com/partInfo/findInputPartStock";

@@ -13,6 +13,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.junit.Test;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -25,6 +26,7 @@ import java.util.Map;
  * Created by mo on @date  2018/6/20.
  * 车赢家系统
  */
+@Service
 public class CheYingJiaService {
 
 

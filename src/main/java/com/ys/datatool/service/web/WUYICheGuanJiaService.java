@@ -9,6 +9,7 @@ import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,6 +21,7 @@ import java.util.List;
  * Created by mo on @date  2018/6/30.
  * 51车管家系统
  */
+@Service
 public class WUYICheGuanJiaService {
 
     private static final String MEMBERCARDITEM_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryPackageCardConsumptionBargainPage?store_id=100675&tenant_id=10675&keys=&card_id=&prod_sku_name=&limit=20";

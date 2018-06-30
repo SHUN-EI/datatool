@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -21,6 +22,7 @@ import java.util.List;
  * Created by mo on @date  2018/6/15.
  * 车拍拍系统
  */
+@Service
 public class ChePaiPaiService {
 
     private String TEMPCLIENT_URL = "http://vip.chepaipai.com.cn/index.php?m=client&a=temporary&pno=";
@@ -31,7 +33,7 @@ public class ChePaiPaiService {
 
     private Workbook workbook;
 
-    private String COOKIE = "CARPP_STORENO_C=13318336333; CARPP_USERNAME_C=%E6%A2%81%E8%95%B4%E7%91%9C; UM_distinctid=16402abc71f998-03ecab8f5d6da6-5e452019-144000-16402abc72058a; PHPSESSID=dt5tie3ln3apndm2flp2ph9f51; CNZZDATA1262768147=1641429679-1529052741-http%253A%252F%252Fvip.chepaipai.com.cn%252F%7C1529550655; SERVERID=fb46de91a7276047e33f515298cae466|1529553553|1529546679";
+    private String COOKIE = "CARPP_STORENO_C=13318336333; CARPP_USERNAME_C=%E6%A2%81%E8%95%B4%E7%91%9C; UM_distinctid=16402abc71f998-03ecab8f5d6da6-5e452019-144000-16402abc72058a; PHPSESSID=aelcva0p14h7s3tg1i98q4nj41; CNZZDATA1262768147=1641429679-1529052741-http%253A%252F%252Fvip.chepaipai.com.cn%252F%7C1530327405; SERVERID=ddb645d5daaa3821e0564fcaa077d0d0|1530330026|1530327562";
 
     /**
      * 临时客户
@@ -79,7 +81,7 @@ public class ChePaiPaiService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("carInfos大小为" + carInfos.size());
 
-        String pathname = "D:\\车拍拍临时客户.xls";
+        String pathname = "C:\\exportExcel\\车拍拍临时客户.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 }
