@@ -58,8 +58,6 @@ public class CheKuKeService {
 
     private String trMemberCardRegEx = "#card_tab > tbody > tr";
 
-    private String trCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr";
-
     private String getmemberCardIdRegEx = "(?<=\\().*(?=\\))";
 
     private String getCarInfoIdRegEx = "(?<=,).*(?=\\))";
@@ -74,10 +72,15 @@ public class CheKuKeService {
 
     private int carEnd = 170;//车辆最后几页
 
+    private String nameStr = "";
+
+    private String phoneStr = "";
+
     private Workbook workbook;
 
     /**
      * 车辆信息
+     *
      * @throws IOException
      */
     @Test
@@ -93,9 +96,10 @@ public class CheKuKeService {
             String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
 
             Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+
+            String trCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr";
             int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
 
-            String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
                     String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -104,6 +108,7 @@ public class CheKuKeService {
                     String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
                     String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
 
+                    String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
                     //判断有多少个td
                     int tdSize = doc.select(StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j))).tagName("td").size();
                     if (tdSize == 3) {
@@ -144,6 +149,9 @@ public class CheKuKeService {
 
                         String brand = document.select(brandRegEx).text();
                         String carModel = document.select(carModelRegEx).text();
+
+                        nameStr = name;
+                        phoneStr = phone;
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
@@ -199,8 +207,8 @@ public class CheKuKeService {
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
-                        carInfo.setName(name);
-                        carInfo.setPhone(phone);
+                        carInfo.setName(nameStr);
+                        carInfo.setPhone(phoneStr);
                         carInfo.setVINcode(VINCode);
                         carInfo.setEngineNumber(engineNumber);
                         carInfo.setVcInsuranceCompany(vcInsuranceCompany);
@@ -224,6 +232,7 @@ public class CheKuKeService {
 
     /**
      * 卡内项目
+     *
      * @throws IOException
      */
     @Test
@@ -316,6 +325,7 @@ public class CheKuKeService {
 
     /**
      * 会员卡
+     *
      * @throws IOException
      */
     @Test
