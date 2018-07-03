@@ -28,6 +28,10 @@ import java.util.*;
 @Service
 public class CheKuKeService {
 
+    private String MEMBER_URL = "http://sa.chekuke.com/MemberManage/MemberList.aspx";
+
+    private String BILL_URL = "http://sa.chekuke.com/Shop/ShopProjectOrderList.aspx";
+
     private String CARINFODETAIL_URL = "http://sa.chekuke.com/MemberManage/ShopUserDriverEdit.aspx?t=1&&id=";
 
     private String CARINFO_URL = "http://sa.chekuke.com/MemberManage/ShopUserDriverList.aspx";
@@ -58,6 +62,8 @@ public class CheKuKeService {
 
     private String trMemberCardRegEx = "#card_tab > tbody > tr";
 
+    private String trCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr";
+
     private String getmemberCardIdRegEx = "(?<=\\().*(?=\\))";
 
     private String getCarInfoIdRegEx = "(?<=,).*(?=\\))";
@@ -68,9 +74,13 @@ public class CheKuKeService {
 
     private int sign = 0;//会员卡对应的行数
 
-    private int memberCardEnd = 20;//会员卡最后几页
+    private int memberCardEnd = 20;//会员卡片列表最后几页
 
-    private int carEnd = 170;//车辆最后几页
+    private int carEnd = 170;//会员车辆列表最后几页
+
+    private int billEnd = 120;//开单管理最后几页
+
+    private int memberEnd = 20;//车主列表最后几页
 
     private String nameStr = "";
 
@@ -79,7 +89,269 @@ public class CheKuKeService {
     private Workbook workbook;
 
     /**
+     * 车主列表-车辆信息详情
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataFormMember() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Set<String> cardNoSet = new HashSet<>();
+
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, MEMBER_URL, memberEnd);
+
+        for (HtmlPage page : pages) {
+            Document doc = Jsoup.parseBodyFragment(page.asXml());
+            int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
+
+            if (trSize > 0) {
+                for (int i = 2; i <= trSize; i++) {
+                    String cardNoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3)";
+                    String cardNo = doc.select(StringUtils.replace(cardNoRegEx, "{no}", String.valueOf(i))).text();
+                    cardNoSet.add(cardNo.substring(0, 6));
+                }
+            }
+        }
+
+        for (String cardNo:cardNoSet){
+            HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
+            HtmlInput cardNoInput = (HtmlInput) carInfoPage.getElementById("txt_number");
+            cardNoInput.setValueAttribute(cardNo);
+
+            HtmlInput query = (HtmlInput) carInfoPage.getElementById("btnQuery");
+            HtmlPage carPage = query.click();
+
+            String idTD2RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(2) > input:nth-child(1)";
+            String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
+
+            Document doc = Jsoup.parseBodyFragment(carPage.asXml());
+            int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
+            if (trSize > 0) {
+                for (int j = 2; j <= trSize; j++) {
+                    String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+
+                    String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
+                    //判断有多少个td
+                    int tdSize = doc.select(StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j))).tagName("td").size();
+
+                    if (tdSize == 3) {
+                        String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
+
+                        //车辆修改页面
+                        HtmlPage cardDetailPage = webClient.getPage(CARINFODETAIL_URL + id);
+                        Document document = Jsoup.parseBodyFragment(cardDetailPage.asXml());
+
+                        String carNumberProRegEx = "#selPro > option[selected]";
+                        String carNumberLetRegEx = "#selLet > option[selected]";
+                        String carNumberValueRegEx = "#tb_number";//value
+
+                        String VINCodeRegEx = "#tb_fdj";
+                        String engineNumberRegEx = "#tb_cjh";
+                        String vcInsuranceCompanyRegEx = "#txtBXGS";
+                        String vcInsuranceValidDateRegEx = "#txtBXTime";
+
+                        String brandRegEx = "#sel_brand > option[selected]";
+                        String brandOutsideRegEx = "#txtBrand";//text
+
+                        String carSeriesRegEx = "#sel_model > option[selected]";
+                        String carSeriesOutsideRegEx = "#txtModel";//text
+
+                        String carModelRegEx = "#sel_style > option[selected]";
+                        String carModelOutsideRegEx = "#txtStyle";
+
+                        String carNumberPro = document.select(carNumberProRegEx).text();
+                        String carNumberLet = document.select(carNumberLetRegEx).text();
+                        String carNumberValue = document.select(carNumberValueRegEx).attr("value");
+                        String carNumber = carNumberPro + carNumberLet + carNumberValue;
+
+                        String VINCode = document.select(VINCodeRegEx).attr("value");
+                        String engineNumber = document.select(engineNumberRegEx).attr("value");
+                        String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
+                        String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
+
+                        String brand = document.select(brandRegEx).text();
+                        String carModel = document.select(carModelRegEx).text();
+
+                        nameStr = name;
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setName(name);
+                        carInfo.setPhone(name);
+                        carInfo.setVINcode(VINCode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfos.add(carInfo);
+                    }
+
+                    if (tdSize == 2) {
+                        String idStr = doc.select(StringUtils.replace(idTD2RegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
+
+                        //车辆修改页面
+                        HtmlPage cardDetailPage = webClient.getPage(CARINFODETAIL_URL + id);
+                        Document document = Jsoup.parseBodyFragment(cardDetailPage.asXml());
+
+                        String carNumberProRegEx = "#selPro > option[selected]";
+                        String carNumberLetRegEx = "#selLet > option[selected]";
+                        String carNumberValueRegEx = "#tb_number";//value
+
+                        String brandRegEx = "#sel_brand > option[selected]";
+                        String brandOutsideRegEx = "#txtBrand";//text
+
+                        String carSeriesRegEx = "#sel_model > option[selected]";
+                        String carSeriesOutsideRegEx = "#txtModel";//text
+
+                        String carModelRegEx = "#sel_style > option[selected]";
+                        String carModelOutsideRegEx = "#txtStyle";
+
+                        String VINCodeRegEx = "#tb_fdj";
+                        String engineNumberRegEx = "#tb_cjh";
+                        String vcInsuranceCompanyRegEx = "#txtBXGS";
+                        String vcInsuranceValidDateRegEx = "#txtBXTime";
+
+                        String carNumberPro = document.select(carNumberProRegEx).text();
+                        String carNumberLet = document.select(carNumberLetRegEx).text();
+                        String carNumberValue = document.select(carNumberValueRegEx).attr("value");
+                        String carNumber = carNumberPro + carNumberLet + carNumberValue;
+
+                        String VINCode = document.select(VINCodeRegEx).attr("value");
+                        String engineNumber = document.select(engineNumberRegEx).attr("value");
+                        String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
+                        String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
+
+                        String brand = document.select(brandRegEx).text();
+                        String carModel = document.select(carModelRegEx).text();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setPhone(nameStr);
+                        carInfo.setName(nameStr);
+                        carInfo.setVINcode(VINCode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+        System.out.println("carInfos为" + carInfos.toString());
+        System.out.println("carInfos为" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\车酷客车主列表车辆信息.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+    /**
+     * 开单管理-车辆信息详情
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataFormBill() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Set<String> carNumberSet = new HashSet<>();
+
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, BILL_URL, billEnd);
+
+        for (int i = 0; i < pages.size(); i++) {
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
+
+            if (trSize > 0) {
+                for (int j = 2; j <= trSize; j++) {
+
+                    String carNumberRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(7)";
+                    String carNumber = doc.select(StringUtils.replace(carNumberRegEx, "{no}", String.valueOf(j))).text();
+                    carNumberSet.add(carNumber);
+                }
+            }
+        }
+
+        for (String carNumber : carNumberSet) {
+            HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
+            HtmlInput carNumberInput = (HtmlInput) carInfoPage.getElementById("txt_number");
+            carNumberInput.setValueAttribute(carNumber);
+
+            HtmlInput query = (HtmlInput) carInfoPage.getElementById("btnQuery");
+            HtmlPage carPage = query.click();
+
+            Document doc = Jsoup.parseBodyFragment(carPage.asXml());
+            String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child(2) > td:nth-child(1)";
+            String name = doc.select(nameRegEx).text();
+
+            String idRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child(2) > td:nth-child(3) > input:nth-child(1)";
+            String idStr = doc.select(idRegEx).attr("onclick");
+            String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
+
+            //车辆修改页面
+            HtmlPage cardDetailPage = webClient.getPage(CARINFODETAIL_URL + id);
+            Document document = Jsoup.parseBodyFragment(cardDetailPage.asXml());
+
+            String carNumberProRegEx = "#selPro > option[selected]";
+            String carNumberLetRegEx = "#selLet > option[selected]";
+            String carNumberValueRegEx = "#tb_number";//value
+
+            String engineNumberRegEx = "#tb_cjh";
+            String VINCodeRegEx = "#tb_fdj";
+            String vcInsuranceCompanyRegEx = "#txtBXGS";
+            String vcInsuranceValidDateRegEx = "#txtBXTime";
+
+            String brandRegEx = "#sel_brand > option[selected]";
+            String brandOutsideRegEx = "#txtBrand";//text
+
+            String carSeriesRegEx = "#sel_model > option[selected]";
+            String carSeriesOutsideRegEx = "#txtModel";//text
+
+            String carModelRegEx = "#sel_style > option[selected]";
+            String carModelOutsideRegEx = "#txtStyle";
+
+            String carNumberPro = document.select(carNumberProRegEx).text();
+            String carNumberLet = document.select(carNumberLetRegEx).text();
+            String carNumberValue = document.select(carNumberValueRegEx).attr("value");
+            String carNo = carNumberPro + carNumberLet + carNumberValue;
+
+            String engineNumber = document.select(engineNumberRegEx).attr("value");
+            String VINCode = document.select(VINCodeRegEx).attr("value");
+            String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
+            String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
+
+            String brand = document.select(brandRegEx).text();
+            String carModel = document.select(carModelRegEx).text();
+
+            CarInfo carInfo = new CarInfo();
+            carInfo.setCarNumber(carNo);
+            carInfo.setName(name);
+            carInfo.setPhone(name);
+            carInfo.setVINcode(VINCode);
+            carInfo.setEngineNumber(engineNumber);
+            carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+            carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+            carInfo.setBrand(brand);
+            carInfo.setCarModel(carModel);
+            carInfos.add(carInfo);
+        }
+
+        System.out.println("carInfos为" + carInfos.toString());
+        System.out.println("carInfos为" + carInfos.size());
+        System.out.println("carNumberSet为" + carNumberSet.size());
+
+        String pathname = "C:\\exportExcel\\车酷客单据车辆信息.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+    /**
      * 车辆信息
+     * <p>
+     * 车酷客系统后台，每页返回的数据都不一样
      *
      * @throws IOException
      */
@@ -88,7 +360,7 @@ public class CheKuKeService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllCarInfoPages(webClient);
+        getAllPages(webClient, CARINFO_URL, carEnd);
 
         for (int i = 0; i < pages.size(); i++) {
 
@@ -96,10 +368,7 @@ public class CheKuKeService {
             String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
 
             Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
-
-            String trCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr";
             int trSize = WebClientUtil.getTRSize(doc, trCarInfoRegEx);
-
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
                     String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -433,13 +702,14 @@ public class CheKuKeService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
-    private void getAllCarInfoPages(WebClient webClient) throws IOException {
+    private void getAllPages(WebClient webClient, String url, int end) throws IOException {
         login(webClient);
-        HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
-        String total = getTotalPage(carInfoPage);
 
-        pages.add(carInfoPage);
-        nextPage(carInfoPage, Integer.parseInt(total), carEnd);//车辆信息总页数
+        HtmlPage page = webClient.getPage(url);
+        pages.add(page);
+
+        String total = getTotalPage(page);
+        nextPage(page, Integer.parseInt(total), end);
     }
 
     private void getAllMemberCardPages(WebClient webClient) throws IOException {
