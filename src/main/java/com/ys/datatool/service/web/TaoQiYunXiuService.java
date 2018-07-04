@@ -22,7 +22,7 @@ import java.util.List;
  * 淘汽云修系统
  */
 @Service
-public class TAOQIYUNXIUService {
+public class TaoQiYunXiuService {
 
     private static final String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
 
