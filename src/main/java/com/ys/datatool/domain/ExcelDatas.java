@@ -5,6 +5,14 @@ package com.ys.datatool.domain;
  */
 public class ExcelDatas {
 
+    /**
+     * 车酷客-车辆信息详情相关数据
+     */
+    public static String[] CheKuKeCarInfoDatas = new String[]{"车店名称", "姓名",
+            "车牌号", "品牌", "车型", "手机号", "注册日期", "发动机号码",
+            "车架号", "保险日期", "承保公司", "交强险日期", "交强险承保公司",
+            "客户备注","车品牌选择框","车品牌输入框","车系选择框","车系输入框","车型选择框","车型输入框"};
+
     public static String[] billSomeFields = new String[]{"车店名称", "单据号",
             "车牌号", "里程", "联系手机", "联系人", "单据总价", "单据折扣",
             "实收金额","是否在店等","计划完成时间","支付类型","备注","开单时间","结账时间"};

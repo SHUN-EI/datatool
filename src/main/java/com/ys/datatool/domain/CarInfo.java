@@ -112,6 +112,36 @@ public class CarInfo {
      */
     private String carNum;
 
+    /**
+     * 车酷客-车品牌选择框
+     */
+    private String brandSelect;
+
+    /**
+     * 车酷客-车品牌输入框
+     */
+    private String brandInput;
+
+    /**
+     * 车酷客-车系选择框
+     */
+    private String carSeriesSelect;
+
+    /**
+     * 车酷客-车系输入框
+     */
+    private String carSeriesInput;
+
+    /**
+     * 车酷客-车型选择框
+     */
+    private String carModelSelect;
+
+    /**
+     * 车酷客-车型输入框
+     */
+    private String carModelInput;
+
     public String getCarId() {
         return carId;
     }
@@ -274,6 +304,54 @@ public class CarInfo {
 
     public void setCarNum(String carNum) {
         this.carNum = carNum;
+    }
+
+    public String getBrandSelect() {
+        return brandSelect;
+    }
+
+    public void setBrandSelect(String brandSelect) {
+        this.brandSelect = brandSelect;
+    }
+
+    public String getBrandInput() {
+        return brandInput;
+    }
+
+    public void setBrandInput(String brandInput) {
+        this.brandInput = brandInput;
+    }
+
+    public String getCarSeriesSelect() {
+        return carSeriesSelect;
+    }
+
+    public void setCarSeriesSelect(String carSeriesSelect) {
+        this.carSeriesSelect = carSeriesSelect;
+    }
+
+    public String getCarSeriesInput() {
+        return carSeriesInput;
+    }
+
+    public void setCarSeriesInput(String carSeriesInput) {
+        this.carSeriesInput = carSeriesInput;
+    }
+
+    public String getCarModelSelect() {
+        return carModelSelect;
+    }
+
+    public void setCarModelSelect(String carModelSelect) {
+        this.carModelSelect = carModelSelect;
+    }
+
+    public String getCarModelInput() {
+        return carModelInput;
+    }
+
+    public void setCarModelInput(String carModelInput) {
+        this.carModelInput = carModelInput;
     }
 
     @Override

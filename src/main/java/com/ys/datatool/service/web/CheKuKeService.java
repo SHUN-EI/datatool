@@ -90,6 +90,7 @@ public class CheKuKeService {
 
     /**
      * 车主列表-车辆信息详情
+     *
      * @throws IOException
      */
     @Test
@@ -113,7 +114,7 @@ public class CheKuKeService {
             }
         }
 
-        for (String cardNo:cardNoSet){
+        for (String cardNo : cardNoSet) {
             HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
             HtmlInput cardNoInput = (HtmlInput) carInfoPage.getElementById("txt_number");
             cardNoInput.setValueAttribute(cardNo);
@@ -152,14 +153,14 @@ public class CheKuKeService {
                         String vcInsuranceCompanyRegEx = "#txtBXGS";
                         String vcInsuranceValidDateRegEx = "#txtBXTime";
 
-                        String brandRegEx = "#sel_brand > option[selected]";
-                        String brandOutsideRegEx = "#txtBrand";//text
+                        String brandSelectRegEx = "#sel_brand > option[selected]";
+                        String brandInputRegEx = "#txtBrand";
 
-                        String carSeriesRegEx = "#sel_model > option[selected]";
-                        String carSeriesOutsideRegEx = "#txtModel";//text
+                        String carSeriesSelectRegEx = "#sel_model > option[selected]";
+                        String carSeriesInputRegEx = "#txtModel";
 
-                        String carModelRegEx = "#sel_style > option[selected]";
-                        String carModelOutsideRegEx = "#txtStyle";
+                        String carModelSelectRegEx = "#sel_style > option[selected]";
+                        String carModelInputRegEx = "#txtStyle";
 
                         String carNumberPro = document.select(carNumberProRegEx).text();
                         String carNumberLet = document.select(carNumberLetRegEx).text();
@@ -171,8 +172,14 @@ public class CheKuKeService {
                         String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
                         String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
-                        String brand = document.select(brandRegEx).text();
-                        String carModel = document.select(carModelRegEx).text();
+                        String brandSelect = document.select(brandSelectRegEx).text();
+                        String brandInput = document.select(brandInputRegEx).attr("value");
+
+                        String carSeriesSelect = document.select(carSeriesSelectRegEx).text();
+                        String carSeriesInput = document.select(carSeriesInputRegEx).attr("value");
+
+                        String carModelSelect = document.select(carModelSelectRegEx).text();
+                        String carModelInput = document.select(carModelInputRegEx).attr("value");
 
                         nameStr = name;
                         CarInfo carInfo = new CarInfo();
@@ -183,8 +190,14 @@ public class CheKuKeService {
                         carInfo.setEngineNumber(engineNumber);
                         carInfo.setVcInsuranceCompany(vcInsuranceCompany);
                         carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfo.setBrand(brand);
-                        carInfo.setCarModel(carModel);
+                        carInfo.setBrand(brandSelect);
+                        carInfo.setCarModel(carModelSelect);
+                        carInfo.setBrandSelect(brandSelect);
+                        carInfo.setBrandInput(brandInput);
+                        carInfo.setCarSeriesSelect(carSeriesSelect);
+                        carInfo.setCarSeriesInput(carSeriesInput);
+                        carInfo.setCarModelSelect(carModelSelect);
+                        carInfo.setCarModelInput(carModelInput);
                         carInfos.add(carInfo);
                     }
 
@@ -200,14 +213,14 @@ public class CheKuKeService {
                         String carNumberLetRegEx = "#selLet > option[selected]";
                         String carNumberValueRegEx = "#tb_number";//value
 
-                        String brandRegEx = "#sel_brand > option[selected]";
-                        String brandOutsideRegEx = "#txtBrand";//text
+                        String brandSelectRegEx = "#sel_brand > option[selected]";
+                        String brandInputRegEx = "#txtBrand";
 
-                        String carSeriesRegEx = "#sel_model > option[selected]";
-                        String carSeriesOutsideRegEx = "#txtModel";//text
+                        String carSeriesSelectRegEx = "#sel_model > option[selected]";
+                        String carSeriesInputRegEx = "#txtModel";
 
-                        String carModelRegEx = "#sel_style > option[selected]";
-                        String carModelOutsideRegEx = "#txtStyle";
+                        String carModelSelectRegEx = "#sel_style > option[selected]";
+                        String carModelInputRegEx = "#txtStyle";
 
                         String VINCodeRegEx = "#tb_fdj";
                         String engineNumberRegEx = "#tb_cjh";
@@ -224,8 +237,14 @@ public class CheKuKeService {
                         String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
                         String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
-                        String brand = document.select(brandRegEx).text();
-                        String carModel = document.select(carModelRegEx).text();
+                        String brandSelect = document.select(brandSelectRegEx).text();
+                        String brandInput = document.select(brandInputRegEx).attr("value");
+
+                        String carSeriesSelect = document.select(carSeriesSelectRegEx).text();
+                        String carSeriesInput = document.select(carSeriesInputRegEx).attr("value");
+
+                        String carModelSelect = document.select(carModelSelectRegEx).text();
+                        String carModelInput = document.select(carModelInputRegEx).attr("value");
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
@@ -235,8 +254,14 @@ public class CheKuKeService {
                         carInfo.setEngineNumber(engineNumber);
                         carInfo.setVcInsuranceCompany(vcInsuranceCompany);
                         carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfo.setBrand(brand);
-                        carInfo.setCarModel(carModel);
+                        carInfo.setBrand(brandSelect);
+                        carInfo.setCarModel(carModelSelect);
+                        carInfo.setBrandSelect(brandSelect);
+                        carInfo.setBrandInput(brandInput);
+                        carInfo.setCarSeriesSelect(carSeriesSelect);
+                        carInfo.setCarSeriesInput(carSeriesInput);
+                        carInfo.setCarModelSelect(carModelSelect);
+                        carInfo.setCarModelInput(carModelInput);
                         carInfos.add(carInfo);
                     }
                 }
@@ -246,7 +271,7 @@ public class CheKuKeService {
         System.out.println("carInfos为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\车酷客车主列表车辆信息.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
     /**
@@ -305,14 +330,14 @@ public class CheKuKeService {
             String vcInsuranceCompanyRegEx = "#txtBXGS";
             String vcInsuranceValidDateRegEx = "#txtBXTime";
 
-            String brandRegEx = "#sel_brand > option[selected]";
-            String brandOutsideRegEx = "#txtBrand";//text
+            String brandSelectRegEx = "#sel_brand > option[selected]";
+            String brandInputRegEx = "#txtBrand";
 
-            String carSeriesRegEx = "#sel_model > option[selected]";
-            String carSeriesOutsideRegEx = "#txtModel";//text
+            String carSeriesSelectRegEx = "#sel_model > option[selected]";
+            String carSeriesInputRegEx = "#txtModel";
 
-            String carModelRegEx = "#sel_style > option[selected]";
-            String carModelOutsideRegEx = "#txtStyle";
+            String carModelSelectRegEx = "#sel_style > option[selected]";
+            String carModelInputRegEx = "#txtStyle";
 
             String carNumberPro = document.select(carNumberProRegEx).text();
             String carNumberLet = document.select(carNumberLetRegEx).text();
@@ -324,8 +349,15 @@ public class CheKuKeService {
             String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
             String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
-            String brand = document.select(brandRegEx).text();
-            String carModel = document.select(carModelRegEx).text();
+            String brandSelect = document.select(brandSelectRegEx).text();
+            String brandInput = document.select(brandInputRegEx).attr("value");
+
+            String carSeriesSelect = document.select(carSeriesSelectRegEx).text();
+            String carSeriesInput = document.select(carSeriesInputRegEx).attr("value");
+
+            String carModelSelect = document.select(carModelSelectRegEx).text();
+            String carModelInput = document.select(carModelInputRegEx).attr("value");
+
 
             CarInfo carInfo = new CarInfo();
             carInfo.setCarNumber(carNo);
@@ -335,8 +367,14 @@ public class CheKuKeService {
             carInfo.setEngineNumber(engineNumber);
             carInfo.setVcInsuranceCompany(vcInsuranceCompany);
             carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-            carInfo.setBrand(brand);
-            carInfo.setCarModel(carModel);
+            carInfo.setBrand(brandSelect);
+            carInfo.setCarModel(carModelSelect);
+            carInfo.setBrandSelect(brandSelect);
+            carInfo.setBrandInput(brandInput);
+            carInfo.setCarSeriesSelect(carSeriesSelect);
+            carInfo.setCarSeriesInput(carSeriesInput);
+            carInfo.setCarModelSelect(carModelSelect);
+            carInfo.setCarModelInput(carModelInput);
             carInfos.add(carInfo);
         }
 
@@ -345,7 +383,7 @@ public class CheKuKeService {
         System.out.println("carNumberSet为" + carNumberSet.size());
 
         String pathname = "C:\\exportExcel\\车酷客单据车辆信息.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
     /**
@@ -397,14 +435,14 @@ public class CheKuKeService {
                         String vcInsuranceCompanyRegEx = "#txtBXGS";
                         String vcInsuranceValidDateRegEx = "#txtBXTime";
 
-                        String brandRegEx = "#sel_brand > option[selected]";
-                        String brandOutsideRegEx = "#txtBrand";//text
+                        String brandSelectRegEx = "#sel_brand > option[selected]";
+                        String brandInputRegEx = "#txtBrand";
 
-                        String carSeriesRegEx = "#sel_model > option[selected]";
-                        String carSeriesOutsideRegEx = "#txtModel";//text
+                        String carSeriesSelectRegEx = "#sel_model > option[selected]";
+                        String carSeriesInputRegEx = "#txtModel";
 
-                        String carModelRegEx = "#sel_style > option[selected]";
-                        String carModelOutsideRegEx = "#txtStyle";
+                        String carModelSelectRegEx = "#sel_style > option[selected]";
+                        String carModelInputRegEx = "#txtStyle";
 
                         String carNumberPro = document.select(carNumberProRegEx).text();
                         String carNumberLet = document.select(carNumberLetRegEx).text();
@@ -416,8 +454,15 @@ public class CheKuKeService {
                         String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
                         String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
-                        String brand = document.select(brandRegEx).text();
-                        String carModel = document.select(carModelRegEx).text();
+                        String brandSelect = document.select(brandSelectRegEx).text();
+                        String brandInput = document.select(brandInputRegEx).attr("value");
+
+                        String carSeriesSelect = document.select(carSeriesSelectRegEx).text();
+                        String carSeriesInput = document.select(carSeriesInputRegEx).attr("value");
+
+                        String carModelSelect = document.select(carModelSelectRegEx).text();
+                        String carModelInput = document.select(carModelInputRegEx).attr("value");
+
 
                         nameStr = name;
                         phoneStr = phone;
@@ -430,8 +475,14 @@ public class CheKuKeService {
                         carInfo.setEngineNumber(engineNumber);
                         carInfo.setVcInsuranceCompany(vcInsuranceCompany);
                         carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfo.setBrand(brand);
-                        carInfo.setCarModel(carModel);
+                        carInfo.setBrand(brandSelect);
+                        carInfo.setCarModel(carModelSelect);
+                        carInfo.setBrandSelect(brandSelect);
+                        carInfo.setBrandInput(brandInput);
+                        carInfo.setCarSeriesSelect(carSeriesSelect);
+                        carInfo.setCarSeriesInput(carSeriesInput);
+                        carInfo.setCarModelSelect(carModelSelect);
+                        carInfo.setCarModelInput(carModelInput);
                         carInfos.add(carInfo);
                     }
 
@@ -447,14 +498,14 @@ public class CheKuKeService {
                         String carNumberLetRegEx = "#selLet > option[selected]";
                         String carNumberValueRegEx = "#tb_number";//value
 
-                        String brandRegEx = "#sel_brand > option[selected]";
-                        String brandOutsideRegEx = "#txtBrand";//text
+                        String brandSelectRegEx = "#sel_brand > option[selected]";
+                        String brandInputRegEx = "#txtBrand";
 
-                        String carSeriesRegEx = "#sel_model > option[selected]";
-                        String carSeriesOutsideRegEx = "#txtModel";//text
+                        String carSeriesSelectRegEx = "#sel_model > option[selected]";
+                        String carSeriesInputRegEx = "#txtModel";
 
-                        String carModelRegEx = "#sel_style > option[selected]";
-                        String carModelOutsideRegEx = "#txtStyle";
+                        String carModelSelectRegEx = "#sel_style > option[selected]";
+                        String carModelInputRegEx = "#txtStyle";
 
                         String VINCodeRegEx = "#tb_fdj";
                         String engineNumberRegEx = "#tb_cjh";
@@ -471,8 +522,15 @@ public class CheKuKeService {
                         String vcInsuranceCompany = document.select(vcInsuranceCompanyRegEx).attr("value");
                         String vcInsuranceValidDate = document.select(vcInsuranceValidDateRegEx).attr("value");
 
-                        String brand = document.select(brandRegEx).text();
-                        String carModel = document.select(carModelRegEx).text();
+                        String brandSelect = document.select(brandSelectRegEx).text();
+                        String brandInput = document.select(brandInputRegEx).attr("value");
+
+                        String carSeriesSelect = document.select(carSeriesSelectRegEx).text();
+                        String carSeriesInput = document.select(carSeriesInputRegEx).attr("value");
+
+                        String carModelSelect = document.select(carModelSelectRegEx).text();
+                        String carModelInput = document.select(carModelInputRegEx).attr("value");
+
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
@@ -482,20 +540,25 @@ public class CheKuKeService {
                         carInfo.setEngineNumber(engineNumber);
                         carInfo.setVcInsuranceCompany(vcInsuranceCompany);
                         carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfo.setBrand(brand);
-                        carInfo.setCarModel(carModel);
+                        carInfo.setBrand(brandSelect);
+                        carInfo.setCarModel(carModelSelect);
+                        carInfo.setBrandSelect(brandSelect);
+                        carInfo.setBrandInput(brandInput);
+                        carInfo.setCarSeriesSelect(carSeriesSelect);
+                        carInfo.setCarSeriesInput(carSeriesInput);
+                        carInfo.setCarModelSelect(carModelSelect);
+                        carInfo.setCarModelInput(carModelInput);
                         carInfos.add(carInfo);
                     }
                 }
             }
         }
 
-
         System.out.println("carInfos结果为" + carInfos.toString());
         System.out.println("carInfos大小为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\车酷客车辆信息.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
 
     }
 

@@ -203,6 +203,12 @@ public class ExcelUtil {
             mapValue.put("tcInsuranceCompany", carInfo.getTcInsuranceCompany());
             mapValue.put("remark", carInfo.getRemark());
             mapValue.put("companyName", carInfo.getCompanyName());
+            mapValue.put("brandSelect", carInfo.getBrandSelect());
+            mapValue.put("brandInput", carInfo.getBrandInput());
+            mapValue.put("carSeriesSelect", carInfo.getCarSeriesSelect());
+            mapValue.put("carSeriesInput", carInfo.getCarSeriesInput());
+            mapValue.put("carModelSelect", carInfo.getCarModelSelect());
+            mapValue.put("carModelInput", carInfo.getCarModelInput());
             listMap.add(mapValue);
 
         }

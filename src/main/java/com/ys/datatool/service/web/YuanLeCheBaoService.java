@@ -561,7 +561,7 @@ public class YuanLeCheBaoService {
      * @throws IOException
      */
     @Test
-    public void fetchCarInfoData() throws IOException {
+    public void  fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams("1"), COOKIE);
