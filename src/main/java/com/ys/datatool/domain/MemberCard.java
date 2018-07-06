@@ -39,7 +39,7 @@ public class MemberCard {
     /**
      * 卡类型
      */
-    private String cardType;
+    private String cardType = "储值卡";
 
     /**
      * 开卡日期

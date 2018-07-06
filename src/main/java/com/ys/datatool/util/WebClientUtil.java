@@ -569,12 +569,6 @@ public class WebClientUtil {
         return tagSize > 0 ? tagSize : 0;
     }
 
-    public static int getTRSize(Document document, String trRegEx) {
-        int trSize = document.select(trRegEx).tagName("tr").size();
-
-        return trSize > 0 ? trSize : 0;
-    }
-
     public static WebClient getWebClient() throws IOException {
 
         WebClient webClient = new WebClient(BrowserVersion.CHROME);

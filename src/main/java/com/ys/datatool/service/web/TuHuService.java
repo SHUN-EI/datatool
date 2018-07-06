@@ -48,6 +48,8 @@ public class TuHuService {
 
     private String trCarInfoRegEx = " table > tbody > tr";
 
+    private String trName = "tr";
+
     private String trCarInfoDetailRegEx = "#customer-dat-info > table > tbody > tr";
 
     /**
@@ -71,7 +73,7 @@ public class TuHuService {
                 html = response.returnContent().asString();
                 document = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTRSize(document, trCarInfoRegEx);
+                int trSize = WebClientUtil.getTagSize(document, trCarInfoRegEx,trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String carInfoNoRegEx = "table > tbody > tr:nth-child({no}) > td:nth-child(8) > a";
@@ -97,7 +99,7 @@ public class TuHuService {
                 String phoneRegEx = "#customer-info-table > tbody > tr:nth-child(2) > td:nth-child(2)";
                 String phone = document.select(phoneRegEx).text();
 
-                int trSize = WebClientUtil.getTRSize(document, trCarInfoDetailRegEx);
+                int trSize = WebClientUtil.getTagSize(document, trCarInfoDetailRegEx,trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
 

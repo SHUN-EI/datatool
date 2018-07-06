@@ -36,6 +36,8 @@ public class DianFengService {
 
     private String trItemRegEx = "body > div.wrap > table > tbody > tr";
 
+    private String trName = "tr";
+
     private Workbook workbook;
 
     private String COOKIE = "PHPSESSID=r3tuga77uj20tukn5mvqkji895; admin_username=lijun; refersh_time=0";
@@ -64,7 +66,7 @@ public class DianFengService {
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx,trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String idRegEx = "body > div.wrap > table > tbody > tr:nth-child({no}) > td:nth-child(9) > a";
@@ -83,7 +85,7 @@ public class DianFengService {
                 doc = Jsoup.parse(html);
 
                 String trRegEx = "#baoyang > tbody:nth-child(2) > tr";
-                int trSize = WebClientUtil.getTRSize(doc, trRegEx);
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx,trName);
 
                 if (trSize > 0) {
                     for (int i = 1; i < trSize; i++) {
@@ -134,7 +136,7 @@ public class DianFengService {
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTRSize(doc, trItemRegEx);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx,trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String carIdRegEx = "body > div.wrap > table > tbody > tr:nth-child({no}) > td:nth-child(13) > a:nth-child(1)";
