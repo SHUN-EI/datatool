@@ -45,6 +45,7 @@ public class CheDianEJiaService {
 
     private String trName = "tr";
 
+    //获取数据的令牌
     private String COOKIE = "ASP.NET_SessionId=mgou4uidksuc2qzghgcmsswp; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
 
 
@@ -154,7 +155,7 @@ public class CheDianEJiaService {
         }
 
 
-        String pathname = "D:\\车店E家卡内项目导出.xlsx";
+        String pathname = "C:\\exportExcel\\车店E家卡内项目导出.xlsx";
         ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
 
         System.out.println("结果为" + memberCardItems.toString());

@@ -109,7 +109,7 @@ public class YiZhiTongVService {
         System.out.println("服务项目为" + products.toString());
         System.out.println("服务共有为" + products.size());
 
-        String pathname = "D:\\上海创磊(御车堂奔宝店)服务项目导出.xls";
+        String pathname = "C:\\exportExcel\\易智通服务项目导出.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
@@ -186,7 +186,7 @@ public class YiZhiTongVService {
         System.out.println("carInfos为" + carInfos.toString());
         System.out.println("carInfos大小为" + carInfos.size());
 
-        String pathname = "D:\\上海创磊(御车堂奔宝店)车辆信息导出.xlsx";
+        String pathname = "C:\\exportExcel\\易智通车辆信息导出.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
 
     }

@@ -108,7 +108,7 @@ public class DianFengService {
         System.out.println("结果为" + products.toString());
         System.out.println("结果为" + products.size());
 
-        String pathname = "D:\\点疯网络商品.xls";
+        String pathname = "C:\\exportExcel\\点疯网络商品.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
 
     }
@@ -181,7 +181,7 @@ public class DianFengService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("大小为" + carInfos.size());
 
-        String pathname = "D:\\点疯网络车辆信息.xls";
+        String pathname = "C:\\exportExcel\\点疯网络车辆信息.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 }

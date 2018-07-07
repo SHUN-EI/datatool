@@ -134,7 +134,7 @@ public class FourCService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("大小为" + memberCards.size());
 
-        String pathname = "D:\\4C会员卡导出.xls";
+        String pathname = "C:\\exportExcel\\4C会员卡导出.xls";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
@@ -218,7 +218,7 @@ public class FourCService {
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("大小为" + memberCardItems.size());
 
-        String pathname = "D:\\4C卡内项目导出.xls";
+        String pathname = "C:\\exportExcel\\4C卡内项目导出.xls";
         ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
     }
 
@@ -267,7 +267,7 @@ public class FourCService {
         System.out.println("结果为" + products.toString());
         System.out.println("结果为" + products.size());
 
-        String pathname = "D:\\4C商品导出.xls";
+        String pathname = "C:\\exportExcel\\4C商品导出.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
@@ -348,7 +348,7 @@ public class FourCService {
         System.out.println("结果为" + stocks.toString());
         System.out.println("大小为" + stocks.size());
 
-        String pathname = "D:\\4C库存导出.xls";
+        String pathname = "C:\\exportExcel\\4C库存导出.xls";
         ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
     }
 
@@ -401,7 +401,7 @@ public class FourCService {
         System.out.println("结果为" + suppliers.toString());
         System.out.println("大小为" + suppliers.size());
 
-        String pathname = "D:\\4C供应商导出.xls";
+        String pathname = "C:\\exportExcel\\4C供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
 
     }

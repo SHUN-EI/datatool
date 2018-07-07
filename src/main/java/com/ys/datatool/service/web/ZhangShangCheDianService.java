@@ -128,7 +128,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("大小为" + memberCards.size());
 
-        String pathname = "D:\\掌上车店会员卡信息.xls";
+        String pathname = "C:\\exportExcel\\掌上车店会员卡信息.xls";
          ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
@@ -161,7 +161,7 @@ public class ZhangShangCheDianService {
                 carInfos.add(carInfo);
             }
         }
-        String pathname = "D:\\掌上车店车辆信息.xls";
+        String pathname = "C:\\exportExcel\\掌上车店车辆信息.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
@@ -192,7 +192,7 @@ public class ZhangShangCheDianService {
             }
         }
 
-        String pathname = "D:\\掌上车店供应商.xls";
+        String pathname = "C:\\exportExcel\\掌上车店供应商.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
     }
 
