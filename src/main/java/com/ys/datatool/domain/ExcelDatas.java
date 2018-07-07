@@ -52,7 +52,7 @@ public class ExcelDatas {
 
     public static String[] memberCardDatas = new String[]{"车店名称", "卡号",
             "会员卡名称", "车牌号", "卡类型", "卡品种名称",
-            "开卡日期", "卡内余额", "联系人姓名", "联系人手机", "备注"};
+            "开卡日期", "卡内余额", "联系人姓名", "联系人手机"};
 
     public static String[] memberCardItemDatas = new String[]{"车店名称", "卡号",
             "商品名称", "单价", "折扣", "剩余数量", "初始数量", "商品类别", "项目类别",

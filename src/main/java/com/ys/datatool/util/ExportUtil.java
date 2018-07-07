@@ -17,6 +17,40 @@ import java.util.Map;
 public class ExportUtil {
 
     /**
+     * 元乐车宝-会员卡导出
+     * @param memberCards
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportYuanLeCheBaoMemberCardDataInLocal(List<MemberCard> memberCards, Workbook workbook, String pathname) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
+        String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
+                "cardType", "cardSort", "dateCreated", "balance",
+                "name", "phone"};
+        OutputStream outputStream = null;
+
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.memberCardDatas);
+            CellStyle cellStyle = workbook.createCellStyle(); //换行样式
+            File file = new File(pathname);
+
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
      * 车酷客-车辆信息详情相关数据
      * @param carInfos
      * @param workbook
@@ -322,8 +356,8 @@ public class ExportUtil {
     public static void exportMemberCardDataInLocal(List<MemberCard> memberCards, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
         String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
-                "cardType", "memberCardId", "dateCreated", "balance",
-                "name", "phone", "remark"};
+                "cardType", "cardSort", "dateCreated", "balance",
+                "name", "phone"};
         OutputStream outputStream = null;
 
         try {

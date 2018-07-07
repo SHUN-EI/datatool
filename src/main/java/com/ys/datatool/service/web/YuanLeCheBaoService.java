@@ -13,6 +13,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +80,8 @@ public class YuanLeCheBaoService {
 
     private Workbook workbook;
 
+    private Random random = new Random();
+
     /**
      * 车店编号-shopId:
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
@@ -87,23 +91,36 @@ public class YuanLeCheBaoService {
      */
     private String companyId = "132";
 
-    private static final String COOKIE = "JSESSIONID=9D8384032ACB07B5388D58BA8634438C; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
-
+    private static final String COOKIE = "JSESSIONID=B3270F519B8E0D42E0894DC2F71CADBC; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
+        List<String> carList = new ArrayList<>();
         Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams("102062"), COOKIE);
         String content = res.returnContent().asString();
         Document document = Jsoup.parseBodyFragment(content);
         String a = document.html();
         String b = "";
 
-        String divEx="div[class='userCars']  > div[class=row] > div";
+        String divEx = "div[class='userCars']  > div[class=row] > div";
         int divSize = WebClientUtil.getTagSize(document, divEx, divName);
-        String ab="";
-        System.out.println("大小为"+divSize);
+        String divRow = "div[class='userCars']  > div[class=row]";
+        String divRow2 = "div[class='userCars']  > div[class=row] > div[class=col-sm-2]";
+
+        String result = document.select(divRow).text();
+        Elements elements = document.select(divRow2).tagName("div");
+        for (Element e : elements) {
+            Element carElement = e.getElementsByTag("a").get(1).tagName("span");
+            String c = "span[onclick=findCarDetail(this)]";
+            String cararea = carElement.select(c).attr("cararea");
+            String carnum = carElement.select(c).attr("carnum");
+            String carNumber = cararea + carnum;
+            carList.add(carNumber);
+        }
 
 
+        System.out.println("size为" + elements.text());
+        System.out.println("carList为" + carList.toString());
     }
 
     /**
@@ -147,12 +164,15 @@ public class YuanLeCheBaoService {
                         String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
                         String userId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
 
+                        String cardSort = String.valueOf(random.nextInt());
+
                         MemberCard memberCard = new MemberCard();
                         memberCard.setCardCode(phone);//手机号作为卡号
                         memberCard.setName(name);
                         memberCard.setPhone(phone);
                         memberCard.setMemberCardName(memberCardName);
                         memberCard.setBalance(balance);
+                        memberCard.setCardSort(cardSort.replace("-", ""));
                         memberCardMap.put(userId, memberCard);
                     }
                 }
@@ -164,18 +184,18 @@ public class YuanLeCheBaoService {
                 Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams(userId), COOKIE);
                 String content = res.returnContent().asString();
                 Document document = Jsoup.parseBodyFragment(content);
-                String a = document.html();
-                String b = "";
 
-                int divSize = WebClientUtil.getTagSize(document, divRegEx, divName);
-                if (divSize > 0) {
-                    for (int i = 1; i <= divSize; i++) {
-
-                        String carNumberRegEx = "div[class='userCars'] > div[class='row'] > div:nth-child({no}) > a:nth-child(2)";
-
-                        String carnum = document.select(StringUtils.replace(carNumberRegEx, "{no}", String.valueOf(i))).attr("carnum");
-                        String cararea = document.select(StringUtils.replace(carNumberRegEx, "{no}", String.valueOf(i))).attr("cararea");
+                //int divSize = WebClientUtil.getTagSize(document, divRegEx, divName); 此方法无法判断divSize
+                String divRowRegEx = "div[class='userCars']  > div[class=row] > div[class=col-sm-2]";
+                Elements elements = document.select(divRowRegEx).tagName("div");
+                if (elements.size() > 0) {
+                    for (Element e : elements) {
+                        Element carSpanElement = e.getElementsByTag("a").get(1).tagName("span");
+                        String carNumberRegEx = "span[onclick=findCarDetail(this)]";
+                        String cararea = carSpanElement.select(carNumberRegEx).attr("cararea");
+                        String carnum = carSpanElement.select(carNumberRegEx).attr("carnum");
                         String carNumber = cararea + carnum;
+                        //String carNumberRegEx = "div[class='userCars'] > div[class='row'] > div:nth-child({no}) > a:nth-child(2)";
 
                         MemberCard m = memberCardMap.get(userId);
                         MemberCard memberCard = new MemberCard();
@@ -185,6 +205,7 @@ public class YuanLeCheBaoService {
                         memberCard.setBalance(m.getBalance());
                         memberCard.setMemberCardName(m.getMemberCardName());
                         memberCard.setCardCode(m.getCardCode());
+                        memberCard.setCardSort(m.getCardSort());
                         memberCard.setCompanyName(companyName);
                         memberCards.add(memberCard);
                     }
@@ -194,6 +215,9 @@ public class YuanLeCheBaoService {
 
         System.out.println("结果为" + memberCards.toString());
         System.out.println("结果为" + memberCards.size());
+
+        String pathname = "C:\\exportExcel\\会员卡导出.xls";
+        ExportUtil.exportYuanLeCheBaoMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
