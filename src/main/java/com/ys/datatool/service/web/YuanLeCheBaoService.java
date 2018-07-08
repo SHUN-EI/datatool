@@ -91,7 +91,7 @@ public class YuanLeCheBaoService {
      */
     private String companyId = "132";
 
-    private static final String COOKIE = "JSESSIONID=B3270F519B8E0D42E0894DC2F71CADBC; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private static final String COOKIE = "JSESSIONID=ADEE479AC3A8F6B26BBBAAB1546B122C; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
@@ -102,25 +102,11 @@ public class YuanLeCheBaoService {
         String a = document.html();
         String b = "";
 
-        String divEx = "div[class='userCars']  > div[class=row] > div";
-        int divSize = WebClientUtil.getTagSize(document, divEx, divName);
-        String divRow = "div[class='userCars']  > div[class=row]";
-        String divRow2 = "div[class='userCars']  > div[class=row] > div[class=col-sm-2]";
 
-        String result = document.select(divRow).text();
-        Elements elements = document.select(divRow2).tagName("div");
-        for (Element e : elements) {
-            Element carElement = e.getElementsByTag("a").get(1).tagName("span");
-            String c = "span[onclick=findCarDetail(this)]";
-            String cararea = carElement.select(c).attr("cararea");
-            String carnum = carElement.select(c).attr("carnum");
-            String carNumber = cararea + carnum;
-            carList.add(carNumber);
-        }
+        String contentRegEx = "#staleDated-content-tbody";
+        String cardDetail = document.select(contentRegEx).text();
+        System.out.println("结果为" + cardDetail);
 
-
-        System.out.println("size为" + elements.text());
-        System.out.println("carList为" + carList.toString());
     }
 
     /**
@@ -197,6 +183,19 @@ public class YuanLeCheBaoService {
                         String carNumber = cararea + carnum;
                         //String carNumberRegEx = "div[class='userCars'] > div[class='row'] > div:nth-child({no}) > a:nth-child(2)";
 
+                        String dateCreatedRegEx = "#staleDated-content-tbody";
+                        String dateCreated = document.select(dateCreatedRegEx).text();
+                        if (StringUtils.isBlank(dateCreated)) {
+                            dateCreated = "1900-01-01";
+                        } else {
+                            String trRegEx = "#staleDated-content-tbody > tr";
+                            int trSize = WebClientUtil.getTagSize(document, trRegEx, trName);
+
+
+
+                        }
+
+
                         MemberCard m = memberCardMap.get(userId);
                         MemberCard memberCard = new MemberCard();
                         memberCard.setCarNumber(carNumber);
@@ -206,6 +205,7 @@ public class YuanLeCheBaoService {
                         memberCard.setMemberCardName(m.getMemberCardName());
                         memberCard.setCardCode(m.getCardCode());
                         memberCard.setCardSort(m.getCardSort());
+                        memberCard.setDateCreated(dateCreated);
                         memberCard.setCompanyName(companyName);
                         memberCards.add(memberCard);
                     }
