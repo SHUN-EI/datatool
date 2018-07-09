@@ -3,10 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -91,22 +88,61 @@ public class YuanLeCheBaoService {
      */
     private String companyId = "132";
 
-    private static final String COOKIE = "JSESSIONID=ADEE479AC3A8F6B26BBBAAB1546B122C; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private static final String COOKIE = "JSESSIONID=A9F59B6B8A4808816DB5A0B0D04E9729; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
-        List<String> carList = new ArrayList<>();
+        List<String> dateList = new ArrayList<>();
         Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams("102062"), COOKIE);
         String content = res.returnContent().asString();
         Document document = Jsoup.parseBodyFragment(content);
-        String a = document.html();
         String b = "";
 
+        String trRegEx = "#staleDated-content-tbody > tr";
+        int trSize = WebClientUtil.getTagSize(document, trRegEx, trName);
+        if (trSize > 0) {
+            for (int i = 1; i <= trSize; i++) {
 
-        String contentRegEx = "#staleDated-content-tbody";
-        String cardDetail = document.select(contentRegEx).text();
-        System.out.println("结果为" + cardDetail);
+                String dateCreatedRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+                String dateCreated = document.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(i))).text();
+                dateList.add(dateCreated);
+            }
+        }
 
+        String earliestDate = "";
+        if (dateList.size() == 1)
+            earliestDate = dateList.get(0);
+        if (dateList.size() > 1) {
+            for (int i = 0; i < dateList.size(); i++) {
+                String compareDate = dateList.get(i);
+
+                if (i == 0) {
+                    earliestDate = dateList.get(0);
+                    continue;
+                }
+
+                int result = DateUtil.compareDate(earliestDate, compareDate);
+                switch (result) {
+                    case -1:
+                        earliestDate = compareDate;
+                        break;
+                    case 1:
+                        earliestDate = earliestDate;
+                        break;
+                    case 0:
+                        earliestDate = compareDate;
+                        break;
+                }
+            }
+        }
+
+        Date d1 = DateUtil.parseDate(earliestDate);
+        String s1 = DateUtil.formateDateTime(d1);
+
+
+        System.out.println("dateList结果为" + dateList.toString());
+        System.out.println("最早日期为" + earliestDate);
+        System.out.println("最早日为" + DateUtil.formatDateTime(earliestDate));
     }
 
     /**
@@ -118,6 +154,7 @@ public class YuanLeCheBaoService {
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
+        List<String> dateList = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
         //请选择客户属性-3、非会员-0、会员-1
@@ -183,16 +220,25 @@ public class YuanLeCheBaoService {
                         String carNumber = cararea + carnum;
                         //String carNumberRegEx = "div[class='userCars'] > div[class='row'] > div:nth-child({no}) > a:nth-child(2)";
 
-                        String dateCreatedRegEx = "#staleDated-content-tbody";
-                        String dateCreated = document.select(dateCreatedRegEx).text();
-                        if (StringUtils.isBlank(dateCreated)) {
+                        String dateCreated = "";
+                        String dateRegEx = "#staleDated-content-tbody";
+                        String dateStr = document.select(dateRegEx).text();
+                        if (StringUtils.isBlank(dateStr)) {
                             dateCreated = "1900-01-01";
                         } else {
                             String trRegEx = "#staleDated-content-tbody > tr";
                             int trSize = WebClientUtil.getTagSize(document, trRegEx, trName);
+                            if (trSize > 0) {
+                                for (int i = 1; i <= trSize; i++) {
 
+                                    String dateCreatedRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+                                    dateCreated = document.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(i))).text();
+                                    dateList.add(dateCreated);
+                                }
+                            }
 
-
+                            if (dateList.size() > 0)
+                                dateCreated = DateUtil.getEarliestDate(dateList);
                         }
 
 
@@ -205,7 +251,7 @@ public class YuanLeCheBaoService {
                         memberCard.setMemberCardName(m.getMemberCardName());
                         memberCard.setCardCode(m.getCardCode());
                         memberCard.setCardSort(m.getCardSort());
-                        memberCard.setDateCreated(dateCreated);
+                        memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
                         memberCard.setCompanyName(companyName);
                         memberCards.add(memberCard);
                     }
@@ -216,7 +262,7 @@ public class YuanLeCheBaoService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("结果为" + memberCards.size());
 
-        String pathname = "C:\\exportExcel\\会员卡导出.xls";
+        String pathname = "C:\\exportExcel\\元乐车宝会员卡导出.xls";
         ExportUtil.exportYuanLeCheBaoMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }

@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -259,6 +260,46 @@ public class DateUtil {
     }
 
     /**
+     * 获取最早日期
+     *
+     * @param dateList
+     * @return
+     */
+    public static String getEarliestDate(List<String> dateList) {
+        String earliestDate = "";
+
+        if (dateList.size() == 1)
+            earliestDate = dateList.get(0);
+
+        if (dateList.size() > 1) {
+            for (int i = 0; i < dateList.size(); i++) {
+                String compareDate = dateList.get(i);
+
+                if (i == 0) {
+                    earliestDate = dateList.get(0);
+                    continue;
+                }
+
+                int result = compareDate(earliestDate, compareDate);
+                switch (result) {
+                    case -1:
+                        earliestDate = compareDate;
+                        break;
+                    case 1:
+                        earliestDate = earliestDate;
+                        break;
+                    case 0:
+                        earliestDate = compareDate;
+                        break;
+                }
+            }
+        }
+
+        return earliestDate;
+    }
+
+
+    /**
      * 时间差
      *
      * @param startDate
@@ -358,6 +399,19 @@ public class DateUtil {
     public static String formateTime(Date date) {
         return formatDate(date, TIME_FORMAT);
     }
+
+    /**
+     * 日期转换为字符串(yyyy-MM-dd 转 yyyy-MM-dd HH:mm:ss)
+     * @param dateStr
+     * @return
+     */
+    public static String formatDateTime(String dateStr) {
+        Date date = parseDate(dateStr);
+        String result = DateUtil.formateDateTime(date);
+
+        return result;
+    }
+
 
     //-----------------格式化字符串为日期--------------------------------------
 
@@ -739,6 +793,7 @@ public class DateUtil {
 
     /**
      * 获取下个月日期
+     *
      * @param date
      * @return
      */
@@ -753,6 +808,7 @@ public class DateUtil {
 
     /**
      * 获取某一日期的前一天
+     *
      * @param date
      * @return
      */
@@ -769,6 +825,7 @@ public class DateUtil {
 
     /**
      * 获取某年某月最后一天的日期
+     *
      * @param year
      * @param month
      * @return
@@ -783,6 +840,7 @@ public class DateUtil {
 
     /**
      * 获取一个月的天数
+     *
      * @param year
      * @param month
      * @return
@@ -798,6 +856,7 @@ public class DateUtil {
 
     /**
      * 根据用户生日计算年龄
+     *
      * @param birthday
      * @return
      */
@@ -828,6 +887,7 @@ public class DateUtil {
 
     /**
      * 由java.util.Date到java.sql.Date的类型转换
+     *
      * @param date
      * @return
      */
