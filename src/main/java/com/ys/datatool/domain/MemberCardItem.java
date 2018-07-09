@@ -114,12 +114,12 @@ public class MemberCardItem {
     /**
      * 商品类别-配件或服务项
      */
-    private String itemType;
+    private String itemType = "服务项";
 
     /**
      * 项目类别-计次项
      */
-    private String specialType="计次项";
+    private String specialType = "计次项";
 
     public String getRemark() {
         return remark;

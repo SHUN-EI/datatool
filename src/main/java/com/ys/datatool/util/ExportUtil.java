@@ -18,6 +18,7 @@ public class ExportUtil {
 
     /**
      * 元乐车宝-会员卡导出
+     *
      * @param memberCards
      * @param workbook
      * @param pathname
@@ -52,6 +53,7 @@ public class ExportUtil {
 
     /**
      * 车酷客-车辆信息详情相关数据
+     *
      * @param carInfos
      * @param workbook
      * @param pathname
@@ -64,7 +66,7 @@ public class ExportUtil {
                 "carModel", "mobile", "registerDate", "engineNumber",
                 "VINcode", "vcInsuranceValidDate", "vcInsuranceCompany",
                 "tcInsuranceValidDate", "tcInsuranceCompany", "remark",
-                "brandSelect","brandInput","carSeriesSelect","carSeriesInput","carModelSelect","carModelInput"
+                "brandSelect", "brandInput", "carSeriesSelect", "carSeriesInput", "carModelSelect", "carModelInput"
         };
 
         OutputStream outputStream = null;
@@ -89,10 +91,10 @@ public class ExportUtil {
     public static void exportBillSomeFieldDataInLocal(List<Bill> bills, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createBillList(bills);
-        String[] keys = new String[]{"companyName","billNo", "carNumber", "mileage",
-                "clientPhone","clientName", "totalAmount", "discount",
-                "actualAmount", "waitInStore", "dateExpect","payType","remark",
-                "dateAdded","dateEnd"};
+        String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
+                "clientPhone", "clientName", "totalAmount", "discount",
+                "actualAmount", "waitInStore", "dateExpect", "payType", "remark",
+                "dateAdded", "dateEnd"};
 
         OutputStream outputStream = null;
         try {
@@ -116,9 +118,9 @@ public class ExportUtil {
     public static void exportBillDetailSomeFieldDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createBillDetailList(billDetails);
-        String[] keys = new String[]{"companyName","billNo", "itemName", "quantity",
-                "price","discount", "itemType", "firstCategoryName",
-                "secondCategoryName", "itemCode", "salePrice","carNumber","dateAdded"};
+        String[] keys = new String[]{"companyName", "billNo", "itemName", "quantity",
+                "price", "discount", "itemType", "firstCategoryName",
+                "secondCategoryName", "itemCode", "salePrice", "carNumber", "dateAdded"};
 
         OutputStream outputStream = null;
         try {
@@ -144,7 +146,7 @@ public class ExportUtil {
         List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
         String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
                 "cardType", "cardSort", "dateCreated", "balance",
-                "name", "phone", "grade","discount","remark","memberCardId","validTime"};
+                "name", "phone", "grade", "discount", "remark", "memberCardId", "validTime"};
 
         OutputStream outputStream = null;
         try {
@@ -173,7 +175,7 @@ public class ExportUtil {
                 "discount", "num", "originalNum", "itemType",
                 "specialType", "firstCategoryName", "secondCategoryName",
                 "validTime", "isValidForever", "code", "dateCreated",
-                "memberCardName", "name", "phone","memberCardItemId"};
+                "memberCardName", "name", "phone", "memberCardItemId"};
 
         OutputStream outputStream = null;
         try {
@@ -353,6 +355,14 @@ public class ExportUtil {
         }
     }
 
+    /**
+     * 会员卡-标准模版导出
+     *
+     * @param memberCards
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
     public static void exportMemberCardDataInLocal(List<MemberCard> memberCards, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
         String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",

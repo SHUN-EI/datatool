@@ -88,6 +88,12 @@ public class YuanLeCheBaoService {
      */
     private String companyId = "132";
 
+    /**
+     * 分店编号-shopBranchId：
+     * 146(路胜通汽车)、
+     */
+    private String shopBranchId = "146";
+
     private static final String COOKIE = "JSESSIONID=A9F59B6B8A4808816DB5A0B0D04E9729; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
@@ -103,46 +109,38 @@ public class YuanLeCheBaoService {
         if (trSize > 0) {
             for (int i = 1; i <= trSize; i++) {
 
-                String dateCreatedRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(6)";
-                String dateCreated = document.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(i))).text();
-                dateList.add(dateCreated);
+                String packageIdRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(9) > a";
+                String packageId = document.select(StringUtils.replace(packageIdRegEx, "{no}", String.valueOf(i))).attr("packageId");
+
             }
         }
-
-        String earliestDate = "";
-        if (dateList.size() == 1)
-            earliestDate = dateList.get(0);
-        if (dateList.size() > 1) {
-            for (int i = 0; i < dateList.size(); i++) {
-                String compareDate = dateList.get(i);
-
-                if (i == 0) {
-                    earliestDate = dateList.get(0);
-                    continue;
-                }
-
-                int result = DateUtil.compareDate(earliestDate, compareDate);
-                switch (result) {
-                    case -1:
-                        earliestDate = compareDate;
-                        break;
-                    case 1:
-                        earliestDate = earliestDate;
-                        break;
-                    case 0:
-                        earliestDate = compareDate;
-                        break;
-                }
-            }
-        }
-
-        Date d1 = DateUtil.parseDate(earliestDate);
-        String s1 = DateUtil.formateDateTime(d1);
 
 
         System.out.println("dateList结果为" + dateList.toString());
-        System.out.println("最早日期为" + earliestDate);
-        System.out.println("最早日为" + DateUtil.formatDateTime(earliestDate));
+    }
+
+    /**
+     * 卡内项目-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+
+        Map<String, MemberCard> memberCardMap = getMemberCardMap();
+        if (memberCardMap.size() > 0) {
+            for (String userId : memberCardMap.keySet()) {
+                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams(userId), COOKIE);
+                String content = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String trRegEx = "#staleDated-content-tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, trName);
+
+            }
+        }
+
     }
 
     /**
@@ -155,52 +153,7 @@ public class YuanLeCheBaoService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         List<String> dateList = new ArrayList<>();
-        Map<String, MemberCard> memberCardMap = new HashMap<>();
-
-        //请选择客户属性-3、非会员-0、会员-1
-        Response response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams("1", "1"), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parseBodyFragment(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams(String.valueOf(i), "1"), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parseBodyFragment(html);
-
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
-                if (trSize > 0) {
-                    for (int j = 1; j <= 10; j++) {
-
-                        String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String phoneRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String memberCardNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
-                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
-                        String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
-
-                        String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
-                        String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
-                        String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
-                        String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
-                        String userId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
-
-                        String cardSort = String.valueOf(random.nextInt());
-
-                        MemberCard memberCard = new MemberCard();
-                        memberCard.setCardCode(phone);//手机号作为卡号
-                        memberCard.setName(name);
-                        memberCard.setPhone(phone);
-                        memberCard.setMemberCardName(memberCardName);
-                        memberCard.setBalance(balance);
-                        memberCard.setCardSort(cardSort.replace("-", ""));
-                        memberCardMap.put(userId, memberCard);
-                    }
-                }
-            }
-        }
+        Map<String, MemberCard> memberCardMap = getMemberCardMap();
 
         if (memberCardMap.size() > 0) {
             for (String userId : memberCardMap.keySet()) {
@@ -263,7 +216,7 @@ public class YuanLeCheBaoService {
         System.out.println("结果为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝会员卡导出.xls";
-        ExportUtil.exportYuanLeCheBaoMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
@@ -821,7 +774,7 @@ public class YuanLeCheBaoService {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("userId", userId));
         params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("shopBranchId", "146"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
 
         return params;
     }
@@ -831,7 +784,7 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("shopId", companyId));
         params.add(new BasicNameValuePair("pageNo", pageNo));
         params.add(new BasicNameValuePair("pageSize", "10"));
-        params.add(new BasicNameValuePair("shopBranchId", "146"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
         params.add(new BasicNameValuePair("isVip", vip));
 
         return params;
@@ -844,7 +797,7 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("shopGradeId", gradeId));
         params.add(new BasicNameValuePair("keyWord", ""));
-        params.add(new BasicNameValuePair("shopBranchId", "127"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
         params.add(new BasicNameValuePair("staffId", "2341"));
 
         return params;
@@ -888,7 +841,7 @@ public class YuanLeCheBaoService {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("keyword", ""));
         params.add(new BasicNameValuePair("payType", ""));
-        params.add(new BasicNameValuePair("shopBranchId", "299"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
         params.add(new BasicNameValuePair("staffId", "4574"));
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
@@ -910,7 +863,7 @@ public class YuanLeCheBaoService {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("staffId", "1649"));
-        params.add(new BasicNameValuePair("shopBranchId", "95"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
         params.add(new BasicNameValuePair("userName", userName));
         params.add(new BasicNameValuePair("userId", userId));
         params.add(new BasicNameValuePair("carArea", carArea));
@@ -922,12 +875,71 @@ public class YuanLeCheBaoService {
 
     private List<BasicNameValuePair> getPageInfoParams(String pageNo) {
         List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopBranchId", "96"));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
         params.add(new BasicNameValuePair("staffId", "1711"));
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
         return params;
+    }
+
+    private String getMemberCardItemURL(String userId, String packageId) {
+        String url = "http://www.carbao.vip/Home/receptionService/recordCardDetail?" +
+                "userId=" + userId +
+                "&packageId" + packageId +
+                "&shopBranchId=" + shopBranchId +
+                "&shopId=" + companyId;
+        return url;
+    }
+
+    private Map<String, MemberCard> getMemberCardMap() throws IOException {
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
+
+        //请选择客户属性-3、非会员-0、会员-1
+        Response response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams("1", "1"), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parseBodyFragment(html);
+
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams(String.valueOf(i), "1"), COOKIE);
+                html = response.returnContent().asString();
+                doc = Jsoup.parseBodyFragment(html);
+
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= 10; j++) {
+
+                        String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                        String phoneRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                        String memberCardNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+                        String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
+
+                        String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+                        String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
+                        String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
+                        String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
+                        String userId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
+
+                        String cardSort = String.valueOf(random.nextInt());
+
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCardCode(phone);//手机号作为卡号
+                        memberCard.setName(name);
+                        memberCard.setPhone(phone);
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setBalance(balance);
+                        memberCard.setCardSort(cardSort.replace("-", ""));
+                        memberCardMap.put(userId, memberCard);
+                    }
+                }
+            }
+        }
+        return memberCardMap;
     }
 
     private int getOptionSize(Document document, String optionRegEx) {
