@@ -94,29 +94,47 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "146";
 
-    private static final String COOKIE = "JSESSIONID=A9F59B6B8A4808816DB5A0B0D04E9729; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private static final String COOKIE = "JSESSIONID=9CF8CB91602A431A161E5320098A1FEE; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
-        List<String> dateList = new ArrayList<>();
-        Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams("102062"), COOKIE);
+
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        String url = getMemberCardItemURL("102062", "10647");
+        Response res = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
         String content = res.returnContent().asString();
-        Document document = Jsoup.parseBodyFragment(content);
+        Document doc = Jsoup.parseBodyFragment(content);
+        String a = doc.html();
         String b = "";
 
-        String trRegEx = "#staleDated-content-tbody > tr";
-        int trSize = WebClientUtil.getTagSize(document, trRegEx, trName);
+        String divRowRegEx = "div[class='recordCardInfo']  > div[class=row] > div[class=col-sm-4]";
+        Elements elements = doc.select(divRowRegEx).tagName("div");
+        String validTime = elements.get(4).getElementsByTag("span").get(1).text();
+
+        int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
         if (trSize > 0) {
             for (int i = 1; i <= trSize; i++) {
+                String itemNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                String originalNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                String numRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
 
-                String packageIdRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(9) > a";
-                String packageId = document.select(StringUtils.replace(packageIdRegEx, "{no}", String.valueOf(i))).attr("packageId");
+                String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
+                String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
+                String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
+                String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
 
+                MemberCardItem memberCardItem = new MemberCardItem();
+                memberCardItem.setItemName(itemName);
+                memberCardItem.setOriginalNum(originalNum.replace("次数", ""));
+                memberCardItem.setNum(num.replace("次数", ""));
+                memberCardItem.setRemark(remark);
+                memberCardItems.add(memberCardItem);
             }
         }
 
-
-        System.out.println("dateList结果为" + dateList.toString());
+        System.out.println("memberCardItems结果为" + memberCardItems.toString());
+        System.out.println("memberCardItems结果为" + memberCardItems.size());
     }
 
     /**
@@ -127,6 +145,7 @@ public class YuanLeCheBaoService {
     @Test
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCard> packageMap = new HashMap<>();
 
         Map<String, MemberCard> memberCardMap = getMemberCardMap();
         if (memberCardMap.size() > 0) {
@@ -137,9 +156,91 @@ public class YuanLeCheBaoService {
 
                 String trRegEx = "#staleDated-content-tbody > tr";
                 int trSize = WebClientUtil.getTagSize(doc, trRegEx, trName);
+                if (trSize > 0) {
+                    for (int i = 1; i <= trSize; i++) {
 
+                        String packageIdRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(9) > a";
+                        String packageId = doc.select(StringUtils.replace(packageIdRegEx, "{no}", String.valueOf(i))).attr("packageId");
+
+                        MemberCard memberCard = memberCardMap.get(userId);
+                        packageMap.put(packageId, memberCard);
+                    }
+                }
             }
         }
+
+        if (packageMap.size() > 0) {
+            for (String packageId : packageMap.keySet()) {
+
+                MemberCard memberCard = packageMap.get(packageId);
+                String url = getMemberCardItemURL(memberCard.getUserId(), packageId);
+                Response res = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
+                String content = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String divRowRegEx = "div[class='recordCardInfo']  > div[class=row] > div[class=col-sm-4]";
+                Elements elements = doc.select(divRowRegEx).tagName("div");
+                String validTime = elements.get(4).getElementsByTag("span").get(1).text();
+
+                String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                if (trSize > 0) {
+                    for (int i = 1; i <= trSize; i++) {
+                        String itemNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                        String originalNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                        String numRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+
+                        String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
+                        String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
+                        String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
+                        String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+
+                        MemberCardItem memberCardItem = new MemberCardItem();
+                        memberCardItem.setCompanyName(companyName);
+                        memberCardItem.setDiscount(memberCard.getCardSort());
+                        memberCardItem.setCardCode(memberCard.getCardCode());
+                        memberCardItem.setItemName(itemName);
+                        memberCardItem.setOriginalNum(originalNum.replace("次数", ""));
+                        memberCardItem.setNum(num.replace("次数", ""));
+                        memberCardItem.setRemark(remark);
+                        memberCardItem.setIsValidForever(isValidForever);
+                        memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+                        memberCardItems.add(memberCardItem);
+                    }
+                }
+            }
+        }
+
+        if (memberCardItems.size() > 0) {
+            for (MemberCardItem memberCardItem : memberCardItems) {
+                String itemName = memberCardItem.getItemName();
+
+                Response res = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getServiceParams("1", itemName), COOKIE);
+                String content = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String codeRegEx = "#content-tbody > tr > td:nth-child(1)";
+                String priceRegEx = "#content-tbody > tr > td:nth-child(3)";
+                String firstCategoryNameRegEx = "#content-tbody > tr > td:nth-child(4)";
+
+                String code = doc.select(codeRegEx).text();
+                String price = doc.select(priceRegEx).text();
+                String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+
+                memberCardItem.setCode(code);
+                memberCardItem.setPrice(price.replace("￥", ""));
+                memberCardItem.setFirstCategoryName(firstCategoryName);
+            }
+        }
+
+
+        System.out.println("memberCardItems结果为" + memberCardItems.toString());
+        System.out.println("memberCardItems大小为" + memberCardItems.size());
+
+        String pathname = "C:\\exportExcel\\元乐车宝卡内项目导出.xlsx";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
 
     }
 
@@ -585,7 +686,7 @@ public class YuanLeCheBaoService {
     public void fetchServiceData() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getServiceParams("1"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getServiceParams("1", ""), COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
@@ -849,9 +950,9 @@ public class YuanLeCheBaoService {
         return params;
     }
 
-    private List<BasicNameValuePair> getServiceParams(String pageNo) {
+    private List<BasicNameValuePair> getServiceParams(String pageNo, String keyword) {
         List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("keyword", ""));
+        params.add(new BasicNameValuePair("keyword", keyword));
         params.add(new BasicNameValuePair("categoryId", ""));
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
@@ -886,7 +987,7 @@ public class YuanLeCheBaoService {
     private String getMemberCardItemURL(String userId, String packageId) {
         String url = "http://www.carbao.vip/Home/receptionService/recordCardDetail?" +
                 "userId=" + userId +
-                "&packageId" + packageId +
+                "&packageId=" + packageId +
                 "&shopBranchId=" + shopBranchId +
                 "&shopId=" + companyId;
         return url;
@@ -933,6 +1034,7 @@ public class YuanLeCheBaoService {
                         memberCard.setPhone(phone);
                         memberCard.setMemberCardName(memberCardName);
                         memberCard.setBalance(balance);
+                        memberCard.setUserId(userId);
                         memberCard.setCardSort(cardSort.replace("-", ""));
                         memberCardMap.put(userId, memberCard);
                     }

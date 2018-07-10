@@ -121,6 +121,11 @@ public class MemberCard {
      */
     private String discount;
 
+    /**
+     * 元乐车宝-会员卡userId
+     */
+    private String userId;
+
     public String getRemark() {
         return remark;
     }
@@ -303,6 +308,14 @@ public class MemberCard {
 
     public void setDiscount(String discount) {
         this.discount = discount;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     @Override
