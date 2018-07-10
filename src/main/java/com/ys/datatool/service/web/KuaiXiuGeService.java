@@ -4,7 +4,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -61,6 +60,15 @@ public class KuaiXiuGeService {
     @Test
     public void testRegEx() throws IOException {
 
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllItemPages(webClient);
+
+        Document doc = Jsoup.parseBodyFragment(pages.get(0).asXml());
+        String a = doc.html();
+        String b = "";
+
+
+        System.out.println("结果为" + pages.size());
     }
 
     @Test
@@ -133,7 +141,7 @@ public class KuaiXiuGeService {
         System.out.println("products结果为" + products.size());
 
         String pathname = "C:\\exportExcel\\快修哥商品.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        //ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
     private void getAllItemPages(WebClient webClient) throws IOException {
@@ -144,8 +152,9 @@ public class KuaiXiuGeService {
         HtmlSelect select = (HtmlSelect) partPage.getElementById("drpIsEnable");
         select.setSelectedAttribute("全部", true);
 
-        HtmlAnchor anchor = (HtmlAnchor) partPage.getElementById("TreeView1t0");
-        HtmlPage allPartPage = anchor.click();
+        //TreeView1t0
+        HtmlInput input = (HtmlInput) partPage.getElementById("Button3");
+        HtmlPage allPartPage = input.click();
         pages.add(allPartPage);
 
         String total = WebClientUtil.getTotalPage(allPartPage);
