@@ -223,20 +223,29 @@ public class YuanLeCheBaoService {
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
-                String codeRegEx = "#content-tbody > tr > td:nth-child(1)";
-                String priceRegEx = "#content-tbody > tr > td:nth-child(3)";
-                String firstCategoryNameRegEx = "#content-tbody > tr > td:nth-child(4)";
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                if (trSize > 0) {
+                    for (int i = 1; i <= trSize; i++) {
+                        String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
+                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+                        String itemRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
 
-                String code = doc.select(codeRegEx).text();
-                String price = doc.select(priceRegEx).text();
-                String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+                        String name = doc.select(StringUtils.replace(itemRegEx, "{no}", String.valueOf(i))).text();
+                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
+                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(i))).text();
 
-                memberCardItem.setCode(code);
-                memberCardItem.setPrice(price.replace("￥", ""));
-                memberCardItem.setFirstCategoryName(firstCategoryName);
+                        if (!name.equals(itemName))
+                            continue;
+
+                        memberCardItem.setCode(code);
+                        memberCardItem.setPrice(price.replace("￥", ""));
+                        memberCardItem.setFirstCategoryName(firstCategoryName);
+                    }
+                }
             }
         }
-
 
         System.out.println("memberCardItems结果为" + memberCardItems.toString());
         System.out.println("memberCardItems大小为" + memberCardItems.size());
@@ -740,7 +749,7 @@ public class YuanLeCheBaoService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(i)), COOKIE);
-                String html= response.returnContent().asString();
+                String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
                 for (int j = 1; j <= 10; j++) {
@@ -758,7 +767,7 @@ public class YuanLeCheBaoService {
                 String preUrl = "http://www.carbao.vip";
                 Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
                 String html = response.returnContent().asString();
-                Document doc= Jsoup.parse(html);
+                Document doc = Jsoup.parse(html);
 
                 String nameRegEx = "#content > div > div.row.row-d > div:nth-child(1) > div:nth-child(1) > div.col-md-7";
                 String contactPhoneRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(2) > div.col-md-7";
@@ -991,7 +1000,7 @@ public class YuanLeCheBaoService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CLIENTLIST_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                String html  = res.returnContent().asString();
+                String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
@@ -1012,7 +1021,7 @@ public class YuanLeCheBaoService {
                         String hasPackage = doc.select(StringUtils.replace(hasPackageRegEx, "{no}", String.valueOf(j))).text();
                         String cardSort = String.valueOf(random.nextInt());
 
-                        if ("0".equals(hasPackage))
+                        if ("0".equals(hasPackage) && "0.0".equals(balance))
                             continue;
 
                         if ("-".equals(memberCardName) || StringUtils.isBlank(memberCardName))
