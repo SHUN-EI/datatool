@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class YuanLeCheBaoService {
 
+    private String CLIENTLIST_URL = "http://www.carbao.vip/Home/receptionService/customerTable";
+
     private String CLIENTDETAIL_URL = "http://www.carbao.vip/Home/receptionService/customerDetail";
 
     private String CLIENT_URL = "http://www.carbao.vip/Home/receptionService/sreenCustomerTable";
@@ -84,17 +86,17 @@ public class YuanLeCheBaoService {
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
      * 77(石家庄丽雷行)、140(天骐汽车)、132(路胜通汽车)、
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
-     * 79(广州市花都区明杰)、113(新蔡爱卡汽车)
+     * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)
      */
-    private String companyId = "132";
+    private String companyId = "283";
 
     /**
      * 分店编号-shopBranchId：
-     * 146(路胜通汽车)、
+     * 146(路胜通汽车)、298(摩范汽车)
      */
     private String shopBranchId = "146";
 
-    private static final String COOKIE = "JSESSIONID=9CF8CB91602A431A161E5320098A1FEE; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private String COOKIE = "JSESSIONID=9E0C1A7633E3C080C50B19CBDDAEBAA4; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
@@ -147,7 +149,7 @@ public class YuanLeCheBaoService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCard> packageMap = new HashMap<>();
 
-        Map<String, MemberCard> memberCardMap = getMemberCardMap();
+        Map<String, MemberCard> memberCardMap = getMemberHasPackage();
         if (memberCardMap.size() > 0) {
             for (String userId : memberCardMap.keySet()) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams(userId), COOKIE);
@@ -254,7 +256,7 @@ public class YuanLeCheBaoService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         List<String> dateList = new ArrayList<>();
-        Map<String, MemberCard> memberCardMap = getMemberCardMap();
+        Map<String, MemberCard> memberCardMap = getMemberHasPackage();
 
         if (memberCardMap.size() > 0) {
             for (String userId : memberCardMap.keySet()) {
@@ -734,18 +736,12 @@ public class YuanLeCheBaoService {
         List<Supplier> suppliers = new ArrayList<>();
         Set<String> supplierDetails = new HashSet<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams("1"), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parse(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
+        int totalPage = getTotalPage(SUPPLIER_URL, getSupplierParams("1"));
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(i)), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(i)), COOKIE);
+                String html= response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
 
                 for (int j = 1; j <= 10; j++) {
                     String supplierDetailRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5) > a.supplierDetail";
@@ -760,9 +756,9 @@ public class YuanLeCheBaoService {
         if (supplierDetails.size() > 0) {
             for (String supplierDetail : supplierDetails) {
                 String preUrl = "http://www.carbao.vip";
-                response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
+                String html = response.returnContent().asString();
+                Document doc= Jsoup.parse(html);
 
                 String nameRegEx = "#content > div > div.row.row-d > div:nth-child(1) > div:nth-child(1) > div.col-md-7";
                 String contactPhoneRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(2) > div.col-md-7";
@@ -777,9 +773,6 @@ public class YuanLeCheBaoService {
                 suppliers.add(supplier);
             }
         }
-        System.out.println("结果为" + totalPage);
-        System.out.println("结果为" + supplierDetails.toString());
-        System.out.println("大小为" + supplierDetails.size());
         System.out.println("结果为" + suppliers.toString());
         System.out.println("大小为" + suppliers.size());
 
@@ -797,18 +790,12 @@ public class YuanLeCheBaoService {
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams("1"), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parse(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
+        int totalPage = getTotalPage(CARINFOPAGE_URL, getPageInfoParams("1"));
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
 
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
                 if (trSize > 0) {
@@ -843,9 +830,9 @@ public class YuanLeCheBaoService {
                 String carNum = carInfo.getCarNum();
                 String mobile = carInfo.getPhone();
 
-                response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
 
                 String carNumberRegEx = "#is_bang > div > div:nth-child(1) > span:nth-child(3)";
                 String VINRegEx = "#isReset > table > tbody > tr > td:nth-child(1) > span";
@@ -862,8 +849,6 @@ public class YuanLeCheBaoService {
             }
         }
 
-        System.out.println("结果为" + totalPageStr);
-        System.out.println("结果为" + totalPage);
         System.out.println("车辆分别为" + carInfos.toString());
         System.out.println("车辆大小为" + carInfos.size());
 
@@ -977,7 +962,6 @@ public class YuanLeCheBaoService {
     private List<BasicNameValuePair> getPageInfoParams(String pageNo) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-        params.add(new BasicNameValuePair("staffId", "1711"));
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
@@ -993,40 +977,46 @@ public class YuanLeCheBaoService {
         return url;
     }
 
-    private Map<String, MemberCard> getMemberCardMap() throws IOException {
+
+    /**
+     * 获取可用套卡不为0的会员数量
+     *
+     * @return
+     * @throws IOException
+     */
+    private Map<String, MemberCard> getMemberHasPackage() throws IOException {
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
-        //请选择客户属性-3、非会员-0、会员-1
-        Response response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams("1", "1"), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parseBodyFragment(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
+        int totalPage = getTotalPage(CLIENTLIST_URL, getPageInfoParams("1"));
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getMemberCardClientParams(String.valueOf(i), "1"), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parseBodyFragment(html);
+                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTLIST_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html  = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
 
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= 10; j++) {
-
                         String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
                         String phoneRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
                         String memberCardNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
-                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
                         String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
+                        String balanceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+                        String hasPackageRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
 
                         String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
                         String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
                         String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
                         String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
                         String userId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
-
+                        String hasPackage = doc.select(StringUtils.replace(hasPackageRegEx, "{no}", String.valueOf(j))).text();
                         String cardSort = String.valueOf(random.nextInt());
+
+                        if ("0".equals(hasPackage))
+                            continue;
+
+                        if ("-".equals(memberCardName) || StringUtils.isBlank(memberCardName))
+                            memberCardName = "普通会员卡";
 
                         MemberCard memberCard = new MemberCard();
                         memberCard.setCardCode(phone);//手机号作为卡号
@@ -1041,7 +1031,19 @@ public class YuanLeCheBaoService {
                 }
             }
         }
+
         return memberCardMap;
+    }
+
+    private int getTotalPage(String url, List<BasicNameValuePair> params) throws IOException {
+        Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
+        String html = response.returnContent().asString(charset);
+        Document doc = Jsoup.parse(html);
+
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        return totalPage;
     }
 
     private int getOptionSize(Document document, String optionRegEx) {
