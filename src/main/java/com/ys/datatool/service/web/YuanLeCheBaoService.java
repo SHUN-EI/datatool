@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class YuanLeCheBaoService {
 
+    private String CARDRIVINGLICENSE_URL = "http://www.carbao.vip/Home/car/drivingLicense";
+
     private String CLIENTLIST_URL = "http://www.carbao.vip/Home/receptionService/customerTable";
 
     private String CLIENTDETAIL_URL = "http://www.carbao.vip/Home/receptionService/customerDetail";
@@ -94,9 +96,9 @@ public class YuanLeCheBaoService {
      * 分店编号-shopBranchId：
      * 146(路胜通汽车)、298(摩范汽车)
      */
-    private String shopBranchId = "146";
+    private String shopBranchId = "298";
 
-    private String COOKIE = "JSESSIONID=9E0C1A7633E3C080C50B19CBDDAEBAA4; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private String COOKIE = "JSESSIONID=66389DAB825DEB267030E6D5CEC3097E; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
@@ -139,6 +141,113 @@ public class YuanLeCheBaoService {
         System.out.println("memberCardItems结果为" + memberCardItems.size());
     }
 
+
+    /**
+     * 车辆信息-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        int totalPage = getTotalPage(CARINFOPAGE_URL, getPageInfoParams("1"));
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString(charset);
+                Document doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+                        String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
+
+                        String carId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
+                        String phone = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("mobile");
+                        String name = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("username");
+                        String carnum = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("carnum");
+                        String cararea = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("cararea");
+                        String carNumber = cararea + carnum;
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setPhone(phone);
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setName(name);
+                        carInfo.setCarNum(carnum);
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setCarArea(cararea);
+                        carInfo.setCarId(carId);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+
+        if (carInfos.size() > 0) {
+            for (CarInfo carInfo : carInfos) {
+                String userName = carInfo.getName();
+                String userId = carInfo.getCarId();
+                String carNum = carInfo.getCarNum();
+                String carArea = carInfo.getCarArea();
+                String mobile = carInfo.getPhone();
+
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                String carNumberRegEx = "#is_bang > div > div:nth-child(1) > span:nth-child(3)";
+                String VINRegEx = "#isReset > table > tbody > tr > td:nth-child(1) > span";
+                String brandRegEx = "#isReset > table > tbody > tr > td:nth-child(2)";
+                String carModelRegEx = "#isReset > table > tbody > tr > td:nth-child(3)";
+
+                String userCarIdRegEx = "[\\s\\S]*var userId[\\s\\S]*var userCarId = (\\d+)[\\s\\S]*";
+                String userCarId = CommonUtil.filterString(doc.toString(), userCarIdRegEx);
+
+                String VINcode = doc.select(VINRegEx).text().replace("VIN：", "");
+                String carModel = doc.select(carModelRegEx).text().replace("车型：", "");
+                String brand = doc.select(brandRegEx).text().replace("品牌：", "");
+
+                carInfo.setUserCarId(userCarId);
+                carInfo.setVINcode(VINcode.replace("未完善", ""));
+                carInfo.setCarModel(carModel.replace("-", ""));
+                carInfo.setBrand(brand.replace("-", ""));
+            }
+        }
+
+        if (carInfos.size() > 0) {
+            for (CarInfo carInfo : carInfos) {
+                String userCarId = carInfo.getUserCarId();
+
+                Response response = ConnectionUtil.doPostWithLeastParams(CARDRIVINGLICENSE_URL, getDetailParams("userCarId", userCarId), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                String engineNumberRegEx = "#engineCode";
+                String registerDateRegEx = "#registerDate";
+                String vcInsuranceValidDateRegEx = "#insuranceTimeEnd";
+                String VINcodeRegEx = "#vin";
+
+                String engineNumber = doc.select(engineNumberRegEx).text();
+                String registerDate = doc.select(registerDateRegEx).text();
+                String vcInsuranceValidDate = doc.select(vcInsuranceValidDateRegEx).text();
+                String VINcode = doc.select(VINcodeRegEx).text();
+
+                carInfo.setEngineNumber(engineNumber.replace("未完善", ""));
+                carInfo.setRegisterDate(registerDate.replace("未完善", ""));
+                carInfo.setVcInsuranceValidDate(vcInsuranceValidDate.replace("未完善", ""));
+                carInfo.setVINcode(VINcode.replace("未完善", ""));
+            }
+        }
+
+        System.out.println("车辆分别为" + carInfos.toString());
+        System.out.println("车辆大小为" + carInfos.size());
+
+
+        String pathname = "C:\\exportExcel\\元乐车宝车辆信息导出.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
     /**
      * 卡内项目-标准模版导出
      *
@@ -152,7 +261,7 @@ public class YuanLeCheBaoService {
         Map<String, MemberCard> memberCardMap = getMemberHasPackage();
         if (memberCardMap.size() > 0) {
             for (String userId : memberCardMap.keySet()) {
-                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams(userId), COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getDetailParams("userId", userId), COOKIE);
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
@@ -269,7 +378,7 @@ public class YuanLeCheBaoService {
 
         if (memberCardMap.size() > 0) {
             for (String userId : memberCardMap.keySet()) {
-                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getMemberCardClientDetailParams(userId), COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParams(CLIENTDETAIL_URL, getDetailParams("userId", userId), COOKIE);
                 String content = res.returnContent().asString();
                 Document document = Jsoup.parseBodyFragment(content);
 
@@ -790,97 +899,12 @@ public class YuanLeCheBaoService {
 
     }
 
-    /**
-     * 车辆信息
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchCarInfoData() throws IOException {
-        List<CarInfo> carInfos = new ArrayList<>();
 
-        int totalPage = getTotalPage(CARINFOPAGE_URL, getPageInfoParams("1"));
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
-                if (trSize > 0) {
-                    for (int j = 1; j <= trSize; j++) {
-                        String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
-
-                        String carId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
-                        String phone = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("mobile");
-                        String name = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("username");
-                        String carnum = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("carnum");
-                        String cararea = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("cararea");
-                        String carNumber = cararea + carnum;
-
-                        CarInfo carInfo = new CarInfo();
-                        carInfo.setPhone(phone);
-                        carInfo.setName(name);
-                        carInfo.setCarNumber(carNumber);
-                        carInfo.setCarNum(carnum);
-                        carInfo.setCarArea(cararea);
-                        carInfo.setCarId(carId);
-                        carInfos.add(carInfo);
-                    }
-                }
-            }
-        }
-
-        if (carInfos.size() > 0) {
-            for (CarInfo carInfo : carInfos) {
-                String userName = carInfo.getName();
-                String userId = carInfo.getCarId();
-                String carArea = carInfo.getCarArea();
-                String carNum = carInfo.getCarNum();
-                String mobile = carInfo.getPhone();
-
-                Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(userName, userId, carArea, carNum, mobile), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                String carNumberRegEx = "#is_bang > div > div:nth-child(1) > span:nth-child(3)";
-                String VINRegEx = "#isReset > table > tbody > tr > td:nth-child(1) > span";
-                String brandRegEx = "#isReset > table > tbody > tr > td:nth-child(2)";
-                String carModelRegEx = "#isReset > table > tbody > tr > td:nth-child(3)";
-
-                String VINcode = doc.select(VINRegEx).text().replace("VIN：", "");
-                String carModel = doc.select(carModelRegEx).text().replace("车型：", "");
-                String brand = doc.select(brandRegEx).text().replace("品牌：", "");
-
-                carInfo.setVINcode(VINcode.replace("未完善", ""));
-                carInfo.setCarModel(carModel.replace("-", ""));
-                carInfo.setBrand(brand.replace("-", ""));
-            }
-        }
-
-        System.out.println("车辆分别为" + carInfos.toString());
-        System.out.println("车辆大小为" + carInfos.size());
-
-        String pathname = "C:\\exportExcel\\元乐车宝车辆信息导出.xls";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
-    }
-
-    private List<BasicNameValuePair> getMemberCardClientDetailParams(String userId) {
+    private List<BasicNameValuePair> getDetailParams(String name, String value) {
         List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("userId", userId));
+        params.add(new BasicNameValuePair(name, value));
         params.add(new BasicNameValuePair("shopId", companyId));
         params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-
-        return params;
-    }
-
-    private List<BasicNameValuePair> getMemberCardClientParams(String pageNo, String vip) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("pageNo", pageNo));
-        params.add(new BasicNameValuePair("pageSize", "10"));
-        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-        params.add(new BasicNameValuePair("isVip", vip));
 
         return params;
     }
@@ -974,7 +998,24 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
+        params.add(new BasicNameValuePair("staffId", "4478"));
         return params;
+    }
+
+    private String getDiscount(String salePrice, String price) {
+        int sp = Integer.parseInt(salePrice);
+        int p = Integer.parseInt(price);
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        String res = df.format((float) p / (float) sp);
+
+        return res;
+    }
+
+    private int getOptionSize(Document document, String optionRegEx) {
+        int optionSize = document.select(optionRegEx).tagName("option").size();
+
+        return optionSize > 0 ? optionSize : 0;
     }
 
     private String getMemberCardItemURL(String userId, String packageId) {
@@ -986,6 +1027,18 @@ public class YuanLeCheBaoService {
         return url;
     }
 
+
+    private int getTotalPage(String url, List<BasicNameValuePair> params) throws IOException {
+        Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
+        String html = response.returnContent().asString(charset);
+        Document doc = Jsoup.parse(html);
+
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
+        String a = "";
+        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
+
+        return totalPage;
+    }
 
     /**
      * 获取可用套卡不为0的会员数量
@@ -1042,33 +1095,6 @@ public class YuanLeCheBaoService {
         }
 
         return memberCardMap;
-    }
-
-    private int getTotalPage(String url, List<BasicNameValuePair> params) throws IOException {
-        Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
-        String html = response.returnContent().asString(charset);
-        Document doc = Jsoup.parse(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
-        return totalPage;
-    }
-
-    private int getOptionSize(Document document, String optionRegEx) {
-        int optionSize = document.select(optionRegEx).tagName("option").size();
-
-        return optionSize > 0 ? optionSize : 0;
-    }
-
-    private String getDiscount(String salePrice, String price) {
-        int sp = Integer.parseInt(salePrice);
-        int p = Integer.parseInt(price);
-        DecimalFormat df = new DecimalFormat("0.00");
-
-        String res = df.format((float) p / (float) sp);
-
-        return res;
     }
 
 }

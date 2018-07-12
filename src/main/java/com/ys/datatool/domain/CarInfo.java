@@ -142,6 +142,19 @@ public class CarInfo {
      */
     private String carModelInput;
 
+    /**
+     * 元乐车宝-userCarId
+     */
+    private String userCarId;
+
+    public String getUserCarId() {
+        return userCarId;
+    }
+
+    public void setUserCarId(String userCarId) {
+        this.userCarId = userCarId;
+    }
+
     public String getCarId() {
         return carId;
     }
