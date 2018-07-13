@@ -306,8 +306,8 @@ public class ExportUtil {
 
         List<Map<String, Object>> list = ExcelUtil.createSupplierList(suppliers);
         String[] keys = new String[]{"companyName", "name", "fax", "address",
-                "contactName", "contactPhone", "",
-                "", "", "remark", "code"};
+                "contactName", "contactPhone", "accountName",
+                "depositBank", "accountNumber", "remark", "code","isShare"};
 
         OutputStream outputStream = null;
         try {

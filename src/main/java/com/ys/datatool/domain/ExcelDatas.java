@@ -48,7 +48,7 @@ public class ExcelDatas {
 
     public static String[] supplierDatas = new String[]{"车店名称", "供应商名称",
             "传真", "地址", "联系人名称", "联系人号码", "银行卡户名", "银行卡开户行",
-            "银行卡账号", "备注", "供应商编码"};
+            "银行卡账号", "备注", "供应商编码","是否共享(连锁店)"};
 
     public static String[] memberCardDatas = new String[]{"车店名称", "卡号",
             "会员卡名称", "车牌号", "卡类型", "卡品种名称",

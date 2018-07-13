@@ -55,6 +55,11 @@ public class Supplier {
     private String code;
 
     /**
+     * 是否共享(连锁店)
+     */
+    private String isShare;
+
+    /**
      * 4C系统-业务经理
      */
     private String manager;
@@ -63,6 +68,53 @@ public class Supplier {
      * 4C-经理手机号
      */
     private String managerPhone;
+
+    /**
+     * 银行卡户名
+     */
+    private String accountName;
+
+    /**
+     * 银行卡开户行
+     */
+    private String depositBank;
+
+    /**
+     * 银行卡账号
+     */
+    private String accountNumber;
+
+    public String getIsShare() {
+        return isShare;
+    }
+
+    public void setIsShare(String isShare) {
+        this.isShare = isShare;
+    }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public String getDepositBank() {
+        return depositBank;
+    }
+
+    public void setDepositBank(String depositBank) {
+        this.depositBank = depositBank;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
 
     public String getName() {
         return name;

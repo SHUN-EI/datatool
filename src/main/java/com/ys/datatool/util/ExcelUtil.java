@@ -231,6 +231,10 @@ public class ExcelUtil {
             mapValue.put("address", supplier.getAddress());
             mapValue.put("contactName", supplier.getContactName());
             mapValue.put("contactPhone", supplier.getContactPhone());
+            mapValue.put("accountName", supplier.getAccountName());
+            mapValue.put("depositBank", supplier.getDepositBank());
+            mapValue.put("accountNumber", supplier.getAccountNumber());
+            mapValue.put("isShare", supplier.getIsShare());
             mapValue.put("remark", supplier.getRemark());
             mapValue.put("code", supplier.getCode());
             mapValue.put("companyName", supplier.getCompanyName());

@@ -90,55 +90,100 @@ public class YuanLeCheBaoService {
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)
      */
-    private String companyId = "283";
+    private String companyId = "132";
 
     /**
      * 分店编号-shopBranchId：
      * 146(路胜通汽车)、298(摩范汽车)
      */
-    private String shopBranchId = "298";
+    private String shopBranchId = "146";
 
-    private String COOKIE = "JSESSIONID=66389DAB825DEB267030E6D5CEC3097E; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private String COOKIE = "JSESSIONID=41913339DDC6EA22DCE09B4CD4FEC352; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
 
-        List<MemberCardItem> memberCardItems = new ArrayList<>();
-        String url = getMemberCardItemURL("102062", "10647");
-        Response res = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
-        String content = res.returnContent().asString();
-        Document doc = Jsoup.parseBodyFragment(content);
-        String a = doc.html();
-        String b = "";
+        String a = "02082192238，13928706998";
+        int index = a.indexOf("，");
 
-        String divRowRegEx = "div[class='recordCardInfo']  > div[class=row] > div[class=col-sm-4]";
-        Elements elements = doc.select(divRowRegEx).tagName("div");
-        String validTime = elements.get(4).getElementsByTag("span").get(1).text();
+        String a1 = a.substring(0, index);
+        String a2 = a.substring(index + 1, a.length());
 
-        int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
-        if (trSize > 0) {
-            for (int i = 1; i <= trSize; i++) {
-                String itemNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                String originalNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                String numRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
-                String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+        System.out.println("结果为" + a.length());
+        System.out.println("结果为" + a1);
+        System.out.println("结果为" + a2);
 
-                String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
-                String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
-                String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
-                String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+    }
 
-                MemberCardItem memberCardItem = new MemberCardItem();
-                memberCardItem.setItemName(itemName);
-                memberCardItem.setOriginalNum(originalNum.replace("次数", ""));
-                memberCardItem.setNum(num.replace("次数", ""));
-                memberCardItem.setRemark(remark);
-                memberCardItems.add(memberCardItem);
+    /**
+     * 供应商-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchSupplierData() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+        Set<String> supplierDetails = new HashSet<>();
+
+        int totalPage = getTotalPage(SUPPLIER_URL, getPageInfoParams("1"));
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString(charset);
+                Document doc = Jsoup.parse(html);
+
+                for (int j = 1; j <= 10; j++) {
+                    String supplierDetailRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5) > a.supplierDetail";
+                    String detailUrl = doc.select(StringUtils.replace(supplierDetailRegEx, "{no}", String.valueOf(j))).attr("content-url");
+
+                    if (StringUtils.isNotBlank(detailUrl))
+                        supplierDetails.add(detailUrl);
+                }
             }
         }
 
-        System.out.println("memberCardItems结果为" + memberCardItems.toString());
-        System.out.println("memberCardItems结果为" + memberCardItems.size());
+        if (supplierDetails.size() > 0) {
+            for (String supplierDetail : supplierDetails) {
+                String preUrl = "http://www.carbao.vip";
+                Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                String nameRegEx = "#content > div > div.row.row-d > div:nth-child(1) > div:nth-child(1) > div.col-md-7";
+                String contactPhoneRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(2) > div.col-md-7";
+                String contactNameRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(1) > div.col-md-7";
+                String remarkRegEx = "#content > div > div.row.row-d > div:nth-child(3) > div > div.col-md-7";
+
+                String name = doc.select(nameRegEx).text();
+                String contactPhone = doc.select(contactPhoneRegEx).text();
+                String contactName = doc.select(contactNameRegEx).text();
+                String remark = doc.select(remarkRegEx).text();
+                String fax = "";
+
+                if (contactPhone.contains("，")) {
+                    int index = contactPhone.indexOf("，");
+                    fax = contactPhone.substring(index + 1, contactPhone.length());
+                    contactPhone = contactPhone.substring(0, index);
+                    int a=contactPhone.length();
+
+                }
+
+                Supplier supplier = new Supplier();
+                supplier.setCompanyName(companyName);
+                supplier.setName(name);
+                supplier.setContactName(contactName);
+                supplier.setContactPhone(contactPhone);
+                supplier.setRemark(remark);
+                supplier.setFax(fax);
+                suppliers.add(supplier);
+            }
+        }
+        System.out.println("结果为" + suppliers.toString());
+        System.out.println("大小为" + suppliers.size());
+
+        String pathname = "C:\\exportExcel\\元乐车宝供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+
     }
 
 
@@ -815,7 +860,7 @@ public class YuanLeCheBaoService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getSupplierParams(String.valueOf(i)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -843,62 +888,6 @@ public class YuanLeCheBaoService {
         String pathname = "C:\\exportExcel\\元乐车宝服务项目导出.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
-
-    /**
-     * 供应商
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchSupplierData() throws IOException {
-        List<Supplier> suppliers = new ArrayList<>();
-        Set<String> supplierDetails = new HashSet<>();
-
-        int totalPage = getTotalPage(SUPPLIER_URL, getSupplierParams("1"));
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                for (int j = 1; j <= 10; j++) {
-                    String supplierDetailRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5) > a.supplierDetail";
-                    String detailUrl = doc.select(StringUtils.replace(supplierDetailRegEx, "{no}", String.valueOf(j))).attr("content-url");
-
-                    if (StringUtils.isNotBlank(detailUrl))
-                        supplierDetails.add(detailUrl);
-                }
-            }
-        }
-
-        if (supplierDetails.size() > 0) {
-            for (String supplierDetail : supplierDetails) {
-                String preUrl = "http://www.carbao.vip";
-                Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                String nameRegEx = "#content > div > div.row.row-d > div:nth-child(1) > div:nth-child(1) > div.col-md-7";
-                String contactPhoneRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(2) > div.col-md-7";
-                String contactNameRegEx = "#content > div > div.row.row-d > div:nth-child(2) > div:nth-child(1) > div.col-md-7";
-                String remarkRegEx = "#content > div > div.row.row-d > div:nth-child(3) > div > div.col-md-7";
-
-                Supplier supplier = new Supplier();
-                supplier.setName(doc.select(nameRegEx).text());
-                supplier.setContactName(doc.select(contactNameRegEx).text());
-                supplier.setContactPhone(doc.select(contactPhoneRegEx).text());
-                supplier.setRemark(doc.select(remarkRegEx).text());
-                suppliers.add(supplier);
-            }
-        }
-        System.out.println("结果为" + suppliers.toString());
-        System.out.println("大小为" + suppliers.size());
-
-        String pathname = "C:\\exportExcel\\元乐车宝供应商导出.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
-
-    }
-
 
     private List<BasicNameValuePair> getDetailParams(String name, String value) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -953,18 +942,6 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
 
-        return params;
-    }
-
-    private List<BasicNameValuePair> getSupplierParams(String pageNo) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("keyword", ""));
-        params.add(new BasicNameValuePair("payType", ""));
-        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-        params.add(new BasicNameValuePair("staffId", "4574"));
-        params.add(new BasicNameValuePair("pageSize", "10"));
-        params.add(new BasicNameValuePair("pageNo", pageNo));
-        params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         return params;
     }
 
