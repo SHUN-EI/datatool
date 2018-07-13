@@ -345,6 +345,10 @@ public class ExcelUtil {
             mapValue.put("isShare", product.getIsShare());
             mapValue.put("isActive", product.getIsActive());
             mapValue.put("remark", product.getRemark());
+            mapValue.put("cloudGoodsCode", product.getCloudGoodsCode());
+            mapValue.put("manufactory", product.getManufactory());
+            mapValue.put("manufactoryType", product.getManufactoryType());
+            mapValue.put("alias", product.getAlias());
 
             listMap.add(mapValue);
         }

@@ -111,6 +111,58 @@ public class Product {
      */
     private String remark;
 
+    /**
+     * 厂商
+     */
+    private String manufactory;
+
+    /**
+     * 厂商类型
+     */
+    private String manufactoryType;
+
+    /**
+     * 别称
+     */
+    private String alias;
+
+    /**
+     * 云商品编码
+     */
+    private String cloudGoodsCode;
+
+    public String getManufactory() {
+        return manufactory;
+    }
+
+    public void setManufactory(String manufactory) {
+        this.manufactory = manufactory;
+    }
+
+    public String getManufactoryType() {
+        return manufactoryType;
+    }
+
+    public void setManufactoryType(String manufactoryType) {
+        this.manufactoryType = manufactoryType;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getCloudGoodsCode() {
+        return cloudGoodsCode;
+    }
+
+    public void setCloudGoodsCode(String cloudGoodsCode) {
+        this.cloudGoodsCode = cloudGoodsCode;
+    }
+
     public String getCompanyName() {
         return companyName;
     }

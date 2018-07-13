@@ -63,7 +63,11 @@ public class YuanLeCheBaoService {
 
     private String totalPageRegEx = "totalPage =.*";
 
+    private String totalPageReplaceRegEx = "totalPage = ";
+
     private String totalRegEx = "totalPage=.*";
+
+    private String totalReplaceRegEx = "totalPage=";
 
     private String fieldName = "totalCount";
 
@@ -116,16 +120,64 @@ public class YuanLeCheBaoService {
     }
 
     /**
+     * 服务项目-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceDataStandard() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        int totalPage = getTotalPage(SERVICE_URL, getPageInfoParams("1"), totalRegEx, totalReplaceRegEx);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                for (int j = 1; j <= trSize; j++) {
+                    String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                    String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                    String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+
+                    String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(j))).text();
+                    String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
+                    String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text().replace("￥", "");
+                    String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
+
+                    Product product = new Product();
+                    product.setCode(code);
+                    product.setCompanyName(companyName);
+                    product.setProductName(productName);
+                    product.setPrice(price);
+                    product.setItemType("服务项");
+                    product.setFirstCategoryName(firstCategoryName);
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+        System.out.println("大小为" + products.size());
+
+
+        String pathname = "C:\\exportExcel\\元乐车宝服务项目导出.xls";
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+    }
+
+    /**
      * 供应商-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchSupplierData() throws IOException {
+    public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
         Set<String> supplierDetails = new HashSet<>();
 
-        int totalPage = getTotalPage(SUPPLIER_URL, getPageInfoParams("1"));
+        int totalPage = getTotalPage(SUPPLIER_URL, getPageInfoParams("1"), totalPageRegEx, totalPageReplaceRegEx);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
@@ -164,7 +216,7 @@ public class YuanLeCheBaoService {
                     int index = contactPhone.indexOf("，");
                     fax = contactPhone.substring(index + 1, contactPhone.length());
                     contactPhone = contactPhone.substring(0, index);
-                    int a=contactPhone.length();
+                    int a = contactPhone.length();
 
                 }
 
@@ -183,7 +235,6 @@ public class YuanLeCheBaoService {
 
         String pathname = "C:\\exportExcel\\元乐车宝供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
-
     }
 
 
@@ -196,7 +247,7 @@ public class YuanLeCheBaoService {
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        int totalPage = getTotalPage(CARINFOPAGE_URL, getPageInfoParams("1"));
+        int totalPage = getTotalPage(CARINFOPAGE_URL, getPageInfoParams("1"), totalPageRegEx, totalPageReplaceRegEx);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
@@ -842,74 +893,6 @@ public class YuanLeCheBaoService {
         ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks, workbook, pathname);
     }
 
-    /**
-     * 服务项目
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchServiceData() throws IOException {
-        List<Product> products = new ArrayList<>();
-
-        Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getServiceParams("1", ""), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parse(html);
-
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalRegEx).replace("totalPage=", "");
-        int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
-
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
-
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
-                for (int j = 1; j <= trSize; j++) {
-                    String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                    String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                    String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                    String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
-
-                    Product product = new Product();
-                    product.setCode(doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(j))).text());
-                    product.setProductName(doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text());
-                    product.setPrice(doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text().replace("￥", ""));
-                    product.setFirstCategoryName(doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text());
-                    products.add(product);
-                }
-            }
-        }
-        System.out.println("结果为" + totalPage);
-        System.out.println("结果为" + products.toString());
-        System.out.println("大小为" + products.size());
-
-
-        String pathname = "C:\\exportExcel\\元乐车宝服务项目导出.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
-    }
-
-    private List<BasicNameValuePair> getDetailParams(String name, String value) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair(name, value));
-        params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-
-        return params;
-    }
-
-    private List<BasicNameValuePair> getMemberCardParams(String pageNo, String gradeId) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("pageNo", pageNo));
-        params.add(new BasicNameValuePair("pageSize", "10"));
-        params.add(new BasicNameValuePair("shopGradeId", gradeId));
-        params.add(new BasicNameValuePair("keyWord", ""));
-        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
-        params.add(new BasicNameValuePair("staffId", "2341"));
-
-        return params;
-    }
 
     private List<BasicNameValuePair> getStockInPriceParams(String partsGuid, String specificationGuid) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -945,6 +928,19 @@ public class YuanLeCheBaoService {
         return params;
     }
 
+    private List<BasicNameValuePair> getMemberCardParams(String pageNo, String gradeId) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("pageNo", pageNo));
+        params.add(new BasicNameValuePair("pageSize", "10"));
+        params.add(new BasicNameValuePair("shopGradeId", gradeId));
+        params.add(new BasicNameValuePair("keyWord", ""));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
+        params.add(new BasicNameValuePair("staffId", "2341"));
+
+        return params;
+    }
+
     private List<BasicNameValuePair> getServiceParams(String pageNo, String keyword) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("keyword", keyword));
@@ -952,6 +948,15 @@ public class YuanLeCheBaoService {
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("pageSize", "10"));
         params.add(new BasicNameValuePair("pageNo", pageNo));
+        return params;
+    }
+
+    private List<BasicNameValuePair> getDetailParams(String name, String value) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair(name, value));
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("shopBranchId", shopBranchId));
+
         return params;
     }
 
@@ -1005,13 +1010,12 @@ public class YuanLeCheBaoService {
     }
 
 
-    private int getTotalPage(String url, List<BasicNameValuePair> params) throws IOException {
+    private int getTotalPage(String url, List<BasicNameValuePair> params, String regEx, String replaceRegEx) throws IOException {
         Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
         String html = response.returnContent().asString(charset);
         Document doc = Jsoup.parse(html);
 
-        String totalPageStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx).replace("totalPage = ", "");
-        String a = "";
+        String totalPageStr = CommonUtil.fetchString(doc.toString(), regEx).replace(replaceRegEx, "");
         int totalPage = Integer.parseInt(totalPageStr.replace(";", "").trim());
 
         return totalPage;
@@ -1026,7 +1030,7 @@ public class YuanLeCheBaoService {
     private Map<String, MemberCard> getMemberHasPackage() throws IOException {
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
-        int totalPage = getTotalPage(CLIENTLIST_URL, getPageInfoParams("1"));
+        int totalPage = getTotalPage(CLIENTLIST_URL, getPageInfoParams("1"), totalPageRegEx, totalPageReplaceRegEx);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CLIENTLIST_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
