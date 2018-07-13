@@ -59,7 +59,11 @@ public class YuanLeCheBaoService {
 
     private String trItemRegEx = "#content-tbody > tr";
 
+    private String trStockRegEx = "#set-tbody > tr";
+
     private String divRegEx = "div[class='userCars']  > div[class='row'] > div";
+
+    String optionRegEx = "#specification_search_in > option";
 
     private String totalPageRegEx = "totalPage =.*";
 
@@ -74,6 +78,8 @@ public class YuanLeCheBaoService {
     private String trName = "tr";
 
     private String divName = "div";
+
+    private String optionName = "option";
 
     private Charset charset = Charset.forName("UTF-8");
 
@@ -94,28 +100,156 @@ public class YuanLeCheBaoService {
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)
      */
-    private String companyId = "132";
+    private String companyId = "283";
 
     /**
      * 分店编号-shopBranchId：
      * 146(路胜通汽车)、298(摩范汽车)
      */
-    private String shopBranchId = "146";
+    private String shopBranchId = "298";
 
     private String COOKIE = "JSESSIONID=41913339DDC6EA22DCE09B4CD4FEC352; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
 
     @Test
     public void test() throws Exception {
 
-        String a = "02082192238，13928706998";
-        int index = a.indexOf("，");
+        String partsGuid = "b52ebc1a-fad2-45d2-be16-ce80d600f93a";
+        String specificationGuid = "9e72532f-3ff1-4609-92d9-c09d01c258e8";
 
-        String a1 = a.substring(0, index);
-        String a2 = a.substring(index + 1, a.length());
+        Response response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
+        String html = response.returnContent().asString();
+        Document doc = Jsoup.parse(html);
+        String a = "";
 
-        System.out.println("结果为" + a.length());
-        System.out.println("结果为" + a1);
-        System.out.println("结果为" + a2);
+        //取第一条入库记录中的成本价
+        String priceRegEx = "#content-tbody > tr:nth-child(1) > td:nth-child(7)";
+        String price = doc.select(priceRegEx).text().replace("￥", "");
+
+        System.out.println("结果为" + price);
+
+    }
+
+    /**
+     * 库存-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        Map<String, Product> productMap = new HashMap<>();
+        Map<String, String> specificationGuids = new HashMap<>();
+
+        int totalPage = getTotalPage(STOCK_URL, getPageInfoParams("1"), totalRegEx, totalReplaceRegEx);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
+
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text();
+                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
+
+                        String partsGuidRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > div > span.common-font.edit-act";
+                        String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String getGUIDRegEx = "(?<=').*(?=')";
+                        String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
+
+                        Product product = new Product();
+                        product.setPrice(price);
+                        product.setProductName(productName);
+                        productMap.put(guid, product);
+                    }
+                }
+            }
+        }
+
+        if (productMap.size() > 0) {
+            for (String guid : productMap.keySet()) {
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getDetailParams("partsGuid", guid), COOKIE);
+                String content = response.returnContent().asString();
+                Document doc = Jsoup.parse(content);
+
+
+                int optionSize = WebClientUtil.getTagSize(doc, optionRegEx, optionName);
+                if (optionSize > 0) {
+                    for (int i = 2; i <= optionSize; i++) {
+                        String specRegEx = "#specification_search_in > option:nth-child({no})";
+                        String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).text();
+                        String specValue = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).attr("value");
+
+                        specificationGuids.put(spec, specValue);
+                    }
+                }
+            }
+        }
+
+        if (productMap.size() > 0) {
+            for (String guid : productMap.keySet()) {
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getDetailParams("partsGuid", guid), COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, trName);
+                for (int j = 1; j <= trSize; j++) {
+
+                    String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
+                    String inventoryNumRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                    String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
+
+                    String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(j))).text();
+                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
+                    String salePrice = doc.select(StringUtils.replace(salePriceRegEx, "{no}", String.valueOf(j))).text();
+
+                    Product p = productMap.get(guid);
+                    Stock stock = new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setStoreRoomName("仓库");
+                    stock.setSpec(spec);
+                    stock.setProductCode(spec);
+                    stock.setPartsGuid(guid);
+                    stock.setGoodsName(p.getProductName());
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setSalePrice(salePrice.replace("￥", ""));
+                    stocks.add(stock);
+                }
+            }
+        }
+
+        if (stocks.size() > 0) {
+            for (Stock stock : stocks) {
+                String spec = stock.getSpec();
+                String partsGuid = stock.getPartsGuid();
+                String specificationGuid = specificationGuids.get(spec);
+
+                if (specificationGuid != null) {
+                    Response response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
+                    String html = response.returnContent().asString();
+                    Document doc = Jsoup.parse(html);
+
+                    //取第一条入库记录中的成本价
+                    String priceRegEx = "#content-tbody > tr:nth-child(1) > td:nth-child(7)";
+                    String price = doc.select(priceRegEx).text().replace("￥", "");
+
+                    if (StringUtils.isBlank(price))
+                        price = "0";
+
+                    stock.setPrice(price);
+                }
+            }
+        }
+
+        System.out.println("结果为" + stocks.toString());
+        System.out.println("大小为" + stocks.size());
+
+        String pathname = "C:\\exportExcel\\元乐车宝库存导出.xls";
+        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
 
     }
 
@@ -173,10 +307,9 @@ public class YuanLeCheBaoService {
                 Document doc = Jsoup.parse(html);
 
                 String carModelRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(2) > div:nth-child(2)";
-                String carModel=doc.select(carModelRegEx).text();
+                String carModel = doc.select(carModelRegEx).text();
 
-                String trRegEx = "#set-tbody > tr";
-                int trSize = WebClientUtil.getTagSize(doc, trRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, trName);
                 for (int i = 1; i <= trSize; i++) {
                     //规格作为商品编码
                     String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -188,7 +321,7 @@ public class YuanLeCheBaoService {
                     Product p = productMap.get(guid);
                     Product product = new Product();
                     product.setCode(spec);
-                    product.setPrice(salePrice.replace("￥",""));
+                    product.setPrice(salePrice.replace("￥", ""));
                     product.setFirstCategoryName(p.getFirstCategoryName());
                     product.setBrandName(p.getBrandName());
                     product.setProductName(p.getProductName());
@@ -856,152 +989,6 @@ public class YuanLeCheBaoService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
     }
 
-    /**
-     * 库存
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchStockData() throws IOException {
-        List<Stock> stocks = new ArrayList<>();
-        Set<String> guids = new HashSet<>();
-        Map<String, String> specificationGuids = new HashMap<>();
-
-        int totalPage = getTotalPage(STOCK_URL, getPageInfoParams("1"), totalRegEx, totalReplaceRegEx);
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getStockParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
-                for (int j = 1; j <= trSize; j++) {
-
-                    String getGUIDRegEx = "(?<=').*(?=')";
-                    String partsGuidRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > div > span.common-font.edit-act";
-                    String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(j))).attr("onclick");
-                    String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
-                    guids.add(guid);
-                }
-            }
-        }
-
-        if (guids.size() > 0) {
-            for (String guid : guids) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getDetailParams("partsGuid", guid), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                String optionRegEx = "#specification_search_in > option";
-                int optionSize = getOptionSize(doc, optionRegEx);
-
-                if (optionSize > 0) {
-                    for (int i = 2; i <= optionSize; i++) {
-                        String specRegEx = "#specification_search_in > option:nth-child({no})";
-                        String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).text();
-                        String specValue = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).attr("value");
-
-                        specificationGuids.put(spec, specValue);
-                    }
-                }
-            }
-        }
-
-        if (guids.size() > 0) {
-            for (String guid : guids) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getDetailParams("partsGuid", guid), COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                String firstCategoryNameRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(1) > div:nth-child(2)";
-                String brandRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div:nth-child(2)";
-                String remarkRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(1) > div:nth-child(2)";
-
-                String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
-                String brand = doc.select(brandRegEx).text();
-                String remark = doc.select(remarkRegEx).text();//配件型号
-
-                String trRegEx = "#set-tbody > tr";
-                int trSize = WebClientUtil.getTagSize(doc, trRegEx, trName);
-                for (int j = 1; j <= trSize; j++) {
-
-                    String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                    String inventoryNumRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(5)";
-                    String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
-
-                    String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(j))).text();
-                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
-                    String salePrice = doc.select(StringUtils.replace(salePriceRegEx, "{no}", String.valueOf(j))).text();
-
-                    //拼接商品名称
-                    String goodsName = firstCategoryName + brand + remark + spec;
-
-                    Stock stock = new Stock();
-                    stock.setGoodsName(goodsName);
-                    stock.setFirstCategoryName(firstCategoryName);
-                    stock.setBrand(brand);
-                    stock.setRemark(remark);
-                    stock.setSpec(spec);
-                    stock.setInventoryNum(inventoryNum);
-                    stock.setSalePrice(salePrice.replace("￥", ""));
-                    stock.setPartsGuid(guid);
-                    stocks.add(stock);
-                }
-            }
-        }
-
-        if (stocks.size() > 0) {
-            for (Stock stock : stocks) {
-                String spec = stock.getSpec();
-                String partsGuid = stock.getPartsGuid();
-                String specificationGuid = specificationGuids.get(spec);
-
-                if (specificationGuid != null) {
-                    Response response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
-                    String html = response.returnContent().asString();
-                    Document doc = Jsoup.parse(html);
-
-                    //取第一条入库记录中的成本价
-                    String priceRegEx = "#content-tbody > tr:nth-child(1) > td:nth-child(7)";
-                    String price = doc.select(priceRegEx).text().replace("￥", "");
-                    stock.setPrice(price);
-                }
-            }
-        }
-
-        System.out.println("结果为" + stocks.toString());
-        System.out.println("大小为" + stocks.size());
-
-        String pathname = "C:\\exportExcel\\元乐车宝库存导出.xls";
-        ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks, workbook, pathname);
-    }
-
-
-    private List<BasicNameValuePair> getStockInPriceParams(String partsGuid, String specificationGuid) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("branchId", "299"));
-        params.add(new BasicNameValuePair("staffId", "4574"));
-        params.add(new BasicNameValuePair("beginTimeStr", ""));
-        params.add(new BasicNameValuePair("endTimeStr", ""));
-        params.add(new BasicNameValuePair("partsProperty", ""));
-        params.add(new BasicNameValuePair("pageNo", "1"));
-        params.add(new BasicNameValuePair("pageSize", "5"));
-        params.add(new BasicNameValuePair("orderBy", "-1"));
-        params.add(new BasicNameValuePair("specificationGuid", specificationGuid));
-        params.add(new BasicNameValuePair("partsGuid", partsGuid));
-
-        return params;
-    }
-
-    private List<BasicNameValuePair> getStockParams(String pageNo) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("shopId", companyId));
-        params.add(new BasicNameValuePair("pageSize", "10"));
-        params.add(new BasicNameValuePair("pageNo", pageNo));
-
-        return params;
-    }
 
     private List<BasicNameValuePair> getMemberCardParams(String pageNo, String gradeId) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -1015,6 +1002,23 @@ public class YuanLeCheBaoService {
 
         return params;
     }
+
+    private List<BasicNameValuePair> getStockInPriceParams(String partsGuid, String specificationGuid) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("shopId", companyId));
+        params.add(new BasicNameValuePair("branchId", shopBranchId));
+        params.add(new BasicNameValuePair("staffId", "4574"));
+        params.add(new BasicNameValuePair("beginTimeStr", ""));
+        params.add(new BasicNameValuePair("endTimeStr", ""));
+        params.add(new BasicNameValuePair("pageNo", "1"));
+        params.add(new BasicNameValuePair("pageSize", "5"));
+        params.add(new BasicNameValuePair("orderBy", "-1"));
+        params.add(new BasicNameValuePair("specificationGuid", specificationGuid));
+        params.add(new BasicNameValuePair("partsGuid", partsGuid));
+
+        return params;
+    }
+
 
     private List<BasicNameValuePair> getServiceParams(String pageNo, String keyword) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -1069,12 +1073,6 @@ public class YuanLeCheBaoService {
         return res;
     }
 
-    private int getOptionSize(Document document, String optionRegEx) {
-        int optionSize = document.select(optionRegEx).tagName("option").size();
-
-        return optionSize > 0 ? optionSize : 0;
-    }
-
     private String getMemberCardItemURL(String userId, String packageId) {
         String url = "http://www.carbao.vip/Home/receptionService/recordCardDetail?" +
                 "userId=" + userId +
@@ -1083,7 +1081,6 @@ public class YuanLeCheBaoService {
                 "&shopId=" + companyId;
         return url;
     }
-
 
     private int getTotalPage(String url, List<BasicNameValuePair> params, String regEx, String replaceRegEx) throws IOException {
         Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);

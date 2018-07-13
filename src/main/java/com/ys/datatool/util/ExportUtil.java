@@ -223,7 +223,14 @@ public class ExportUtil {
         }
     }
 
-
+    /**
+     * 库存-标准模版导出
+     *
+     * @param stocks
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
     public static void exportStockDataInLocal(List<Stock> stocks, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createStockList(stocks);
