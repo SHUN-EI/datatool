@@ -504,6 +504,16 @@ public class WebClientUtil {
 
     }
 
+    /**
+     * 获取总页数
+     *
+     * @param response
+     * @param mapper
+     * @param fieldName
+     * @param num
+     * @return
+     * @throws IOException
+     */
     public static int getTotalPage(Response response, ObjectMapper mapper, String fieldName, int num) throws IOException {
         int totalPage = 0;
 

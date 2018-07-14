@@ -60,18 +60,45 @@ public class ZhangShangCheDianService {
     //会员卡页面总页数
     private int memberCardPageNum = 6;
 
-    private String COOKIE = "JSESSIONID=4AC7D9310FC4C688C08F57EDCB1993CF; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUyODAxMTk2MywibmJmIjoxNTI3OTI1NTYzLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.iqF2_o22HnynLtTyu3f60cnUjrmnKkHFfXfoxuebwGR9Xvu5JhDE1PfV0fs6cobo92U4h1Kr15HihP3z5Vei3w; Hm_lvt_678c2a986264dd9650b6a59042718858=1527655868,1527925565; SERVERID=b810ac6d9315e3be005b170045c65755|1527926716|1527925561; Hm_lpvt_678c2a986264dd9650b6a59042718858=1527926716";
+    private String fieldName = "total";
+
+    private int num = 15;
+
+    private String COOKIE = "JSESSIONID=1E3D86B974255068E579460A91579938; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMTYzOTk3MCwibmJmIjoxNTMxNTUzNTcwLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.qR6zVPAdjj-eksxFWHKd50N24xhIooBllAGqLZ1CVR3kfU1c0FUlPu7DZAQwK40q-nHROZHemyoLav0u0Ta5Pw; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531553773|1531553568; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531553772";
 
     @Test
     public void test() throws IOException {
-        Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + "bf91c55d-42a0-4814-bdad-b511603c5f8f", COOKIE);
-        String html = response.returnContent().asString();
-        Document document = Jsoup.parse(html);
-        System.out.println("结果为" + document.html());
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, "0", String.valueOf(num)), COOKIE);
+        int totalPage = getTotalPage(response, num);
+
+
+        System.out.println("结果为" + totalPage);
+    }
+
+    /**
+     * 车辆信息-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, "0", String.valueOf(num)), COOKIE);
+        int totalPage = getTotalPage(response, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+
+            }
+        }
+
+
     }
 
     /**
      * 会员卡
+     *
      * @throws IOException
      */
     @Test
@@ -129,12 +156,13 @@ public class ZhangShangCheDianService {
         System.out.println("大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\掌上车店会员卡信息.xls";
-         ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
     /**
      * 车辆信息
+     *
      * @throws IOException
      */
     @Test
@@ -167,6 +195,7 @@ public class ZhangShangCheDianService {
 
     /**
      * 供应商
+     *
      * @throws IOException
      */
     @Test
@@ -215,6 +244,22 @@ public class ZhangShangCheDianService {
         params.add(new BasicNameValuePair("data", value));
         params.add(new BasicNameValuePair("method", method));
         return params;
+    }
+
+    public static int getTotalPage(Response response, int num) throws IOException {
+        int totalPage = 0;
+
+        if (response != null) {
+            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            String countStr = result.get("data").get(0).get("count").asText();
+            int count = Integer.parseInt(countStr);
+
+            if (count % num == 0) {
+                totalPage = count / num;
+            } else
+                totalPage = count / num + 1;
+        }
+        return totalPage;
     }
 
 
