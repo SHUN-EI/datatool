@@ -19,6 +19,7 @@ public class DateUtil {
     public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String TIME_FORMAT = "HH:mm:ss";
+    public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH-mm-ss";//24小时
 
     //-------------------日期自动转化------------------------------------------------
 
@@ -401,7 +402,22 @@ public class DateUtil {
     }
 
     /**
+     * 毫秒数转换为日期(yyyy-MM-dd)
+     *
+     * @param millisecond
+     * @return
+     */
+    public static String formatMillisecond2DateTime(String millisecond) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_PATTERN);
+        Date date = new Date();
+        date.setTime(Long.parseLong(millisecond));
+        String result = simpleDateFormat.format(date);
+        return result.substring(0, 10);
+    }
+
+    /**
      * 日期转换为字符串(yyyy-MM-dd 转 yyyy-MM-dd HH:mm:ss)
+     *
      * @param dateStr
      * @return
      */

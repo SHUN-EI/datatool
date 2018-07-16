@@ -6,8 +6,8 @@ import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.TimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -51,6 +51,9 @@ public class ZhangShangCheDianService {
     //车辆信息页面方法传参
     private String carInfoMethod = "1912";
 
+    //车辆详情页面方法传参
+    private String carInfoDetailMethod = "1242";
+
     //供应商页面总页数
     private int supplierPageNum = 3;
 
@@ -68,11 +71,12 @@ public class ZhangShangCheDianService {
 
     @Test
     public void test() throws IOException {
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, "0", String.valueOf(num)), COOKIE);
-        int totalPage = getTotalPage(response, num);
 
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoDetailParams(carInfoDetailMethod, "7fc66687-bdcd-4f65-abc7-ef40e2424d0d"), COOKIE);
 
-        System.out.println("结果为" + totalPage);
+        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+        String a = "";
     }
 
     /**
@@ -83,15 +87,79 @@ public class ZhangShangCheDianService {
     @Test
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
+        Set<String> carInfoIds = new HashSet<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, "0", String.valueOf(num)), COOKIE);
         int totalPage = getTotalPage(response, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, String.valueOf(i), String.valueOf(num)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
+                Iterator<JsonNode> it = result.get("data").elements();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String dataId = element.get("memberId") != null ? element.get("memberId").asText() : "";
+                    carInfoIds.add(dataId);
+                }
             }
         }
+
+        if (carInfoIds.size() > 0) {
+            for (String carId : carInfoIds) {
+                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoDetailParams(carInfoDetailMethod, carId), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                JsonNode data = result.get("data");
+                String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
+                String carNumber = data.get("carPlateNo") != null ? data.get("carPlateNo").asText() : "";
+                String name = data.get("userName") != null ? data.get("userName").asText() : "";
+                String phone = data.get("telephone") != null ? data.get("telephone").asText() : "";
+
+                JsonNode userCarInfos = data.get("userCarInfos");
+                if (userCarInfos != null) {
+                    Iterator<JsonNode> userCarInfo = userCarInfos.elements();
+                    while (userCarInfo.hasNext()) {
+                        JsonNode element = userCarInfo.next();
+
+                        String contactName = element.get("contactName") != null ? element.get("contactName").asText() : "";
+                        if (StringUtils.isBlank(contactName))
+                            contactName = name;
+
+                        String contactTelephone = element.get("contactTelephone") != null ? element.get("contactTelephone").asText() : "";
+                        if (StringUtils.isBlank(contactTelephone))
+                            contactTelephone = phone;
+
+                        String myCarPlateNo = element.get("myCarPlateNo") != null ? element.get("myCarPlateNo").asText() : "";
+                        if (StringUtils.isBlank(myCarPlateNo))
+                            myCarPlateNo = carNumber;
+
+                        String engineNumber = element.get("engineNumber") != null ? element.get("engineNumber").asText() : "";
+                        String carModel =element.get("carModelName") != null ? element.get("carModelName").asText() : "";
+                        String vcInsuranceCompany = element.get("companyName") != null ? element.get("companyName").asText() : "";
+                        String vcInsuranceValidDate = element.get("insuranceDate") != null ? element.get("insuranceDate").asText() : "";
+                        String VINCode = element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "";
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setCarNumber(myCarPlateNo);
+                        carInfo.setPhone(contactTelephone);
+                        carInfo.setName(contactName);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setCarModel(carModel);
+                        carInfo.setVINcode(VINCode);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + carInfos.toString());
+        System.out.println("结果为" + carInfos.size());
 
 
     }
@@ -182,10 +250,10 @@ public class ZhangShangCheDianService {
                 carInfo.setCarModel(element.get("carModelName") != null ? element.get("carModelName").asText() : "");
                 carInfo.setName(element.get("contactName") != null ? element.get("contactName").asText() : "");
                 carInfo.setPhone(element.get("contactTelephone") != null ? element.get("contactTelephone").asText() : "");
-                carInfo.setRegisterDate(element.get("registerDate") != null ? TimeUtil.formatMillisecond2DateTime(element.get("registerDate").asText()) : "");
+                carInfo.setRegisterDate(element.get("registerDate") != null ? DateUtil.formatMillisecond2DateTime(element.get("registerDate").asText()) : "");
                 carInfo.setVINcode(element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "");
                 carInfo.setEngineNumber(element.get("engineNumber") != null ? element.get("engineNumber").asText() : "");
-                carInfo.setVcInsuranceValidDate(element.get("insuranceDate") != null ? TimeUtil.formatMillisecond2DateTime(element.get("insuranceDate").asText()) : "");
+                carInfo.setVcInsuranceValidDate(element.get("insuranceDate") != null ? DateUtil.formatMillisecond2DateTime(element.get("insuranceDate").asText()) : "");
                 carInfos.add(carInfo);
             }
         }
@@ -232,6 +300,15 @@ public class ZhangShangCheDianService {
 
         params.add(new BasicNameValuePair("data", value));
         params.add(new BasicNameValuePair("method", method));
+        return params;
+    }
+
+    private List<BasicNameValuePair> getCarInfoDetailParams(String method, String dataId) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+
+        String value = "{" + "\"dataId\":" + "\"" + dataId + "\"" + "}";
+        params.add(new BasicNameValuePair("method", method));
+        params.add(new BasicNameValuePair("data", value));
         return params;
     }
 

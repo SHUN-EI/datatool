@@ -16,14 +16,6 @@ public class TimeUtil {
     public static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat(SQL_DATE_FORMAT_PATTERN);
 
 
-    public static String formatMillisecond2DateTime(String millisecond) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_PATTERN);
-        Date date = new Date();
-        date.setTime(Long.parseLong(millisecond));
-        String result = simpleDateFormat.format(date);
-        return result.substring(0, 10);
-    }
-
     public static String format2SqlDateTime(Date date) {
         if (date != null) {
             return SQL_DATE_FORMAT.format(date);
