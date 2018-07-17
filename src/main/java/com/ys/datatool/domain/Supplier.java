@@ -84,6 +84,20 @@ public class Supplier {
      */
     private String accountNumber;
 
+    /**
+     * 供应商类别
+     */
+    private String type;
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getIsShare() {
         return isShare;
     }

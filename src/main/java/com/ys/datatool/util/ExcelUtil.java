@@ -238,6 +238,7 @@ public class ExcelUtil {
             mapValue.put("remark", supplier.getRemark());
             mapValue.put("code", supplier.getCode());
             mapValue.put("companyName", supplier.getCompanyName());
+            mapValue.put("type", supplier.getType());
             listMap.add(mapValue);
         }
         return listMap;

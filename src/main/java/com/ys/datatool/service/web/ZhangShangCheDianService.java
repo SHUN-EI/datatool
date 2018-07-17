@@ -6,7 +6,6 @@ import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -45,8 +44,8 @@ public class ZhangShangCheDianService {
     //供应商页面方法传参
     private String supplierMethod = "60701";
 
-    //客户信息页面方法传参
-    private String clientInfoMethod = "1239";
+    //供应商编辑页面方法传参
+    private String supplierDetailMethod = "60702";
 
     //车辆信息页面方法传参
     private String carInfoMethod = "1912";
@@ -57,26 +56,86 @@ public class ZhangShangCheDianService {
     //供应商页面总页数
     private int supplierPageNum = 3;
 
-    //车辆信息页面总页数
-    private int carPageNum = 145;
-
     //会员卡页面总页数
     private int memberCardPageNum = 6;
-
-    private String fieldName = "total";
-
-    private int num = 15;
 
     private String COOKIE = "JSESSIONID=1E3D86B974255068E579460A91579938; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMTYzOTk3MCwibmJmIjoxNTMxNTUzNTcwLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.qR6zVPAdjj-eksxFWHKd50N24xhIooBllAGqLZ1CVR3kfU1c0FUlPu7DZAQwK40q-nHROZHemyoLav0u0Ta5Pw; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531553773|1531553568; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531553772";
 
     @Test
     public void test() throws IOException {
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoDetailParams(carInfoDetailMethod, "7fc66687-bdcd-4f65-abc7-ef40e2424d0d"), COOKIE);
+    }
 
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+    /**
+     * 供应商-标准模版导出
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchSupplierDataStandard() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
 
-        String a = "";
+        Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierMethod, getPageValue("0", "30")), COOKIE);
+        int totalPage = getSupplierTotalPage(response, 30);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierMethod, getPageValue(String.valueOf(i), "30")), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").elements();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("id") != null ? element.get("id").asText() : "";
+                    ids.add(id);
+                }
+            }
+        }
+
+        if (ids.size() > 0) {
+            for (String id : ids) {
+                String value = "{" + "\"id\":" + "\"" + id + "\"" +
+                        "," + "\"op\":" + "\"" + "get" + "\"" + "}";
+                Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierDetailMethod, value), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                JsonNode data = result.get("data");
+                String name = data.get("supplierName") != null ? data.get("supplierName").asText() : "";
+                String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
+                String contactName = data.get("linkManName") != null ? data.get("linkManName").asText() : "";
+                String contactPhone = data.get("mobilePhone") != null ? data.get("mobilePhone").asText() : "";
+                String fax = data.get("officePhone") != null ? data.get("officePhone").asText() : "";//业务电话
+                String address = data.get("address") != null ? data.get("address").asText() : "";
+                String accountNumber = data.get("bankAccount") != null ? data.get("bankAccount").asText() : "";
+                String depositBank = data.get("bankName") != null ? data.get("bankName").asText() : "";
+                String accountName = data.get("receiveManName") != null ? data.get("receiveManName").asText() : "";
+                String remark = data.get("memoInfo") != null ? data.get("memoInfo").asText() : "";
+                String type = data.get("supplyType") != null ? data.get("supplyType").asText() : "";//供应商类别
+
+
+                Supplier supplier = new Supplier();
+                supplier.setName(name);
+                supplier.setCompanyName(companyName);
+                supplier.setContactName(contactName);
+                supplier.setContactPhone(contactPhone);
+                supplier.setFax(fax);
+                supplier.setAddress(address);
+                supplier.setAccountNumber(accountNumber);
+                supplier.setDepositBank(depositBank);
+                supplier.setAccountName(accountName);
+                supplier.setRemark(remark + " " + type);
+                suppliers.add(supplier);
+            }
+        }
+
+        System.out.println("结果为" + suppliers.toString());
+        System.out.println("结果为" + suppliers.size());
+
+        String pathname = "C:\\exportExcel\\掌上车店供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+
     }
 
     /**
@@ -89,12 +148,12 @@ public class ZhangShangCheDianService {
         List<CarInfo> carInfos = new ArrayList<>();
         Set<String> carInfoIds = new HashSet<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, "0", String.valueOf(num)), COOKIE);
-        int totalPage = getTotalPage(response, num);
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, getPageValue("0", "15")), COOKIE);
+        int totalPage = getTotalPage(response, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, String.valueOf(i), String.valueOf(num)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, getPageValue(String.valueOf(i), "15")), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").elements();
@@ -109,7 +168,8 @@ public class ZhangShangCheDianService {
 
         if (carInfoIds.size() > 0) {
             for (String carId : carInfoIds) {
-                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoDetailParams(carInfoDetailMethod, carId), COOKIE);
+                String value = "{" + "\"dataId\":" + "\"" + carId + "\"" + "}";
+                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoDetailMethod, value), COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("data");
@@ -137,7 +197,7 @@ public class ZhangShangCheDianService {
                             myCarPlateNo = carNumber;
 
                         String engineNumber = element.get("engineNumber") != null ? element.get("engineNumber").asText() : "";
-                        String carModel =element.get("carModelName") != null ? element.get("carModelName").asText() : "";
+                        String carModel = element.get("carModelName") != null ? element.get("carModelName").asText() : "";
                         String vcInsuranceCompany = element.get("companyName") != null ? element.get("companyName").asText() : "";
                         String vcInsuranceValidDate = element.get("insuranceDate") != null ? element.get("insuranceDate").asText() : "";
                         String VINCode = element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "";
@@ -230,71 +290,6 @@ public class ZhangShangCheDianService {
 
     }
 
-    /**
-     * 车辆信息
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchCarInfoData() throws IOException {
-        List<CarInfo> carInfos = new ArrayList<>();
-
-        for (int i = 1; i <= carPageNum; i++) {
-            Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, String.valueOf(i), String.valueOf(30)), COOKIE);
-
-            JsonNode result = MAPPER.readTree(response.returnContent().asString());
-            Iterator<JsonNode> it = result.get("data").elements();
-            while (it.hasNext()) {
-                JsonNode element = it.next();
-
-                CarInfo carInfo = new CarInfo();
-                carInfo.setCarNumber(element.get("myCarPlateNo") != null ? element.get("myCarPlateNo").asText() : "");
-                carInfo.setCarModel(element.get("carModelName") != null ? element.get("carModelName").asText() : "");
-                carInfo.setName(element.get("contactName") != null ? element.get("contactName").asText() : "");
-                carInfo.setPhone(element.get("contactTelephone") != null ? element.get("contactTelephone").asText() : "");
-                carInfo.setRegisterDate(element.get("registerDate") != null ? DateUtil.formatMillisecond2DateTime(element.get("registerDate").asText()) : "");
-                carInfo.setVINcode(element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "");
-                carInfo.setEngineNumber(element.get("engineNumber") != null ? element.get("engineNumber").asText() : "");
-                carInfo.setVcInsuranceValidDate(element.get("insuranceDate") != null ? DateUtil.formatMillisecond2DateTime(element.get("insuranceDate").asText()) : "");
-                carInfos.add(carInfo);
-            }
-        }
-        String pathname = "C:\\exportExcel\\掌上车店车辆信息.xls";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
-    }
-
-    /**
-     * 供应商
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchSupplierData() throws IOException {
-        List<Supplier> suppliers = new ArrayList<>();
-
-        for (int i = 1; i <= supplierPageNum; i++) {
-            Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierMethod, String.valueOf(i), String.valueOf(30)), COOKIE);
-
-            JsonNode result = MAPPER.readTree(response.returnContent().asString());
-            Iterator<JsonNode> it = result.get("data").elements();
-            while (it.hasNext()) {
-                JsonNode element = it.next();
-
-                Supplier supplier = new Supplier();
-                supplier.setName(element.get("supplierName") != null ? element.get("supplierName").asText() : "");
-                supplier.setContactName(element.get("linkManName") != null ? element.get("linkManName").asText() : "");
-                supplier.setContactPhone(element.get("mobilePhone") != null ? element.get("mobilePhone").asText() : "");
-                supplier.setRemark(element.get("supplyType") != null ? element.get("supplyType").asText() : "");
-                supplier.setAddress(element.get("address") != null ? element.get("address").asText() : "");
-                supplier.setFax(element.get("officePhone") != null ? element.get("officePhone").asText() : "");//"officePhone"
-                suppliers.add(supplier);
-            }
-        }
-
-        String pathname = "C:\\exportExcel\\掌上车店供应商.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
-    }
-
     private List<BasicNameValuePair> getMemberCardParams(String method, String cardId) {
         List<BasicNameValuePair> params = new ArrayList<>();
 
@@ -305,27 +300,38 @@ public class ZhangShangCheDianService {
         return params;
     }
 
-    private List<BasicNameValuePair> getCarInfoDetailParams(String method, String dataId) {
+    private List<BasicNameValuePair> getParams(String method, String value) {
         List<BasicNameValuePair> params = new ArrayList<>();
-
-        String value = "{" + "\"dataId\":" + "\"" + dataId + "\"" + "}";
         params.add(new BasicNameValuePair("method", method));
         params.add(new BasicNameValuePair("data", value));
         return params;
     }
 
-    private List<BasicNameValuePair> getParams(String method, String pageNo, String pageSize) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-
+    private String getPageValue(String pageNo, String pageSize) {
         String value = "{" + "\"pageSize\":" + pageSize + "," +
                 "\"pageNo\":" + pageNo + "}";
 
-        params.add(new BasicNameValuePair("data", value));
-        params.add(new BasicNameValuePair("method", method));
-        return params;
+        return value;
     }
 
-    public static int getTotalPage(Response response, int num) throws IOException {
+
+    private int getSupplierTotalPage(Response response, int num) throws IOException {
+        int totalPage = 0;
+
+        if (response != null) {
+            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            String countStr = result.get("data").get(0).asText();
+            int count = Integer.parseInt(countStr);
+
+            if (count % num == 0) {
+                totalPage = count / num;
+            } else
+                totalPage = count / num + 1;
+        }
+        return totalPage;
+    }
+
+    private int getTotalPage(Response response, int num) throws IOException {
         int totalPage = 0;
 
         if (response != null) {
