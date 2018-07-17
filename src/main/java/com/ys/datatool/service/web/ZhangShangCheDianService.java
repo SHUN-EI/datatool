@@ -161,6 +161,8 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("结果为" + carInfos.size());
 
+        String pathname = "C:\\exportExcel\\掌上车店车辆导出.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
 
     }
 

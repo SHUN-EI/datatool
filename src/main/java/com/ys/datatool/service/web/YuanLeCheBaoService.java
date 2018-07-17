@@ -75,8 +75,6 @@ public class YuanLeCheBaoService {
 
     private String fieldName = "totalCount";
 
-    private String trName = "tr";
-
     private String divName = "div";
 
     private String optionName = "option";
@@ -147,7 +145,7 @@ public class YuanLeCheBaoService {
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
@@ -196,7 +194,7 @@ public class YuanLeCheBaoService {
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, HtmlTag.trName);
                 for (int j = 1; j <= trSize; j++) {
 
                     String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -270,7 +268,7 @@ public class YuanLeCheBaoService {
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
@@ -309,7 +307,7 @@ public class YuanLeCheBaoService {
                 String carModelRegEx = "#mainDiv > div:nth-child(9) > div:nth-child(2) > table > tbody > tr:nth-child(2) > td:nth-child(2) > div:nth-child(2)";
                 String carModel = doc.select(carModelRegEx).text();
 
-                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, HtmlTag.trName);
                 for (int i = 1; i <= trSize; i++) {
                     //规格作为商品编码
                     String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -355,7 +353,7 @@ public class YuanLeCheBaoService {
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -476,7 +474,7 @@ public class YuanLeCheBaoService {
                 String html = response.returnContent().asString(charset);
                 Document doc = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
                         String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
@@ -584,7 +582,7 @@ public class YuanLeCheBaoService {
                 Document doc = Jsoup.parseBodyFragment(content);
 
                 String trRegEx = "#staleDated-content-tbody > tr";
-                int trSize = WebClientUtil.getTagSize(doc, trRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
 
@@ -613,7 +611,7 @@ public class YuanLeCheBaoService {
 
                 String isValidForever = CommonUtil.getIsValidForever(validTime);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
                         String itemNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
@@ -650,7 +648,7 @@ public class YuanLeCheBaoService {
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
                         String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -719,7 +717,7 @@ public class YuanLeCheBaoService {
                             dateCreated = "1900-01-01";
                         } else {
                             String trRegEx = "#staleDated-content-tbody > tr";
-                            int trSize = WebClientUtil.getTagSize(document, trRegEx, trName);
+                            int trSize = WebClientUtil.getTagSize(document, trRegEx, HtmlTag.trName);
                             if (trSize > 0) {
                                 for (int i = 1; i <= trSize; i++) {
 
@@ -915,7 +913,7 @@ public class YuanLeCheBaoService {
         String html = response.returnContent().asString(charset);
         Document doc = Jsoup.parse(html);
 
-        int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+        int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
         if (trSize > 0) {
             for (int i = 1; i <= trSize; i++) {
 
@@ -954,7 +952,7 @@ public class YuanLeCheBaoService {
                     String page = res.returnContent().asString(charset);
                     doc = Jsoup.parse(page);
 
-                    trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                    trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                     if (trSize > 0) {
 
                         for (int j = 1; j <= trSize; j++) {
@@ -1109,7 +1107,7 @@ public class YuanLeCheBaoService {
                 String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
-                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= 10; j++) {
                         String nameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
