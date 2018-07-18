@@ -45,7 +45,7 @@ public class DiDiBaBaService {
 
     private String companyName = "非凡尚品汽车美容养护中心";
 
-    private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; listPageUrl=/ctm/manage; pageNo=2";
+    private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; pageNo=1; listPageUrl=/ctm/cardmanage";
 
 
     @Test
@@ -53,6 +53,63 @@ public class DiDiBaBaService {
 
     }
 
+    /**
+     * 获取同一客户多辆车的数据
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMultiCarInfoData() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+
+        int totalPage = getTotalPage(CARINFO_URL);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams(String.valueOf(i)), COOKIE);
+                String content = res.returnContent().asString(charset);
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String trRegEx = "#tableID > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+                        String trElementRegEx = "#tableID > tbody > tr";
+                        Elements elements = doc.select(trElementRegEx).tagName("tr");
+
+                        for (Element e : elements) {
+                            String carNumberRegEx = "td:nth-child(4)";
+                            String carNumber = e.select(carNumberRegEx).text();
+
+                            if (!carNumber.contains(","))
+                                continue;
+
+                            String idRegEx = "td:nth-child(10) > a:nth-child(1)";
+                            String idStr = e.select(idRegEx).attr("href");
+                            String getIdRegEx = "id=.*";
+                            String carIdstr = CommonUtil.fetchString(idStr, getIdRegEx);
+                            String carId = carIdstr.replace("id=", "").trim();
+                            ids.add(carId);
+                        }
+                    }
+                }
+            }
+        }
+
+        fetchCarInfo(carInfos, ids);
+
+        System.out.println("結果為" + carInfos.toString());
+        System.out.println("結果為" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\DiDiBaBa车辆导出.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
@@ -84,60 +141,7 @@ public class DiDiBaBaService {
             }
         }
 
-        if (ids.size() > 0) {
-            for (String id : ids) {
-                Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
-                String html = res.returnContent().asString(charset);
-                Document doc = Jsoup.parseBodyFragment(html);
-
-                String preRegEx = "div[class='section']  > ul[class='popup_form threeColumn clearfix'] ";
-                String nameRegEx = preRegEx + " > li:nth-child(2) > span > span";
-                String phoneRegEx = preRegEx + " > li:nth-child(3) > span ";
-                String remarkRegEx = preRegEx + " > li:nth-child(10) > span ";
-
-                String name = doc.select(nameRegEx).text();
-                String phone = doc.select(phoneRegEx).text();
-                String remark = doc.select(remarkRegEx).text();
-
-                String divRegEx = "div[class='section']  > div[class='section dashed P0 clearfix'] ";
-                int divSize = WebClientUtil.getTagSize(doc, divRegEx, HtmlTag.divName);
-
-                if (divSize > 0) {
-                    Elements elements = doc.select(divRegEx).tagName("div");
-                    for (Element e : elements) {
-                        String carNumberRegEx = "ul > li:nth-child(1) > span";
-                        String brandRegEx = "ul > li:nth-child(2) > span";
-                        String carModelRegEx = "ul > li:nth-child(3) > span";
-                        String VINcodeRegEx = "#moreInfo0 > li:nth-child(7) > span";
-                        String engineNumberRegEx = "#moreInfo0 > li:nth-child(8) > span";
-                        String vcInsuranceValidDateRegEx = "#moreInfo0 > li:nth-child(10) > span";
-                        String vcInsuranceCompanyRegEx = "#moreInfo0 > li:nth-child(12) > span";
-
-                        String carNumber = e.select(carNumberRegEx).text();
-                        String brand = e.select(brandRegEx).text();
-                        String carModel = e.select(carModelRegEx).text();
-                        String VINcode = e.select(VINcodeRegEx).text();
-                        String engineNumber = e.select(engineNumberRegEx).text();
-                        String vcInsuranceValidDate = e.select(vcInsuranceValidDateRegEx).text();
-                        String vcInsuranceCompany = e.select(vcInsuranceCompanyRegEx).text();
-
-                        CarInfo carInfo = new CarInfo();
-                        carInfo.setCompanyName(companyName);
-                        carInfo.setCarNumber(carNumber);
-                        carInfo.setBrand(brand);
-                        carInfo.setCarModel(carModel);
-                        carInfo.setVINcode(VINcode);
-                        carInfo.setEngineNumber(engineNumber);
-                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
-                        carInfo.setName(name);
-                        carInfo.setPhone(phone);
-                        carInfo.setRemark(remark);
-                        carInfos.add(carInfo);
-                    }
-                }
-            }
-        }
+        fetchCarInfo(carInfos, ids);
 
         System.out.println("結果為" + carInfos.toString());
         System.out.println("結果為" + carInfos.size());
@@ -146,6 +150,11 @@ public class DiDiBaBaService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
+    /**
+     * 供应商
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
@@ -218,6 +227,63 @@ public class DiDiBaBaService {
 
         String pathname = "C:\\exportExcel\\DiDiBaBa供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+    }
+
+    private void fetchCarInfo(List<CarInfo> carInfos, Set<String> ids) throws IOException {
+        if (ids.size() > 0) {
+            for (String id : ids) {
+                Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
+                String html = res.returnContent().asString(charset);
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                String preRegEx = "div[class='section']  > ul[class='popup_form threeColumn clearfix'] ";
+                String nameRegEx = preRegEx + " > li:nth-child(2) > span > span";
+                String phoneRegEx = preRegEx + " > li:nth-child(3) > span ";
+                String remarkRegEx = preRegEx + " > li:nth-child(10) > span ";
+
+                String name = doc.select(nameRegEx).text();
+                String phone = doc.select(phoneRegEx).text();
+                String remark = doc.select(remarkRegEx).text();
+
+                String divRegEx = "div[class='section']  > div[class='section dashed P0 clearfix'] ";
+                int divSize = WebClientUtil.getTagSize(doc, divRegEx, HtmlTag.divName);
+
+                if (divSize > 0) {
+                    Elements elements = doc.select(divRegEx).tagName("div");
+                    for (Element e : elements) {
+                        String carNumberRegEx = "ul > li:nth-child(1) > span";
+                        String brandRegEx = "ul > li:nth-child(2) > span";
+                        String carModelRegEx = "ul > li:nth-child(3) > span";
+                        String VINcodeRegEx = "#moreInfo0 > li:nth-child(7) > span";
+                        String engineNumberRegEx = "#moreInfo0 > li:nth-child(8) > span";
+                        String vcInsuranceValidDateRegEx = "#moreInfo0 > li:nth-child(10) > span";
+                        String vcInsuranceCompanyRegEx = "#moreInfo0 > li:nth-child(12) > span";
+
+                        String carNumber = e.select(carNumberRegEx).text();
+                        String brand = e.select(brandRegEx).text();
+                        String carModel = e.select(carModelRegEx).text();
+                        String VINcode = e.select(VINcodeRegEx).text();
+                        String engineNumber = e.select(engineNumberRegEx).text();
+                        String vcInsuranceValidDate = e.select(vcInsuranceValidDateRegEx).text();
+                        String vcInsuranceCompany = e.select(vcInsuranceCompanyRegEx).text();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfo.setVINcode(VINcode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setRemark(remark);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
     }
 
     private int getTotalPage(String url) throws IOException {
