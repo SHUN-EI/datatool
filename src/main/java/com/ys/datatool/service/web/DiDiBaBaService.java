@@ -1,5 +1,6 @@
 package com.ys.datatool.service.web;
 
+import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.HtmlTag;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.CommonUtil;
@@ -12,6 +13,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -28,19 +31,21 @@ import java.util.Set;
 @Service
 public class DiDiBaBaService {
 
+    private String CARINFODETAIL_URL = "http://www.didibabachina.com/ctm/manage/perComDist?id=";
+
+    private String CARINFO_URL = "http://www.didibabachina.com/ctm/manage";
+
     private String SUPPLIER_URL = "http://www.didibabachina.com/ctm/supplier";
 
     private String SUPPLIERDETAIL_URL = "http://www.didibabachina.com/ctm/supplier/detail?___t0.7667218411026064&supplierId=";
 
     private Charset charset = Charset.forName("UTF-8");
 
-    private String trRegEx = "body > div > div:nth-child(2) > table > tbody > tr";
-
     private Workbook workbook;
 
     private String companyName = "非凡尚品汽车美容养护中心";
 
-    private String COOKIE = "pageSize=10; JSESSIONID=034f85b2-d50c-472b-8a8e-683b084a4b1e; listPageUrl=/ctm/supplier; pageNo=2";
+    private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; listPageUrl=/ctm/manage; pageNo=2";
 
 
     @Test
@@ -48,26 +53,110 @@ public class DiDiBaBaService {
 
     }
 
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+
+        int totalPage = getTotalPage(CARINFO_URL);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams(String.valueOf(i)), COOKIE);
+                String content = res.returnContent().asString(charset);
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String trRegEx = "#tableID > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+                        String trElementRegEx = "#tableID > tbody > tr";
+                        Elements elements = doc.select(trElementRegEx).tagName("tr");
+                        for (Element e : elements) {
+                            String idRegEx = "td:nth-child(10) > a:nth-child(1)";
+                            String idStr = e.select(idRegEx).attr("href");
+                            String getIdRegEx = "id=.*";
+                            String carIdstr = CommonUtil.fetchString(idStr, getIdRegEx);
+                            String carId = carIdstr.replace("id=", "").trim();
+                            ids.add(carId);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (ids.size() > 0) {
+            for (String id : ids) {
+                Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
+                String html = res.returnContent().asString(charset);
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                String nameRegEx = "body > div:nth-child(1) > ul > li:nth-child(2) > span > span.mr10";
+                String phoneRegEx = "body > div:nth-child(1) > ul > li:nth-child(3) > span";
+                String remarkRegEx = "body > div:nth-child(1) > ul > li:nth-child(10) > span";
+
+                String name = doc.select(nameRegEx).text();
+                String phone = doc.select(phoneRegEx).text();
+                String remark = doc.select(remarkRegEx).text();
+
+                String divRegEx = "div[class='section']  > div[class='section dashed P0 clearfix'] ";
+                int divSize = WebClientUtil.getTagSize(doc, divRegEx, HtmlTag.divName);
+
+                if (divSize > 0) {
+                    Elements elements = doc.select(divRegEx).tagName("div");
+                    for (Element e : elements) {
+                        String carNumberRegEx = "ul > li:nth-child(1) > span";
+                        String brandRegEx = "ul > li:nth-child(2) > span";
+                        String carModelRegEx = "ul > li:nth-child(3) > span";
+                        String VINcodeRegEx = "#moreInfo0 > li:nth-child(7) > span";
+                        String engineNumberRegEx = "#moreInfo0 > li:nth-child(8) > span";
+                        String vcInsuranceValidDateRegEx = "#moreInfo0 > li:nth-child(10) > span";
+                        String vcInsuranceCompanyRegEx = "#moreInfo0 > li:nth-child(12) > span";
+
+                        String carNumber = e.select(carNumberRegEx).text();
+                        String brand = e.select(brandRegEx).text();
+                        String carModel = e.select(carModelRegEx).text();
+                        String VINcode = e.select(VINcodeRegEx).text();
+                        String engineNumber = e.select(engineNumberRegEx).text();
+                        String vcInsuranceValidDate = e.select(vcInsuranceValidDateRegEx).text();
+                        String vcInsuranceCompany = e.select(vcInsuranceCompanyRegEx).text();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarModel(carModel);
+                        carInfo.setVINcode(VINcode);
+                        carInfo.setEngineNumber(engineNumber);
+                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setRemark(remark);
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+
+        System.out.println("結果為" + carInfos.toString());
+        System.out.println("結果為" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\DiDiBaBa车辆导出.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+    }
 
     @Test
     public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
         Set<String> ids = new HashSet<>();
 
-        Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getDetailParams("1"), COOKIE);
-        String content = res.returnContent().asString(charset);
-        Document doc = Jsoup.parseBodyFragment(content);
-        String getTotalRegEx = "(?<=共).*(?=页)";
-        String totalStr = CommonUtil.fetchString(doc.toString(), getTotalRegEx);
-        String total = totalStr.replace("&nbsp;", "").trim();
-        int totalPage = Integer.parseInt(total);
-
+        int totalPage = getTotalPage(SUPPLIER_URL);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getDetailParams(String.valueOf(i)), COOKIE);
-                content = res.returnContent().asString(charset);
-                doc = Jsoup.parseBodyFragment(content);
+                Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getDetailParams(String.valueOf(i)), COOKIE);
+                String content = res.returnContent().asString(charset);
+                Document doc = Jsoup.parseBodyFragment(content);
 
+                String trRegEx = "body > div > div:nth-child(2) > table > tbody > tr";
                 int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
@@ -84,7 +173,7 @@ public class DiDiBaBaService {
         if (ids.size() > 0) {
             for (String id : ids) {
                 Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIERDETAIL_URL + id, COOKIE);
-                String html =response.returnContent().asString(charset);
+                String html = response.returnContent().asString(charset);
                 Document document = Jsoup.parseBodyFragment(html);
 
                 String nameRegEx = "body > div > form > ul > li:nth-child(1) > span";
@@ -127,8 +216,19 @@ public class DiDiBaBaService {
 
         String pathname = "C:\\exportExcel\\DiDiBaBa供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+    }
 
+    private int getTotalPage(String url) throws IOException {
+        Response res = ConnectionUtil.doPostWithLeastParams(url, getDetailParams("1"), COOKIE);
+        String content = res.returnContent().asString(charset);
+        Document doc = Jsoup.parseBodyFragment(content);
 
+        String getTotalRegEx = "(?<=共).*(?=页)";
+        String totalStr = CommonUtil.fetchString(doc.toString(), getTotalRegEx);
+        String total = totalStr.replace("&nbsp;", "").trim();
+        int totalPage = Integer.parseInt(total);
+
+        return totalPage;
     }
 
     private List<BasicNameValuePair> getDetailParams(String pageNo) {
