@@ -402,6 +402,19 @@ public class DateUtil {
     }
 
     /**
+     * 日期转换(yyyy-MM-dd HH:mm转换为yyyy-MM-dd HH:mm:ss)
+     *
+     * @param dateStr
+     * @return
+     */
+    public static String formatDate2DateTime(String dateStr) {
+        Date date =parseDateByAuto(dateStr);
+        String result = formateDateTime(date);
+
+        return result;
+    }
+
+    /**
      * 毫秒数转换为日期(yyyy-MM-dd)
      *
      * @param millisecond
@@ -423,7 +436,7 @@ public class DateUtil {
      */
     public static String formatDateTime(String dateStr) {
         Date date = parseDate(dateStr);
-        String result = DateUtil.formateDateTime(date);
+        String result = formateDateTime(date);
 
         return result;
     }

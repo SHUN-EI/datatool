@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -59,11 +61,90 @@ public class ZhangShangCheDianService {
     //会员卡页面总页数
     private int memberCardPageNum = 6;
 
-    private String COOKIE = "JSESSIONID=1E3D86B974255068E579460A91579938; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMTYzOTk3MCwibmJmIjoxNTMxNTUzNTcwLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.qR6zVPAdjj-eksxFWHKd50N24xhIooBllAGqLZ1CVR3kfU1c0FUlPu7DZAQwK40q-nHROZHemyoLav0u0Ta5Pw; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531553773|1531553568; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531553772";
+    private String companyName = "掌上车店";
+
+    private String COOKIE = "JSESSIONID=1E3D86B974255068E579460A91579938; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMTYzOTk3MCwibmJmIjoxNTMxNTUzNTcwLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.qR6zVPAdjj-eksxFWHKd50N24xhIooBllAGqLZ1CVR3kfU1c0FUlPu7DZAQwK40q-nHROZHemyoLav0u0Ta5Pw; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531914521|1531553568; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531914521";
 
     @Test
     public void test() throws IOException {
 
+        String dateStr = "2018-03-21 18:41";
+        Date date = DateUtil.parseDateByAuto(dateStr);
+        String a = DateUtil.formateDateTime(date);
+
+        System.out.println("结果为" + a);
+    }
+
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Set<String> cardIds = new HashSet<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams("1"), COOKIE);
+        int totalPage = getMemberCardTotalPage(response, 15);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString();
+                Document document = Jsoup.parse(html);
+
+                String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(14) > p:nth-child(1) > a";
+                for (int j = 1; j <= 15; j++) {
+                    String cardIdRegEx = StringUtils.replace(getMemberCardIdRegEx, "{no}", j + "");
+                    String cardId = document.select(cardIdRegEx).attr("data-id");
+
+                    if (StringUtils.isNotBlank(cardId))
+                        cardIds.add(cardId);
+                }
+            }
+        }
+
+        if (cardIds.size() > 0) {
+            for (String cardId : cardIds) {
+                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
+                String html = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(3) > div:nth-child(2)";
+                String memberCardNameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(2)";
+                String carNumberRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(4)";
+                String nameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(2)";
+                String phoneRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(6)";
+                String balanceRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(6) > div:nth-child(2) > b";
+                String dateCreatedRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(2)";
+                String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
+
+                String cardCode = doc.select(cardCodeRegEx).text();
+                String memberCardName = doc.select(memberCardNameRegEx).text();
+                String carNumber = doc.select(carNumberRegEx).text();
+                String name = doc.select(nameRegEx).text();
+                String phone = doc.select(phoneRegEx).text();
+                String balance = doc.select(balanceRegEx).text();
+                String dateCreated = doc.select(dateCreatedRegEx).text();
+                String validTime = doc.select(validTimeRegEx).text();
+
+                if (!"-".equals(dateCreated))
+                    dateCreated = DateUtil.formatDate2DateTime(dateCreated);
+
+                MemberCard memberCard = new MemberCard();
+                memberCard.setCardCode(cardCode);
+                memberCard.setMemberCardName(memberCardName);
+                memberCard.setCarNumber(carNumber);
+                memberCard.setName(name);
+                memberCard.setPhone(phone);
+                memberCard.setBalance(balance.replace("￥", ""));
+                memberCard.setDateCreated(dateCreated);
+                memberCard.setCompanyName(companyName);
+                memberCards.add(memberCard);
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("结果为" + memberCards.size());
+
+        String pathname = "C:\\exportExcel\\掌上车店会员卡导出.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
     }
 
     /**
@@ -300,6 +381,12 @@ public class ZhangShangCheDianService {
         return params;
     }
 
+    private List<BasicNameValuePair> getTotalParams(String pageNo) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("page.no", pageNo));
+        return params;
+    }
+
     private List<BasicNameValuePair> getParams(String method, String value) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("method", method));
@@ -314,6 +401,28 @@ public class ZhangShangCheDianService {
         return value;
     }
 
+
+    private int getMemberCardTotalPage(Response response, int num) throws IOException {
+        int totalPage = 0;
+
+        if (response != null) {
+            String html = response.returnContent().asString();
+            Document doc = Jsoup.parseBodyFragment(html);
+
+            String totalPageRegEx = "var pageCount=.*";
+            String totalStr = CommonUtil.fetchString(doc.toString(), totalPageRegEx);
+            String getTotalPageRegEx = "(?<=').*(?=')";
+            String total = CommonUtil.fetchString(totalStr, getTotalPageRegEx);
+            int count = Integer.parseInt(total);
+
+            if (count % num == 0) {
+                totalPage = count / num;
+            } else
+                totalPage = count / num + 1;
+
+        }
+        return totalPage;
+    }
 
     private int getSupplierTotalPage(Response response, int num) throws IOException {
         int totalPage = 0;
