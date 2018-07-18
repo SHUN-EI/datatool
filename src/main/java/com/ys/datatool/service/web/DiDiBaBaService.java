@@ -90,9 +90,10 @@ public class DiDiBaBaService {
                 String html = res.returnContent().asString(charset);
                 Document doc = Jsoup.parseBodyFragment(html);
 
-                String nameRegEx = "body > div:nth-child(1) > ul > li:nth-child(2) > span > span.mr10";
-                String phoneRegEx = "body > div:nth-child(1) > ul > li:nth-child(3) > span";
-                String remarkRegEx = "body > div:nth-child(1) > ul > li:nth-child(10) > span";
+                String preRegEx = "div[class='section']  > ul[class='popup_form threeColumn clearfix'] ";
+                String nameRegEx = preRegEx + " > li:nth-child(2) > span > span";
+                String phoneRegEx = preRegEx + " > li:nth-child(3) > span ";
+                String remarkRegEx = preRegEx + " > li:nth-child(10) > span ";
 
                 String name = doc.select(nameRegEx).text();
                 String phone = doc.select(phoneRegEx).text();
@@ -121,6 +122,7 @@ public class DiDiBaBaService {
                         String vcInsuranceCompany = e.select(vcInsuranceCompanyRegEx).text();
 
                         CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
                         carInfo.setCarNumber(carNumber);
                         carInfo.setBrand(brand);
                         carInfo.setCarModel(carModel);
