@@ -2,13 +2,8 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.Supplier;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.DateUtil;
-import com.ys.datatool.util.ExportUtil;
+import com.ys.datatool.domain.*;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -63,43 +58,120 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=1E3D86B974255068E579460A91579938; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMTYzOTk3MCwibmJmIjoxNTMxNTUzNTcwLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.qR6zVPAdjj-eksxFWHKd50N24xhIooBllAGqLZ1CVR3kfU1c0FUlPu7DZAQwK40q-nHROZHemyoLav0u0Ta5Pw; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531914521|1531553568; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531914521";
+    private String COOKIE = "JSESSIONID=F84CD0E5D29010B57F67480DA23B1D3C; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ3MjkzMWU3LWU0YjUtNDg1Yi1hMWIwLWNhZmQzNjNiNjVhOCIsImV4cCI6MTUzMjA2NjM4OSwibmJmIjoxNTMxOTc5OTg5LCJzdG9yZUlkIjoiODJjMTM4OTUtNzg5MC00OGM2LWE1ZWItY2RhNmUxNDhlN2M5IiwidXNlclR5cGUiOiIwIn0.SA8w7_G0SaOjJNc0UjSzJy7ctmSYM7I4nqgtDg010mtkB7pEoPHCyD_O-V3ddBVqi3xlbFQ20Doz6nfVAu1DhQ; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531980032|1531978888; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531980031";
 
     @Test
     public void test() throws IOException {
 
-        String dateStr = "2018-03-21 18:41";
-        Date date = DateUtil.parseDateByAuto(dateStr);
-        String a = DateUtil.formateDateTime(date);
+        Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + "a489198f-8e59-4962-aa2b-9891cb3232cd", COOKIE);
+        String html = res.returnContent().asString();
+        Document doc = Jsoup.parseBodyFragment(html);
 
-        System.out.println("结果为" + a);
+        String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
+        String validTime = doc.select(validTimeRegEx).text();
+
+        String a1 = "";
+        if ("".equals(a1))
+            a1 = "1222";
+        if ("-".equals(validTime))
+            validTime = "";
+
+        String isValidForever = CommonUtil.getIsValidForever(validTime);
+        String a = "";
+
+        System.out.println("结果为" + isValidForever);
+    }
+
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+
+        Set<String> cardIds = getMemberCardId();
+        if (cardIds.size() > 0) {
+            for (String cardId : cardIds) {
+                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
+                String html = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                String itemIsExistRegEX = "#listCon > tr > td > div";
+                String itemIsExist = doc.select(itemIsExistRegEX).text();
+                if ("无项目".equals(itemIsExist))
+                    continue;
+
+                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(3) > div:nth-child(2)";
+                String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
+
+                String cardCode = doc.select(cardCodeRegEx).text();
+                String validTime = doc.select(validTimeRegEx).text();
+                if ("-".equals(validTime))
+                    validTime = "";
+
+                String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                if (!"-".equals(validTime) && StringUtils.isNotBlank(validTime))
+                    validTime = DateUtil.formatDate2DateTime(validTime);
+
+
+                String trRegEx = "#listCon > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int i = 1; i <= trSize; i++) {
+                        String firstCategoryNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(1)";
+                        String secondCategoryNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(2)";
+                        String itemNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(3)";
+                        String priceRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(4)";
+                        String originalNumRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(5)";
+                        String numRegEx = "#listCon > tr:nth-child(2) > td:nth-child(7) > b";
+
+                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
+                        String secondCategoryName = doc.select(StringUtils.replace(secondCategoryNameRegEx, "{no}", String.valueOf(i))).text();
+                        String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
+                        String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
+                        String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
+
+                        MemberCardItem memberCardItem = new MemberCardItem();
+                        memberCardItem.setCompanyName(companyName);
+                        memberCardItem.setCardCode(cardCode);
+                        memberCardItem.setItemName(itemName);
+                        memberCardItem.setPrice(price.replace("￥", ""));
+                        memberCardItem.setDiscount("0");
+                        memberCardItem.setNum(num);
+                        memberCardItem.setOriginalNum(originalNum);
+                        memberCardItem.setFirstCategoryName(firstCategoryName);
+                        memberCardItem.setSecondCategoryName(secondCategoryName);
+                        memberCardItem.setValidTime(validTime);
+                        memberCardItem.setIsValidForever(isValidForever);
+                        memberCardItems.add(memberCardItem);
+
+                        Product product = new Product();
+                        product.setCompanyName(companyName);
+                        product.setProductName(itemName);
+                        product.setItemType("服务项");
+                        product.setPrice(price.replace("￥", ""));
+                        product.setFirstCategoryName(firstCategoryName);
+                        product.setSecondCategoryName(secondCategoryName);
+                        products.add(product);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCardItems.toString());
+        System.out.println("结果为" + memberCardItems.size());
+
+        String pathname = "C:\\exportExcel\\掌上车店卡内项目表.xls";
+        String pathname2 = "C:\\exportExcel\\掌上车店卡内项目商品表.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
     }
 
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Set<String> cardIds = new HashSet<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams("1"), COOKIE);
-        int totalPage = getMemberCardTotalPage(response, 15);
-
-        if (totalPage > 0) {
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString();
-                Document document = Jsoup.parse(html);
-
-                String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(14) > p:nth-child(1) > a";
-                for (int j = 1; j <= 15; j++) {
-                    String cardIdRegEx = StringUtils.replace(getMemberCardIdRegEx, "{no}", j + "");
-                    String cardId = document.select(cardIdRegEx).attr("data-id");
-
-                    if (StringUtils.isNotBlank(cardId))
-                        cardIds.add(cardId);
-                }
-            }
-        }
-
+        Set<String> cardIds = getMemberCardId();
         if (cardIds.size() > 0) {
             for (String cardId : cardIds) {
                 Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
@@ -305,6 +377,32 @@ public class ZhangShangCheDianService {
         String pathname = "C:\\exportExcel\\掌上车店车辆导出.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
 
+    }
+
+    private Set<String> getMemberCardId() throws IOException {
+        Set<String> cardIds = new HashSet<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams("1"), COOKIE);
+        int totalPage = getMemberCardTotalPage(response, 15);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams(String.valueOf(i)), COOKIE);
+                String html = response.returnContent().asString();
+                Document document = Jsoup.parse(html);
+
+                String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(14) > p:nth-child(1) > a";
+                for (int j = 1; j <= 15; j++) {
+                    String cardIdRegEx = StringUtils.replace(getMemberCardIdRegEx, "{no}", j + "");
+                    String cardId = document.select(cardIdRegEx).attr("data-id");
+
+                    if (StringUtils.isNotBlank(cardId))
+                        cardIds.add(cardId);
+                }
+            }
+        }
+
+        return cardIds;
     }
 
     private List<BasicNameValuePair> getTotalParams(String pageNo) {

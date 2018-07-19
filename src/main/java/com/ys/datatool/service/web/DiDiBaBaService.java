@@ -81,15 +81,14 @@ public class DiDiBaBaService {
                             String carNumberRegEx = "td:nth-child(4)";
                             String carNumber = e.select(carNumberRegEx).text();
 
-                            if (!carNumber.contains(","))
-                                continue;
-
-                            String idRegEx = "td:nth-child(10) > a:nth-child(1)";
-                            String idStr = e.select(idRegEx).attr("href");
-                            String getIdRegEx = "id=.*";
-                            String carIdstr = CommonUtil.fetchString(idStr, getIdRegEx);
-                            String carId = carIdstr.replace("id=", "").trim();
-                            ids.add(carId);
+                            if (carNumber.contains(",") || carNumber.contains("...")){
+                                String idRegEx = "td:nth-child(10) > a:nth-child(1)";
+                                String getIdRegEx = "id=.*";
+                                String idStr = e.select(idRegEx).attr("href");
+                                String carIdstr = CommonUtil.fetchString(idStr, getIdRegEx);
+                                String carId = carIdstr.replace("id=", "").trim();
+                                ids.add(carId);
+                            }
                         }
                     }
                 }
