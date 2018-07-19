@@ -23,6 +23,8 @@ import java.util.*;
 @Service
 public class ZhangShangCheDianService {
 
+    private String STOCK_URL = "http://czbbb.cn/mnt/czbbb/stock/czbbbApi.action";
+
     private String MEMBERCARDDETAIL_URL = "http://czbbb.cn/mnt/czbbb/card/viewUserCard.action?userCardInfoId=";
 
     private String MEMBERCARD_URL = "http://czbbb.cn/mnt/czbbb/card/findUserCardInfos.action";
@@ -50,38 +52,95 @@ public class ZhangShangCheDianService {
     //车辆详情页面方法传参
     private String carInfoDetailMethod = "1242";
 
-    //供应商页面总页数
-    private int supplierPageNum = 3;
-
-    //会员卡页面总页数
-    private int memberCardPageNum = 6;
+    //库存页面方法传参
+    private String stockMethod = "60002";
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=F84CD0E5D29010B57F67480DA23B1D3C; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ3MjkzMWU3LWU0YjUtNDg1Yi1hMWIwLWNhZmQzNjNiNjVhOCIsImV4cCI6MTUzMjA2NjM4OSwibmJmIjoxNTMxOTc5OTg5LCJzdG9yZUlkIjoiODJjMTM4OTUtNzg5MC00OGM2LWE1ZWItY2RhNmUxNDhlN2M5IiwidXNlclR5cGUiOiIwIn0.SA8w7_G0SaOjJNc0UjSzJy7ctmSYM7I4nqgtDg010mtkB7pEoPHCyD_O-V3ddBVqi3xlbFQ20Doz6nfVAu1DhQ; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531980032|1531978888; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531980031";
+    private String COOKIE = "JSESSIONID=F84CD0E5D29010B57F67480DA23B1D3C; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImNjMzYxYzE3LTk0ZGEtNDg1Yi05NDBlLWQxNDkwYzhmMzE1NiIsImV4cCI6MTUzMjA3NjEwNywibmJmIjoxNTMxOTg5NzA3LCJzdG9yZUlkIjoiNzA0YWU4NTMtYTg4Zi00MDE0LTkzZmEtNWJiYjc1NThmYmU3IiwidXNlclR5cGUiOiIwIn0.n6L4dJ6T1jZGTGEm33r5yVa0mibc9F2ReMih8m-yjNF_5_brDUoCSmbIdqP1c_p8JfVG3-Tb7rymnsKNlBeamg; Hm_lpvt_678c2a986264dd9650b6a59042718858=1531991081; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1531993483|1531978888";
 
     @Test
     public void test() throws IOException {
+        String value = "{" + "\"pageSize\":" + "15" + "," + "\"typesName\":" + "\"" + "NGK" + "\"" + "," +
+                "\"pageNo\":" + "1" + "}";
 
-        Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + "a489198f-8e59-4962-aa2b-9891cb3232cd", COOKIE);
-        String html = res.returnContent().asString();
-        Document doc = Jsoup.parseBodyFragment(html);
-
-        String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
-        String validTime = doc.select(validTimeRegEx).text();
-
-        String a1 = "";
-        if ("".equals(a1))
-            a1 = "1222";
-        if ("-".equals(validTime))
-            validTime = "";
-
-        String isValidForever = CommonUtil.getIsValidForever(validTime);
+        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(stockMethod, value), COOKIE);
+        int totalPage = getTotalPage(res, 15);
         String a = "";
 
-        System.out.println("结果为" + isValidForever);
+        System.out.println("结果为" + totalPage);
     }
 
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+
+        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(stockMethod, getPageValue("0", "15")), COOKIE);
+        int totalPage = getTotalPage(res, 15);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(stockMethod, getPageValue(String.valueOf(i), "15")), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").elements();
+                while (it.hasNext()) {
+
+                    JsonNode element = it.next();
+                    String goodsName = element.get("productName") != null ? element.get("productName").asText() : "";
+                    String productCode = element.get("productCode") != null ? element.get("productCode").asText() : "";
+                    String companyName = element.get("storeName") != null ? element.get("storeName").asText() : "";
+                    String unit = element.get("unitName") != null ? element.get("unitName").asText() : "";
+                    String remark = element.get("memoInfo") != null ? element.get("memoInfo").asText() : "";
+                    String inventoryNum = element.get("totalQuantityTemp") != null ? element.get("totalQuantityTemp").asText() : "";
+                    String storeRoomName = element.get("groups") != null ? element.get("groups").get(0).get("positionName").asText() : "";
+                    //soldPrice
+                    String price = element.get("minBuyPrice") != null ? element.get("minBuyPrice").asText() : "";//最低采购价
+                    String salePrice = element.get("soldPrice") != null ? element.get("soldPrice").asText() : "";//零售价
+                    String firstCategoryName = element.get("typesName") != null ? element.get("typesName").asText() : "";
+
+
+                    if ("".equals(storeRoomName))
+                        storeRoomName = "仓库";
+
+                    Stock stock = new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setStoreRoomName(storeRoomName);
+                    stock.setGoodsName(goodsName);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setProductCode(productCode);
+                    stock.setPrice(price);
+                    stocks.add(stock);
+
+                    Product product = new Product();
+                    product.setProductName(goodsName);
+                    product.setProductCode(productCode);
+                    product.setCompanyName(companyName);
+                    product.setUnit(unit);
+                    product.setPrice(salePrice);
+                    product.setRemark(remark);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setItemType("商品");
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + stocks.toString());
+        System.out.println("结果为" + stocks.size());
+
+        String pathname = "C:\\exportExcel\\掌上车店库存表.xls";
+        String pathname2 = "C:\\exportExcel\\掌上车店库存商品表.xls";
+        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
+    }
+
+    /**
+     * 卡内项目
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
@@ -167,6 +226,11 @@ public class ZhangShangCheDianService {
         ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
     }
 
+    /**
+     * 会员卡
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
