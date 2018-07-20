@@ -486,21 +486,21 @@ public class ZhongYiZhiLianService {
     }
 
     /**
-     * 服务项目
+     * 服务项目-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchServiceData() throws IOException {
+    public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -529,30 +529,28 @@ public class ZhongYiZhiLianService {
             }
         }
 
-        System.out.println("大小为" + totalPage);
-        System.out.println("大小为" + products.size());
         System.out.println("结果为" + products.toString());
 
-        String pathname = "C:\\exportExcel\\中易智联服务项目导出.xls";
+        String pathname = "C:\\exportExcel\\中易智联服务项目.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
     }
 
     /**
-     * 商品
+     * 商品-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchItemData() throws IOException {
+    public void fetchItemDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -590,7 +588,7 @@ public class ZhongYiZhiLianService {
         System.out.println("大小为" + products.size());
         System.out.println("结果为" + products.toString());
 
-        String pathname = "C:\\exportExcel\\中易智联商品导出.xls";
+        String pathname = "C:\\exportExcel\\中易智联商品.xls";
         ExportUtil.exportProductDataInLocal(products, workbook, pathname);
 
     }

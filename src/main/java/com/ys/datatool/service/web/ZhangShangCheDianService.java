@@ -126,7 +126,7 @@ public class ZhangShangCheDianService {
                     product.setPrice(salePrice);
                     product.setRemark(remark);
                     product.setFirstCategoryName(firstCategoryName);
-                    product.setItemType("商品");
+                    product.setItemType("配件");
                     products.add(product);
                 }
             }
