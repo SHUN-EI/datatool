@@ -52,20 +52,6 @@ public class ZhongYiZhiLianService {
 
     private String ACCEPT = "application/json, text/javascript, */*; q=0.01";
 
-    private String CONNECTION = "keep-alive";
-
-    private String HOST = "boss.xmzyzl.com";
-
-    private String ORIGIN = "http://boss.xmzyzl.com";
-
-    private String REFERER = "http://boss.xmzyzl.com/Basic/Supplier/Index";
-
-    private String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36";
-
-    private String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private String UPGRADE_INSECURE_REQUESTS = "1";
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String fieldName = "total";
@@ -80,7 +66,6 @@ public class ZhongYiZhiLianService {
 
     private String endtime = "2018-05-31";
 
-    private String COOKIE = "_uab_collina=153205463277830468914905; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhYEKEcUEhGTLEEEEEpEQz0yFD6DFSXi7Z6DFSriEW6NhDcnEZ6tTDf7TEEiStEE7lYFETKxqAjHhE7Eht3alluZdsYFET%2FyZTEwy%2BDGTEELStE16k1Ww5cGTE1LSt3llsyaSt3iSFTnP%2F32zt375luZdtV9StTilsyanaliSH3lP%2F393AYFE5E1mb%2FedCwUQJ0ftxO%2FIrjodPNE7ObIBbyXZ95pDAOxANW43aeiIPRIVNGj6b65d6wUWa4wsDwhnry4tSRvw%2FwSZHQe6r028bR7n97xWnOIdWEFE54wPPfmqqGSRvfP%2BbxEGaPgMnhsDqaeokjDfXybY060cmSttr8gN1EGRkmwYBwD0DbDBKsT2q7ABiQGdVxA4D4A6maynI%2BA0D4Aqmrg4k4GqmSPXE7EFEE1CbY%3D%3D";
     /**
      * 家喻汽车集团各店(12间)
      * 兴隆店 07a21bd0061747418418cb54299402fajl
@@ -100,6 +85,7 @@ public class ZhongYiZhiLianService {
 
     private String companyName = "贵州家喻集团汽车服务有限公司";
 
+    private String COOKIE = "_uab_collina=153205463277830468914905; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhYEKEcUEhGTLEEEEEpEQz0yFD6DFSXi7Z6DFSriEW6NhDcnEZ6tTDf7TEEiStEE7lYFETKxqAjHhE7Eht3alluZdsYFET%2FyZTEwy%2BDGTEELStE16k1Ww5cGTE1LSt3llsyaSt3iSFTnP%2F32zt375luZdtV9StTilsyanaliSH3lP%2F393AYFE5E1mb%2FedCwUQJ0ftxO%2FIrjodPNE7ObIBbyXZ95pDAOxANW43aeiIPRIVNGj6b65d6wUWa4wsDwhnry4tSRvw%2FwSZHQe6r028bR7n97xWnOIdWEFE54wPPfmqqGSRvfP%2BbxEGaPgMnhsDqaeokjDfXybY060cmSttr8gN1EGRkmwYBwD0DbDBKsT2q7ABiQGdVxA4D4A6maynI%2BA0D4Aqmrg4k4GqmSPXE7EFEE1CbY%3D%3D";
 
     /**
      * 批量更新会员卡到期时间
@@ -110,14 +96,14 @@ public class ZhongYiZhiLianService {
     @Test
     public void batchUpdateCardValidTime() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -153,7 +139,10 @@ public class ZhongYiZhiLianService {
             for (MemberCard memberCard : memberCards) {
                 ++index;
                 System.out.println("卡号为" + memberCard.getCardCode() + "正在延期.....");
-                ConnectionUtil.doPost(UPDATECARDVALIDTIME_URL, getCardValidTimeParams(memberCard.getMemberCardId(), memberCard.getCuId(), memberCard.getValidTime(), memberCard.getChangeTime(), memberCard.getCtId()), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                ConnectionUtil.doPostWithLeastParams(UPDATECARDVALIDTIME_URL,
+                        getCardValidTimeParams(memberCard.getMemberCardId(), memberCard.getCuId(),
+                                memberCard.getValidTime(), memberCard.getChangeTime(),
+                                memberCard.getCtId()), COOKIE);
                 System.out.println("卡号为" + memberCard.getCardCode() + "延期成功");
                 System.out.println("共延期了" + index + "张会员卡");
             }
@@ -174,14 +163,14 @@ public class ZhongYiZhiLianService {
     @Test
     public void fetchExpireMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -254,12 +243,12 @@ public class ZhongYiZhiLianService {
         Response response = null;
         int totalPage = 0;
         //服务项目
-        response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -284,13 +273,13 @@ public class ZhongYiZhiLianService {
         }
 
         //商品
-        response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -318,7 +307,7 @@ public class ZhongYiZhiLianService {
         }
 
         //会员卡内项目
-        response = ConnectionUtil.doPost(MEMBERCARDITEM_URL, getMemberCardItemParams(shopId), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        response = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, getMemberCardItemParams(shopId), COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
         Iterator<JsonNode> it = result.iterator();
@@ -353,8 +342,8 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("memberCardItems大小为" + memberCardItems.size());
 
-        String pathname = "C:\\exportExcel\\{companyName}卡内项目导出.xlsx";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, StringUtils.replace(pathname, "{companyName}", companyName));
+        String pathname = "C:\\exportExcel\\中易智联卡内项目.xlsx";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
     }
 
     /**
@@ -365,14 +354,14 @@ public class ZhongYiZhiLianService {
     @Test
     public void fetchMemberCardData() throws Exception {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             //因为家喻总店会员卡数据太多，要分状态抓取，修改地址MEMBERCARD_URL中TYPE=0为正常，1为挂失，3为过期
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(MEMBERCARD_URL, "{offset}", String.valueOf(offSet)) + shopId, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -411,8 +400,8 @@ public class ZhongYiZhiLianService {
         System.out.println("memberCards大小为" + memberCards.size());
         System.out.println("大小为" + totalPage);
 
-        String pathname = "C:\\exportExcel\\{companyName}会员卡导出.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, StringUtils.replace(pathname, "{companyName}", companyName));
+        String pathname = "C:\\exportExcel\\中易智联会员卡.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
@@ -426,7 +415,7 @@ public class ZhongYiZhiLianService {
         List<Stock> stocks = new ArrayList<>();
         Map<String, String> costMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doPost(STOCKCOST_URL, getStockCostParams(shopId, begintime, endtime), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams(shopId, begintime, endtime), COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
         Iterator<JsonNode> it = result.iterator();
 
@@ -440,13 +429,13 @@ public class ZhongYiZhiLianService {
                 costMap.put(stockId, cost);
         }
 
-        Response res = ConnectionUtil.doGet(StringUtils.replace(STOCK_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, stockNum);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGet(StringUtils.replace(STOCK_URL, "{offset}", String.valueOf(offSet)) + shopId, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
                 result = MAPPER.readTree(res.returnContent().asString());
 
                 offSet = offSet + stockNum;
@@ -480,8 +469,8 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + stocks.toString());
         System.out.println("大小为" + stocks.size());
 
-        String pathname = "C:\\exportExcel\\{companyName}库存导出.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, StringUtils.replace(pathname, "{companyName}", companyName));
+        String pathname = "C:\\exportExcel\\中易智联库存.xls";
+        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
 
     }
 
@@ -516,12 +505,12 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
 
                     Product product = new Product();
-                    product.setProductName(productName);
-                    product.setCode(code);
-                    product.setFirstCategoryName(firstCategoryName);
-                    product.setCompanyName(companyName);
-                    product.setPrice(price);
-                    product.setRemark(remark == "null" ? "" : remark);
+                    product.setProductName(formatString(productName));
+                    product.setCode(formatString(code));
+                    product.setFirstCategoryName(formatString(firstCategoryName));
+                    product.setCompanyName(formatString(companyName));
+                    product.setPrice(formatString(price));
+                    product.setRemark(formatString(remark));
                     product.setItemType("服务项");
                     product.setIsShare("是");
                     products.add(product);
@@ -569,17 +558,17 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
 
                     Product product = new Product();
-                    product.setCode(code);
-                    product.setProductName(productName);
-                    product.setFirstCategoryName(firstCategoryName);
-                    product.setBrandName(brandName == "null" ? "" : brandName);
-                    product.setUnit(unit == "null" ? "" : unit);
-                    product.setPrice(price);
-                    product.setCompanyName(companyName);
-                    product.setBarCode(barCode == "null" ? "" : barCode);
+                    product.setCode(formatString(code));
+                    product.setProductName(formatString(productName));
+                    product.setFirstCategoryName(formatString(firstCategoryName));
+                    product.setBrandName(formatString(brandName));
+                    product.setUnit(formatString(unit));
+                    product.setPrice(formatString(price));
+                    product.setCompanyName(formatString(companyName));
+                    product.setBarCode(formatString(barCode));
                     product.setItemType("配件");
                     product.setIsShare("是");
-                    product.setRemark(remark == "null" ? "" : remark);
+                    product.setRemark(formatString(remark));
                     products.add(product);
                 }
             }
@@ -623,12 +612,11 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
                     String companyName = element.get("SHOPNAME").asText();
 
-                    String realRemark = remark == "null" ? "" : remark;
                     Supplier supplier = new Supplier();
-                    supplier.setCompanyName(companyName);
-                    supplier.setCode(code);
-                    supplier.setName(name);
-                    supplier.setRemark(className + " " + realRemark);
+                    supplier.setCompanyName(formatString(companyName));
+                    supplier.setCode(formatString(code));
+                    supplier.setName(formatString(name));
+                    supplier.setRemark(formatString(className) + " " + formatString(remark));
                     supplierMap.put(supplierId, supplier);
                 }
             }
@@ -646,7 +634,7 @@ public class ZhongYiZhiLianService {
                     String address = element.get("ADDRESS").asText();
                     String phone = element.get("PHONE").asText();
                     String contactPhone = element.get("MOBILE").asText();
-                    String contact = element.get("CONTACT").asText();
+                    String contactName = element.get("CONTACT").asText();
 
                     Supplier s = supplierMap.get(id);
                     Supplier supplier = new Supplier();
@@ -654,10 +642,10 @@ public class ZhongYiZhiLianService {
                     supplier.setCode(s.getCode());
                     supplier.setName(s.getName());
                     supplier.setRemark(s.getRemark());
-                    supplier.setContactName(contact == "null" ? "" : contact);
-                    supplier.setAddress(address == "null" ? "" : address);
-                    supplier.setFax(fax == "null" ? "" : fax);
-                    supplier.setContactPhone(contactPhone == "null" ? "" : contactPhone);
+                    supplier.setContactName(formatString(contactName));
+                    supplier.setAddress(formatString(address));
+                    supplier.setFax(formatString(fax));
+                    supplier.setContactPhone(formatString(contactPhone));
                     suppliers.add(supplier);
                 }
             }
@@ -672,22 +660,22 @@ public class ZhongYiZhiLianService {
     }
 
     /**
-     * 车辆信息
+     * 车辆信息-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchCarInfoData() throws IOException {
+    public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
         Map<String, CarInfo> carInfoMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doGet(StringUtils.replace(CARINFO_URL, "{offset}", "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGet(StringUtils.replace(CARINFO_URL, "{offset}", String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 System.out.println("页数为" + i);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
@@ -706,13 +694,13 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
 
                     CarInfo carInfo = new CarInfo();
-                    carInfo.setCarNumber(carNumber);
-                    carInfo.setName(name);
-                    carInfo.setPhone(phone);
-                    carInfo.setCompanyName(companyName);
-                    carInfo.setBrand(brand);
-                    carInfo.setCarModel(carModel);
-                    carInfo.setRemark(remark);
+                    carInfo.setCarNumber(carNumber == "null" ? "" : carNumber);
+                    carInfo.setName(formatString(name));
+                    carInfo.setPhone(formatString(phone));
+                    carInfo.setCompanyName(formatString(companyName));
+                    carInfo.setBrand(formatString(brand));
+                    carInfo.setCarModel(formatString(carModel));
+                    carInfo.setRemark(formatString(remark));
                     carInfoMap.put(carId, carInfo);
                 }
             }
@@ -720,7 +708,7 @@ public class ZhongYiZhiLianService {
 
         if (carInfoMap.size() > 0) {
             for (String id : carInfoMap.keySet()) {
-                response = ConnectionUtil.doPost(CARINFODETAIL_URL, getCarInfoDetailParams(id), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, getCarInfoDetailParams(id), COOKIE);
 
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
                 Iterator<JsonNode> it = result.iterator();
@@ -733,21 +721,19 @@ public class ZhongYiZhiLianService {
                     String vcInsuranceValidDate = element.get("INSURANCETIME").asText();
 
                     CarInfo carInfo = carInfoMap.get(id);
-                    carInfo.setVINcode(VINcode);
-                    carInfo.setEngineNumber(engineNumber);
-                    carInfo.setVcInsuranceCompany(vcInsuranceCompany);
-                    carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                    carInfo.setTcInsuranceValidDate(tcInsuranceValidDate);
+                    carInfo.setVINcode(formatString(VINcode));
+                    carInfo.setEngineNumber(formatString(engineNumber));
+                    carInfo.setVcInsuranceCompany(formatString(vcInsuranceCompany));
+                    carInfo.setVcInsuranceValidDate(formatString(vcInsuranceValidDate));
+                    carInfo.setTcInsuranceValidDate(formatString(tcInsuranceValidDate));
                     carInfos.add(carInfo);
                 }
             }
         }
 
-        System.out.println("大小为" + totalPage);
-        System.out.println("大小为" + carInfoMap.size());
-        System.out.println("结果为" + carInfoMap.toString());
+        System.out.println("结果为" + carInfos.toString());
 
-        String pathname = "C:\\exportExcel\\中易智联车辆信息导出.xlsx";
+        String pathname = "C:\\exportExcel\\中易智联车辆.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
@@ -770,12 +756,6 @@ public class ZhongYiZhiLianService {
         return params;
     }
 
-    private List<BasicNameValuePair> getCarInfoDetailParams(String carId) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("carId", carId));
-        params.add(new BasicNameValuePair("hideMobile", ""));
-        return params;
-    }
 
     private List<BasicNameValuePair> getStockCostParams(String shopId, String begintime, String endtime) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -786,14 +766,6 @@ public class ZhongYiZhiLianService {
         params.add(new BasicNameValuePair("begintime", begintime));
         params.add(new BasicNameValuePair("endtime", endtime));
         params.add(new BasicNameValuePair("billtype", ""));
-        return params;
-    }
-
-    private List<BasicNameValuePair> getSupplierParams(String num, String offset) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("limit", num));
-        params.add(new BasicNameValuePair("offset", offset));
-        params.add(new BasicNameValuePair("shop", ""));
         return params;
     }
 
@@ -809,4 +781,22 @@ public class ZhongYiZhiLianService {
         return params;
     }
 
+
+    private List<BasicNameValuePair> getCarInfoDetailParams(String carId) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("carId", carId));
+        return params;
+    }
+
+    private List<BasicNameValuePair> getSupplierParams(String num, String offset) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("limit", num));
+        params.add(new BasicNameValuePair("offset", offset));
+        params.add(new BasicNameValuePair("shop", ""));
+        return params;
+    }
+
+    private String formatString(String target) {
+        return target == "null" ? "" : target;
+    }
 }
