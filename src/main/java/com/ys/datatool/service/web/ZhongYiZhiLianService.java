@@ -80,8 +80,7 @@ public class ZhongYiZhiLianService {
 
     private String endtime = "2018-05-31";
 
-    private String COOKIE = "_uab_collina=152482180507203105356301; UM_distinctid=1630669539e4d7-0a6eaa05d64647-4323461-144000-1630669539f73c; Hm_lvt_d5f79ec73fc60538d41315484cc9d7ad=1524820957; acw_tc=AQAAAPf8nnN7OwgAndgcDuabEt8/goy1; ASP.NET_SessionId=wggtkgixdmo4ycfnpdijvrj0; spellName=; u_asec=099%23KAFE07EKE3EEhGTLEEEEEpEQz0yFD6ATSu9EQ60ESrioW6NESuREV6fEDqMTEHME8RRW%2FqYWcTZB95esCR4B3R07Fps1HshnPvZ1UfIWPs2CivZBQO4WPsMRiz9Zc0X46dbROq7WcLYf9BZZZy8VHaG65pnB6gXAPGDt89%2BS6VX4iorACmGTEELStE1KXAzdtXQTEEyZtY7EZQlbE7EU1ljrlAKw2hLStTTnsyaZ7%2FiSH3lP%2F3XBt375luZdtdlSt3tusyaSWcYTEHRElIami1bRvFd63uEDRKnykg4OVBAd1PbRJxi4cBSqxbWMXyTY2bsMk6Arti5WxKNf8Z%2Bg2hWy1PbR9lAWoPD2JfgLlB5znPgMnhsDqweokjDfjYFET%2FiDlllP%2F3QTEEx5Lq5jBYFETEEEbOR5E7EFt37EFE%3D%3D";
-
+    private String COOKIE = "_uab_collina=153205463277830468914905; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhYEKEcUEhGTLEEEEEpEQz0yFD6DFSXi7Z6DFSriEW6NhDcnEZ6tTDf7TEEiStEE7lYFETKxqAjHhE7Eht3alluZdsYFET%2FyZTEwy%2BDGTEELStE16k1Ww5cGTE1LSt3llsyaSt3iSFTnP%2F32zt375luZdtV9StTilsyanaliSH3lP%2F393AYFE5E1mb%2FedCwUQJ0ftxO%2FIrjodPNE7ObIBbyXZ95pDAOxANW43aeiIPRIVNGj6b65d6wUWa4wsDwhnry4tSRvw%2FwSZHQe6r028bR7n97xWnOIdWEFE54wPPfmqqGSRvfP%2BbxEGaPgMnhsDqaeokjDfXybY060cmSttr8gN1EGRkmwYBwD0DbDBKsT2q7ABiQGdVxA4D4A6maynI%2BA0D4Aqmrg4k4GqmSPXE7EFEE1CbY%3D%3D";
     /**
      * 家喻汽车集团各店(12间)
      * 兴隆店 07a21bd0061747418418cb54299402fajl
@@ -156,7 +155,7 @@ public class ZhongYiZhiLianService {
                 System.out.println("卡号为" + memberCard.getCardCode() + "正在延期.....");
                 ConnectionUtil.doPost(UPDATECARDVALIDTIME_URL, getCardValidTimeParams(memberCard.getMemberCardId(), memberCard.getCuId(), memberCard.getValidTime(), memberCard.getChangeTime(), memberCard.getCtId()), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
                 System.out.println("卡号为" + memberCard.getCardCode() + "延期成功");
-                System.out.println("共延期了"+index+"张会员卡");
+                System.out.println("共延期了" + index + "张会员卡");
             }
         }
 
@@ -597,22 +596,22 @@ public class ZhongYiZhiLianService {
     }
 
     /**
-     * 供应商
+     * 供应商-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchSupplierData() throws IOException {
+    public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
         Map<String, Supplier> supplierMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doPost(SUPPLIER_URL, getSupplierParams(String.valueOf(num), "0"), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(num), "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPost(SUPPLIER_URL, getSupplierParams(String.valueOf(num), String.valueOf(offSet)), ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getSupplierParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -639,7 +638,7 @@ public class ZhongYiZhiLianService {
 
         if (supplierMap.size() > 0) {
             for (String id : supplierMap.keySet()) {
-                response = ConnectionUtil.doGet(StringUtils.replace(SUPPLIERDETAIL_URL, "{id}", id), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT);
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERDETAIL_URL, "{id}", id), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
                 Iterator<JsonNode> it = result.iterator();
                 while (it.hasNext()) {
@@ -648,7 +647,7 @@ public class ZhongYiZhiLianService {
                     String fax = element.get("FAX").asText();
                     String address = element.get("ADDRESS").asText();
                     String phone = element.get("PHONE").asText();
-                    String mobile = element.get("MOBILE").asText();
+                    String contactPhone = element.get("MOBILE").asText();
                     String contact = element.get("CONTACT").asText();
 
                     Supplier s = supplierMap.get(id);
@@ -660,19 +659,17 @@ public class ZhongYiZhiLianService {
                     supplier.setContactName(contact == "null" ? "" : contact);
                     supplier.setAddress(address == "null" ? "" : address);
                     supplier.setFax(fax == "null" ? "" : fax);
-                    supplier.setContactPhone(mobile == "null" ? "" : mobile);
+                    supplier.setContactPhone(contactPhone == "null" ? "" : contactPhone);
                     suppliers.add(supplier);
                 }
             }
         }
 
 
-        System.out.println("大小为" + supplierMap.size());
-        System.out.println("结果为" + supplierMap.toString());
         System.out.println("大小为" + suppliers.size());
         System.out.println("结果为" + suppliers.toString());
 
-        String pathname = "C:\\exportExcel\\中易智联供应商导出.xls";
+        String pathname = "C:\\exportExcel\\中易智联供应商.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
     }
 
@@ -799,8 +796,6 @@ public class ZhongYiZhiLianService {
         params.add(new BasicNameValuePair("limit", num));
         params.add(new BasicNameValuePair("offset", offset));
         params.add(new BasicNameValuePair("shop", ""));
-        params.add(new BasicNameValuePair("name", ""));
-        params.add(new BasicNameValuePair("state", ""));
         return params;
     }
 

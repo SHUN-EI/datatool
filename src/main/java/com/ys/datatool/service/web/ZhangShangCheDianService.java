@@ -71,6 +71,11 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + totalPage);
     }
 
+    /**
+     * 库存-标准模版导出
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchStockDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
@@ -130,14 +135,14 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + stocks.toString());
         System.out.println("结果为" + stocks.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店库存表.xls";
-        String pathname2 = "C:\\exportExcel\\掌上车店库存商品表.xls";
+        String pathname = "C:\\exportExcel\\掌上车店库存.xls";
+        String pathname2 = "C:\\exportExcel\\掌上车店库存商品.xls";
         ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
         ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
     }
 
     /**
-     * 卡内项目
+     * 卡内项目-标准模版导出
      *
      * @throws IOException
      */
@@ -220,14 +225,14 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("结果为" + memberCardItems.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店卡内项目表.xls";
-        String pathname2 = "C:\\exportExcel\\掌上车店卡内项目商品表.xls";
+        String pathname = "C:\\exportExcel\\掌上车店卡内项目.xls";
+        String pathname2 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
         ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
     }
 
     /**
-     * 会员卡
+     * 会员卡-标准模版导出
      *
      * @throws IOException
      */
@@ -279,7 +284,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("结果为" + memberCards.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店会员卡导出.xls";
+        String pathname = "C:\\exportExcel\\掌上车店会员卡.xls";
         ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
     }
 
@@ -350,7 +355,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + suppliers.toString());
         System.out.println("结果为" + suppliers.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店供应商导出.xls";
+        String pathname = "C:\\exportExcel\\掌上车店供应商.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
 
     }
@@ -438,7 +443,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("结果为" + carInfos.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店车辆导出.xlsx";
+        String pathname = "C:\\exportExcel\\掌上车店车辆信息.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
 
     }
