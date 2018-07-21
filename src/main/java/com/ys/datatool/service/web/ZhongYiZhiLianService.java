@@ -3,10 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -27,9 +24,7 @@ public class ZhongYiZhiLianService {
 
     private String UPDATECARDVALIDTIME_URL = "http://boss.xmzyzl.com/Customer/MemberManage/SaveDate?";
 
-    private String MEMBERCARDEXPIRE_URL = "http://boss.xmzyzl.com/Customer/MemberManage/GetSearchResult?limit=20&offset={offset}&StartTime=&EndTime=&CARDTYPEID=&EMPLOYEEID=&TYPE=3&shop=&SHOPID=&keyword=";
-
-    private String MEMBERCARDDETAIL_URL = "http://boss.xmzyzl.com/Customer/MemberDetailed/Query?order=asc";
+    private String MEMBERCARDEXPIRE_URL = "http://boss.xmzyzl.com/Customer/MemberManage/GetSearchResult?limit=20&offset={offset}&StartTime=&EndTime=&CARDTYPEID=&EMPLOYEEID=&shop=&SHOPID=&keyword=&TYPE=3";
 
     private String MEMBERCARD_URL = "http://boss.xmzyzl.com/Customer/MemberManage/GetSearchResult?limit=20&offset={offset}&StartTime=&EndTime=&CARDTYPEID=&EMPLOYEEID=&SHOPID=&keyword=&TYPE=&shop=";
 
@@ -52,8 +47,6 @@ public class ZhongYiZhiLianService {
     private String SUPPLIERDETAIL_URL = "http://boss.xmzyzl.com/Basic/Supplier/SuppQuery?SuppID={id}";
 
     private String SUPPLIER_URL = "http://boss.xmzyzl.com/Basic/Supplier/Query";
-
-    private String ACCEPT = "application/json, text/javascript, */*; q=0.01";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -88,148 +81,6 @@ public class ZhongYiZhiLianService {
 
     private String COOKIE = "_uab_collina=153205892934065441548578; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEiGEKEcSEhYTLEEEEEpEQz0yFD6DFScyoA6PTZXJ7W6tEDuJ7D6PcBYFETRpCD6jhE7EhlAaP%2F3iSWEFE5UwopPmqBFt0D4Akukj2wNf3i1Xv3iiqw7GR9yzU07YqaPgez87YLMWokBuYoZdIkfMcmrg4kYVBCUgib1IbvFuqwLaVfZV2h7YqqR0YoN4IaMVoE7EIlllbZFY3n0srE7EhT3l%2F%2FoRDsEFEp3llsyaSt3lllllUt3iSTJvllurdt37I99llWsaStELolllO%2F3iS16ahE7TibLn5ti7WadVE99r0Ps8c3fE6OPot6LZpL7nseweniYPtgew3cyph1GzcPtuBzFnR1t1dCwUQ7JDtxO%2FIrj97wmE7ObIBbMS697kDnwXBTFnR1WauE7EF9mC9uf7TEEilluCV";
 
-    /**
-     * 批量更新会员卡到期时间
-     * 系统服务器每次只允许调用接口100次
-     *
-     * @throws IOException
-     */
-    @Test
-    public void batchUpdateCardValidTime() throws IOException {
-        List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
-
-        if (totalPage > 0) {
-            int offSet = 0;
-
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                offSet = offSet + num;
-                System.out.println("offSet大小为" + offSet);
-                System.out.println("页数为" + i);
-
-                Iterator<JsonNode> it = result.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String cardCode = element.get("CARDNUMBER").asText();
-                    String cuId = element.get("CUID").asText();
-                    String id = element.get("ID").asText();
-                    String ctId = element.get("CTID").asText();
-                    String txtendtime = element.get("MATURITY").asText();
-                    String txtchangetime = "2018-05-25";//延期时间
-
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setMemberCardId(id);
-                    memberCard.setValidTime(txtendtime);
-                    memberCard.setChangeTime(txtchangetime);
-                    memberCard.setCtId(ctId);
-                    memberCard.setCardCode(cardCode);
-                    memberCard.setCuId(cuId);
-                    memberCards.add(memberCard);
-                }
-            }
-        }
-
-        if (memberCards.size() > 0) {
-
-            int index = 1;
-            for (MemberCard memberCard : memberCards) {
-                ++index;
-                System.out.println("卡号为" + memberCard.getCardCode() + "正在延期.....");
-                ConnectionUtil.doPostWithLeastParams(UPDATECARDVALIDTIME_URL,
-                        getCardValidTimeParams(memberCard.getMemberCardId(), memberCard.getCuId(),
-                                memberCard.getValidTime(), memberCard.getChangeTime(),
-                                memberCard.getCtId()), COOKIE);
-                System.out.println("卡号为" + memberCard.getCardCode() + "延期成功");
-                System.out.println("共延期了" + index + "张会员卡");
-            }
-        }
-
-        System.out.println("过期会员卡分别为" + memberCards.toString());
-        System.out.println("过期会员卡总数为" + memberCards.size());
-        System.out.println("所有过期会员卡延期完成");
-
-    }
-
-
-    /**
-     * 过期会员卡
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchExpireMemberCardData() throws IOException {
-        List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
-
-        if (totalPage > 0) {
-            int offSet = 0;
-
-            for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                offSet = offSet + num;
-                System.out.println("offSet大小为" + offSet);
-                System.out.println("页数为" + i);
-
-                Iterator<JsonNode> it = result.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String id = element.get("ID").asText();
-                    String clientId = element.get("CUSTOMERID").asText();
-                    String cardCode = element.get("CARDNUMBER").asText();
-                    String companyName = element.get("SHOPNAME").asText();
-                    String memberCardName = element.get("CTNAME").asText();
-                    String name = element.get("CUNAME").asText();
-                    String phone = element.get("MOBILE").asText();
-                    String carNumber = element.get("CARNUMBER").asText();
-                    String dateCreated = element.get("SORTTIME").asText();//"CREATETIME"
-                    String balance = element.get("CARDBALANCE").asText();
-                    String validTime = element.get("MATURITY").asText();
-                    String state = element.get("STATE").asText();
-
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setCompanyName(companyName);
-                    memberCard.setCardCode(cardCode);
-                    memberCard.setMemberCardName(memberCardName);
-                    memberCard.setName(name == "null" ? "" : name);
-                    memberCard.setPhone(phone == "null" ? "" : phone);
-                    memberCard.setCarNumber(carNumber);
-                    memberCard.setDateCreated(dateCreated);
-                    memberCard.setBalance(balance);
-                    memberCard.setRemark(validTime);
-                    memberCard.setMemberCardId(id);
-                    memberCard.setCardType(clientId);
-                    memberCards.add(memberCard);
-                }
-            }
-        }
-
-        System.out.println("结果为" + memberCards.toString());
-        System.out.println("memberCards大小为" + memberCards.size());
-        System.out.println("大小为" + totalPage);
-
-        String pathname = "C:\\exportExcel\\过期会员卡导出.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
-    }
-
-    /**
-     * 过期卡卡内项目(此方法获取到的数据有误)
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchExpireMemberCardItemData() throws IOException {
-        List<MemberCardItem> memberCardItems = new ArrayList<>();
-        // TODO: 2018/5/22 卡内项目详情页面的cookies会变，需要获取上次访问的cookie
-    }
 
     /**
      * 卡内项目
@@ -348,18 +199,153 @@ public class ZhongYiZhiLianService {
     }
 
     /**
+     * 批量更新会员卡到期时间
+     * 系统服务器每次只允许调用接口100次
+     *
+     * @throws IOException
+     */
+    @Test
+    public void batchUpdateCardValidTime() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String cardCode = element.get("CARDNUMBER").asText();
+                    String cuId = element.get("CUID").asText();
+                    String id = element.get("ID").asText();
+                    String ctId = element.get("CTID").asText();
+                    String txtendtime = element.get("MATURITY").asText();
+                    String txtchangetime = "2018-05-25";//延期时间
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setMemberCardId(id);
+                    memberCard.setValidTime(txtendtime);
+                    memberCard.setChangeTime(txtchangetime);
+                    memberCard.setCtId(ctId);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setCuId(cuId);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        if (memberCards.size() > 0) {
+
+            int index = 1;
+            for (MemberCard memberCard : memberCards) {
+                ++index;
+                System.out.println("卡号为" + memberCard.getCardCode() + "正在延期.....");
+                ConnectionUtil.doPostWithLeastParams(UPDATECARDVALIDTIME_URL,
+                        getCardValidTimeParams(memberCard.getMemberCardId(), memberCard.getCuId(),
+                                memberCard.getValidTime(), memberCard.getChangeTime(),
+                                memberCard.getCtId()), COOKIE);
+                System.out.println("卡号为" + memberCard.getCardCode() + "延期成功");
+                System.out.println("共延期了" + index + "张会员卡");
+            }
+        }
+
+        System.out.println("过期会员卡分别为" + memberCards.toString());
+        System.out.println("过期会员卡总数为" + memberCards.size());
+        System.out.println("所有过期会员卡延期完成");
+
+    }
+
+    /**
+     * 过期会员卡
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchExpireMemberCardData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        // 2018/5/22 过期会员卡卡内项目详情页面的cookies会变，需要获取上次访问的cookie
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("ID").asText();
+                    String clientId = element.get("CUSTOMERID").asText();
+                    String cardCode = element.get("CARDNUMBER").asText();
+                    String companyName = element.get("SHOPNAME").asText();
+                    String memberCardName = element.get("CTNAME").asText();
+                    String name = element.get("CUNAME").asText();
+                    String phone = element.get("MOBILE").asText();
+                    String carNumber = element.get("CARNUMBER").asText();
+                    String dateCreated = element.get("SORTTIME").asText();//"CREATETIME"
+                    String balance = element.get("CARDBALANCE").asText();
+                    String validTime = element.get("MATURITY").asText();
+                    String state = element.get("STATE").asText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setCompanyName(companyName);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setMemberCardName(memberCardName);
+                    memberCard.setName(formatString(name));
+                    memberCard.setPhone(formatString(phone));
+                    memberCard.setCarNumber(carNumber);
+                    memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
+                    memberCard.setBalance(balance);
+                    memberCard.setRemark(validTime);
+                    memberCard.setMemberCardId(id);
+                    memberCard.setCardType(clientId);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("memberCards大小为" + memberCards.size());
+
+        String pathname = "C:\\exportExcel\\过期会员卡导出.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+    }
+
+    /**
      * 会员卡-标准模版导出
+     * <p>
+     * 支持连锁店，分别导出各店的会员卡，需要传入各店的shopId
+     * 如果不传shopId(shopId=""),则默认导出所有店的会员卡
      *
      * @throws Exception
      */
     @Test
-    public void fetchMemberCardData() throws Exception {
+    public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
+
             //因为家喻总店会员卡数据太多，要分状态抓取，修改地址MEMBERCARD_URL中TYPE=0为正常，1为挂失，3为过期
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
@@ -386,10 +372,10 @@ public class ZhongYiZhiLianService {
                     memberCard.setCompanyName(companyName);
                     memberCard.setCardCode(cardCode);
                     memberCard.setMemberCardName(memberCardName);
-                    memberCard.setName(name == "null" ? "" : name);
-                    memberCard.setPhone(phone == "null" ? "" : phone);
-                    memberCard.setCarNumber(carNumber);
-                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setName(formatString(name));
+                    memberCard.setPhone(formatString(phone));
+                    memberCard.setCarNumber(formatString(carNumber));
+                    memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
                     memberCard.setBalance(balance);
                     memberCard.setRemark(state);
                     memberCards.add(memberCard);
@@ -399,78 +385,16 @@ public class ZhongYiZhiLianService {
 
         System.out.println("结果为" + memberCards.toString());
         System.out.println("memberCards大小为" + memberCards.size());
-        System.out.println("大小为" + totalPage);
 
         String pathname = "C:\\exportExcel\\中易智联会员卡.xls";
         ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
 
     }
 
-
-    /**
-     * 库存-标准模版导出
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchStockDataStandard() throws IOException {
-        List<Stock> stocks = new ArrayList<>();
-
-        Response res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + "0", COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
-
-        if (totalPage > 0) {
-            int offSet = 0;
-            for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + String.valueOf(offSet), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
-
-                offSet = offSet + 50;
-                Iterator<JsonNode> it = result.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String goodsName = element.get("NAME").asText();
-                    String code = element.get("CODE").asText();
-                    String barcode = element.get("BARCODE").asText();//家喻要求条形码为商品编码
-                    String companyName = element.get("SHOPNAME").asText();
-                    String storeRoomName = element.get("WAREHOUSENAME").asText();
-
-                    //"ALLOWNUM"-可用库存,"NUM"-实际库存
-                    String num = element.get("NUM").asText();
-                    String allowNum = element.get("ALLOWNUM").asText();
-                    String stockId = element.get("PRODUCTSKUID").asText();
-
-                    Stock stock = new Stock();
-                    stock.setCompanyName(formatString(companyName));
-                    stock.setStoreRoomName(formatString(storeRoomName));
-                    stock.setGoodsName(formatString(goodsName));
-                    stock.setInventoryNum(num);
-                    stock.setProductCode(formatString(code));
-                    stock.setBarCode(formatString(barcode));
-                    stocks.add(stock);
-                }
-
-            }
-        }
-
-        if (stocks.size() > 0) {
-            for (Stock stock : stocks) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams("", begintime, endtime, stock.getBarCode()), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                String cost = result.get(0).get("COSTPRICE").asText();
-                stock.setPrice(cost);
-            }
-        }
-
-        String pathname = "C:\\exportExcel\\中易智联库存.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
-    }
-
     /**
      * 库存-标准模版导出
      * 支持连锁店，分别导出各店的库存，需要传入各店的shopId
+     * 如果不传shopId(shopId=""),则默认导出所有店的库存
      *
      * @throws IOException
      */
@@ -796,18 +720,6 @@ public class ZhongYiZhiLianService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
-    private List<BasicNameValuePair> getCardValidTimeParams(String id, String cuId, String txtendtime, String txtchangetime, String ctId) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("ShopId", ""));
-        params.add(new BasicNameValuePair("ID", id));
-        params.add(new BasicNameValuePair("cuId", cuId));
-        params.add(new BasicNameValuePair("txtendtime", txtendtime));
-        params.add(new BasicNameValuePair("txtchangetime", txtchangetime));
-        params.add(new BasicNameValuePair("ctId", ctId));
-        params.add(new BasicNameValuePair("delayRemark", ""));
-        return params;
-    }
-
 
     private List<BasicNameValuePair> getMemberCardItemParams(String shopId) {
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -818,6 +730,18 @@ public class ZhongYiZhiLianService {
         params.add(new BasicNameValuePair("CardType", ""));
         params.add(new BasicNameValuePair("Type", ""));
         params.add(new BasicNameValuePair("shop", shopId));
+        return params;
+    }
+
+    private List<BasicNameValuePair> getCardValidTimeParams(String id, String cuId, String txtendtime, String txtchangetime, String ctId) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("ShopId", ""));
+        params.add(new BasicNameValuePair("ID", id));
+        params.add(new BasicNameValuePair("cuId", cuId));
+        params.add(new BasicNameValuePair("txtendtime", txtendtime));
+        params.add(new BasicNameValuePair("txtchangetime", txtchangetime));
+        params.add(new BasicNameValuePair("ctId", ctId));
+        params.add(new BasicNameValuePair("delayRemark", ""));
         return params;
     }
 
