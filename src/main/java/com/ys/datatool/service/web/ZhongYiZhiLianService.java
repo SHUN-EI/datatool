@@ -24,6 +24,7 @@ import java.util.*;
 @Service
 public class ZhongYiZhiLianService {
 
+
     private String UPDATECARDVALIDTIME_URL = "http://boss.xmzyzl.com/Customer/MemberManage/SaveDate?";
 
     private String MEMBERCARDEXPIRE_URL = "http://boss.xmzyzl.com/Customer/MemberManage/GetSearchResult?limit=20&offset={offset}&StartTime=&EndTime=&CARDTYPEID=&EMPLOYEEID=&TYPE=3&shop=&SHOPID=&keyword=";
@@ -34,9 +35,11 @@ public class ZhongYiZhiLianService {
 
     private String MEMBERCARDITEM_URL = "http://boss.xmzyzl.com/Customer/MemberManage/PackageQuery";
 
-    private String STOCK_URL = "http://boss.xmzyzl.com/Store/StoreSearch/Query?limit=50&WAREHOUSEID=&keywords=&cbtnZero=&treeId=&hdkeywords=&offset={offset}&SHOPID=";
+    private String STOCK_URL = "http://boss.xmzyzl.com/Store/StoreSearch/Query?limit=50&cbtnZero=1&SHOPID=&offset=";
 
     private String STOCKCOST_URL = "http://boss.xmzyzl.com/Store/StoreSearch/CostQuery";
+
+    private String STOCKINSHOP_URL = "http://boss.xmzyzl.com/Store/StoreSearch/Query?limit=50&cbtnZero=1&SHOPID={no}&offset=";
 
     private String CARINFODETAIL_URL = "http://boss.xmzyzl.com/Customer/CustomerAdd/QueryIndex";
 
@@ -58,11 +61,9 @@ public class ZhongYiZhiLianService {
 
     private int num = 20;//分页参数为10、15、20、25
 
-    private int stockNum = 50;//分页参数为10、25、50、100
-
     private Workbook workbook;
 
-    private String begintime = "2015-01-01";
+    private String begintime = "2011-01-01";
 
     private String endtime = "2018-05-31";
 
@@ -83,9 +84,9 @@ public class ZhongYiZhiLianService {
      */
     private String shopId = "c4554d26854f47ab8d089aed29fd0c1f";//车店编号
 
-    private String companyName = "贵州家喻集团汽车服务有限公司";
+    private String companyName = "中易智联";
 
-    private String COOKIE = "_uab_collina=153205463277830468914905; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhYEKEcUEhGTLEEEEEpEQz0yFD6DFSXi7Z6DFSriEW6NhDcnEZ6tTDf7TEEiStEE7lYFETKxqAjHhE7Eht3alluZdsYFET%2FyZTEwy%2BDGTEELStE16k1Ww5cGTE1LSt3llsyaSt3iSFTnP%2F32zt375luZdtV9StTilsyanaliSH3lP%2F393AYFE5E1mb%2FedCwUQJ0ftxO%2FIrjodPNE7ObIBbyXZ95pDAOxANW43aeiIPRIVNGj6b65d6wUWa4wsDwhnry4tSRvw%2FwSZHQe6r028bR7n97xWnOIdWEFE54wPPfmqqGSRvfP%2BbxEGaPgMnhsDqaeokjDfXybY060cmSttr8gN1EGRkmwYBwD0DbDBKsT2q7ABiQGdVxA4D4A6maynI%2BA0D4Aqmrg4k4GqmSPXE7EFEE1CbY%3D%3D";
+    private String COOKIE = "_uab_collina=153205892934065441548578; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEiGEKEcSEhYTLEEEEEpEQz0yFD6DFScyoA6PTZXJ7W6tEDuJ7D6PcBYFETRpCD6jhE7EhlAaP%2F3iSWEFE5UwopPmqBFt0D4Akukj2wNf3i1Xv3iiqw7GR9yzU07YqaPgez87YLMWokBuYoZdIkfMcmrg4kYVBCUgib1IbvFuqwLaVfZV2h7YqqR0YoN4IaMVoE7EIlllbZFY3n0srE7EhT3l%2F%2FoRDsEFEp3llsyaSt3lllllUt3iSTJvllurdt37I99llWsaStELolllO%2F3iS16ahE7TibLn5ti7WadVE99r0Ps8c3fE6OPot6LZpL7nseweniYPtgew3cyph1GzcPtuBzFnR1t1dCwUQ7JDtxO%2FIrj97wmE7ObIBbMS697kDnwXBTFnR1WauE7EF9mC9uf7TEEilluCV";
 
     /**
      * 批量更新会员卡到期时间
@@ -347,7 +348,7 @@ public class ZhongYiZhiLianService {
     }
 
     /**
-     * 会员卡
+     * 会员卡-标准模版导出
      *
      * @throws Exception
      */
@@ -405,69 +406,127 @@ public class ZhongYiZhiLianService {
 
     }
 
+
     /**
-     * 库存
+     * 库存-标准模版导出
      *
      * @throws IOException
      */
     @Test
-    public void fetchStockData() throws IOException {
+    public void fetchStockDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
-        Map<String, String> costMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams(shopId, begintime, endtime), COOKIE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
-        Iterator<JsonNode> it = result.iterator();
-
-        while (it.hasNext()) {
-            JsonNode element = it.next();
-
-            String stockId = element.get("PRODUCTSKUID").asText();
-            String cost = element.get("COSTPRICE").asText();
-
-            if (!costMap.keySet().contains(stockId))
-                costMap.put(stockId, cost);
-        }
-
-        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{offset}", "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, stockNum);
+        Response res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + "0", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
-                result = MAPPER.readTree(res.returnContent().asString());
+                res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + String.valueOf(offSet), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
-                offSet = offSet + stockNum;
-                it = result.get("rows").iterator();
+                offSet = offSet + 50;
+                Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
                     String goodsName = element.get("NAME").asText();
-                    //String code = element.get("CODE").asText();
-                    String code = element.get("BARCODE").asText();//家喻要求条形码为商品编码
+                    String code = element.get("CODE").asText();
+                    String barcode = element.get("BARCODE").asText();//家喻要求条形码为商品编码
                     String companyName = element.get("SHOPNAME").asText();
                     String storeRoomName = element.get("WAREHOUSENAME").asText();
 
                     //"ALLOWNUM"-可用库存,"NUM"-实际库存
-                    String num = element.get("ALLOWNUM").asText();
+                    String num = element.get("NUM").asText();
+                    String allowNum = element.get("ALLOWNUM").asText();
                     String stockId = element.get("PRODUCTSKUID").asText();
-                    code = code == "null" ? "" : code;
 
                     Stock stock = new Stock();
-                    stock.setCompanyName(companyName);
-                    stock.setStoreRoomName(storeRoomName);
-                    stock.setGoodsName(goodsName);
+                    stock.setCompanyName(formatString(companyName));
+                    stock.setStoreRoomName(formatString(storeRoomName));
+                    stock.setGoodsName(formatString(goodsName));
                     stock.setInventoryNum(num);
-                    stock.setProductCode(code);
-                    stock.setPrice(costMap.get(stockId));
+                    stock.setProductCode(formatString(code));
+                    stock.setBarCode(formatString(barcode));
+                    stocks.add(stock);
+                }
+
+            }
+        }
+
+        if (stocks.size() > 0) {
+            for (Stock stock : stocks) {
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams("", begintime, endtime, stock.getBarCode()), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                String cost = result.get(0).get("COSTPRICE").asText();
+                stock.setPrice(cost);
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\中易智联库存.xls";
+        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+    }
+
+    /**
+     * 库存-标准模版导出
+     * 支持连锁店，分别导出各店的库存，需要传入各店的shopId
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockInShopData() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + "0", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + String.valueOf(offSet), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                offSet = offSet + 50;
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String goodsName = element.get("NAME").asText();
+                    String code = element.get("CODE").asText();
+                    String storeRoomName = element.get("WAREHOUSENAME").asText();
+                    String barcode = element.get("BARCODE").asText();//家喻要求条形码为商品编码
+                    String companyName = element.get("SHOPNAME").asText();
+
+                    //"ALLOWNUM"-可用库存,"NUM"-实际库存
+                    String num = element.get("NUM").asText();
+                    String allowNum = element.get("ALLOWNUM").asText();
+                    String stockId = element.get("PRODUCTSKUID").asText();
+
+                    Stock stock = new Stock();
+                    stock.setCompanyName(formatString(companyName));
+                    stock.setStoreRoomName(formatString(storeRoomName));
+                    stock.setGoodsName(formatString(goodsName));
+                    stock.setInventoryNum(num);
+                    stock.setProductCode(formatString(code));
+                    stock.setBarCode(formatString(barcode));
                     stocks.add(stock);
                 }
             }
         }
 
+        if (stocks.size() > 0) {
+            for (Stock stock : stocks) {
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams(shopId, begintime, endtime, stock.getBarCode()), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                String cost = result.get(0).get("COSTPRICE").asText();
+                stock.setPrice(cost);
+            }
+        }
+
+
         System.out.println("结果为" + stocks.toString());
-        System.out.println("大小为" + stocks.size());
 
         String pathname = "C:\\exportExcel\\中易智联库存.xls";
         ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
@@ -737,13 +796,6 @@ public class ZhongYiZhiLianService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
     }
 
-    private String getMemberCardExpireReferer(String cardId, String customerId) {
-        String referer = "http://boss.xmzyzl.com/Customer/MemberDetailed/Index?";
-        String expireRerer = referer + "CardId=" + cardId + "&CUSTOMERID=" + customerId;
-
-        return expireRerer;
-    }
-
     private List<BasicNameValuePair> getCardValidTimeParams(String id, String cuId, String txtendtime, String txtchangetime, String ctId) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("ShopId", ""));
@@ -757,18 +809,6 @@ public class ZhongYiZhiLianService {
     }
 
 
-    private List<BasicNameValuePair> getStockCostParams(String shopId, String begintime, String endtime) {
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("WAREHOUSEID", ""));
-        params.add(new BasicNameValuePair("keywords", ""));
-        params.add(new BasicNameValuePair("SHOPID", shopId));
-        params.add(new BasicNameValuePair("treeId", ""));
-        params.add(new BasicNameValuePair("begintime", begintime));
-        params.add(new BasicNameValuePair("endtime", endtime));
-        params.add(new BasicNameValuePair("billtype", ""));
-        return params;
-    }
-
     private List<BasicNameValuePair> getMemberCardItemParams(String shopId) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("keyword", ""));
@@ -781,6 +821,18 @@ public class ZhongYiZhiLianService {
         return params;
     }
 
+
+    private List<BasicNameValuePair> getStockCostParams(String shopId, String begintime, String endtime, String keywords) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("WAREHOUSEID", ""));
+        params.add(new BasicNameValuePair("keywords", keywords));
+        params.add(new BasicNameValuePair("SHOPID", shopId));
+        params.add(new BasicNameValuePair("treeId", ""));
+        params.add(new BasicNameValuePair("begintime", begintime));
+        params.add(new BasicNameValuePair("endtime", endtime));
+        params.add(new BasicNameValuePair("billtype", ""));
+        return params;
+    }
 
     private List<BasicNameValuePair> getCarInfoDetailParams(String carId) {
         List<BasicNameValuePair> params = new ArrayList<>();
