@@ -1,6 +1,7 @@
 package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.HtmlTag;
 import com.ys.datatool.domain.Supplier;
 import com.ys.datatool.util.CommonUtil;
@@ -10,7 +11,6 @@ import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -40,8 +40,6 @@ public class DiDiBaBaService {
     private String SUPPLIERDETAIL_URL = "http://www.didibabachina.com/ctm/supplier/detail?___t0.7667218411026064&supplierId=";
 
     private Charset charset = Charset.forName("UTF-8");
-
-    private Workbook workbook;
 
     private String companyName = "非凡尚品汽车美容养护中心";
 
@@ -101,7 +99,7 @@ public class DiDiBaBaService {
         System.out.println("結果為" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\DiDiBaBa车辆导出.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -146,7 +144,7 @@ public class DiDiBaBaService {
         System.out.println("結果為" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\DiDiBaBa车辆导出.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -225,7 +223,7 @@ public class DiDiBaBaService {
         System.out.println("結果為" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\DiDiBaBa供应商导出.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
     private void fetchCarInfo(List<CarInfo> carInfos, Set<String> ids) throws IOException {

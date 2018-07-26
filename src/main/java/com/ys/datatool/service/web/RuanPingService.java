@@ -9,7 +9,6 @@ import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +46,6 @@ public class RuanPingService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String fieldName = "totalRows";
-
-    private Workbook workbook;
 
     private String fileName = "软平汽修系统";
 

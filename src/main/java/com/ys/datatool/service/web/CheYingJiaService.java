@@ -7,7 +7,6 @@ import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -41,8 +40,6 @@ public class CheYingJiaService {
     String USER_AGENT = "Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 4.0.30319.42000)";
 
     String CONTENT_TYPE = "text/xml; charset=utf-8";
-
-    private Workbook workbook;
 
     private Charset charset = Charset.forName("UTF-8");
 
@@ -205,7 +202,7 @@ public class CheYingJiaService {
         System.out.println("memberCardItems大小为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\车赢家卡内项目导出.xlsx";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
     @Test
@@ -314,7 +311,7 @@ public class CheYingJiaService {
         System.out.println("大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\车赢家会员卡导出.xlsx";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     @Test
@@ -419,7 +416,7 @@ public class CheYingJiaService {
         System.out.println("大小为" + products.size());
 
         String pathname = "C:\\exportExcel\\车赢家商品导出.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 
@@ -499,7 +496,7 @@ public class CheYingJiaService {
         System.out.println("大小为" + products.size());
 
         String pathname = "C:\\exportExcel\\车赢家服务项目导出.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     @Test
@@ -603,7 +600,7 @@ public class CheYingJiaService {
         System.out.println("大小为" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\车赢家供应商导出.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
     @Test
@@ -689,7 +686,7 @@ public class CheYingJiaService {
         System.out.println("结果为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\车赢家车辆信息导出.xls";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     private List<Element> getDataList(String response, String target) throws DocumentException {

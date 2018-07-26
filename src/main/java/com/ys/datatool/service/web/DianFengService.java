@@ -1,6 +1,7 @@
 package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.HtmlTag;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.CommonUtil;
@@ -9,7 +10,6 @@ import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -36,8 +36,6 @@ public class DianFengService {
     private String preUrl = "http://www.jmlijun.com";
 
     private String trItemRegEx = "body > div.wrap > table > tbody > tr";
-
-    private Workbook workbook;
 
     private String COOKIE = "PHPSESSID=r3tuga77uj20tukn5mvqkji895; admin_username=lijun; refersh_time=0";
 
@@ -108,7 +106,7 @@ public class DianFengService {
         System.out.println("结果为" + products.size());
 
         String pathname = "C:\\exportExcel\\点疯网络商品.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 
@@ -181,6 +179,6 @@ public class DianFengService {
         System.out.println("大小为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\点疯网络车辆信息.xls";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 }

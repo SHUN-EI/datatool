@@ -3,13 +3,13 @@ package com.ys.datatool.service.web;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -19,7 +19,10 @@ import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by mo on @date  2018/6/21.
@@ -89,8 +92,6 @@ public class CheKuKeService {
     private String trName = "tr";
 
     private String tdName = "td";
-
-    private Workbook workbook;
 
     /**
      * 车主列表-车辆信息详情
@@ -275,7 +276,7 @@ public class CheKuKeService {
         System.out.println("carInfos为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\车酷客车主列表车辆信息.xlsx";
-        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -387,7 +388,7 @@ public class CheKuKeService {
         System.out.println("carNumberSet为" + carNumberSet.size());
 
         String pathname = "C:\\exportExcel\\车酷客单据车辆信息.xlsx";
-        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -562,7 +563,7 @@ public class CheKuKeService {
         System.out.println("carInfos大小为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\车酷客车辆信息.xlsx";
-        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCheKuKeCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
 
     }
 
@@ -655,7 +656,7 @@ public class CheKuKeService {
         }
 
         String pathname = "C:\\exportExcel\\卡内项目.xls";
-        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
 
@@ -766,7 +767,7 @@ public class CheKuKeService {
         }
 
         String pathname = "C:\\exportExcel\\会员卡信息.xls";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards,ExcelDatas.workbook, pathname);
     }
 
     private void getAllPages(WebClient webClient, String url, int end) throws IOException {

@@ -6,13 +6,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -45,8 +45,6 @@ public class YiZhiTongVService {
     private List<HtmlPage> pages = new ArrayList();
 
     private int count = 0;
-
-    private Workbook workbook;
 
     private String PRECOOKIE = "danwei=id=2016030901&name=81; ASP.NET_SessionId=hh04q1pfymcgf0dlcck0cfh4;";
 
@@ -110,7 +108,7 @@ public class YiZhiTongVService {
         System.out.println("服务共有为" + products.size());
 
         String pathname = "C:\\exportExcel\\易智通服务项目导出.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -187,7 +185,7 @@ public class YiZhiTongVService {
         System.out.println("carInfos大小为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\易智通车辆信息导出.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
 
     }
 

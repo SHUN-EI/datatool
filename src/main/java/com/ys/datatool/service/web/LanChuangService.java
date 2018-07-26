@@ -9,7 +9,6 @@ import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.util.ConnectionUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 
 import javax.script.ScriptEngine;
@@ -60,8 +59,6 @@ public class LanChuangService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String prefixURL = "http://113.128.194.58:8090/ajax/ajax.aspx?ajaxGuid=";
-
-    private Workbook workbook;
 
     private List<HtmlPage> pages = new ArrayList();
 

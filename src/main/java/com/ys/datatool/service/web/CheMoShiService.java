@@ -1,12 +1,12 @@
 package com.ys.datatool.service.web;
 
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -29,8 +29,6 @@ public class CheMoShiService {
     private String SERVICEDETAIL_URL = "http://119.29.52.108/chemos/ct/viewCvtlist.nx?&cvtid=10226&pgsize=25&showStyle=GRID&selectedMode=MULTI&canSelect=true&canClick=false&openWindow=parent&addparam=PAR_A:&addparam=PAR_C:&pd=2&pm=2&viewName=/jsp/pages/cvtPages/cvt_0&param_tm=1531215266508&addparam=PAR_B:";
 
     private String SERVICE_URL = "http://119.29.52.108/chemos/ct/viewCvtlist.nx?&cvtid=10226&showStyle=GRID&selectedMode=MULTI&canSelect=true&canClick=false&openWindow=parent&pd=2&pm=2&viewName=/jsp/pages/cvtPages/cvt_0&CvtListCacheKey=CUSGRID&param_tm=1531213663209&id=10226:10206&pid=0&rid=0&isRefresh=0&isSort=0&page={no}";
-
-    private Workbook workbook;
 
     private String trName = "tr";
 
@@ -102,7 +100,7 @@ public class CheMoShiService {
         String a = "";
 
         String pathname = "C:\\exportExcel\\车魔师服务导出.xlsx";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 

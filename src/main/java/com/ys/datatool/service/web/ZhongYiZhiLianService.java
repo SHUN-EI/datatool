@@ -7,7 +7,6 @@ import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,6 @@ import java.util.*;
  */
 @Service
 public class ZhongYiZhiLianService {
-
 
     private String UPDATECARDVALIDTIME_URL = "http://boss.xmzyzl.com/Customer/MemberManage/SaveDate?";
 
@@ -51,8 +49,6 @@ public class ZhongYiZhiLianService {
     private String fieldName = "total";
 
     private int num = 20;//分页参数为10、15、20、25
-
-    private Workbook workbook;
 
     private String begintime = "2011-01-01";
 
@@ -193,7 +189,7 @@ public class ZhongYiZhiLianService {
         System.out.println("memberCardItems大小为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\中易智联卡内项目.xlsx";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -324,7 +320,7 @@ public class ZhongYiZhiLianService {
         System.out.println("memberCards大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\过期会员卡导出.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -385,7 +381,7 @@ public class ZhongYiZhiLianService {
         System.out.println("memberCards大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\中易智联会员卡.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
 
     }
 
@@ -451,7 +447,7 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + stocks.toString());
 
         String pathname = "C:\\exportExcel\\中易智联库存.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
 
     }
 
@@ -502,7 +498,7 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + products.toString());
 
         String pathname = "C:\\exportExcel\\中易智联服务项目.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -559,7 +555,7 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + products.toString());
 
         String pathname = "C:\\exportExcel\\中易智联商品.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 
@@ -637,7 +633,7 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + suppliers.toString());
 
         String pathname = "C:\\exportExcel\\中易智联供应商.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -715,7 +711,7 @@ public class ZhongYiZhiLianService {
         System.out.println("结果为" + carInfos.toString());
 
         String pathname = "C:\\exportExcel\\中易智联车辆.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
 

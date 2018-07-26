@@ -7,7 +7,6 @@ import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -34,8 +33,6 @@ public class ZhangShangCheDianService {
     private String SUPPLIER_URL = "http://czbbb.cn/mnt/czbbb/supplierMgmt/czbbbApi.action";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private Workbook workbook;
 
     //会员详情页面方法传参
     private String memberCardMethod = "6015";
@@ -137,8 +134,8 @@ public class ZhangShangCheDianService {
 
         String pathname = "C:\\exportExcel\\掌上车店库存.xls";
         String pathname2 = "C:\\exportExcel\\掌上车店库存商品.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
     }
 
     /**
@@ -227,8 +224,8 @@ public class ZhangShangCheDianService {
 
         String pathname = "C:\\exportExcel\\掌上车店卡内项目.xls";
         String pathname2 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname2);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
     }
 
     /**
@@ -285,7 +282,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\掌上车店会员卡.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -356,7 +353,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\掌上车店供应商.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
 
     }
 
@@ -444,7 +441,7 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\掌上车店车辆信息.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
 
     }
 

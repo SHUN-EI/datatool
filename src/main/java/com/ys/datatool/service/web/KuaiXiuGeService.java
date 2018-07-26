@@ -6,7 +6,6 @@ import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -52,8 +51,6 @@ public class KuaiXiuGeService {
     private int count = 0;
 
     private List<HtmlPage> pages = new ArrayList();
-
-    private Workbook workbook;
 
     private int partEnd = 10;//配件维护最后几页
 

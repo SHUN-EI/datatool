@@ -7,7 +7,6 @@ import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ import java.util.List;
  * 51车管家系统
  */
 @Service
-public class WUYICheGuanJiaService {
+public class WuYiCheGuanJiaService {
 
     private static final String MEMBERCARDITEM_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryPackageCardConsumptionBargainPage?store_id=100675&tenant_id=10675&keys=&card_id=&prod_sku_name=&limit=20";
 
@@ -61,8 +60,6 @@ public class WUYICheGuanJiaService {
     private String startDate = "2005-01-01";
 
     private String endDate = "2017-08-08";
-
-    private Workbook workbook;
 
     private String fileName = "51车管家";
 

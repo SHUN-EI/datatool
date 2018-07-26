@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
@@ -10,7 +11,6 @@ import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +36,6 @@ public class ZhiHuiCheDianService {
 
     private int num = 100;//分页参数为10、25、50、100
 
-    private Workbook workbook;
-
     private String COOKIE = "JSESSIONID=0ED7278FEF1FEF6B37B4ABF38C7BA526";
 
     @Test
@@ -53,6 +51,7 @@ public class ZhiHuiCheDianService {
 
     /**
      * 会员卡
+     *
      * @throws IOException
      */
     @Test
@@ -138,11 +137,12 @@ public class ZhiHuiCheDianService {
         }
 
         String pathname = "C:\\exportExcel\\智慧车店会员卡导出.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 商品
+     *
      * @throws IOException
      */
     @Test
@@ -191,7 +191,7 @@ public class ZhiHuiCheDianService {
             }
 
             String pathname = "C:\\exportExcel\\智慧车店商品导出.xls";
-            ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+            ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
         }
 
         System.out.println("总页数为" + totalPage);
@@ -199,6 +199,7 @@ public class ZhiHuiCheDianService {
 
     /**
      * 车辆信息
+     *
      * @throws IOException
      */
     @Test
@@ -256,7 +257,7 @@ public class ZhiHuiCheDianService {
         System.out.println("大小为" + carInfos.size());
 
         String pathname = "C:\\exportExcel\\智慧车店车辆信息导出.xlsx";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     private List<BasicNameValuePair> getCarInfoParams(String num, String offset) {

@@ -8,7 +8,6 @@ import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,8 +41,6 @@ public class DuDuCheWangService {
     private static final String X_REQUESTED_WITH = "XMLHttpRequest";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private Workbook workbook;
 
     private String fileName = "嘟嘟车网";
 

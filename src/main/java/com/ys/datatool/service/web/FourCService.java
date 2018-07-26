@@ -8,7 +8,6 @@ import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -43,13 +42,12 @@ public class FourCService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private Workbook workbook;
-
     private String COOKIE = "UM_distinctid=163f1c740ba313-099c2ef31601ab-4323461-144000-163f1c740bbb5a; ASP.NET_SessionId=ek2lhloypptuxmnqta35vxsf; CNZZDATA1263794507=1449725428-1528765268-%7C1528956347; .ASPXAUTH=61856F7FB14B6076604F1D47D38FBFE2F891FC40F29387D7D9C1C020BDE2452445A4CE63F8E998DD91690AE3370C93B245C8BCB71BE2942673FBEA8B22AE792CED4F289E79268918FA7145F9BDEC0386CA98157D37BA0D1F46A1510FC451023B38231F0E02DEFD16C612C9DE21649E778E531957265C969DF15C28847085D76D972F01321E8E6D57A6142520E92790F7D09D2938B5112FEE45A733D61286EF29272F5BB561DA60746C7C8E376D22EBC4AA8618142F60F6C3807504666CCCEB13E03EFDF236F1BD60C6D8A5C2098A4C1380F22FAD0CB903A0EC4CF5A00DA63A400B910A9CE605F3953333319019FA3A34EC5DB342E403AC03B6841B0AA2E6DA9AB356F9729B43AD7FFEC1A871F979ACAD7D7C967B94A077D408B6A50D9E8684167C9DBE52AA70A6E490FEFD8E72D9192FCBC53A33F9EA10031DB4827D310D2B62884E24496E6B024C455C73BD1587BC19A76126E61D7577F97C6B9DA1C2330BADF32D50E6CFDBE826193DB1258615BBF5E20E70619D00994C40F4866B542D065EE5327A02EF0D5893AF8C00C2C12D089573970613E332B1F8FAC85F24806616DF61C83C39990446A09888C6939BFE0982DD6EE1959261FD5B73F0774ECB9161CA1EB09F4038AADB2DC6DB350A147EF6D15740CB6E411919DB9048938BA171B60B6F43C39AE2ED4559DB043AB74AF48EB8A58E307E5B0986F9424F2B8B8F1A974B4E2C7FF84300139C3A565BD6F450B0EE6C65C0494277B4421DE406B9652EA1B3B755848D30499339825525BFC74097B0741075FD2302B295684760FB8CF516B4F75A546DA11BA2259204FA928E162A3A7EFFFD7F1BE6DD0CCCA3FF71B40B8E06E8EE8EEADA7A683BA736B3C341EACE9DC19697E8F233A4154B4731CE9F0B5C403C2325DDB79BC8E14BA27086CC14A36891AAFB41CEE37A267C1CDF31607C00C9EBD5540E63184D251BB90B2BC7D33A6D";
 
 
     /**
      * 会员卡
+     *
      * @throws IOException
      */
     @Test
@@ -135,12 +133,13 @@ public class FourCService {
         System.out.println("大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\4C会员卡导出.xls";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
 
     /**
      * 卡内项目
+     *
      * @throws IOException
      */
     @Test
@@ -219,11 +218,12 @@ public class FourCService {
         System.out.println("大小为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\4C卡内项目导出.xls";
-        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 商品
+     *
      * @throws IOException
      */
     @Test
@@ -268,11 +268,12 @@ public class FourCService {
         System.out.println("结果为" + products.size());
 
         String pathname = "C:\\exportExcel\\4C商品导出.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 库存
+     *
      * @throws IOException
      */
     @Test
@@ -349,11 +350,12 @@ public class FourCService {
         System.out.println("大小为" + stocks.size());
 
         String pathname = "C:\\exportExcel\\4C库存导出.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 供应商
+     *
      * @throws IOException
      */
     @Test
@@ -402,7 +404,7 @@ public class FourCService {
         System.out.println("大小为" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\4C供应商导出.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
 
     }
 

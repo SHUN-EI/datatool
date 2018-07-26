@@ -7,7 +7,6 @@ import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -86,8 +85,6 @@ public class YuanLeCheBaoService {
     private int num = 10;
 
     private String companyName = "元乐车宝";
-
-    private Workbook workbook;
 
     private Random random = new Random();
 
@@ -247,7 +244,7 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + stocks.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝库存.xls";
-        ExportUtil.exportStockDataInLocal(stocks, workbook, pathname);
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
 
     }
 
@@ -334,7 +331,7 @@ public class YuanLeCheBaoService {
         System.out.println("结果为" + products.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝商品.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -384,7 +381,7 @@ public class YuanLeCheBaoService {
 
 
         String pathname = "C:\\exportExcel\\元乐车宝服务项目.xls";
-        ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -454,7 +451,7 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝供应商.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, workbook, pathname);
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
 
@@ -561,7 +558,7 @@ public class YuanLeCheBaoService {
 
 
         String pathname = "C:\\exportExcel\\元乐车宝车辆信息.xls";
-        ExportUtil.exportCarInfoDataInLocal(carInfos, workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -676,7 +673,7 @@ public class YuanLeCheBaoService {
         System.out.println("memberCardItems大小为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝卡内项目.xlsx";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
 
     }
 
@@ -753,7 +750,7 @@ public class YuanLeCheBaoService {
         System.out.println("结果为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝会员卡.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
 
     }
 
@@ -822,7 +819,7 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + bills.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝单据.xls";
-        ExportUtil.exportBillSomeFieldDataInLocal(bills, workbook, pathname);
+        ExportUtil.exportBillSomeFieldDataInLocal(bills, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -895,7 +892,7 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + billDetails.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝单据明细.xls";
-        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, workbook, pathname);
+        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, ExcelDatas.workbook, pathname);
     }
 
 
@@ -984,7 +981,7 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + memberCards.size());
 
         String pathname = "C:\\exportExcel\\会员卡导出.xls";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
 
