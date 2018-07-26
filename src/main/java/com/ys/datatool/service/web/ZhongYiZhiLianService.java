@@ -30,8 +30,6 @@ public class ZhongYiZhiLianService {
 
     private String MEMBERCARDITEM_URL = "http://boss.xmzyzl.com/Customer/MemberManage/PackageQuery";
 
-    private String STOCK_URL = "http://boss.xmzyzl.com/Store/StoreSearch/Query?limit=50&cbtnZero=1&SHOPID=&offset=";
-
     private String STOCKCOST_URL = "http://boss.xmzyzl.com/Store/StoreSearch/CostQuery";
 
     private String STOCKINSHOP_URL = "http://boss.xmzyzl.com/Store/StoreSearch/Query?limit=50&cbtnZero=1&SHOPID={no}&offset=";
@@ -75,11 +73,11 @@ public class ZhongYiZhiLianService {
      * 都匀店  aa2d1ea43fbf4b47ad4dc8e6a7cd95cb
      * 北新区店 d50149edd5b742a1adf9dfaf1ad1e94a
      */
-    private String shopId = "c4554d26854f47ab8d089aed29fd0c1f";//车店编号
+    private String shopId = "07a21bd0061747418418cb54299402fajl";//车店编号
 
     private String companyName = "中易智联";
 
-    private String COOKIE = "_uab_collina=153205892934065441548578; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEiGEKEcSEhYTLEEEEEpEQz0yFD6DFScyoA6PTZXJ7W6tEDuJ7D6PcBYFETRpCD6jhE7EhlAaP%2F3iSWEFE5UwopPmqBFt0D4Akukj2wNf3i1Xv3iiqw7GR9yzU07YqaPgez87YLMWokBuYoZdIkfMcmrg4kYVBCUgib1IbvFuqwLaVfZV2h7YqqR0YoN4IaMVoE7EIlllbZFY3n0srE7EhT3l%2F%2FoRDsEFEp3llsyaSt3lllllUt3iSTJvllurdt37I99llWsaStELolllO%2F3iS16ahE7TibLn5ti7WadVE99r0Ps8c3fE6OPot6LZpL7nseweniYPtgew3cyph1GzcPtuBzFnR1t1dCwUQ7JDtxO%2FIrj97wmE7ObIBbMS697kDnwXBTFnR1WauE7EF9mC9uf7TEEilluCV";
+    private String COOKIE = "_uab_collina=153205459358668378190893; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhEEKE74EJETLEEEEEpEQz0yFD6DFDc3qC60TZcLEW6gTSXiEG60TZXL5E7EFlllbrmQTEE7EERpCjYFET%2FdosyaStqMTEhdEvRIu%2FqYWcTZB95esCR4B3R07Fps1HshnPvZ1UfIWPs2CivZ0lRMAbL4H1OOybspBpEep%2FtWabe7nCGrbAwUWcTDt9yy0ry4B3ED7OfoZHshnwBZBQO4WPsMRi%2FrZbOMAb4QHPfrGbspBTFZGDiabE7EUlllP%2F3iSllllluLSt37FX9llWsaStEgtlllO%2F3iS16allurdt37InHGTEELlluaMIHGkKcQTEEMFluutG%2FBUE7TxE1rWEFy8B1Aa3mvkqUYlqaqQiMQuVi5ZRJ9yk8lDqwP%2BM6A0puEWoZjDB0ANtkj2qHA3kmwNB1b%2B0IYRyUQGBwD4DYAkl%2BKSI%2BCoiZWcqHGl69QTEEjtBKlV";
 
 
     /**
@@ -88,7 +86,7 @@ public class ZhongYiZhiLianService {
      * @throws Exception
      */
     @Test
-    public void fetchMemberCardItemData() throws Exception {
+    public void fetchMemberCardItemDataStandard() throws Exception {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, Product> productMap = new HashMap<>();
 
@@ -114,10 +112,10 @@ public class ZhongYiZhiLianService {
                     String id = element.get("ID").asText();
 
                     Product product = new Product();
-                    product.setProductName(productName);
-                    product.setCode(code);
+                    product.setProductName(formatString(productName));
+                    product.setCode(formatString(code));
                     product.setItemType("服务项");
-                    product.setFirstCategoryName(firstCategoryName);
+                    product.setFirstCategoryName(formatString(firstCategoryName));
                     product.setPrice(price);
                     productMap.put(id, product);
                 }
@@ -147,12 +145,12 @@ public class ZhongYiZhiLianService {
                     String id = element.get("ID").asText();
 
                     Product product = new Product();
-                    product.setCode(code);
-                    product.setProductName(productName);
-                    product.setFirstCategoryName(firstCategoryName);
+                    product.setCode(formatString(code));
+                    product.setProductName(formatString(productName));
+                    product.setFirstCategoryName(formatString(firstCategoryName));
                     product.setPrice(price);
                     product.setItemType("配件");
-                    product.setBarCode(barCode == "null" ? "" : barCode);
+                    product.setBarCode(formatString(barCode));
                     productMap.put(id, product);
                 }
             }
@@ -338,7 +336,7 @@ public class ZhongYiZhiLianService {
      * @throws Exception
      */
     @Test
-    public void fetchMemberCardData() throws IOException {
+    public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
@@ -399,7 +397,7 @@ public class ZhongYiZhiLianService {
      * @throws IOException
      */
     @Test
-    public void fetchStockInShopData() throws IOException {
+    public void fetchStockInShopDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
 
         Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + "0", COOKIE);
