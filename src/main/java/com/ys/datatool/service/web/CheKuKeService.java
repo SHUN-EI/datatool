@@ -2,10 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -89,10 +86,6 @@ public class CheKuKeService {
 
     private String phoneStr = "";
 
-    private String trName = "tr";
-
-    private String tdName = "td";
-
     /**
      * 车主列表-车辆信息详情
      *
@@ -108,7 +101,7 @@ public class CheKuKeService {
 
         for (HtmlPage page : pages) {
             Document doc = Jsoup.parseBodyFragment(page.asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, HtmlTag.trName);
 
             if (trSize > 0) {
                 for (int i = 2; i <= trSize; i++) {
@@ -131,7 +124,7 @@ public class CheKuKeService {
             String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
 
             Document doc = Jsoup.parseBodyFragment(carPage.asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, HtmlTag.trName);
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
                     String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -139,7 +132,7 @@ public class CheKuKeService {
 
                     String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
                     //判断有多少个td
-                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j)), tdName);
+                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j)), HtmlTag.tdName);
 
                     if (tdSize == 3) {
                         String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", String.valueOf(j))).attr("onclick");
@@ -294,7 +287,7 @@ public class CheKuKeService {
 
         for (int i = 0; i < pages.size(); i++) {
             Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, HtmlTag.trName);
 
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
@@ -411,7 +404,7 @@ public class CheKuKeService {
             String idTD3RegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(3) > input:nth-child(1)";
 
             Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trCarInfoRegEx, HtmlTag.trName);
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
                     String nameRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td:nth-child(1)";
@@ -422,7 +415,7 @@ public class CheKuKeService {
 
                     String tdCarInfoRegEx = "#form1 > table.list_tbl > tbody > tr:nth-child({no}) > td";
                     //判断有多少个td
-                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j)), tdName);
+                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdCarInfoRegEx, "{no}", String.valueOf(j)), HtmlTag.tdName);
                     if (tdSize == 3) {
                         String idStr = doc.select(StringUtils.replace(idTD3RegEx, "{no}", String.valueOf(j))).attr("onclick");
                         String id = CommonUtil.fetchString(idStr, getCarInfoIdRegEx);
@@ -587,13 +580,13 @@ public class CheKuKeService {
 
             HtmlPage cardPage = pages.get(i);
             Document doc = Jsoup.parseBodyFragment(cardPage.asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trMemberCardRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trMemberCardRegEx, HtmlTag.trName);
 
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
 
                     //判断有多少个td
-                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdMemberCardRegEx, "{no}", String.valueOf(j)), tdName);
+                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdMemberCardRegEx, "{no}", String.valueOf(j)), HtmlTag.tdName);
                     if (tdSize == 4) {
 
                         String idStr = doc.select(StringUtils.replace(idTD4RegEx, "{no}", j + "")).attr("onclick");
@@ -603,7 +596,7 @@ public class CheKuKeService {
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
                         Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
 
-                        int trMemberCardInfoSize = WebClientUtil.getTagSize(document, trMemberCardInfoRegEx, trName);
+                        int trMemberCardInfoSize = WebClientUtil.getTagSize(document, trMemberCardInfoRegEx, HtmlTag.trName);
                         if (trMemberCardInfoSize > 0) {
                             for (int k = 2; k <= trMemberCardInfoSize; k++) {
 
@@ -631,7 +624,7 @@ public class CheKuKeService {
                         HtmlPage cardItemPage = webClient.getPage(StringUtils.replace(MEMBERCARDINFO_URL, "{id}", id));
                         Document document = Jsoup.parseBodyFragment(cardItemPage.asXml());
 
-                        int trMemberCardInfoSize = WebClientUtil.getTagSize(document, trMemberCardInfoRegEx, trName);
+                        int trMemberCardInfoSize = WebClientUtil.getTagSize(document, trMemberCardInfoRegEx, HtmlTag.trName);
                         if (trMemberCardInfoSize > 0) {
                             for (int k = 2; k <= trMemberCardInfoSize; k++) {
 
@@ -684,7 +677,7 @@ public class CheKuKeService {
         for (int i = 0; i < pages.size(); i++) {
             HtmlPage cardPage = pages.get(i);
             Document doc = Jsoup.parseBodyFragment(cardPage.asXml());
-            int trSize = WebClientUtil.getTagSize(doc, trMemberCardRegEx, trName);
+            int trSize = WebClientUtil.getTagSize(doc, trMemberCardRegEx, HtmlTag.trName);
 
             if (trSize > 0) {
                 for (int j = 2; j <= trSize; j++) {
@@ -695,7 +688,7 @@ public class CheKuKeService {
                     String carNumberRegEx = "#card_tab > tbody > tr:nth-child({no}) > td:nth-child(1)";
 
                     //判断有多少个td
-                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdMemberCardRegEx, "{no}", String.valueOf(j)), tdName);
+                    int tdSize = WebClientUtil.getTagSize(doc, StringUtils.replace(tdMemberCardRegEx, "{no}", String.valueOf(j)), HtmlTag.tdName);
                     if (tdSize == 4) {
                         sign = j;
 
@@ -767,7 +760,7 @@ public class CheKuKeService {
         }
 
         String pathname = "C:\\exportExcel\\会员卡信息.xls";
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards,ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     private void getAllPages(WebClient webClient, String url, int end) throws IOException {
