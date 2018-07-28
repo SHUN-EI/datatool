@@ -33,6 +33,8 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
+    private String SERVICE_URL = "http://crm.zhongtukj.com/Boss/Stock/XN_ShopList.aspx";
+
     private String LOGIN_URL = "http://crm.zhongtukj.com/Boss/Index.aspx";
 
     private String SUPPLIER_URL = "http://crm.zhongtukj.com/Boss/Stock/SupplierList.aspx";
@@ -59,12 +61,72 @@ public class ZhongTuService {
 
     private List<HtmlPage> pages = new ArrayList();
 
+    private String trRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr";
+
     //车店编号
     private String companyId = "7";
 
     private String companyName = "众途";
 
     private String COOKIE = "ASP.NET_SessionId=slyqlmsdtyatk3yvwfmuzjpy; UM_distinctid=164da9efa92343-0bb0e5004758bb-5e442e19-144000-164da9efa938d; pgv_pvi=9327175680; pgv_si=s293537792; _qddaz=QD.xnwun7.nhgsm6.jk3nuc6w; Hm_lvt_8aa0f851a89545e877fad647785568e3=1532676210; Hm_lpvt_8aa0f851a89545e877fad647785568e3=1532685856; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=lHY/sgoxzjE=&CSID=lHY/sgoxzjE=&UserName=zihbF2SO0PqS7n+TuVIZ4A==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+
+
+    /**
+     * 服务项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceDataStandard() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, SERVICE_URL);
+
+        if (pages.size() > 0) {
+            for (HtmlPage page : pages) {
+                Document doc = Jsoup.parseBodyFragment(page.asXml());
+
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int i = 2; i <= trSize; i++) {
+
+                        String productNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(3) > a";
+                        String codeRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String priceRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(8)";
+                        String unitRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(10)";
+                        String firstCategoryNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(11)";
+                        String remarkRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(4)";
+
+                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(i))).text();
+                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(i))).text();
+                        String unit = doc.select(StringUtils.replace(unitRegEx, "{no}", String.valueOf(i))).text();
+                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
+                        String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+
+                        Product product = new Product();
+                        product.setProductName(productName);
+                        product.setCompanyName(companyName);
+                        product.setCode(code);
+                        product.setUnit(unit);
+                        product.setFirstCategoryName(firstCategoryName);
+                        product.setPrice(price);
+                        product.setItemType("配件");
+                        product.setRemark(remark);//规格
+                        products.add(product);
+                    }
+                }
+            }
+        }
+        System.out.println("结果为" + products.toString());
+        System.out.println("结果为" + products.size());
+
+        String pathname = "C:\\exportExcel\\众途服务.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+
+    }
+
 
     /**
      * 供应商
@@ -83,7 +145,6 @@ public class ZhongTuService {
             for (HtmlPage page : pages) {
                 Document doc = Jsoup.parseBodyFragment(page.asXml());
 
-                String trRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr";
                 int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
 
                 if (trSize > 0) {
@@ -149,17 +210,6 @@ public class ZhongTuService {
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
-    /**
-     * 服务项目
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchServiceDataStandard() throws IOException {
-        List<Product> products = new ArrayList<>();
-
-
-    }
 
     /**
      * 商品
