@@ -1,5 +1,7 @@
 package com.ys.datatool.domain;
 
+import java.util.Objects;
+
 /**
  * Created by mo on @date  2018/7/31.
  * 仓库
@@ -68,5 +70,19 @@ public class StoreRoom {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StoreRoom)) return false;
+        StoreRoom storeRoom = (StoreRoom) o;
+        return Objects.equals(name, storeRoom.name);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(name);
     }
 }

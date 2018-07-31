@@ -79,6 +79,8 @@ public class ZhongTuService {
     @Test
     public void fetchStockDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
+        Set<StoreRoom> storeRooms = new HashSet<>();
+        Map<String, String> storeRoomMap = new HashMap<>();
 
         String act = "GetStockList";
         Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1", "20", companyId, act), COOKIE);
@@ -92,12 +94,58 @@ public class ZhongTuService {
                 JsonNode companyNode = result.get("columns0").get(0);
                 String company = companyNode.get("title").asText();
 
-                String a = "";
+                Iterator<JsonNode> storeRoomNode = result.get("columns1").iterator();
+                while (storeRoomNode.hasNext()) {
+                    JsonNode element = storeRoomNode.next();
+
+                    String id = element.get("field").asText();
+                    String name = element.get("title").asText();
+
+                    StoreRoom storeRoom = new StoreRoom();
+                    storeRoom.setCompanyName(company);
+                    storeRoom.setId(id);
+                    storeRoom.setName(name);
+                    storeRooms.add(storeRoom);
+                    storeRoomMap.put(id, name);
+                }
+
+                Iterator<JsonNode> stockNode = result.get("rows").iterator();
+                while (stockNode.hasNext()) {
+                    JsonNode element = stockNode.next();
+
+                    String goodsName = element.get("Name").asText();
+                    String price = element.get("Cost").asText();
+                    String productCode = element.get("ShopCode").asText();
+
+                    for (String id : storeRoomMap.keySet()) {
+
+                        String storeRoom = storeRoomMap.get(id);
+                        String num = element.get(id).asText();
+
+                        if ("null".equals(num))
+                            continue;
+
+                        Stock stock = new Stock();
+                        stock.setCompanyName(company);
+                        stock.setStoreRoomName(storeRoom);
+                        stock.setPrice(price);
+                        stock.setGoodsName(goodsName);
+                        stock.setProductCode(productCode);
+                        stock.setInventoryNum(num);
+                        stocks.add(stock);
+                    }
+                }
             }
         }
 
 
-        System.out.println("结果为" + totalPage);
+        System.out.println("结果为" + stocks.toString());
+        System.out.println("结果为" + stocks.size());
+
+        String storeRoomPathname = "C:\\exportExcel\\众途仓库.xls";
+        String stockPathname = "C:\\exportExcel\\众途库存.xls";
+        ExportUtil.exportStoreRoomDataInLocal(storeRooms, ExcelDatas.workbook, storeRoomPathname);
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, stockPathname);
 
     }
 
