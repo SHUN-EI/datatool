@@ -20,6 +20,7 @@ public class DateUtil {
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String TIME_FORMAT = "HH:mm:ss";
     public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH-mm-ss";//24小时
+    public static final String SQL_DATE_FORMAT = "yyyy/MM/dd";
 
     //-------------------日期自动转化------------------------------------------------
 
@@ -47,6 +48,7 @@ public class DateUtil {
         if (StringUtils.isEmpty(dateStr)) {
             return null;
         }
+
         String format = DATE_FORMAT;
         if (dateStr.indexOf("/") > -1) {
             format = format.replace("-", "/");
@@ -166,7 +168,7 @@ public class DateUtil {
      *
      * @return
      */
-    public static String formatCurrDateToS(String strFormat) {
+    public static String formatCurrDateToString(String strFormat) {
         return formatDate(new Date(), strFormat);
     }
 
@@ -397,6 +399,10 @@ public class DateUtil {
         return formatDate(date, DATETIME_FORMAT);
     }
 
+    public static String formatSQLDate(Date date) {
+        return formatDate(date, SQL_DATE_FORMAT);
+    }
+
     public static String formateTime(Date date) {
         return formatDate(date, TIME_FORMAT);
     }
@@ -408,7 +414,7 @@ public class DateUtil {
      * @return
      */
     public static String formatDate2DateTime(String dateStr) {
-        Date date =parseDateByAuto(dateStr);
+        Date date = parseDateByAuto(dateStr);
         String result = formateDateTime(date);
 
         return result;
@@ -441,6 +447,15 @@ public class DateUtil {
         return result;
     }
 
+    public static String formatSQLDate(String dateStr) {
+        // dateStr="2018-01-23T00:00:00";
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
+        return dateStr.substring(0, 10).replace("-", "/");
+    }
+
 
     //-----------------格式化字符串为日期--------------------------------------
 
@@ -462,6 +477,10 @@ public class DateUtil {
 
     public static Date parseDate(String date) {
         return parseDate(date, DATE_FORMAT);
+    }
+
+    public static Date parseSQLDate(String date) {
+        return parseDate(date, SQL_DATE_FORMAT);
     }
 
     public static Date parseChinaDate(String date) {

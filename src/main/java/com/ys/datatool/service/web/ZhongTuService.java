@@ -7,10 +7,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -80,8 +77,14 @@ public class ZhongTuService {
     @Test
     public void fetchStockDataStandard() throws IOException {
 
-        String a="2018-01-23T00:00:00";
+        String a = "2018-01-23T00:00:00";
 
+        String b = a.substring(0, 10);
+        String c = DateUtil.formatSQLDate(b);
+
+        String z = "";
+
+        System.out.println("结果为" + c);
 
     }
 
@@ -144,13 +147,15 @@ public class ZhongTuService {
                 String VINCode = data.get("CarFrame").asText();
                 String engineNumber = data.get("CarEngineNo").asText();
                 String vcInsuranceCompany = data.get("BaoXianGs").asText();
-                String vcInsuranceValidDate = data.get("InsuranceDate").asText();
+
+                String vcInsuranceValidDateStr = data.get("InsuranceDate").asText();
+                String vcInsuranceValidDate = CommonUtil.formatString(vcInsuranceValidDateStr);
 
                 CarInfo carInfo = carInfoMap.get(carId);
                 carInfo.setVINcode(CommonUtil.formatString(VINCode));
                 carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
                 carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
-                carInfo.setVcInsuranceValidDate(CommonUtil.formatString(vcInsuranceValidDate));
+                carInfo.setVcInsuranceValidDate(DateUtil.formatSQLDate(vcInsuranceValidDate));
                 carInfos.add(carInfo);
             }
         }
@@ -158,7 +163,7 @@ public class ZhongTuService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("结果为" + carInfos.size());
 
-        String pathname = "C:\\exportExcel\\众途c车辆.xls";
+        String pathname = "C:\\exportExcel\\众途车辆.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
