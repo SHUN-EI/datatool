@@ -2,11 +2,9 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on  2017/5/30.
- */
-
-/**
  * 单据明细
  */
+
 public class BillDetail {
 
     private String detailId;

@@ -2,11 +2,10 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on @date  2017/6/19.
- */
-
-/**
  * 会员卡
  */
+
+
 public class MemberCard {
 
     private String memberCardId;

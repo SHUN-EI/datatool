@@ -2,11 +2,10 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on  2017/5/30.
- */
-
-/**
+ *
  * 单据
  */
+
 public class Bill {
 
     private String id;

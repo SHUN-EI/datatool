@@ -4,6 +4,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Created by mo on @date  2018/4/16.
+ *
+ * excel表头字段
  */
 public class ExcelDatas {
 
@@ -36,6 +38,9 @@ public class ExcelDatas {
 
     public static String[] YuanLeCheBaoStockDatas = new String[]{"车店名称", "仓库",
             "商品名称", "配件类型", "品牌", "型号", "规格", "销售价", "库存数量", "入库单价", "仓位", "商品编码"};
+
+    public static String[] storeRoomDatas = new String[]{"车店名称", "仓库名称",
+            "备注", "库位名称"};
 
     public static String[] stockDatas = new String[]{"车店名称", "仓库",
             "商品名称", "库存数量", "入库单价", "仓位", "商品编码"};

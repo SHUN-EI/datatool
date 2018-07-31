@@ -2,11 +2,9 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on @date  2017/6/19.
+ * 库存供应商
  */
 
-/**
- * 供应商
- */
 public class Supplier {
 
     /**

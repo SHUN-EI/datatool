@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by mo on @date  2018/4/20.
@@ -207,6 +208,37 @@ public class ExportUtil {
         OutputStream outputStream = null;
         try {
             workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.YuanLeCheBaoStockDatas);
+            File file = new File(pathname);
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 仓库-标准模版导出
+     * @param storeRooms
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportStoreRoomDataInLocal(Set<StoreRoom> storeRooms, Workbook workbook, String pathname) throws IOException {
+
+        List<Map<String, Object>> list = ExcelUtil.createStoreRoomList(storeRooms);
+        String[] keys = new String[]{"companyName", "name", "remark", "locationName"};
+
+        OutputStream outputStream = null;
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.storeRoomDatas);
             File file = new File(pathname);
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);

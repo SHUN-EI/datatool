@@ -2,6 +2,8 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on @date  2018/7/17.
+ *
+ * Html标签
  */
 public class HtmlTag {
 

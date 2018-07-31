@@ -1,16 +1,16 @@
 package com.ys.datatool.domain;
 
-/**
- * Created by mo on  2017/5/30.
- */
 
 import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
 
+
 /**
+ * Created by mo on  2017/5/30.
  * 车辆信息
  */
+
 public class CarInfo {
 
     private String carId;

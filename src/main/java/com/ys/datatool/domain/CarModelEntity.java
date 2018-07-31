@@ -2,6 +2,8 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on @date  2018-03-22.
+ *
+ * 云车型
  */
 public class CarModelEntity {
 

@@ -2,11 +2,10 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on  2017/5/30.
- */
-
-/**
+ *
  * 商品(配件/服务项目)
  */
+
 public class Product {
 
     private String id;

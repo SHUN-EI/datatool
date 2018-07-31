@@ -11,10 +11,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mo on  2017/5/30.
@@ -54,6 +51,24 @@ public class ExcelUtil {
             rowHead.createCell(i).setCellValue(datas[i]);
         }
         return sheet;
+    }
+
+    public static List<Map<String, Object>> createStoreRoomList(Set<StoreRoom> storeRooms) {
+        List<Map<String, Object>> listMap = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("sheetName", "仓库");
+        listMap.add(map);
+
+        for (StoreRoom storeRoom : storeRooms) {
+            Map<String, Object> mapValue = new HashMap<String, Object>();
+            mapValue.put("name", storeRoom.getName());
+            mapValue.put("companyName", storeRoom.getCompanyName());
+            mapValue.put("locationName", storeRoom.getLocationName());
+            mapValue.put("remark", storeRoom.getRemark());
+            listMap.add(mapValue);
+        }
+
+        return listMap;
     }
 
     public static List<Map<String, Object>> createCarModelList(List<CarModelEntity> carModelEntities) {

@@ -2,11 +2,9 @@ package com.ys.datatool.domain;
 
 /**
  * Created by mo on 2017/7/14.
- */
-
-/**
  * 库存
  */
+
 public class Stock {
 
     /**
@@ -20,7 +18,7 @@ public class Stock {
     private String storeRoomName;
 
     /**
-     * 仓位
+     * 库位名称
      */
     private String locationName;
 

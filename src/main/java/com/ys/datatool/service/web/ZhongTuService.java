@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
+    private String STOCK_URL = "http://crm.zhongtukj.com/Boss/Stock/Stockservice/StockSearch.ashx";
+
     private String CARINFODETAIL_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetData.ashx";
 
     private String CARINFO_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetCustomerData.ashx";
@@ -76,15 +78,26 @@ public class ZhongTuService {
      */
     @Test
     public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
 
-        String a = "2018-01-23T00:00:00";
+        String act = "GetStockList";
+        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1", "20", companyId, act), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
-        String b = a.substring(0, 10);
-        String c = DateUtil.formatSQLDate(b);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i), "20", companyId, act), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
-        String z = "";
+                JsonNode companyNode = result.get("columns0").get(0);
+                String company = companyNode.get("title").asText();
 
-        System.out.println("结果为" + c);
+                String a = "";
+            }
+        }
+
+
+        System.out.println("结果为" + totalPage);
 
     }
 
