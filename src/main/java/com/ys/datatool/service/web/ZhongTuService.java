@@ -6,10 +6,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -32,6 +29,10 @@ import java.util.*;
  */
 @Service
 public class ZhongTuService {
+
+    private String CARINFODETAIL_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetData.ashx";
+
+    private String CARINFO_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetCustomerData.ashx";
 
     private String SERVICE_URL = "http://crm.zhongtukj.com/Boss/Stock/XN_ShopList.aspx";
 
@@ -64,11 +65,102 @@ public class ZhongTuService {
     private String trRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr";
 
     //车店编号
-    private String companyId = "7";
+    private String companyId = "1";
 
     private String companyName = "众途";
 
-    private String COOKIE = "ASP.NET_SessionId=slyqlmsdtyatk3yvwfmuzjpy; UM_distinctid=164da9efa92343-0bb0e5004758bb-5e442e19-144000-164da9efa938d; pgv_pvi=9327175680; pgv_si=s293537792; _qddaz=QD.xnwun7.nhgsm6.jk3nuc6w; Hm_lvt_8aa0f851a89545e877fad647785568e3=1532676210; Hm_lpvt_8aa0f851a89545e877fad647785568e3=1532685856; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=lHY/sgoxzjE=&CSID=lHY/sgoxzjE=&UserName=zihbF2SO0PqS7n+TuVIZ4A==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+    private String COOKIE = "ASP.NET_SessionId=edlne1xfe2d2iuox5jcxhsew; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=lHY/sgoxzjE=&CSID=lHY/sgoxzjE=&UserName=zihbF2SO0PqS7n+TuVIZ4A==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+
+
+    /**
+     * 库存
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+
+        String a="2018-01-23T00:00:00";
+
+
+    }
+
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Map<String, CarInfo> carInfoMap = new HashMap<>();
+
+        String act = "";
+        Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams("1", "20", companyId, act), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(i), "20", companyId, act), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String carId = element.get("ID").asText();
+                    String companyName = element.get("GroupName").asText();
+                    String carNumber = element.get("CarCode").asText();
+                    String name = element.get("Name").asText();
+                    String phone = element.get("Mobile").asText();
+                    String brand = element.get("CarName").asText();
+                    String carModel = element.get("CarModelName").asText();
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setCarNumber(carNumber);
+                    carInfo.setName(name);
+                    carInfo.setPhone(phone);
+                    carInfo.setBrand(brand);
+                    carInfo.setCarModel(carModel);
+                    carInfo.setCarId(carId);
+                    carInfoMap.put(carId, carInfo);
+                }
+            }
+        }
+
+        if (carInfoMap.size() > 0) {
+            for (String carId : carInfoMap.keySet()) {
+
+                List<BasicNameValuePair> params = new ArrayList<>();
+                params.add(new BasicNameValuePair("Type", "Customer"));
+                params.add(new BasicNameValuePair("ID", carId));
+
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, params, COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                JsonNode data = result.get(0);
+                String VINCode = data.get("CarFrame").asText();
+                String engineNumber = data.get("CarEngineNo").asText();
+                String vcInsuranceCompany = data.get("BaoXianGs").asText();
+                String vcInsuranceValidDate = data.get("InsuranceDate").asText();
+
+                CarInfo carInfo = carInfoMap.get(carId);
+                carInfo.setVINcode(CommonUtil.formatString(VINCode));
+                carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
+                carInfo.setVcInsuranceValidDate(CommonUtil.formatString(vcInsuranceValidDate));
+                carInfos.add(carInfo);
+            }
+        }
+
+        System.out.println("结果为" + carInfos.toString());
+        System.out.println("结果为" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\众途c车辆.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
 
     /**

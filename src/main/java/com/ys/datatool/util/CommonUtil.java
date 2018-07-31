@@ -78,13 +78,17 @@ public class CommonUtil {
     public static String getIsValidForever(String validTime) {
         String isValidForever = "";
 
-        if (!"".equals(validTime)){
+        if (!"".equals(validTime)) {
             isValidForever = "否";
-        }else {
+        } else {
             isValidForever = "是";
         }
 
         return isValidForever;
+    }
+
+    public static String formatString(String target) {
+        return target == "null" ? "" : target;
     }
 
 

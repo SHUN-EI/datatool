@@ -108,10 +108,10 @@ public class ZhongYiZhiLianService {
                     String id = element.get("ID").asText();
 
                     Product product = new Product();
-                    product.setProductName(formatString(productName));
-                    product.setCode(formatString(code));
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setCode(CommonUtil.formatString(code));
                     product.setItemType("服务项");
-                    product.setFirstCategoryName(formatString(firstCategoryName));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
                     product.setPrice(price);
                     productMap.put(id, product);
                 }
@@ -141,12 +141,12 @@ public class ZhongYiZhiLianService {
                     String id = element.get("ID").asText();
 
                     Product product = new Product();
-                    product.setCode(formatString(code));
-                    product.setProductName(formatString(productName));
-                    product.setFirstCategoryName(formatString(firstCategoryName));
+                    product.setCode(CommonUtil.formatString(code));
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
                     product.setPrice(price);
                     product.setItemType("配件");
-                    product.setBarCode(formatString(barCode));
+                    product.setBarCode(CommonUtil.formatString(barCode));
                     productMap.put(id, product);
                 }
             }
@@ -303,8 +303,8 @@ public class ZhongYiZhiLianService {
                     memberCard.setCompanyName(companyName);
                     memberCard.setCardCode(cardCode);
                     memberCard.setMemberCardName(memberCardName);
-                    memberCard.setName(formatString(name));
-                    memberCard.setPhone(formatString(phone));
+                    memberCard.setName(CommonUtil.formatString(name));
+                    memberCard.setPhone(CommonUtil.formatString(phone));
                     memberCard.setCarNumber(carNumber);
                     memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
                     memberCard.setBalance(balance);
@@ -366,9 +366,9 @@ public class ZhongYiZhiLianService {
                     memberCard.setCompanyName(companyName);
                     memberCard.setCardCode(cardCode);
                     memberCard.setMemberCardName(memberCardName);
-                    memberCard.setName(formatString(name));
-                    memberCard.setPhone(formatString(phone));
-                    memberCard.setCarNumber(formatString(carNumber));
+                    memberCard.setName(CommonUtil.formatString(name));
+                    memberCard.setPhone(CommonUtil.formatString(phone));
+                    memberCard.setCarNumber(CommonUtil.formatString(carNumber));
                     memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
                     memberCard.setBalance(balance);
                     memberCard.setRemark(state);
@@ -422,12 +422,12 @@ public class ZhongYiZhiLianService {
                     String stockId = element.get("PRODUCTSKUID").asText();
 
                     Stock stock = new Stock();
-                    stock.setCompanyName(formatString(companyName));
-                    stock.setStoreRoomName(formatString(storeRoomName));
-                    stock.setGoodsName(formatString(goodsName));
+                    stock.setCompanyName(CommonUtil.formatString(companyName));
+                    stock.setStoreRoomName(CommonUtil.formatString(storeRoomName));
+                    stock.setGoodsName(CommonUtil.formatString(goodsName));
                     stock.setInventoryNum(num);
-                    stock.setProductCode(formatString(code));
-                    stock.setBarCode(formatString(barcode));
+                    stock.setProductCode(CommonUtil.formatString(code));
+                    stock.setBarCode(CommonUtil.formatString(barcode));
                     stocks.add(stock);
                 }
             }
@@ -482,12 +482,12 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
 
                     Product product = new Product();
-                    product.setProductName(formatString(productName));
-                    product.setCode(formatString(code));
-                    product.setFirstCategoryName(formatString(firstCategoryName));
-                    product.setCompanyName(formatString(companyName));
-                    product.setPrice(formatString(price));
-                    product.setRemark(formatString(remark));
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setCode(CommonUtil.formatString(code));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
+                    product.setCompanyName(CommonUtil.formatString(companyName));
+                    product.setPrice(CommonUtil.formatString(price));
+                    product.setRemark(CommonUtil.formatString(remark));
                     product.setItemType("服务项");
                     product.setIsShare("是");
                     products.add(product);
@@ -535,17 +535,17 @@ public class ZhongYiZhiLianService {
                     String remark = element.get("REMARK").asText();
 
                     Product product = new Product();
-                    product.setCode(formatString(code));
-                    product.setProductName(formatString(productName));
-                    product.setFirstCategoryName(formatString(firstCategoryName));
-                    product.setBrandName(formatString(brandName));
-                    product.setUnit(formatString(unit));
-                    product.setPrice(formatString(price));
-                    product.setCompanyName(formatString(companyName));
-                    product.setBarCode(formatString(barCode));
+                    product.setCode(CommonUtil.formatString(code));
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
+                    product.setBrandName(CommonUtil.formatString(brandName));
+                    product.setUnit(CommonUtil.formatString(unit));
+                    product.setPrice(CommonUtil.formatString(price));
+                    product.setCompanyName(CommonUtil.formatString(companyName));
+                    product.setBarCode(CommonUtil.formatString(barCode));
                     product.setItemType("配件");
                     product.setIsShare("是");
-                    product.setRemark(formatString(remark));
+                    product.setRemark(CommonUtil.formatString(remark));
                     products.add(product);
                 }
             }
@@ -590,10 +590,10 @@ public class ZhongYiZhiLianService {
                     String companyName = element.get("SHOPNAME").asText();
 
                     Supplier supplier = new Supplier();
-                    supplier.setCompanyName(formatString(companyName));
-                    supplier.setCode(formatString(code));
-                    supplier.setName(formatString(name));
-                    supplier.setRemark(formatString(className) + " " + formatString(remark));
+                    supplier.setCompanyName(CommonUtil.formatString(companyName));
+                    supplier.setCode(CommonUtil.formatString(code));
+                    supplier.setName(CommonUtil.formatString(name));
+                    supplier.setRemark(CommonUtil.formatString(className) + " " + CommonUtil.formatString(remark));
                     supplierMap.put(supplierId, supplier);
                 }
             }
@@ -619,10 +619,10 @@ public class ZhongYiZhiLianService {
                     supplier.setCode(s.getCode());
                     supplier.setName(s.getName());
                     supplier.setRemark(s.getRemark());
-                    supplier.setContactName(formatString(contactName));
-                    supplier.setAddress(formatString(address));
-                    supplier.setFax(formatString(fax));
-                    supplier.setContactPhone(formatString(contactPhone));
+                    supplier.setContactName(CommonUtil.formatString(contactName));
+                    supplier.setAddress(CommonUtil.formatString(address));
+                    supplier.setFax(CommonUtil.formatString(fax));
+                    supplier.setContactPhone(CommonUtil.formatString(contactPhone));
                     suppliers.add(supplier);
                 }
             }
@@ -672,12 +672,12 @@ public class ZhongYiZhiLianService {
 
                     CarInfo carInfo = new CarInfo();
                     carInfo.setCarNumber(carNumber == "null" ? "" : carNumber);
-                    carInfo.setName(formatString(name));
-                    carInfo.setPhone(formatString(phone));
-                    carInfo.setCompanyName(formatString(companyName));
-                    carInfo.setBrand(formatString(brand));
-                    carInfo.setCarModel(formatString(carModel));
-                    carInfo.setRemark(formatString(remark));
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(phone));
+                    carInfo.setCompanyName(CommonUtil.formatString(companyName));
+                    carInfo.setBrand(CommonUtil.formatString(brand));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+                    carInfo.setRemark(CommonUtil.formatString(remark));
                     carInfoMap.put(carId, carInfo);
                 }
             }
@@ -698,11 +698,11 @@ public class ZhongYiZhiLianService {
                     String vcInsuranceValidDate = element.get("INSURANCETIME").asText();
 
                     CarInfo carInfo = carInfoMap.get(id);
-                    carInfo.setVINcode(formatString(VINcode));
-                    carInfo.setEngineNumber(formatString(engineNumber));
-                    carInfo.setVcInsuranceCompany(formatString(vcInsuranceCompany));
-                    carInfo.setVcInsuranceValidDate(formatString(vcInsuranceValidDate));
-                    carInfo.setTcInsuranceValidDate(formatString(tcInsuranceValidDate));
+                    carInfo.setVINcode(CommonUtil.formatString(VINcode));
+                    carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                    carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
+                    carInfo.setVcInsuranceValidDate(CommonUtil.formatString(vcInsuranceValidDate));
+                    carInfo.setTcInsuranceValidDate(CommonUtil.formatString(tcInsuranceValidDate));
                     carInfos.add(carInfo);
                 }
             }
@@ -766,7 +766,4 @@ public class ZhongYiZhiLianService {
         return params;
     }
 
-    private String formatString(String target) {
-        return target == "null" ? "" : target;
-    }
 }
