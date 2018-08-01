@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
+    private String MEMBERCARDITEM_URL = "http://crm.zhongtukj.com/Boss/Customer/CustomerPackageList.aspx";
+
     private String MEMBERCARD_URL = "http://crm.zhongtukj.com/Boss/Customer/CustomerCardListMem.aspx?action=GetList&groupId={no}&keyword=&rows=20&sort=ID&order=desc&page=";
 
     private String STOCK_URL = "http://crm.zhongtukj.com/Boss/Stock/Stockservice/StockSearch.ashx";
@@ -53,9 +55,9 @@ public class ZhongTuService {
 
     private String BTNLOGIN = "btnLogin";
 
-    private String USERNAME = "5550";
+    private String USERNAME = "zhongtu";
 
-    private String PASSWORD = "xixi15815826629";
+    private String PASSWORD = "080808";
 
     private String fieldName = "total";
 
@@ -72,7 +74,66 @@ public class ZhongTuService {
 
     private String COOKIE = "ASP.NET_SessionId=pxocb3o1s1nqnhxvowptggyf; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=2cn3ulN4mp4=&CSID=J2bEaFLTtLg=&UserName=TOO8TcMDlsmCn2Rjc6p+kA==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
 
+    /**
+     * 卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
 
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, MEMBERCARDITEM_URL);
+
+        if (pages.size() > 0) {
+            for (HtmlPage page : pages) {
+                Document doc = Jsoup.parseBodyFragment(page.asXml());
+
+                String getTRRegEx = "#form1 > div.form_div > div > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, getTRRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int i = 2; i <= trSize; i++) {
+                        String cardCodeRegEx = "#form1 > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String itemNameRegEx = "#form1 > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(7)";
+                        String originalNumRegEx = "#form1 > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(8)";
+                        String numRegEx = "#form1 > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(10)";
+                        String validTimeRegEx = "#form1 > div.form_div > div > table > tbody > tr:nth-child(2) > td:nth-child(12)";
+
+                        String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(i))).text();
+                        String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
+                        String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
+                        String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
+                        String validTime = doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(i))).text();
+
+                        MemberCardItem memberCardItem=new MemberCardItem();
+                        memberCardItem.setCardCode(cardCode);
+                        memberCardItem.setItemName(itemName);
+                        memberCardItem.setOriginalNum(originalNum);
+                        memberCardItem.setNum(num);
+                        memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+                        memberCardItem.setCompanyName(companyName);
+                        memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
+                        memberCardItems.add(memberCardItem);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCardItems.toString());
+        System.out.println("结果为" + memberCardItems.size());
+
+        String pathname = "C:\\exportExcel\\众途卡内项目.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+    }
+
+
+    /**
+     * 会员卡
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
@@ -90,7 +151,7 @@ public class ZhongTuService {
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
-                    String company=element.get("GroupName").asText();
+                    String company = element.get("GroupName").asText();
                     String cardCode = element.get("Code").asText();
                     String name = element.get("Name").asText();
                     String phone = element.get("Mobile").asText();
@@ -100,7 +161,7 @@ public class ZhongTuService {
                     String dateCreated = element.get("StartTime").asText();//"CreateTime"
 
                     if (StringUtils.isNoneBlank(dateCreated))
-                        dateCreated = dateCreated.replace("T"," ");
+                        dateCreated = dateCreated.replace("T", " ");
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setCompanyName(company);
