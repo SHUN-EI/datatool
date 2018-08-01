@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
+    private String MEMBERCARD_URL = "http://crm.zhongtukj.com/Boss/Customer/CustomerCardListMem.aspx?action=GetList&groupId={no}&keyword=&rows=20&sort=ID&order=desc&page=";
+
     private String STOCK_URL = "http://crm.zhongtukj.com/Boss/Stock/Stockservice/StockSearch.ashx";
 
     private String CARINFODETAIL_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetData.ashx";
@@ -68,8 +70,58 @@ public class ZhongTuService {
 
     private String companyName = "众途";
 
-    private String COOKIE = "ASP.NET_SessionId=edlne1xfe2d2iuox5jcxhsew; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=lHY/sgoxzjE=&CSID=lHY/sgoxzjE=&UserName=zihbF2SO0PqS7n+TuVIZ4A==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+    private String COOKIE = "ASP.NET_SessionId=pxocb3o1s1nqnhxvowptggyf; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=2cn3ulN4mp4=&CSID=J2bEaFLTtLg=&UserName=TOO8TcMDlsmCn2Rjc6p+kA==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
 
+
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", companyId) + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", companyId) + i + "", COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String company=element.get("GroupName").asText();
+                    String cardCode = element.get("Code").asText();
+                    String name = element.get("Name").asText();
+                    String phone = element.get("Mobile").asText();
+                    String carNumber = element.get("CarCode").asText();
+                    String memberCardName = element.get("CardName").asText();
+                    String balance = element.get("PackagePrice").asText();
+                    String dateCreated = element.get("StartTime").asText();//"CreateTime"
+
+                    if (StringUtils.isNoneBlank(dateCreated))
+                        dateCreated = dateCreated.replace("T"," ");
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setCompanyName(company);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setCarNumber(carNumber);
+                    memberCard.setMemberCardName(memberCardName);
+                    memberCard.setBalance(balance);
+                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setName(name);
+                    memberCard.setPhone(phone);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        System.out.println("结果为" + memberCards.toString());
+        System.out.println("结果为" + memberCards.size());
+
+        String pathname = "C:\\exportExcel\\众途会员卡.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 库存

@@ -456,6 +456,15 @@ public class DateUtil {
         return dateStr.substring(0, 10).replace("-", "/");
     }
 
+    public static String formatSQLDateTime(String dateStr) {
+        // dateStr="2018-01-23T00:00:00";
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
+        return dateStr.substring(0, 10);
+    }
+
 
     //-----------------格式化字符串为日期--------------------------------------
 
