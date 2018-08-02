@@ -54,7 +54,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=5D4F6F43A0CF705B41892DC5DEE454FB; Hm_lvt_678c2a986264dd9650b6a59042718858=1531206994; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjZhNTRmYjQwLWVlZjEtNDAxZS04ZThiLWE0NGY5OWI3MjNlZSIsImV4cCI6MTUzMjY4NDYwMSwibmJmIjoxNTMyNTk4MjAxLCJzdG9yZUlkIjoiOWU2NTA3MmEtNjIyMy00Y2U0LWI1MjAtMGMwZGQzN2IwMzU0IiwidXNlclR5cGUiOiIwIn0.EFqw4ZGmEfiMyvI6Wklub686ZOrm7kS716Ozh-365WKJsYTnnKRyxL-TPUsh_0j2i1nY8iiK5A4ZFG-aMZHyqQ; SERVERID=b810ac6d9315e3be005b170045c65755|1532598202|1532598198; Hm_lpvt_678c2a986264dd9650b6a59042718858=1532598202";
+    private String COOKIE = "JSESSIONID=D04F1421B12E7272D2FF7CA3180EB7C0; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ3MjkzMWU3LWU0YjUtNDg1Yi1hMWIwLWNhZmQzNjNiNjVhOCIsImV4cCI6MTUzMzI2NTMzNiwibmJmIjoxNTMzMTc4OTM2LCJzdG9yZUlkIjoiODJjMTM4OTUtNzg5MC00OGM2LWE1ZWItY2RhNmUxNDhlN2M5IiwidXNlclR5cGUiOiIwIn0.ovldrFlPjZ39PsuMysgy60LppAKF7B33YcGSfX0BW6Sa8uddu4-kevW5gN8NvbtxEwXUxnZey34psaxWDaLd5A; Hm_lvt_678c2a986264dd9650b6a59042718858=1533092304,1533178949; Hm_lpvt_678c2a986264dd9650b6a59042718858=1533178987; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1533178987|1533178884";
 
     @Test
     public void test() throws IOException {
@@ -183,7 +183,7 @@ public class ZhangShangCheDianService {
                         String itemNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(3)";
                         String priceRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(4)";
                         String originalNumRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(5)";
-                        String numRegEx = "#listCon > tr:nth-child(2) > td:nth-child(7) > b";
+                        String numRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(7)";
 
                         String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
                         String secondCategoryName = doc.select(StringUtils.replace(secondCategoryNameRegEx, "{no}", String.valueOf(i))).text();
