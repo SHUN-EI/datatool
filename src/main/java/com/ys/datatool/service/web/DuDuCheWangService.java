@@ -72,7 +72,7 @@ public class DuDuCheWangService {
                     product.setProductName(element.get("ModuleName").asText());
                     product.setCode(element.get("spbm").asText());
                     product.setBarCode(element.get("tiaoxingma").asText());
-                    product.setProductCode(element.get("spbm").asText());
+                    product.setCode(element.get("spbm").asText());
                     product.setFirstCategoryName(element.get("dlname").asText());
                     product.setSecondCategoryName(element.get("xlname").asText());
                     product.setItemType("配件");

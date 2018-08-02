@@ -65,6 +65,10 @@ public class ZhongTuService {
 
     private List<HtmlPage> pages = new ArrayList();
 
+    private Map<String, Product> productMap = new HashMap<>();
+
+    private List<Product> products = new ArrayList<>();
+
     private String trRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr";
 
     //车店编号
@@ -82,6 +86,8 @@ public class ZhongTuService {
     @Test
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
+
+        fetchServiceData(products,productMap);
 
         WebClient webClient = WebClientUtil.getWebClient();
         getAllPages(webClient, MEMBERCARDITEM_URL);
@@ -107,7 +113,7 @@ public class ZhongTuService {
                         String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
                         String validTime = doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(i))).text();
 
-                        MemberCardItem memberCardItem=new MemberCardItem();
+                        MemberCardItem memberCardItem = new MemberCardItem();
                         memberCardItem.setCardCode(cardCode);
                         memberCardItem.setItemName(itemName);
                         memberCardItem.setOriginalNum(originalNum);
@@ -115,6 +121,15 @@ public class ZhongTuService {
                         memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
                         memberCardItem.setCompanyName(companyName);
                         memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
+
+                        Product product=productMap.get(itemName);
+                        if (product!=null){
+                            memberCardItem.setPrice(product.getPrice());
+                            memberCardItem.setFirstCategoryName(product.getFirstCategoryName());
+                            memberCardItem.setSecondCategoryName(product.getSecondCategoryName());
+                            memberCardItem.setCode(product.getCode());
+                        }
+
                         memberCardItems.add(memberCardItem);
                     }
                 }
@@ -349,47 +364,8 @@ public class ZhongTuService {
      */
     @Test
     public void fetchServiceDataStandard() throws IOException {
-        List<Product> products = new ArrayList<>();
+        fetchServiceData(products,productMap);
 
-        WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, SERVICE_URL);
-
-        if (pages.size() > 0) {
-            for (HtmlPage page : pages) {
-                Document doc = Jsoup.parseBodyFragment(page.asXml());
-
-                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
-                if (trSize > 0) {
-                    for (int i = 2; i <= trSize; i++) {
-
-                        String productNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(3) > a";
-                        String codeRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(5)";
-                        String priceRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(8)";
-                        String unitRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(10)";
-                        String firstCategoryNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(11)";
-                        String remarkRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(4)";
-
-                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(i))).text();
-                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(i))).text();
-                        String unit = doc.select(StringUtils.replace(unitRegEx, "{no}", String.valueOf(i))).text();
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
-                        String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
-
-                        Product product = new Product();
-                        product.setProductName(productName);
-                        product.setCompanyName(companyName);
-                        product.setCode(code);
-                        product.setUnit(unit);
-                        product.setFirstCategoryName(firstCategoryName);
-                        product.setPrice(price);
-                        product.setItemType("配件");
-                        product.setRemark(remark);//规格
-                        products.add(product);
-                    }
-                }
-            }
-        }
         System.out.println("结果为" + products.toString());
         System.out.println("结果为" + products.size());
 
@@ -533,6 +509,51 @@ public class ZhongTuService {
 
         String pathname = "C:\\exportExcel\\众途商品.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
+
+    private void fetchServiceData(List<Product> products, Map<String, Product> productMap) throws IOException {
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, SERVICE_URL);
+
+        if (pages.size() > 0) {
+            for (HtmlPage page : pages) {
+                Document doc = Jsoup.parseBodyFragment(page.asXml());
+
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int i = 2; i <= trSize; i++) {
+
+                        String productNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(3) > a";
+                        String codeRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String priceRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(8)";
+                        String unitRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(10)";
+                        String firstCategoryNameRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(11)";
+                        String remarkRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr:nth-child({no}) > td:nth-child(4)";
+
+                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(i))).text();
+                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(i))).text();
+                        String unit = doc.select(StringUtils.replace(unitRegEx, "{no}", String.valueOf(i))).text();
+                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
+                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
+                        String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+
+                        Product product = new Product();
+                        product.setProductName(productName);
+                        product.setCompanyName(companyName);
+                        product.setCode(code);
+                        product.setUnit(unit);
+                        product.setFirstCategoryName(firstCategoryName);
+                        product.setPrice(price);
+                        product.setItemType("配件");
+                        product.setRemark(remark);//规格
+                        products.add(product);
+                        productMap.put(productName, product);
+                    }
+                }
+            }
+        }
+
+
     }
 
     private List<BasicNameValuePair> getParams(String page, String rows, String GroupID, String act) {

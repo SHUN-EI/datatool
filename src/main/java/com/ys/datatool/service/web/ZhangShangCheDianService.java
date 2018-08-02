@@ -117,7 +117,7 @@ public class ZhangShangCheDianService {
 
                     Product product = new Product();
                     product.setProductName(goodsName);
-                    product.setProductCode(productCode);
+                    product.setCode(productCode);
                     product.setCompanyName(companyName);
                     product.setUnit(unit);
                     product.setPrice(salePrice);

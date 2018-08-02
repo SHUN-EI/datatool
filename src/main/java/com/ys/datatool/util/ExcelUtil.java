@@ -346,7 +346,7 @@ public class ExcelUtil {
             mapValue.put("price", product.getPrice());
             mapValue.put("firstCategoryName", product.getFirstCategoryName());
             mapValue.put("secondCategoryName", product.getSecondCategoryName());
-            mapValue.put("productCode", product.getProductCode());
+            mapValue.put("productCode", product.getItemCode());
             mapValue.put("brandName", product.getBrandName());
             mapValue.put("unit", product.getUnit());
             mapValue.put("quantity", product.getQuantity());

@@ -123,7 +123,7 @@ public class SITENService {
                     product.setProductName(element.get("itemName").asText());
                     product.setPrice(element.get("unitPrice").asText());
                     product.setFirstCategoryName(element.get("categoryName").asText());
-                    product.setProductCode(element.get("itemNo").asText());
+                    product.setCode(element.get("itemNo").asText());
                     product.setItemType("服务项");
                     products.add(product);
                 }
@@ -149,7 +149,7 @@ public class SITENService {
                     product.setProductName(element.get("partName").asText());
                     product.setPrice(element.get("marketPrice").asText());
                     product.setFirstCategoryName(element.get("groupName").asText());
-                    product.setProductCode(element.get("firmNo").asText());
+                    product.setCode(element.get("firmNo").asText());
                     product.setBrandName(element.get("cnName").asText());
                     product.setUnit(element.get("unit").asText());
                     product.setCode(element.get("selfNo").asText());

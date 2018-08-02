@@ -341,7 +341,7 @@ public class WuYiCheGuanJiaService {
 
                     Product product = new Product();
                     product.setProductName(element.get("PROD_NAME").asText());
-                    product.setProductCode(element.get("BAR_CODE").asText());
+                    product.setCode(element.get("BAR_CODE").asText());
                     product.setPrice(CommonUtil.priceFormat(element.get("SALE_PRICE").asText()));
                     product.setBarCode(element.get("BAR_CODE").asText());
                     product.setUnit(element.get("PROD_UNIT_NAME").asText());

@@ -33,7 +33,7 @@ public class Product {
     /**
      * 配件编号
      */
-    private String productCode;
+    private String itemCode;
 
     /**
      * 一级分类名称
@@ -186,12 +186,13 @@ public class Product {
         this.productName = productName;
     }
 
-    public String getProductCode() {
-        return productCode;
+
+    public String getItemCode() {
+        return itemCode;
     }
 
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
     }
 
     public String getFirstCategoryName() {
@@ -330,30 +331,4 @@ public class Product {
         this.remark = remark;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id='" + id + '\'' +
-                ", companyName='" + companyName + '\'' +
-                ", productName='" + productName + '\'' +
-                ", code='" + code + '\'' +
-                ", barCode='" + barCode + '\'' +
-                ", productCode='" + productCode + '\'' +
-                ", firstCategoryName='" + firstCategoryName + '\'' +
-                ", secondCategoryName='" + secondCategoryName + '\'' +
-                ", itemType='" + itemType + '\'' +
-                ", unit='" + unit + '\'' +
-                ", brandName='" + brandName + '\'' +
-                ", price='" + price + '\'' +
-                ", quantity='" + quantity + '\'' +
-                ", unitCost='" + unitCost + '\'' +
-                ", totalCost='" + totalCost + '\'' +
-                ", storeRoomName='" + storeRoomName + '\'' +
-                ", origin='" + origin + '\'' +
-                ", carModel='" + carModel + '\'' +
-                ", isShare='" + isShare + '\'' +
-                ", isActive='" + isActive + '\'' +
-                ", remark='" + remark + '\'' +
-                '}';
-    }
 }
