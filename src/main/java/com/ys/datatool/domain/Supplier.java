@@ -7,6 +7,9 @@ package com.ys.datatool.domain;
 
 public class Supplier {
 
+
+    private String id;
+
     /**
      * 车店名称
      */
@@ -87,6 +90,26 @@ public class Supplier {
      */
     private String type;
 
+    /**
+     * 车车云-主营业务
+     */
+    private String mainBusiness;
+
+    public String getMainBusiness() {
+        return mainBusiness;
+    }
+
+    public void setMainBusiness(String mainBusiness) {
+        this.mainBusiness = mainBusiness;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getType() {
         return type;
