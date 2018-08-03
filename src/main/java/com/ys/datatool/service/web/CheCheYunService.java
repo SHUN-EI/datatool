@@ -24,6 +24,8 @@ import java.util.*;
 @Service
 public class CheCheYunService {
 
+    private String ITEM_URL = "https://www.checheweike.com/web/index.php?route=catalog/product/gets&limit=50&order=DESC&sort=p.date_added&page=";
+
     private String SERVICE_URL = "https://www.checheweike.com/web/index.php?route=catalog/service/gets&limit=50&order=DESC&sort=s.date_added&page=";
 
     private String SUPPLIER_URL = "https://www.checheweike.com/web/index.php?route=supplier/supplier/gets&limit=50&order=DESC&sort=date_added&page=";
@@ -40,6 +42,64 @@ public class CheCheYunService {
 
     private String COOKIE = "_bl_uid=U9jhCk23c20dCO8mwqRgavCnavav; PHPSESSID=u7ce3mahn04uu7grrmkhas0j83; ccwk_backend_tracking=u7ce3mahn04uu7grrmkhas0j83-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533288092; SERVERID=03485b53178f0de6cfb6b08218d57da6|1533288454|1533288038";
 
+    /**
+     * 商品
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchItemDataStandard() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(ITEM_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doGetWithLeastParams(ITEM_URL + i + "", COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("products").iterator();
+                while (it.hasNext()){
+                    JsonNode element = it.next();
+
+                    String productName = element.get("name").asText();
+                    String code = element.get("product_no").asText();
+                    String firstCategoryName = element.get("pcategory_name").asText();
+                    String secondCategoryName = element.get("business_type_name").asText();
+                    String price = element.get("price").asText();
+                    String unit=element.get("unit").asText();
+                    String origin=element.get("manufacturer_name").asText();
+
+                    //启用(上架)-1，禁用(下架)-0
+                    String isActive = element.get("status").asText();
+                    if ("1".equals(isActive))
+                        isActive = "启用";
+
+                    if ("0".equals(isActive))
+                        isActive = "禁用";
+
+                    Product product = new Product();
+                    product.setProductName(productName);
+                    product.setCode(code);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setSecondCategoryName(secondCategoryName);
+                    product.setPrice(price);
+                    product.setIsActive(isActive);
+                    product.setCompanyName(companyName);
+                    product.setUnit(unit);
+                    product.setOrigin(origin);
+                    product.setItemType("配件");
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + products.toString());
+
+        String pathname = "C:\\exportExcel\\车车云商品.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 服务项目
@@ -84,6 +144,7 @@ public class CheCheYunService {
                     product.setPrice(price);
                     product.setIsActive(isActive);
                     product.setCompanyName(companyName);
+                    product.setItemType("服务项");
                     products.add(product);
                 }
             }
