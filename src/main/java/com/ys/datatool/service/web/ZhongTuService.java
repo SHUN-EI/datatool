@@ -87,7 +87,7 @@ public class ZhongTuService {
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        fetchServiceData(products,productMap);
+        fetchServiceData(products, productMap);
 
         WebClient webClient = WebClientUtil.getWebClient();
         getAllPages(webClient, MEMBERCARDITEM_URL);
@@ -122,8 +122,8 @@ public class ZhongTuService {
                         memberCardItem.setCompanyName(companyName);
                         memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
 
-                        Product product=productMap.get(itemName);
-                        if (product!=null){
+                        Product product = productMap.get(itemName);
+                        if (product != null) {
                             memberCardItem.setPrice(product.getPrice());
                             memberCardItem.setFirstCategoryName(product.getFirstCategoryName());
                             memberCardItem.setSecondCategoryName(product.getSecondCategoryName());
@@ -184,7 +184,7 @@ public class ZhongTuService {
                     memberCard.setCarNumber(carNumber);
                     memberCard.setMemberCardName(memberCardName);
                     memberCard.setBalance(balance);
-                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setDateCreated(dateCreated.replace("-", "/"));
                     memberCard.setName(name);
                     memberCard.setPhone(phone);
                     memberCards.add(memberCard);
@@ -364,7 +364,7 @@ public class ZhongTuService {
      */
     @Test
     public void fetchServiceDataStandard() throws IOException {
-        fetchServiceData(products,productMap);
+        fetchServiceData(products, productMap);
 
         System.out.println("结果为" + products.toString());
         System.out.println("结果为" + products.size());

@@ -167,6 +167,8 @@ public class ZhongYiZhiLianService {
             String originalNum = element.get("SUMACOUNT").asText();
             String num = element.get("NUM").asText();
             String validTime = element.get("EXPIRYTIME").asText();
+            String isValidForever = CommonUtil.getIsValidForever(validTime);
+
 
             Product product = productMap.get(id);
             MemberCardItem memberCardItem = new MemberCardItem();
@@ -176,8 +178,8 @@ public class ZhongYiZhiLianService {
             memberCardItem.setDiscount("0");
             memberCardItem.setNum(num);
             memberCardItem.setOriginalNum(originalNum);
-            memberCardItem.setValidTime(validTime);
-            memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
+            memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+            memberCardItem.setIsValidForever(isValidForever);
             memberCardItem.setPrice(product.getPrice());
             memberCardItem.setFirstCategoryName(product.getFirstCategoryName());
             memberCardItem.setCode(product.getCode());

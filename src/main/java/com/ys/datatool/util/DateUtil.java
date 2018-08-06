@@ -444,7 +444,7 @@ public class DateUtil {
         Date date = parseDate(dateStr);
         String result = formateDateTime(date);
 
-        return result;
+        return result.replace("-", "/");
     }
 
     public static String formatSQLDate(String dateStr) {

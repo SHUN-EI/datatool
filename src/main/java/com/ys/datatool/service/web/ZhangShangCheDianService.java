@@ -202,7 +202,7 @@ public class ZhangShangCheDianService {
                         memberCardItem.setOriginalNum(originalNum);
                         memberCardItem.setFirstCategoryName(firstCategoryName);
                         memberCardItem.setSecondCategoryName(secondCategoryName);
-                        memberCardItem.setValidTime(validTime);
+                        memberCardItem.setValidTime(validTime.replace("-","/"));
                         memberCardItem.setIsValidForever(isValidForever);
                         memberCardItems.add(memberCardItem);
 
@@ -272,7 +272,7 @@ public class ZhangShangCheDianService {
                 memberCard.setName(name);
                 memberCard.setPhone(phone);
                 memberCard.setBalance(balance.replace("￥", ""));
-                memberCard.setDateCreated(dateCreated);
+                memberCard.setDateCreated(dateCreated.replace("-","/"));
                 memberCard.setCompanyName(companyName);
                 memberCards.add(memberCard);
             }
