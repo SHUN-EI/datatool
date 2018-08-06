@@ -2,10 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -24,6 +21,10 @@ import java.util.*;
 @Service
 public class CheCheYunService {
 
+    private String STOCKDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/get_warehouse_detail&substore_id=1&product_id=";
+
+    private String STOCK_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/gets&limit=50&order=DESC&query_type=product&sort=ps.date_added&substore_id=1&zero_stock_show_enabled=1&page=";
+
     private String ITEM_URL = "https://www.checheweike.com/web/index.php?route=catalog/product/gets&limit=50&order=DESC&sort=p.date_added&page=";
 
     private String SERVICE_URL = "https://www.checheweike.com/web/index.php?route=catalog/service/gets&limit=50&order=DESC&sort=s.date_added&page=";
@@ -40,7 +41,74 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=U9jhCk23c20dCO8mwqRgavCnavav; PHPSESSID=u7ce3mahn04uu7grrmkhas0j83; ccwk_backend_tracking=u7ce3mahn04uu7grrmkhas0j83-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533288092; SERVERID=03485b53178f0de6cfb6b08218d57da6|1533288454|1533288038";
+    private String COOKIE = "_bl_uid=4gj1gkz9dsjtbXpmkc73wL4tywF0; PHPSESSID=u7ce3mahn04uu7grrmkhas0j83; ccwk_backend_tracking=u7ce3mahn04uu7grrmkhas0j83-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533521699; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1533521725|1533521423";
+
+    /**
+     * 库存
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        Map<String, Stock> stockMap = new HashMap<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= 3; i++) {
+                res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + i + "", COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("products").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String goodsName = element.get("product_name").asText();
+                    String productCode = element.get("product_no").asText();
+                    String inventoryNum = element.get("left_quantity").asText();
+                    String id = element.get("product_id").asText();
+                    String price = element.get("unit_cost").asText();
+                    String locationName = element.get("position").asText();
+
+                    Stock stock = new Stock();
+                    stock.setGoodsName(goodsName);
+                    stock.setProductCode(productCode);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setPrice(price);
+                    stock.setLocationName(locationName);
+                    stockMap.put(id, stock);
+                }
+            }
+        }
+
+        if (stockMap.size() > 0) {
+            for (String id : stockMap.keySet()) {
+                res = ConnectionUtil.doGetWithLeastParams(STOCKDETAIL_URL + id + "", COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                String storeRoomName = "";
+                String substoreStr = result.get("substores").toString();
+                if (substoreStr.contains("batches")) {
+                    JsonNode substores = result.get("substores").get(0);
+                    JsonNode batches = substores.get("batches").get(0);
+
+                    storeRoomName = batches.get("warehouse_name").asText();
+                }
+
+                Stock stock = stockMap.get(id);
+                stock.setCompanyName(companyName);
+                stock.setStoreRoomName(storeRoomName);
+                stocks.add(stock);
+            }
+        }
+
+        System.out.print("结果为" + stocks.toString());
+
+        String pathname = "C:\\exportExcel\\车车云库存.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 商品
@@ -60,16 +128,16 @@ public class CheCheYunService {
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("products").iterator();
-                while (it.hasNext()){
+                while (it.hasNext()) {
                     JsonNode element = it.next();
 
                     String productName = element.get("name").asText();
                     String code = element.get("product_no").asText();
-                    String firstCategoryName = element.get("pcategory_name").asText();
-                    String secondCategoryName = element.get("business_type_name").asText();
+                    String firstCategoryName = element.get("pcategory_name").asText();//配件分类
+                    String secondCategoryName = element.get("business_type_name").asText();//业务类别
                     String price = element.get("price").asText();
-                    String unit=element.get("unit").asText();
-                    String origin=element.get("manufacturer_name").asText();
+                    String unit = element.get("unit").asText();
+                    String origin = element.get("manufacturer_name").asText();
 
                     //启用(上架)-1，禁用(下架)-0
                     String isActive = element.get("status").asText();
@@ -124,8 +192,8 @@ public class CheCheYunService {
 
                     String productName = element.get("name").asText();
                     String code = element.get("service_no").asText();
-                    String firstCategoryName = element.get("scategory_name").asText();
-                    String secondCategoryName = element.get("business_type_name").asText();
+                    String firstCategoryName = element.get("scategory_name").asText();//项目分类
+                    String secondCategoryName = element.get("business_type_name").asText();//业务类别
                     String price = element.get("price").asText();
 
                     //启用-1，禁用-0

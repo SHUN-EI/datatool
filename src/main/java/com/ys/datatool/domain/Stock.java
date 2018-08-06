@@ -7,6 +7,8 @@ package com.ys.datatool.domain;
 
 public class Stock {
 
+    private String id;
+
     /**
      * 车店名称
      */
@@ -86,6 +88,15 @@ public class Stock {
      * 条形码
      */
     private String barCode;
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getBarCode() {
         return barCode;
