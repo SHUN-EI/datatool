@@ -22,6 +22,8 @@ import java.util.*;
 @Service
 public class CheCheYunService {
 
+    private String MEMBERCARDITEM_URL = "https://www.checheweike.com/crm/index.php?route=member/api/ext_info&exdata=combo&vip_user_id=";
+
     private String MEMBERCARDCAR_URL = "https://www.checheweike.com/crm/index.php?route=member/api/ext_info&exdata=car&vip_user_id=";
 
     private String MEMBERCARDCLIENT_URL = "https://www.checheweike.com/crm/index.php?route=member/customer/get&id=";
@@ -52,7 +54,61 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=4gj1gkz9dsjtbXpmkc73wL4tywF0; PHPSESSID=u7ce3mahn04uu7grrmkhas0j83; ccwk_backend_tracking=u7ce3mahn04uu7grrmkhas0j83-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533521699; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1533521725|1533521423";
+    private String COOKIE = "_bl_uid=U9jhCk23c20dCO8mwqRgavCnavav; PHPSESSID=oorm8gm9h94f54ne8tndrlrkt5; ccwk_backend_tracking=oorm8gm9h94f54ne8tndrlrkt5-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090,1533880613; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533880616; SERVERID=03485b53178f0de6cfb6b08218d57da6|1533887854|1533880604";
+
+    /**
+     * 卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCard> memberCardMap = getMemberCardMap();
+
+        if (memberCardMap.size() > 0) {
+            for (String id : memberCardMap.keySet()) {
+
+                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + id, COOKIE);
+                JsonNode content = MAPPER.readTree(res.returnContent().asString());
+                JsonNode combo = content.get("combo");
+
+                if (!"".equals(combo.toString())) {
+
+                    Iterator<JsonNode> it = content.get("combo").iterator();
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String name = element.get("name").asText();
+                        String num = element.get("quantity").asText();
+                        String validTime = element.get("date_available").asText();
+                        String price = element.get("price").asText();
+                        String originalNum = element.get("original_quantity").asText();
+                        String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+
+                        MemberCard m = memberCardMap.get(id);
+                        MemberCardItem memberCardItem = new MemberCardItem();
+                        memberCardItem.setCompanyName(m.getCompanyName());
+                        memberCardItem.setCardCode(m.getCardCode());
+                        memberCardItem.setItemName(name);
+                        memberCardItem.setPrice(price);
+                        memberCardItem.setNum(num);
+                        memberCardItem.setOriginalNum(originalNum);
+                        memberCardItem.setItemType("服务项");
+                        memberCardItem.setIsValidForever(isValidForever);
+                        memberCardItems.add(memberCardItem);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为"+memberCardItems.toString());
+        System.out.println("结果为"+memberCardItems.size());
+
+        String pathname = "C:\\exportExcel\\车车云卡内项目.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -63,60 +119,11 @@ public class CheCheYunService {
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Map<String, String> memberCardLevelMap = new HashMap<>();
-        Map<String, MemberCard> memberCardIDMap = new HashMap<>();
 
-        Response res1 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDLEVEL_URL, COOKIE);
-        JsonNode result = MAPPER.readTree(res1.returnContent().asString());
+        Map<String, MemberCard> memberCardMap = getMemberCardMap();
 
-        Iterator<JsonNode> it = result.get("vip_levels").iterator();
-        while (it.hasNext()) {
-            JsonNode element = it.next();
-
-            String id = element.get("vip_level_id").asText();
-            String levelName = element.get("name").asText();
-            memberCardLevelMap.put(id, levelName);
-        }
-
-        if (memberCardLevelMap.size() > 0) {
-            for (String id : memberCardLevelMap.keySet()) {
-                Response res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", "1") + id, COOKIE);
-                int totalPage = WebClientUtil.getTotalPage(res2, MAPPER, fieldName, 100);
-
-                String memberCardName = memberCardLevelMap.get(id);
-                if (totalPage > 0) {
-                    for (int i = 1; i <= totalPage; i++) {
-                        res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", String.valueOf(i)) + id, COOKIE);
-                        JsonNode content = MAPPER.readTree(res2.returnContent().asString());
-
-                        Iterator<JsonNode> customers = content.get("customers").iterator();
-                        while (customers.hasNext()) {
-                            JsonNode element = customers.next();
-
-                            String vipUserId = element.get("vip_user_id").asText();
-                            String dateCreated = element.get("date_added").asText();
-                            String companyName = element.get("substore").asText();
-                            String balance = element.get("balance").asText();
-
-                            String cardCode = element.get("card_number").asText();
-                            if ("".equals(cardCode))
-                                cardCode = String.valueOf(random.nextInt()).replace("-", "");
-
-                            MemberCard memberCard = new MemberCard();
-                            memberCard.setCardCode(cardCode);
-                            memberCard.setBalance(balance);
-                            memberCard.setDateCreated(dateCreated.replace("-", "/"));
-                            memberCard.setCompanyName(companyName);
-                            memberCard.setMemberCardName(memberCardName);
-                            memberCardIDMap.put(vipUserId, memberCard);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (memberCardIDMap.size() > 0) {
-            for (String id : memberCardIDMap.keySet()) {
+        if (memberCardMap.size() > 0) {
+            for (String id : memberCardMap.keySet()) {
 
                 Response res3 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDCLIENT_URL + id, COOKIE);
                 JsonNode content = MAPPER.readTree(res3.returnContent().asString());
@@ -125,14 +132,14 @@ public class CheCheYunService {
                 String name = customer.get("name").asText();
                 String phone = customer.get("mobile").asText();
 
-                MemberCard memberCard = memberCardIDMap.get(id);
+                MemberCard memberCard = memberCardMap.get(id);
                 memberCard.setName(name);
                 memberCard.setPhone(phone);
             }
         }
 
-        if (memberCardIDMap.size() > 0) {
-            for (String id : memberCardIDMap.keySet()) {
+        if (memberCardMap.size() > 0) {
+            for (String id : memberCardMap.keySet()) {
                 Response res4 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDCAR_URL + id, COOKIE);
                 JsonNode carData = MAPPER.readTree(res4.returnContent().asString());
 
@@ -141,7 +148,7 @@ public class CheCheYunService {
                     JsonNode e = cars.next();
                     String carNumber = e.get("license").asText();
 
-                    MemberCard m = memberCardIDMap.get(id);
+                    MemberCard m = memberCardMap.get(id);
                     MemberCard memberCard = new MemberCard();
                     memberCard.setCarNumber(carNumber);
                     memberCard.setCompanyName(m.getCompanyName());
@@ -156,7 +163,7 @@ public class CheCheYunService {
             }
         }
 
-        System.out.print("结果为" +memberCards.toString());
+        System.out.print("结果为" + memberCards.toString());
 
         String pathname = "C:\\exportExcel\\车车云会员卡.xls";
         ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
@@ -473,6 +480,61 @@ public class CheCheYunService {
         String pathname = "C:\\exportExcel\\车车云车辆信息.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
 
+    }
+
+    private Map<String, MemberCard> getMemberCardMap() throws IOException {
+        Map<String, String> memberCardLevelMap = new HashMap<>();
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
+
+        Response res1 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDLEVEL_URL, COOKIE);
+        JsonNode result = MAPPER.readTree(res1.returnContent().asString());
+
+        Iterator<JsonNode> it = result.get("vip_levels").iterator();
+        while (it.hasNext()) {
+            JsonNode element = it.next();
+
+            String id = element.get("vip_level_id").asText();
+            String levelName = element.get("name").asText();
+            memberCardLevelMap.put(id, levelName);
+        }
+
+        if (memberCardLevelMap.size() > 0) {
+            for (String id : memberCardLevelMap.keySet()) {
+                Response res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", "1") + id, COOKIE);
+                int totalPage = WebClientUtil.getTotalPage(res2, MAPPER, fieldName, 100);
+
+                String memberCardName = memberCardLevelMap.get(id);
+                if (totalPage > 0) {
+                    for (int i = 1; i <= totalPage; i++) {
+                        res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", String.valueOf(i)) + id, COOKIE);
+                        JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+
+                        Iterator<JsonNode> customers = content.get("customers").iterator();
+                        while (customers.hasNext()) {
+                            JsonNode element = customers.next();
+
+                            String vipUserId = element.get("vip_user_id").asText();
+                            String dateCreated = element.get("date_added").asText();
+                            String companyName = element.get("substore").asText();
+                            String balance = element.get("balance").asText();
+
+                            String cardCode = element.get("card_number").asText();
+                            if ("".equals(cardCode))
+                                cardCode = String.valueOf(random.nextInt()).replace("-", "");
+
+                            MemberCard memberCard = new MemberCard();
+                            memberCard.setCardCode(cardCode);
+                            memberCard.setBalance(balance);
+                            memberCard.setDateCreated(dateCreated.replace("-", "/"));
+                            memberCard.setCompanyName(companyName);
+                            memberCard.setMemberCardName(memberCardName);
+                            memberCardMap.put(vipUserId, memberCard);
+                        }
+                    }
+                }
+            }
+        }
+        return memberCardMap;
     }
 
 
