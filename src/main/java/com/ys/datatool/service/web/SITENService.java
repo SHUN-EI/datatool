@@ -203,7 +203,7 @@ public class SITENService {
                     BillDetail billDetail = new BillDetail();
                     billDetail.setBillNo(billMap.get(careId));
                     billDetail.setItemName(element.get("itemName").asText());
-                    billDetail.setQuantity(element.get("quantity").asText());
+                    billDetail.setNum(element.get("quantity").asText());
                     billDetail.setTotalAmount(element.get("actualPrice").asText());
                     billDetail.setWorkingHour(element.get("hours").asText());
                     billDetails.add(billDetail);
@@ -216,7 +216,7 @@ public class SITENService {
                     BillDetail billDetail = new BillDetail();
                     billDetail.setBillNo(billMap.get(careId));
                     billDetail.setItemName(element.get("partName").asText());
-                    billDetail.setQuantity(element.get("quantity").asText());
+                    billDetail.setNum(element.get("quantity").asText());
                     billDetail.setTotalAmount(element.get("partMoney").asText());
                     billDetail.setFirstCategoryName(element.get("groupName").asText());
                     billDetails.add(billDetail);
@@ -251,8 +251,8 @@ public class SITENService {
                     bill.setBillNo(element.get("careNo").asText());
                     bill.setCarNumber(element.get("plateNo").asText());
                     bill.setMileage(element.get("mileage").asText());
-                    bill.setClientPhone(element.get("tel1").asText());
-                    bill.setClientName(element.get("contact").asText());
+                    bill.setPhone(element.get("tel1").asText());
+                    bill.setName(element.get("contact").asText());
                     bill.setTotalAmount(element.get("resultPrice").asText());
                     bill.setDiscount("0");
                     bill.setActualAmount(element.get("actualMoney").asText().replace("null", "0"));

@@ -118,7 +118,7 @@ public class WuYiCheGuanJiaService {
                             billDetail.setItemName(element.get("PROD_SKU_NAME").asText());
                             billDetail.setTotalAmount(CommonUtil.priceFormat(element.get("TOTAL_MONEY").asText()));
                             billDetail.setPrice(CommonUtil.priceFormat(element.get("SALE_PRICE").asText()));
-                            billDetail.setQuantity(element.get("AMOUNT").asText());
+                            billDetail.setNum(element.get("AMOUNT").asText());
                             billDetail.setDiscountRate(element.get("DISCOUNTS").asText());
                             billDetail.setFirstCategoryName(element.get("PROD_SKU_TYPE").asText());
                             billDetail.setCarNumber(memberCard.getCarNumber());
@@ -181,8 +181,8 @@ public class WuYiCheGuanJiaService {
                             Bill bill = new Bill();
                             bill.setBillNo(element.get("OUTBOUND_ID").asText());
                             bill.setCarNumber(memberCard.getCarNumber());
-                            bill.setClientPhone(memberCard.getPhone());
-                            bill.setClientName(memberCard.getName());
+                            bill.setPhone(memberCard.getPhone());
+                            bill.setName(memberCard.getName());
                             bill.setDateAdded(element.get("CREATE_DATE").asText());
                             bill.setDateEnd(element.get("CREATE_DATE").asText());
                             bill.setDateExpect(element.get("CREATE_DATE").asText());

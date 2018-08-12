@@ -3,7 +3,9 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.Bill;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.ExportUtil;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
@@ -28,37 +30,64 @@ public class IDianService {
 
     private String COOKIE = "JSESSIONID=3B77227B11C658B464D19C35FA810B40";
 
+    private String CONTENT_TYPE = "";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private Charset charset = Charset.forName("UTF-8");
+    private Charset charset = Charset.forName("utf-8");
+
+    private String companyName = "I店";
 
 
     @Test
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-
-        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL+"1", COOKIE);
+        Response res = ConnectionUtil.doGetWithLeastParams2(BILL_URL + "1",CONTENT_TYPE, COOKIE);
         JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
-        String totalStr=result.get("total").asText();
-        int total=Integer.parseInt(totalStr);
+        String totalStr = result.get("total").asText();
+        int total = Integer.parseInt(totalStr);
 
-        if(total>0){
-            for (int i=1;i<=2;i++){
-                res= ConnectionUtil.doGetWithLeastParams(BILL_URL+String.valueOf(i), COOKIE);
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                res = ConnectionUtil.doGetWithLeastParams2(BILL_URL + String.valueOf(i),CONTENT_TYPE, COOKIE);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
-                Iterator<JsonNode> it = result.get("rows").iterator();
+                Iterator<JsonNode> it = content.get("rows").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
+                    String company = element.get("companyName").asText();
+                    String billNo = element.get("fid").asText();
+                    String carNumber = element.get("licensePlate").asText();
+                    String name = element.get("userName").asText();
+                    String totalAmount = element.get("totalProfit").asText();
+                    String remark = element.get("remark").asText();
+                    String dateAdded = element.get("openTime").asText();
+                    String dateEnd = element.get("closeTime").asText();
 
+                    Bill bill = new Bill();
+                    bill.setCompanyName(companyName);
+                    bill.setBillNo(billNo);
+                    bill.setCarNumber(new String(carNumber.getBytes("UTF-8"), "UTF-8"));
+                    bill.setName(name);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setActualAmount(totalAmount);
+                    bill.setPayType("现金");
+                    bill.setRemark(remark);
+                    bill.setDateAdded(dateAdded);
+                    bill.setDateEnd(dateEnd);
+                    bill.setDateExpect(dateEnd);
+                    bills.add(bill);
                 }
             }
         }
 
-        System.out.println("结果为"+total);
+        System.out.println("结果为" + bills.toString());
+        System.out.println("结果为" + bills.size());
 
+        String pathname = "C:\\exportExcel\\i店单据.xlsx";
+        ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
 
 
     }

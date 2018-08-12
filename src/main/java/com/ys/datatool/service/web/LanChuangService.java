@@ -172,7 +172,7 @@ public class LanChuangService {
                     billDetail.setBillNo(billNos.get(i));
                     billDetail.setItemName(element.get("GoodsName").asText());
                     billDetail.setPrice(element.get("Price").asText());
-                    billDetail.setQuantity(element.get("Number").asText());
+                    billDetail.setNum(element.get("Number").asText());
 
                     billDetails.add(billDetail);
                 }
@@ -213,7 +213,7 @@ public class LanChuangService {
                 Bill bill = new Bill();
                 bill.setBillNo(element.get("OrderCode").asText());
                 bill.setCardCode(element.get("CardID").asText());
-                bill.setClientName(element.get("MemName").asText());
+                bill.setName(element.get("MemName").asText());
                 bill.setTotalAmount(element.get("TotalMoney").asText());
                 bill.setActualAmount(element.get("DiscountMoney").asText());
                 bill.setDateAdded(element.get("CreateTime").asText());

@@ -250,7 +250,7 @@ public class CheQiShiService {
                     billDetail.setDetailId(detailId + "_" + billNos.get(i));
                     billDetail.setBillNo(billNos.get(i));
                     billDetail.setItemName(itemName + "(" + product + ")");
-                    billDetail.setQuantity(quantity);
+                    billDetail.setNum(quantity);
                     billDetail.setPrice(price);
                     billDetail.setTotalAmount(amount);
                     billDetail.setSalePrice(salePrice);
@@ -289,8 +289,8 @@ public class CheQiShiService {
                     Bill bill = new Bill();
                     bill.setBillNo(document.select(tr + " > td:nth-child(3) ").text());
                     bill.setActualAmount(document.select(tr + ">td.right ").text().replace("￥", ""));
-                    bill.setClientName(document.select(tr + "> td:nth-child(5) ").text());
-                    bill.setClientPhone(document.select(tr + " >td:nth-child(6) ").text());
+                    bill.setName(document.select(tr + "> td:nth-child(5) ").text());
+                    bill.setPhone(document.select(tr + " >td:nth-child(6) ").text());
                     bill.setCarNumber(document.select(tr + " > td:nth-child(7) ").text());
                     bill.setState(document.select(tr + ">td:nth-child(8) ").text());
                     bill.setDateExpect(document.select(tr + " > td:nth-child(9) ").text());

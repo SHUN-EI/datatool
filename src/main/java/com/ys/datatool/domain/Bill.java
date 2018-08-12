@@ -64,7 +64,7 @@ public class Bill {
      * 单据折扣(基于总计的折扣)
      *
      */
-    private String discount;
+    private String discount="0";
 
     /**
      * 开单日期

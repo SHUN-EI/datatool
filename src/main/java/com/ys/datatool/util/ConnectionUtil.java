@@ -118,6 +118,16 @@ public class ConnectionUtil {
         return response;
     }
 
+    public static Response doGetWithLeastParams2(String url, String content_type, String cookie) throws IOException {
+
+        Response response = Request.Get(url)
+                .setHeader("Cookie", cookie)
+                .setHeader("content-type", content_type)
+                .execute();
+
+        return response;
+    }
+
     public static Response doGet(String url, String accept, String cookie, String connection, String host, String referer, String x_Requested_With, String upgrade_Insecure_Requests, String user_Agent) throws IOException {
 
         Response response = Request.Get(url)

@@ -804,8 +804,8 @@ public class YuanLeCheBaoService {
                     bill.setTotalAmount(totalAmount);
                     bill.setActualAmount(totalAmount);
                     bill.setCarNumber(carNumber);
-                    bill.setClientName(clientName);
-                    bill.setClientPhone(clientPhone);
+                    bill.setName(clientName);
+                    bill.setPhone(clientPhone);
                     bill.setBrand(brand);
                     bill.setCarModel(carModel);
                     bill.setMileage(mileage);
@@ -855,7 +855,7 @@ public class YuanLeCheBaoService {
                         String itemName = e.get("itemName").asText();
                         String salePrice = e.get("itemPrice").asText();//原价
                         String price = e.get("dealPrice").asText();//折扣价
-                        String quantity = e.get("quantity").asText();
+                        String num = e.get("quantity").asText();
                         String itemType = "";
 
                         if (e.get("serviceInfo") != null)
@@ -880,7 +880,7 @@ public class YuanLeCheBaoService {
                         billDetail.setItemName(itemName);
                         billDetail.setPrice(price);
                         billDetail.setSalePrice(salePrice);
-                        billDetail.setQuantity(quantity);
+                        billDetail.setNum(num);
                         billDetail.setItemType(itemType);
                         billDetails.add(billDetail);
                     }
