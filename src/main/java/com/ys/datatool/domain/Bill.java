@@ -11,6 +11,11 @@ public class Bill {
     private String id;
 
     /**
+     * 车店名称
+     */
+    private String companyName;
+
+    /**
      * 单据号
      */
     private String billNo;
@@ -33,12 +38,12 @@ public class Bill {
     /**
      * 联系人
      */
-    private String clientName;
+    private String name;
 
     /**
      * 联系人电话
      */
-    private String clientPhone;
+    private String phone;
 
     /**
      * 联系人单位
@@ -111,6 +116,14 @@ public class Bill {
      */
     private String carModel;
 
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     public String getId() {
         return id;
     }
@@ -144,20 +157,20 @@ public class Bill {
         this.automodel = automodel;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getName() {
+        return name;
     }
 
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getClientPhone() {
-        return clientPhone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setClientPhone(String clientPhone) {
-        this.clientPhone = clientPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getDiscount() {
@@ -283,27 +296,4 @@ public class Bill {
 
 
 
-    @Override
-    public String toString() {
-        return "Bill{" +
-                "id='" + id + '\'' +
-                ", billNo='" + billNo + '\'' +
-                ", cardCode='" + cardCode + '\'' +
-                ", automodel='" + automodel + '\'' +
-                ", clientName='" + clientName + '\'' +
-                ", clientPhone='" + clientPhone + '\'' +
-                ", company='" + company + '\'' +
-                ", totalAmount='" + totalAmount + '\'' +
-                ", actualAmount='" + actualAmount + '\'' +
-                ", discount='" + discount + '\'' +
-                ", dateAdded='" + dateAdded + '\'' +
-                ", dateExpect='" + dateExpect + '\'' +
-                ", dateEnd='" + dateEnd + '\'' +
-                ", remark='" + remark + '\'' +
-                ", mileage='" + mileage + '\'' +
-                ", state='" + state + '\'' +
-                ", waitInStore='" + waitInStore + '\'' +
-                ", payType='" + payType + '\'' +
-                '}';
-    }
 }

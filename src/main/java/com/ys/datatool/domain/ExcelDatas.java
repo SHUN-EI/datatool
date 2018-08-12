@@ -4,12 +4,20 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Created by mo on @date  2018/4/16.
- *
+ * <p>
  * excel表头字段
  */
 public class ExcelDatas {
 
     public static Workbook workbook;
+
+    public static String[] billItemDatas = new String[]{"车店名称", "单据号",
+            "商品名称", "数量", "售价", "折扣", "类别", "一级分类名称",
+            "二级分类名称", "商品编码"};
+
+    public static String[] billDatas = new String[]{"车店名称", "单据号",
+            "车牌号", "里程", "联系手机", "联系人", "单据总价", "单据折扣",
+            "实收金额", "是否在店等", "计划完成时间", "支付类型", "备注", "开单时间", "结账时间"};
 
     /**
      * 车酷客-车辆信息详情相关数据

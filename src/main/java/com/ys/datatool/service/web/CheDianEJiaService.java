@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.HtmlTag;
+import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.domain.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
@@ -42,6 +43,10 @@ public class CheDianEJiaService {
 
     private int count = 0;
 
+    private String userName = "gelunbu";
+
+    private String password = "123456";
+
     //获取数据的令牌
     private String COOKIE = "ASP.NET_SessionId=zl4l4wg4waakctyg5l3otzhp; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
 
@@ -52,8 +57,18 @@ public class CheDianEJiaService {
     }
 
 
+    @Test
+    public void fetchMemberCardData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+
+
+    }
+
+
     /**
      * 卡内项目
+     *
      * @throws IOException
      */
     @Test
@@ -77,7 +92,7 @@ public class CheDianEJiaService {
         for (int i = 0; i < pages.size(); i++) {
             doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
             String trRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr";
-            int trSize = WebClientUtil.getTagSize(doc, trRegEx,HtmlTag.trName);
+            int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
 
             for (int j = 2; j <= trSize; j++) {
                 String idRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
@@ -92,10 +107,10 @@ public class CheDianEJiaService {
                 String validTimeRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(6)";
 
                 String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
-                String cardCode=doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(j))).text();
-                String memberCardName=doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
-                String dateCreated=doc.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(j))).text();
-                String validTime=doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(j))).text();
+                String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(j))).text();
+                String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
+                String dateCreated = doc.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(j))).text();
+                String validTime = doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(j))).text();
 
                 MemberCardItem memberCardItem = new MemberCardItem();
                 memberCardItem.setName(name);
@@ -116,7 +131,7 @@ public class CheDianEJiaService {
                 doc = Jsoup.parse(html);
 
                 String getTRRegEx = "#form1 > div.formbody > table > tbody > tr";
-                int tRSize = WebClientUtil.getTagSize(doc, getTRRegEx,HtmlTag.trName);
+                int tRSize = WebClientUtil.getTagSize(doc, getTRRegEx, HtmlTag.trName);
 
                 for (int i = 2; i <= tRSize; i++) {
 
@@ -168,8 +183,8 @@ public class CheDianEJiaService {
         HtmlInput pwd = loginPage.getHtmlElementById("txtLoginPwd");
         HtmlInput btnLogin = loginPage.getHtmlElementById("btnLogin");
 
-        user.setAttribute("value", "gelunbu");
-        pwd.setAttribute("value", "123456");
+        user.setAttribute("value", userName);
+        pwd.setAttribute("value", password);
         btnLogin.click();
 
         return webClient;

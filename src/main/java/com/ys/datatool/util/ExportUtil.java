@@ -461,4 +461,72 @@ public class ExportUtil {
             }
         }
     }
+
+    /**
+     * 单据-标准模版导出
+     * @param bills
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportBillDataInLocal(List<Bill> bills, Workbook workbook, String pathname) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createBillList(bills);
+        String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
+                "phone", "name", "totalAmount", "discount","actualAmount","waitInStore",
+                "dateExpect", "payType", "remark","dateAdded","dateEnd"};
+        OutputStream outputStream = null;
+
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.billDatas);
+            CellStyle cellStyle = workbook.createCellStyle(); //换行样式
+            File file = new File(pathname);
+
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 单据明细-标准模版导出
+     * @param billDetails
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportBillItemDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createBillDetailList(billDetails);
+        String[] keys = new String[]{"companyName", "billNo", "itemName", "num",
+                "price", "discount", "itemType", "firstCategoryName","secondCategoryName","itemCode"
+                };
+        OutputStream outputStream = null;
+
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.billItemDatas);
+            CellStyle cellStyle = workbook.createCellStyle(); //换行样式
+            File file = new File(pathname);
+
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

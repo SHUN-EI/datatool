@@ -25,7 +25,7 @@ public class BillDetail {
     private String itemName;
 
     /**
-     * 配件编号
+     * 商品编码
      */
     private String itemCode;
 
@@ -47,7 +47,7 @@ public class BillDetail {
     /**
      * 数量
      */
-    private String quantity;
+    private String num;
 
     /**
      * 单价
@@ -119,6 +119,7 @@ public class BillDetail {
      */
     private String discount;
 
+
     public String getDetailId() {
         return detailId;
     }
@@ -167,12 +168,12 @@ public class BillDetail {
         this.salePrice = salePrice;
     }
 
-    public String getQuantity() {
-        return quantity;
+    public String getNum() {
+        return num;
     }
 
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
+    public void setNum(String num) {
+        this.num = num;
     }
 
     public String getTotalAmount() {
@@ -303,28 +304,4 @@ public class BillDetail {
         this.companyName = companyName;
     }
 
-    @Override
-    public String toString() {
-        return "BillDetail{" +
-                "detailId='" + detailId + '\'' +
-                ", itemName='" + itemName + '\'' +
-                ", itemCode='" + itemCode + '\'' +
-                ", itemType='" + itemType + '\'' +
-                ", workingHour='" + workingHour + '\'' +
-                ", salePrice='" + salePrice + '\'' +
-                ", quantity='" + quantity + '\'' +
-                ", price='" + price + '\'' +
-                ", totalAmount='" + totalAmount + '\'' +
-                ", discountRate='" + discountRate + '\'' +
-                ", deduction='" + deduction + '\'' +
-                ", mileage='" + mileage + '\'' +
-                ", payment='" + payment + '\'' +
-                ", dateAdded='" + dateAdded + '\'' +
-                ", dateExpect='" + dateExpect + '\'' +
-                ", dateEnd='" + dateEnd + '\'' +
-                ", clientName='" + clientName + '\'' +
-                ", firstCategoryName='" + firstCategoryName + '\'' +
-                ", secondCategoryName='" + secondCategoryName + '\'' +
-                '}';
-    }
 }

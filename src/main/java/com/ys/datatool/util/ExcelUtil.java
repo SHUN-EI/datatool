@@ -137,8 +137,8 @@ public class ExcelUtil {
             mapValue.put("carNumber", bill.getCarNumber());
             mapValue.put("cardCode", bill.getCardCode());
             mapValue.put("automodel", bill.getAutomodel());
-            mapValue.put("clientName", bill.getClientName());
-            mapValue.put("clientPhone", bill.getClientPhone());
+            mapValue.put("name", bill.getName());
+            mapValue.put("phone", bill.getPhone());
             mapValue.put("company", bill.getCompany());
             mapValue.put("totalAmount", bill.getTotalAmount());
             mapValue.put("actualAmount", bill.getActualAmount());
@@ -150,6 +150,7 @@ public class ExcelUtil {
             mapValue.put("mileage", bill.getMileage());
             mapValue.put("waitInStore", bill.getWaitInStore());
             mapValue.put("payType", bill.getPayType());
+            mapValue.put("companyName", bill.getCompanyName());
             listMap.add(mapValue);
         }
         return listMap;
@@ -169,7 +170,7 @@ public class ExcelUtil {
             mapValue.put("companyName", billDetail.getCompanyName());
             mapValue.put("salePrice", billDetail.getSalePrice());
             mapValue.put("workingHour", billDetail.getWorkingHour());
-            mapValue.put("quantity", billDetail.getQuantity());
+            mapValue.put("num", billDetail.getNum());
             mapValue.put("itemType", billDetail.getItemType());
             mapValue.put("itemCode", billDetail.getItemCode());
             mapValue.put("billNo", billDetail.getBillNo());
