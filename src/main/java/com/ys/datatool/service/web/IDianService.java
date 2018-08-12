@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.Bill;
 import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.MemberCard;
+import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.http.client.fluent.Response;
@@ -14,9 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mo on  2018/8/11.
@@ -26,13 +26,15 @@ import java.util.List;
 @Service
 public class IDianService {
 
+    private String MEMBERCARDITEM_URL = "http://app.idianchina.com:8082/api/vip/member/get-member-detail";
+
     private String MEMBERCARD_URL = "http://app.idianchina.com:8082/api/vip/member/query";
 
     private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=saleorder_queryallfilter_new&fromDate=2010-01-01&toDate=2018-08-12&licensePlate=&userPhone=&billStatus=0&tpyes=0&orderTypes=0&rows=50&page=";
 
     private String CARINFO_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_customer_query&option=&page=1&pageSize=50";
 
-    private String COOKIE = "JSESSIONID=B85A189876127F17E5C799D0858E0B6F";
+    private String COOKIE = "JSESSIONID=D6C004DE9B5B2B103BFCA0914387C3EF";
 
     private String CONTENT_TYPE = "application/json;charset=UTF-8";
 
@@ -42,29 +44,109 @@ public class IDianService {
 
     private String companyName = "I店";
 
+    /**
+     * 卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
+
+        for (int i = 0; i <= 21; i++) {
+            Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE);
+
+            JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+            JsonNode userObject = result.get("userObject");
+
+            Iterator<JsonNode> it = userObject.get("memberList").iterator();
+            while (it.hasNext()) {
+                JsonNode element = it.next();
+
+                String cardCode = element.get("memberId").asText();
+                ids.add(cardCode);
+            }
+        }
+
+        if (ids.size() > 0) {
+            for (String id : ids) {
+                Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARDITEM_URL, getMemberCardItemParams(id), COOKIE);
+
+                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode userObject = result.get("userObject");
+
+                Iterator<JsonNode> it = userObject.get("timesDetailList").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String validTime = element.get("validityTime").asText();
+                    String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                    JsonNode goodsList = element.get("goodsList");
+                    if (!"".equals(goodsList.toString())) {
+                        Iterator<JsonNode> items = goodsList.iterator();
+                        while (items.hasNext()) {
+                            JsonNode e = items.next();
+
+                            String code = e.get("fid").asText();
+                            String num = e.get("leftCount").asText();
+                            String itemName = e.get("projectName").asText();
+
+                            MemberCardItem memberCardItem = new MemberCardItem();
+                            memberCardItem.setCardCode(id);
+                            memberCardItem.setItemName(itemName);
+                            memberCardItem.setNum(num);
+                            memberCardItem.setOriginalNum(num);
+                            memberCardItem.setCompanyName(companyName);
+                            memberCardItem.setCode(code);
+                            memberCardItem.setValidTime(validTime);
+                            memberCardItem.setIsValidForever(isValidForever);
+                            memberCardItems.add(memberCardItem);
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + ids.size());
+
+        String pathname = "C:\\exportExcel\\i店卡内项目.xlsx";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+
+    }
+
+    /**
+     * 会员卡
+     *
+     * @throws IOException
+     */
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
         //String params = "MEID=1F3F7042-675B-4BAD-BE11-448A267326F0&deviceType=2&format=json&keyword=&memberLevelId=&sign=1B0BC2BC981BF781DDB9D55FAA886D3E&token=A19873FDF327F6D7F14A8110513DB9F7&user_phone=18934388886&versionCode=507&versionName=5.0.7&currentPageIndex=";
         for (int i = 0; i <= 21; i++) {
-            Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL,getMemberCardParams(String.valueOf(i)), COOKIE);
+            Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE);
 
             JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
-            JsonNode userObject=result.get("userObject");
+            JsonNode userObject = result.get("userObject");
 
-            Iterator<JsonNode> it =userObject.get("memberList").iterator();
+            Iterator<JsonNode> it = userObject.get("memberList").iterator();
             while (it.hasNext()) {
                 JsonNode element = it.next();
 
-                String cardCode=element.get("memberId").asText();
-                String carNumber=element.get("licensePlate").asText();
-                String balance=element.get("amount").asText();
-                String dateCreated=element.get("openCardTime").asText();
+                String cardCode = element.get("memberId").asText();
+                String memberCardName = element.get("memberLevelName").asText();
+                String carNumber = element.get("licensePlate").asText();
+                String balance = element.get("amount").asText();
+                String dateCreated = element.get("openCardTime").asText();
 
-                MemberCard memberCard=new MemberCard();
+                MemberCard memberCard = new MemberCard();
                 memberCard.setCardCode(cardCode);
+                memberCard.setMemberCardName(memberCardName == "" ? "普通会员卡" : memberCardName);
                 memberCard.setCarNumber(carNumber);
+                memberCard.setCompanyName(companyName);
                 memberCard.setBalance(balance);
                 memberCard.setDateCreated(dateCreated);
                 memberCards.add(memberCard);
@@ -126,6 +208,20 @@ public class IDianService {
         ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
 
 
+    }
+
+    private List<BasicNameValuePair> getMemberCardItemParams(String id) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("MEID", "1F3F7042-675B-4BAD-BE11-448A267326F0"));
+        params.add(new BasicNameValuePair("deviceType", "2"));
+        params.add(new BasicNameValuePair("format", "json"));
+        params.add(new BasicNameValuePair("sign", "832C4564B8250546FB74DA4E11365984"));
+        params.add(new BasicNameValuePair("token", "A19873FDF327F6D7F14A8110513DB9F7"));
+        params.add(new BasicNameValuePair("user_phone", "18934388886"));
+        params.add(new BasicNameValuePair("versionCode", "507"));
+        params.add(new BasicNameValuePair("versionName", "5.0.7"));
+        params.add(new BasicNameValuePair("memberId", id));
+        return params;
     }
 
     private List<BasicNameValuePair> getMemberCardParams(String index) {
