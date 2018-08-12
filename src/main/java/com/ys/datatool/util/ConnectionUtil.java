@@ -118,11 +118,13 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWithLeastParams2(String url, String content_type, String cookie) throws IOException {
+    public static Response doPostWithLeastParamJsonInPhone(String url,  List params, String cookie) throws IOException {
 
-        Response response = Request.Get(url)
+        Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)
-                .setHeader("content-type", content_type)
+                .setHeader("model", "iPhone9,1")
+                .setHeader("appVer", "5.0.7")
+                .bodyForm(params, Charset.forName("utf-8"))
                 .execute();
 
         return response;
