@@ -55,14 +55,14 @@ public class IDianService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE,ACCEPT_ENCODING,ACCEPT);
         JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE,ACCEPT_ENCODING,ACCEPT);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
