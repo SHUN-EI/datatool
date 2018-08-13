@@ -109,6 +109,17 @@ public class ConnectionUtil {
         return response;
     }
 
+    public static Response doGetEncode(String url, String cookie,String accept_encoding,String accept) throws IOException {
+
+        Response response = Request.Get(url)
+                .setHeader("Cookie", cookie)
+                .setHeader("accept-encoding", accept_encoding)
+                .setHeader("accept", accept)
+                .execute();
+
+        return response;
+    }
+
     public static Response doGetWithLeastParams(String url, String cookie) throws IOException {
 
         Response response = Request.Get(url)

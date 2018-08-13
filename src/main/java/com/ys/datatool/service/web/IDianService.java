@@ -2,19 +2,23 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -26,23 +30,138 @@ import java.util.*;
 @Service
 public class IDianService {
 
+    private String CARINFO_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_customer_query&page=0&pageSize=50&option=";
+
     private String MEMBERCARDITEM_URL = "http://app.idianchina.com:8082/api/vip/member/get-member-detail";
 
     private String MEMBERCARD_URL = "http://app.idianchina.com:8082/api/vip/member/query";
 
     private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=saleorder_queryallfilter_new&fromDate=2010-01-01&toDate=2018-08-12&licensePlate=&userPhone=&billStatus=0&tpyes=0&orderTypes=0&rows=50&page=";
 
-    private String CARINFO_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_customer_query&option=&page=1&pageSize=50";
+    private String COOKIE = "JSESSIONID=B0AC1AD6968333D50FE9AD2F4E98A24B";
 
-    private String COOKIE = "JSESSIONID=D6C004DE9B5B2B103BFCA0914387C3EF";
+    private String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
-    private String CONTENT_TYPE = "application/json;charset=UTF-8";
+    private String ACCEPT = "application/json, text/javascript, */*; q=0.01";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Charset charset = Charset.forName("utf-8");
 
     private String companyName = "I店";
+
+
+    @Test
+    public void fetchBillDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
+        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+        String totalStr = result.get("total").asText();
+        int total = Integer.parseInt(totalStr);
+
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                res = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
+
+                Iterator<JsonNode> it = content.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String company = element.get("companyName").asText();
+                    String billNo = element.get("fid").asText();
+                    String carNumber = element.get("licensePlate").asText();
+                    String name = element.get("userName").asText();
+                    String totalAmount = element.get("totalProfit").asText();
+                    String remark = element.get("remark").asText();
+                    String dateAdded = element.get("openTime").asText();
+                    String dateEnd = element.get("closeTime").asText();
+
+                    Bill bill = new Bill();
+                    bill.setCompanyName(companyName);
+                    bill.setBillNo(billNo);
+                    bill.setCarNumber(new String(carNumber.getBytes("UTF-8"), "UTF-8"));
+                    bill.setName(name);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setActualAmount(totalAmount);
+                    bill.setPayType("现金");
+                    bill.setRemark(remark);
+                    bill.setDateAdded(dateAdded);
+                    bill.setDateEnd(dateEnd);
+                    bill.setDateExpect(dateEnd);
+                    bills.add(bill);
+                }
+            }
+        }
+
+        System.out.println("结果为" + bills.toString());
+        System.out.println("结果为" + bills.size());
+
+        String pathname = "C:\\exportExcel\\i店单据.xlsx";
+        ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
+
+
+    }
+
+    /**
+     * 车辆信息
+     * 需要获取全部车牌号码，此方法需要读取所有车牌的excel
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        List<String> carNumbers = new ArrayList<>();
+
+        File file = new File("C:\\exportExcel\\icard.xls");
+        FileInputStream in = new FileInputStream(file);
+        HSSFWorkbook wb = new HSSFWorkbook(in);
+
+        HSSFSheet sheet = wb.getSheetAt(0);
+        int firstRowNum = sheet.getFirstRowNum();
+        int lastRowNum = sheet.getLastRowNum();
+
+        HSSFRow row = null;
+        HSSFCell cell = null;
+        for (int i = firstRowNum; i <= lastRowNum; i++) {
+            row = sheet.getRow(i);//取得第i行
+            cell = row.getCell(0);//取得i行的第一列
+            String cellValue = cell.getStringCellValue().trim();
+            carNumbers.add(cellValue);
+        }
+
+
+        if (carNumbers.size() > 0) {
+            for (String carNumber : carNumbers) {
+                Response res = ConnectionUtil.doGetEncode(CARINFO_URL + URLEncoder.encode(carNumber, "utf-8"), COOKIE, ACCEPT_ENCODING, ACCEPT);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+
+                JsonNode userObject = result.get("userObject");
+                Iterator<JsonNode> it = userObject.iterator();
+
+                while (it.hasNext()){
+                    JsonNode element = it.next();
+
+                    String name=element.get("name").asText();
+                    String phone=element.get("userPhone").asText();
+                    String brand=element.get("carBrandName").asText();
+
+                    CarInfo carInfo=new CarInfo();
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setName(name);
+                    carInfo.setPhone(phone);
+                    carInfo.setBrand(brand);
+                    carInfo.setCarNumber(carNumber);
+                    carInfos.add(carInfo);
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\i店会员车辆.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+
+    }
 
     /**
      * 卡内项目
@@ -52,20 +171,23 @@ public class IDianService {
     @Test
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
-        List<String> ids = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
 
         for (int i = 0; i <= 21; i++) {
             Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE);
 
             JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
             JsonNode userObject = result.get("userObject");
+            JsonNode memberList = userObject.get("memberList");
 
-            Iterator<JsonNode> it = userObject.get("memberList").iterator();
-            while (it.hasNext()) {
-                JsonNode element = it.next();
+            if (!"".equals(memberList.toString())) {
+                Iterator<JsonNode> it = memberList.iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
 
-                String cardCode = element.get("memberId").asText();
-                ids.add(cardCode);
+                    String cardCode = element.get("memberId").asText();
+                    ids.add(cardCode);
+                }
             }
         }
 
@@ -157,58 +279,6 @@ public class IDianService {
         ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
-    @Test
-    public void fetchBillDataStandard() throws IOException {
-        List<Bill> bills = new ArrayList<>();
-
-        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
-        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
-        String totalStr = result.get("total").asText();
-        int total = Integer.parseInt(totalStr);
-
-        if (total > 0) {
-            for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
-                JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
-
-                Iterator<JsonNode> it = content.get("rows").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String company = element.get("companyName").asText();
-                    String billNo = element.get("fid").asText();
-                    String carNumber = element.get("licensePlate").asText();
-                    String name = element.get("userName").asText();
-                    String totalAmount = element.get("totalProfit").asText();
-                    String remark = element.get("remark").asText();
-                    String dateAdded = element.get("openTime").asText();
-                    String dateEnd = element.get("closeTime").asText();
-
-                    Bill bill = new Bill();
-                    bill.setCompanyName(companyName);
-                    bill.setBillNo(billNo);
-                    bill.setCarNumber(new String(carNumber.getBytes("UTF-8"), "UTF-8"));
-                    bill.setName(name);
-                    bill.setTotalAmount(totalAmount);
-                    bill.setActualAmount(totalAmount);
-                    bill.setPayType("现金");
-                    bill.setRemark(remark);
-                    bill.setDateAdded(dateAdded);
-                    bill.setDateEnd(dateEnd);
-                    bill.setDateExpect(dateEnd);
-                    bills.add(bill);
-                }
-            }
-        }
-
-        System.out.println("结果为" + bills.toString());
-        System.out.println("结果为" + bills.size());
-
-        String pathname = "C:\\exportExcel\\i店单据.xlsx";
-        ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
-
-
-    }
 
     private List<BasicNameValuePair> getMemberCardItemParams(String id) {
         List<BasicNameValuePair> params = new ArrayList<>();
