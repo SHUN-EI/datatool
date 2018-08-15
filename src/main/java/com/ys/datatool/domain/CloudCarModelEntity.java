@@ -5,7 +5,7 @@ package com.ys.datatool.domain;
  *
  * 云车型
  */
-public class CarModelEntity {
+public class CloudCarModelEntity {
 
     private Long id;
 

@@ -11,6 +11,10 @@ public class ExcelDatas {
 
     public static Workbook workbook;
 
+    public static String[] cloudCarModelDatas=new String[]{"levelId","厂家","品牌",
+        "车系"
+    };
+
     public static String[] billItemDatas = new String[]{"车店名称", "单据号",
             "商品名称", "数量", "售价", "折扣", "类别", "一级分类名称",
             "二级分类名称", "商品编码"};

@@ -529,4 +529,38 @@ public class ExportUtil {
             }
         }
     }
+
+    /**
+     *
+     * @param cloudCarModelEntities
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportCloudCarModelDataInLocal(List<CloudCarModelEntity> cloudCarModelEntities, Workbook workbook, String pathname) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createCloudCarModelList(cloudCarModelEntities);
+        String[] keys = new String[]{"levelId", "manufacturers", "brand", "series",
+
+        };
+        OutputStream outputStream = null;
+
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.cloudCarModelDatas);
+            CellStyle cellStyle = workbook.createCellStyle(); //换行样式
+            File file = new File(pathname);
+
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

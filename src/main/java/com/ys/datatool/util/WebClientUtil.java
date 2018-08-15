@@ -57,8 +57,8 @@ public class WebClientUtil {
         }
     }
 
-    public static void exportCarModelItemInLocal(List<CarModelEntity> carModelEntities, String pathname, Workbook workbook) throws IOException {
-        List<Map<String, Object>> list = ExcelUtil.createCarModelList(carModelEntities);
+    public static void exportCarModelItemInLocal(List<CloudCarModelEntity> carModelEntities, String pathname, Workbook workbook) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createCloudCarModelList(carModelEntities);
         String[] keys = new String[]{"num", "itemCode", "levelId", "manufacturers", "models", "year", "produced_year", "idling_year", "displacement", "induction"};
         String[] columnNames = new String[]{"序号", "WIX产品型号", "levelId", "厂家", "车型", "年款", "生产年份", "停产年份", "排量(升)", "进气形式"};
         OutputStream outputStream = null;

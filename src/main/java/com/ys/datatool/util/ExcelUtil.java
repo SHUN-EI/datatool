@@ -71,26 +71,28 @@ public class ExcelUtil {
         return listMap;
     }
 
-    public static List<Map<String, Object>> createCarModelList(List<CarModelEntity> carModelEntities) {
+    public static List<Map<String, Object>> createCloudCarModelList(List<CloudCarModelEntity> carModelEntities) {
         List<Map<String, Object>> listMap = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         map.put("sheetName", "车型商品关系表");
         listMap.add(map);
 
-        CarModelEntity carModelEntity = null;
+        CloudCarModelEntity cloudCarModelEntity = null;
         for (int i = 0; i < carModelEntities.size(); i++) {
-            carModelEntity = carModelEntities.get(i);
+            cloudCarModelEntity = carModelEntities.get(i);
             Map<String, Object> mapValue = new HashMap<String, Object>();
-            mapValue.put("levelId", carModelEntity.getLevelId());
-            mapValue.put("manufacturers", carModelEntity.getManufacturers());
-            mapValue.put("models", carModelEntity.getModels());
-            mapValue.put("year", carModelEntity.getYear());
-            mapValue.put("produced_year", carModelEntity.getProducedYear());
-            mapValue.put("idling_year", carModelEntity.getIdlingYear());
-            mapValue.put("displacement", carModelEntity.getDisplacement());
-            mapValue.put("induction", carModelEntity.getInduction());
-            mapValue.put("num", carModelEntity.getNum());
-            mapValue.put("itemCode", carModelEntity.getItemCode());
+            mapValue.put("levelId", cloudCarModelEntity.getLevelId());
+            mapValue.put("manufacturers", cloudCarModelEntity.getManufacturers());
+            mapValue.put("models", cloudCarModelEntity.getModels());
+            mapValue.put("year", cloudCarModelEntity.getYear());
+            mapValue.put("produced_year", cloudCarModelEntity.getProducedYear());
+            mapValue.put("idling_year", cloudCarModelEntity.getIdlingYear());
+            mapValue.put("displacement", cloudCarModelEntity.getDisplacement());
+            mapValue.put("induction", cloudCarModelEntity.getInduction());
+            mapValue.put("num", cloudCarModelEntity.getNum());
+            mapValue.put("itemCode", cloudCarModelEntity.getItemCode());
+            mapValue.put("series", cloudCarModelEntity.getSeries());
+            mapValue.put("brand", cloudCarModelEntity.getBrand());
             listMap.add(mapValue);
         }
         return listMap;
