@@ -12,7 +12,7 @@ public class ExcelDatas {
     public static Workbook workbook;
 
     public static String[] cloudCarModelDatas=new String[]{"levelId","厂家","品牌",
-        "车系"
+        "车系","VIN码"
     };
 
     public static String[] billItemDatas = new String[]{"车店名称", "单据号",

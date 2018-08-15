@@ -10,6 +10,11 @@ public class CloudCarModelEntity {
     private Long id;
 
     /**
+     * VIN码
+     */
+    private String vin;
+
+    /**
      * 序号
      */
     private String num;
@@ -1127,6 +1132,14 @@ public class CloudCarModelEntity {
      * 远光类型
      */
     private String HighBeam;
+
+    public String getVin() {
+        return vin;
+    }
+
+    public void setVin(String vin) {
+        this.vin = vin;
+    }
 
     public String getItemCode() {
         return itemCode;

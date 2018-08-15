@@ -93,6 +93,7 @@ public class ExcelUtil {
             mapValue.put("itemCode", cloudCarModelEntity.getItemCode());
             mapValue.put("series", cloudCarModelEntity.getSeries());
             mapValue.put("brand", cloudCarModelEntity.getBrand());
+            mapValue.put("vin", cloudCarModelEntity.getVin());
             listMap.add(mapValue);
         }
         return listMap;

@@ -7,13 +7,18 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.ys.datatool.domain.CloudCarModelEntity;
+import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.NotMatchVINLevelIds;
+import com.ys.datatool.util.ExportUtil;
 import org.bson.Document;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mo on  2018/8/14.
@@ -42,10 +47,11 @@ public class CloudCarService {
     }
 
 
-
     @Test
     public void fetchData() throws Exception {
         List<CloudCarModelEntity> cloudCarModelEntities = new ArrayList<>();
+        List<NotMatchVINLevelIds> notMatchVINLevelIds = new ArrayList<>();
+        List<Map<String, Object>> mongoDatas = new ArrayList<Map<String, Object>>();
 
         String query = "select level_id,manufacturers,brand, series from  sm_cloud_car_model_all " +
                 "where Manufacturers='上汽大众' or Manufacturers='上海大众';";
@@ -71,7 +77,7 @@ public class CloudCarService {
          }*/
 
 
-      /**JDBC_TEMPLATE.query(query, rs -> {
+        JDBC_TEMPLATE.query(query, rs -> {
             while (rs.next()) {
                 String levelId = rs.getString("level_id");
                 String manufacturers = rs.getString("manufacturers");
@@ -85,28 +91,46 @@ public class CloudCarService {
                 cloudCarModelEntity.setSeries(series);
                 cloudCarModelEntities.add(cloudCarModelEntity);
             }
-        });*/
+        });
 
 
-        MongoClient mongoClient=new MongoClient("192.168.1.251",29017);
-        MongoDatabase mongoDatabase=mongoClient.getDatabase("SuperManagerV2");
+        //预投产环境mongodb地址:192.168.1.251、pdcmongodb地址:192.168.1.222
+        MongoClient mongoClient = new MongoClient("192.168.1.222", 29017);
+        MongoDatabase mongoDatabase = mongoClient.getDatabase("SuperManagerV2");
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
         FindIterable<Document> findIterable = collection.find();
         MongoCursor<Document> mongoCursor = findIterable.iterator();
-        while(mongoCursor.hasNext()){
 
-            Document doc= mongoCursor.next();
+        while (mongoCursor.hasNext()) {
+            Document doc = mongoCursor.next();
+            Map<String, Object> map = new HashMap<>();
+            map.putAll(doc);
+            mongoDatas.add(map);
+        }
 
+        for (Map mongoData : mongoDatas) {
+            for (CloudCarModelEntity cloudCarModelEntity : cloudCarModelEntities) {
+                String levelId = cloudCarModelEntity.getLevelId();
 
-            String s="";
+                Object levelIds = mongoData.get("levelIds");
+                if (levelIds != null) {
+                    String mongoLevelId = mongoData.get("levelIds").toString();
+                    String vin = mongoData.get("vin").toString();
+
+                    if (mongoLevelId.contains(levelId)) {
+                        cloudCarModelEntity.setVin(vin);
+                    }
+                }
+            }
         }
 
         System.out.println("集合 NotMatchVINLevelIds 选择成功");
+        System.out.println("mongoDatas数据为" + mongoDatas.toString());
+        System.out.println("cloudCarModelEntities数据为" + cloudCarModelEntities.size());
 
-        //System.out.println("结果为" + cloudCarModelEntities.size());
-        String pathname = "C:\\exportExcel\\云车型.xlsx";
-       // ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
+        String pathname = "C:\\exportExcel\\云车型-levelId对应vin.xlsx";
+        ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
 
     }
 

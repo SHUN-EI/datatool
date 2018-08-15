@@ -539,8 +539,7 @@ public class ExportUtil {
      */
     public static void exportCloudCarModelDataInLocal(List<CloudCarModelEntity> cloudCarModelEntities, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createCloudCarModelList(cloudCarModelEntities);
-        String[] keys = new String[]{"levelId", "manufacturers", "brand", "series",
-
+        String[] keys = new String[]{"levelId", "manufacturers", "brand", "series","vin"
         };
         OutputStream outputStream = null;
 
