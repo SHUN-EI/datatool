@@ -1133,6 +1133,124 @@ public class CloudCarModelEntity {
      */
     private String HighBeam;
 
+    /**
+     * 识别-WIN码1-3位(厂家名称)
+     */
+    private String vinOnetoThree;
+
+    /**
+     * 识别-WIN码4位(车身型式)
+     */
+    private String vinFour;
+
+    /**
+     * 识别-WIN码5位(发动机/变速器)
+     */
+    private String vinFive;
+
+    /**
+     * 识别-WIN码6位(乘员保护系统)
+     */
+    private String vinSix;
+
+    /**
+     * 识别-WIN码7-8位(车辆等级)
+     */
+    private String vinSeventoEight;
+
+    /**
+     * 识别-WIN码9位(检验位)
+     */
+    private String vinNine;
+
+    /**
+     * 识别-WIN码10位(生产年份)
+     */
+    private String vinTen;
+
+    /**
+     * 识别-WIN码11位(装配厂)
+     */
+    private String vinEleven;
+
+    /**
+     * 识别-WIN码12-17位(生产顺序号)
+     */
+    private String vinTwelvetoSeventeen;
+
+
+    public String getVinOnetoThree() {
+        return vinOnetoThree;
+    }
+
+    public void setVinOnetoThree(String vinOnetoThree) {
+        this.vinOnetoThree = vinOnetoThree;
+    }
+
+    public String getVinFour() {
+        return vinFour;
+    }
+
+    public void setVinFour(String vinFour) {
+        this.vinFour = vinFour;
+    }
+
+    public String getVinFive() {
+        return vinFive;
+    }
+
+    public void setVinFive(String vinFive) {
+        this.vinFive = vinFive;
+    }
+
+    public String getVinSix() {
+        return vinSix;
+    }
+
+    public void setVinSix(String vinSix) {
+        this.vinSix = vinSix;
+    }
+
+    public String getVinSeventoEight() {
+        return vinSeventoEight;
+    }
+
+    public void setVinSeventoEight(String vinSeventoEight) {
+        this.vinSeventoEight = vinSeventoEight;
+    }
+
+    public String getVinNine() {
+        return vinNine;
+    }
+
+    public void setVinNine(String vinNine) {
+        this.vinNine = vinNine;
+    }
+
+    public String getVinTen() {
+        return vinTen;
+    }
+
+    public void setVinTen(String vinTen) {
+        this.vinTen = vinTen;
+    }
+
+    public String getVinEleven() {
+        return vinEleven;
+    }
+
+    public void setVinEleven(String vinEleven) {
+        this.vinEleven = vinEleven;
+    }
+
+    public String getVinTwelvetoSeventeen() {
+        return vinTwelvetoSeventeen;
+    }
+
+    public void setVinTwelvetoSeventeen(String vinTwelvetoSeventeen) {
+        this.vinTwelvetoSeventeen = vinTwelvetoSeventeen;
+    }
+
     public String getVin() {
         return vin;
     }

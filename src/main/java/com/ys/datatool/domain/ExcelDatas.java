@@ -11,8 +11,12 @@ public class ExcelDatas {
 
     public static Workbook workbook;
 
-    public static String[] cloudCarModelDatas=new String[]{"levelId","厂家","品牌",
-        "车系","VIN码"
+    public static String[] cloudCarModelDatas = new String[]{"VIN码", "levelId", "厂家", "品牌", "厂家品牌编号",
+            "车系", "车型", "年款", "生产年份", "销售名称", "车辆类型", "车辆级别", "排放标准", "进气形式",
+            "发动机描述","排量","变速箱类型","变速器描述",
+            "WIN码1-3位(厂家名称)","WIN码4位(车身型式)","WIN码5位(发动机/变速器)","WIN码6位(乘员保护系统)",
+            "WIN码7-8位(车辆等级)","WIN码9位(检验位)","WIN码10位(生产年份)","WIN码11位(装配厂)","WIN码12-17位(生产顺序号)"
+
     };
 
     public static String[] billItemDatas = new String[]{"车店名称", "单据号",
