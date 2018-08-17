@@ -197,7 +197,13 @@ public class ExportUtil {
         }
     }
 
-
+    /**
+     * 元乐车宝-导出库存相关数据
+     * @param stocks
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
     public static void exportYuanLeCheBaoStockDataInLocal(List<Stock> stocks, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createStockList(stocks);

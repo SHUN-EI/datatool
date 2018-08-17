@@ -1,5 +1,7 @@
 package com.ys.datatool.service.cloudCar;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -8,7 +10,6 @@ import com.mongodb.client.MongoDatabase;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.ys.datatool.domain.CloudCarModelEntity;
 import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.NotMatchVINLevelIds;
 import com.ys.datatool.util.ExportUtil;
 import org.bson.Document;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by mo on  2018/8/14.
@@ -36,6 +38,8 @@ public class CloudCarService {
 
     private String PASSWORD = "root";
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     static {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setServerName("192.168.1.253");
@@ -50,52 +54,53 @@ public class CloudCarService {
     @Test
     public void testData() {
 
-        String sak="WVWZZZ33ZWW226668";
-        System.out.println("结果为"+sak.substring(11,sak.length()));
+        String sak = "WVWZZZ33ZWW226668";
+        System.out.println("结果为" + sak.substring(11, sak.length()));
     }
 
+    /**
+     * 根据指定的win码去mongodb找出对应的levelid
+     * 再去mysql里面找出levelid其他数据
+     * @throws Exception
+     */
     @Test
-    public void fetchVINLevelFromMongo() throws Exception{
+    public void fetchVINLevelFromMongo() throws Exception {
         List<Map<String, Object>> mongoDatas = new ArrayList<Map<String, Object>>();
-        Map<String,String> vinLevelIds=new HashMap<>();
+        Map<String, String> vinLevelIds = new HashMap<>();
+        List<String> mongoDataJson=new ArrayList<>();
+
         MongoClient mongoClient = new MongoClient("192.168.1.222", 29017);
         MongoDatabase mongoDatabase = mongoClient.getDatabase("SuperManagerV2");
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
-        FindIterable<Document> findIterable = collection.find();
-        MongoCursor<Document> mongoCursor = findIterable.iterator();
-        while (mongoCursor.hasNext()) {
-            Document doc = mongoCursor.next();
-            Map<String, Object> map = new HashMap<>();
-            map.putAll(doc);
-            mongoDatas.add(map);
+        BasicDBObject  query=new BasicDBObject();
+        Pattern pattern = Pattern.compile("^WVW.*$", Pattern.CASE_INSENSITIVE);//左匹配
+        query.put("vin",pattern);
+
+        FindIterable<Document> find=collection.find(query);
+        MongoCursor<Document> mongoCur = find.iterator();
+        while (mongoCur.hasNext()){
+            Document doc = mongoCur.next();
+            mongoDataJson.add(doc.toJson());
         }
 
-        for (Map mongoData : mongoDatas){
-            Object levelIds = mongoData.get("levelIds");
-            if (levelIds != null) {
-                String vin = mongoData.get("vin").toString();
-                String mongoLevelId = mongoData.get("levelIds").toString();
 
-                if(mongoLevelId.contains("WVW")){
-                    vinLevelIds.put(vin,mongoLevelId);
-                }
-            }
-        }
-
-        System.out.println("vinLevelIds数据为" +vinLevelIds.toString());
-        System.out.println("vinLevelIds为" + vinLevelIds.size());
+        System.out.println("mongoDataJson数据为" +  mongoDataJson.toString());
+        System.out.println("mongoDataJson为" +  mongoDataJson.size());
 
     }
 
-
+    /**
+     * 根据指定的条件去mysql查询levelid相关的车型数据
+     * 再去mongodb找出levelid对应的win码
+     * @throws Exception
+     */
     @Test
     public void fetchMatchVINLevelIdData() throws Exception {
         List<CloudCarModelEntity> cloudCarModelEntities = new ArrayList<>();
-        List<NotMatchVINLevelIds> notMatchVINLevelIds = new ArrayList<>();
         List<Map<String, Object>> mongoDatas = new ArrayList<Map<String, Object>>();
 
-        String query="select level_id,manufacturers,brand,brand_no,series,models," +
+        String query = "select level_id,manufacturers,brand,brand_no,series,models," +
                 "   year,produced_year,sales_name,vehicle_type,vehicle_size, " +
                 "  emission_standard,induction,engine_description,displacement," +
                 "  transmission_type,transmission_description " +
@@ -104,23 +109,7 @@ public class CloudCarService {
         /** Class.forName(DRIVER);
          Connection con = DriverManager.getConnection(URL, USER, PASSWORD);
          Statement statement = con.createStatement();
-         ResultSet rs = statement.executeQuery(query);
-
-
-         while (rs.next()) {
-         String levelId = rs.getString("level_id");
-         String manufacturers = rs.getString("manufacturers");
-         String brand = rs.getString("brand");
-         String series = rs.getString("series");
-
-         CloudCarModelEntity cloudCarModelEntity = new CloudCarModelEntity();
-         cloudCarModelEntity.setLevelId(levelId);
-         cloudCarModelEntity.setManufacturers(manufacturers);
-         cloudCarModelEntity.setBrand(brand);
-         cloudCarModelEntity.setSeries(series);
-         cloudCarModelEntities.add(cloudCarModelEntity);
-         }*/
-
+         ResultSet rs = statement.executeQuery(query);*/
 
         JDBC_TEMPLATE.query(query, rs -> {
             while (rs.next()) {
@@ -191,15 +180,15 @@ public class CloudCarService {
 
                     if (mongoLevelId.contains(levelId)) {
                         cloudCarModelEntity.setVin(vin);
-                        cloudCarModelEntity.setVinOnetoThree(vin.substring(0,3));
-                        cloudCarModelEntity.setVinFour(vin.substring(3,4));
-                        cloudCarModelEntity.setVinFive(vin.substring(4,5));
-                        cloudCarModelEntity.setVinSix(vin.substring(5,6));
-                        cloudCarModelEntity.setVinSeventoEight(vin.substring(6,8));
-                        cloudCarModelEntity.setVinNine(vin.substring(8,9));
-                        cloudCarModelEntity.setVinTen(vin.substring(9,10));
-                        cloudCarModelEntity.setVinEleven(vin.substring(10,11));
-                        cloudCarModelEntity.setVinTwelvetoSeventeen(vin.substring(11,vin.length()));
+                        cloudCarModelEntity.setVinOnetoThree(vin.substring(0, 3));
+                        cloudCarModelEntity.setVinFour(vin.substring(3, 4));
+                        cloudCarModelEntity.setVinFive(vin.substring(4, 5));
+                        cloudCarModelEntity.setVinSix(vin.substring(5, 6));
+                        cloudCarModelEntity.setVinSeventoEight(vin.substring(6, 8));
+                        cloudCarModelEntity.setVinNine(vin.substring(8, 9));
+                        cloudCarModelEntity.setVinTen(vin.substring(9, 10));
+                        cloudCarModelEntity.setVinEleven(vin.substring(10, 11));
+                        cloudCarModelEntity.setVinTwelvetoSeventeen(vin.substring(11, vin.length()));
                     }
                 }
             }

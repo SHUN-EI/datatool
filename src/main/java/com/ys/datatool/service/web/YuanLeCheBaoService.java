@@ -26,35 +26,33 @@ import java.util.*;
 @Service
 public class YuanLeCheBaoService {
 
-    private String CARDRIVINGLICENSE_URL = "http://www.carbao.vip/Home/car/drivingLicense";
+    private String CARDRIVINGLICENSE_URL = "http://wh.youchepi.cn/Home/car/drivingLicense";
 
-    private String CLIENTLIST_URL = "http://www.carbao.vip/Home/receptionService/customerTable";
+    private String CLIENTLIST_URL = "http://wh.youchepi.cn/Home/receptionService/customerTable";
 
-    private String CLIENTDETAIL_URL = "http://www.carbao.vip/Home/receptionService/customerDetail";
+    private String CLIENTDETAIL_URL = "http://wh.youchepi.cn/Home/receptionService/customerDetail";
 
-    private String CLIENT_URL = "http://www.carbao.vip/Home/receptionService/sreenCustomerTable";
+    private String BILL_URL = "http://wh.youchepi.cn/Home/workbench/ajaxGetInServiceList";
 
-    private String BILL_URL = "http://www.carbao.vip/Home/workbench/ajaxGetInServiceList";
+    private String MEMBERCARD_URL = "http://wh.youchepi.cn/Home/memberManagement/gerMemberUserLists";
 
-    private String MEMBERCARD_URL = "http://www.carbao.vip/Home/memberManagement/gerMemberUserLists";
+    private String MEMBERCARDOVERVIEW_URL = "http://wh.youchepi.cn/Home/memberManagement/memberList?shopBranchId=127&staffId=2341&shopId=";
 
-    private String MEMBERCARDOVERVIEW_URL = "http://www.carbao.vip/Home/memberManagement/memberList?shopBranchId=127&staffId=2341&shopId=";
+    private String STOCKINSEARCH_URL = "http://wh.youchepi.cn/Home/storage/storageInSearchByPartsGuid";
 
-    private String STOCKINSEARCH_URL = "http://www.carbao.vip/Home/storage/storageInSearchByPartsGuid";
+    private String STOCKINDIV_URL = "http://wh.youchepi.cn/Home/partsinfo/storageInDiv";
 
-    private String STOCKINDIV_URL = "http://www.carbao.vip/Home/partsinfo/storageInDiv";
+    private String STOCKDETAIL_URL = "http://wh.youchepi.cn/Home/partsinfo/partsInfo";
 
-    private String STOCKDETAIL_URL = "http://www.carbao.vip/Home/partsinfo/partsInfo";
+    private String STOCK_URL = "http://wh.youchepi.cn/Home/cbstoragepartsinventory/invenManagementTable";
 
-    private String STOCK_URL = "http://www.carbao.vip/Home/cbstoragepartsinventory/invenManagementTable";
+    private String SERVICE_URL = "http://wh.youchepi.cn/Home/service/serviceTable";
 
-    private String SERVICE_URL = "http://www.carbao.vip/Home/service/serviceTable";
+    private String SUPPLIER_URL = "http://wh.youchepi.cn/Home/cbpartssupplier/supplierTable";
 
-    private String SUPPLIER_URL = "http://www.carbao.vip/Home/cbpartssupplier/supplierTable";
+    private String CARINFOPAGE_URL = "http://wh.youchepi.cn/Home/car/carTable";
 
-    private String CARINFOPAGE_URL = "http://www.carbao.vip/Home/car/carTable";
-
-    private String CARINFODETAIL_URL = "http://www.carbao.vip/Home/car/carDetail";
+    private String CARINFODETAIL_URL = "http://wh.youchepi.cn/Home/car/carDetail";
 
     private String trItemRegEx = "#content-tbody > tr";
 
@@ -93,17 +91,17 @@ public class YuanLeCheBaoService {
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
      * 77(石家庄丽雷行)、140(天骐汽车)、132(路胜通汽车)、
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
-     * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)
+     * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)、86(宜章财君)
      */
-    private String companyId = "283";
+    private String companyId = "86";
 
     /**
      * 分店编号-shopBranchId：
-     * 146(路胜通汽车)、298(摩范汽车)
+     * 146(路胜通汽车)、298(摩范汽车)、100(宜章财君)
      */
-    private String shopBranchId = "298";
+    private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=41913339DDC6EA22DCE09B4CD4FEC352; usfl=watXJrLQTgNV1wqr4jX; lk=e357a31c0f5056771bcde96d5d1c401d";
+    private String COOKIE = "JSESSIONID=54FE6C98D9F6DAFCE186A152D8092DDC; usfl=YLmMiuyxiwW3ARBPWrf; lk=c351aa4b9987b48fd0884a480e04809c";
 
     @Test
     public void test() throws Exception {
@@ -147,6 +145,8 @@ public class YuanLeCheBaoService {
                     for (int j = 1; j <= trSize; j++) {
                         String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
                         String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
+                        String brandNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
 
                         String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text();
                         String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
@@ -155,10 +155,14 @@ public class YuanLeCheBaoService {
                         String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(j))).attr("onclick");
                         String getGUIDRegEx = "(?<=').*(?=')";
                         String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
+                        String brandName = doc.select(StringUtils.replace(brandNameRegEx, "{no}", String.valueOf(j))).text();
+                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
 
                         Product product = new Product();
                         product.setPrice(price);
+                        product.setBrandName(brandName);
                         product.setProductName(productName);
+                        product.setFirstCategoryName(firstCategoryName);
                         productMap.put(guid, product);
                     }
                 }
@@ -212,6 +216,8 @@ public class YuanLeCheBaoService {
                     stock.setGoodsName(p.getProductName());
                     stock.setInventoryNum(inventoryNum);
                     stock.setSalePrice(salePrice.replace("￥", ""));
+                    stock.setBrand(p.getBrandName());
+                    stock.setFirstCategoryName(p.getFirstCategoryName());
                     stocks.add(stock);
                 }
             }
@@ -244,8 +250,9 @@ public class YuanLeCheBaoService {
         System.out.println("大小为" + stocks.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝库存.xls";
+        String pathname2 = "C:\\exportExcel\\元乐车宝库存（含分类）.xls";
         ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
-
+        ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks,ExcelDatas.workbook,pathname2);
     }
 
     /**
@@ -413,7 +420,7 @@ public class YuanLeCheBaoService {
 
         if (supplierDetails.size() > 0) {
             for (String supplierDetail : supplierDetails) {
-                String preUrl = "http://www.carbao.vip";
+                String preUrl = "http://wh.youchepi.cn";
                 Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
@@ -1069,7 +1076,7 @@ public class YuanLeCheBaoService {
     }
 
     private String getMemberCardItemURL(String userId, String packageId) {
-        String url = "http://www.carbao.vip/Home/receptionService/recordCardDetail?" +
+        String url = "http://wh.youchepi.cn/Home/receptionService/recordCardDetail?" +
                 "userId=" + userId +
                 "&packageId=" + packageId +
                 "&shopBranchId=" + shopBranchId +

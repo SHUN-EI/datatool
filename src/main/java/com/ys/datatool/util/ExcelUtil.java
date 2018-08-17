@@ -134,6 +134,7 @@ public class ExcelUtil {
             mapValue.put("productCode", stock.getProductCode());
             mapValue.put("companyName", stock.getCompanyName());
             mapValue.put("firstCategoryName", stock.getFirstCategoryName());
+            mapValue.put("secondCategoryName", stock.getSecondCategoryName());
             mapValue.put("brand", stock.getBrand());
             mapValue.put("remark", stock.getRemark());
             mapValue.put("spec", stock.getSpec());
