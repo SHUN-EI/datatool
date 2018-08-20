@@ -1,5 +1,6 @@
 package com.ys.datatool.service.cloudCar;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
@@ -16,10 +17,7 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -61,38 +59,54 @@ public class CloudCarService {
     /**
      * 根据指定的win码去mongodb找出对应的levelid
      * 再去mysql里面找出levelid其他数据
+     *
      * @throws Exception
      */
     @Test
     public void fetchVINLevelFromMongo() throws Exception {
-        List<Map<String, Object>> mongoDatas = new ArrayList<Map<String, Object>>();
-        Map<String, String> vinLevelIds = new HashMap<>();
-        List<String> mongoDataJson=new ArrayList<>();
+        List<CloudCarModelEntity> cloudCarModelEntities = new ArrayList<>();
 
-        MongoClient mongoClient = new MongoClient("192.168.1.222", 29017);
+        MongoClient mongoClient = new MongoClient("127.0.0.1", 27017);
         MongoDatabase mongoDatabase = mongoClient.getDatabase("SuperManagerV2");
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
-        BasicDBObject  query=new BasicDBObject();
+        BasicDBObject query = new BasicDBObject();
         Pattern pattern = Pattern.compile("^WVW.*$", Pattern.CASE_INSENSITIVE);//左匹配
-        query.put("vin",pattern);
+        query.put("vin", pattern);
 
-        FindIterable<Document> find=collection.find(query);
+        FindIterable<Document> find = collection.find(query);
         MongoCursor<Document> mongoCur = find.iterator();
-        while (mongoCur.hasNext()){
+        while (mongoCur.hasNext()) {
             Document doc = mongoCur.next();
-            mongoDataJson.add(doc.toJson());
+
+            Object ids = doc.get("levelIds");
+            if (ids != null) {
+                JsonNode node = MAPPER.readTree(doc.toJson());
+                String vin = node.get("vin").asText();
+
+                JsonNode levelIds = node.get("levelIds");
+                int size = node.get("levelIds").size();
+                for (int i = 0; i < size; i++) {
+                    String levelId = levelIds.get(i).asText();
+
+                    CloudCarModelEntity cloudCarModelEntity = new CloudCarModelEntity();
+                    cloudCarModelEntity.setLevelId(levelId);
+                    cloudCarModelEntity.setVin(vin);
+                    cloudCarModelEntities.add(cloudCarModelEntity);
+                }
+            }
         }
 
 
-        System.out.println("mongoDataJson数据为" +  mongoDataJson.toString());
-        System.out.println("mongoDataJson为" +  mongoDataJson.size());
+        System.out.println("mongoDataJson数据为" + cloudCarModelEntities.toString());
+        System.out.println("mongoDataJson为" + cloudCarModelEntities.size());
 
     }
 
     /**
      * 根据指定的条件去mysql查询levelid相关的车型数据
      * 再去mongodb找出levelid对应的win码
+     *
      * @throws Exception
      */
     @Test
@@ -155,7 +169,7 @@ public class CloudCarService {
 
 
         //预投产环境mongodb地址:192.168.1.251、pdcmongodb地址:192.168.1.222
-        MongoClient mongoClient = new MongoClient("192.168.1.222", 29017);
+        MongoClient mongoClient = new MongoClient("127.0.0.1", 27017);
         MongoDatabase mongoDatabase = mongoClient.getDatabase("SuperManagerV2");
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
