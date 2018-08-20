@@ -199,6 +199,7 @@ public class ExportUtil {
 
     /**
      * 元乐车宝-导出库存相关数据
+     *
      * @param stocks
      * @param workbook
      * @param pathname
@@ -232,6 +233,7 @@ public class ExportUtil {
 
     /**
      * 仓库-标准模版导出
+     *
      * @param storeRooms
      * @param workbook
      * @param pathname
@@ -470,6 +472,7 @@ public class ExportUtil {
 
     /**
      * 单据-标准模版导出
+     *
      * @param bills
      * @param workbook
      * @param pathname
@@ -478,8 +481,8 @@ public class ExportUtil {
     public static void exportBillDataInLocal(List<Bill> bills, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createBillList(bills);
         String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
-                "phone", "name", "totalAmount", "discount","actualAmount","waitInStore",
-                "dateExpect", "payType", "remark","dateAdded","dateEnd"};
+                "phone", "name", "totalAmount", "discount", "actualAmount", "waitInStore",
+                "dateExpect", "payType", "remark", "dateAdded", "dateEnd"};
         OutputStream outputStream = null;
 
         try {
@@ -504,6 +507,7 @@ public class ExportUtil {
 
     /**
      * 单据明细-标准模版导出
+     *
      * @param billDetails
      * @param workbook
      * @param pathname
@@ -512,8 +516,8 @@ public class ExportUtil {
     public static void exportBillItemDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createBillDetailList(billDetails);
         String[] keys = new String[]{"companyName", "billNo", "itemName", "num",
-                "price", "discount", "itemType", "firstCategoryName","secondCategoryName","itemCode"
-                };
+                "price", "discount", "itemType", "firstCategoryName", "secondCategoryName", "itemCode"
+        };
         OutputStream outputStream = null;
 
         try {
@@ -537,7 +541,6 @@ public class ExportUtil {
     }
 
     /**
-     *
      * @param cloudCarModelEntities
      * @param workbook
      * @param pathname
@@ -545,15 +548,59 @@ public class ExportUtil {
      */
     public static void exportCloudCarModelDataInLocal(List<CloudCarModelEntity> cloudCarModelEntities, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createCloudCarModelList(cloudCarModelEntities);
-        String[] keys = new String[]{"vin","levelId", "manufacturers", "brand", "brand_no","series",
-                "models","year","produced_year","sales_name","vehicle_type","vehicle_size","emission_standard",
-                "induction","engine_description","displacement","transmission_type","transmission_description",
-                "vinOnetoThree","vinFour","vinFive","vinSix","vinSeventoEight","vinNine","vinTen","vinEleven","vinTwelvetoSeventeen"
+        String[] keys = new String[]{"vin", "levelId", "manufacturers", "brand", "brand_no", "series",
+                "models", "year", "produced_year", "sales_name", "vehicle_type", "vehicle_size", "emission_standard",
+                "induction", "engine_description", "displacement", "transmission_type", "transmission_description",
+                "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
         };
         OutputStream outputStream = null;
 
         try {
             workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.cloudCarModelDatas);
+            CellStyle cellStyle = workbook.createCellStyle(); //换行样式
+            File file = new File(pathname);
+
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 力洋数据所有字段
+     *
+     * @param cloudCarModelEntities
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportCloudCarModelSomeFieldsInLocal(List<CloudCarModelEntity> cloudCarModelEntities, Workbook workbook, String pathname) throws IOException {
+        List<Map<String, Object>> list = ExcelUtil.createCloudCarModelList(cloudCarModelEntities);
+        String[] keys = new String[]{"vin", "levelId", "manufacturers", "brand", "brand_no", "series",
+                "models", "year", "produced_year", "sales_name", "vehicle_type", "vehicle_size", "emission_standard",
+                "induction", "engine_description", "displacement", "transmission_type", "transmission_description",
+                "name","series_no","generation","chassis_code","sales_version","guiding_price","listing_year","listing_month",
+                "idling_year","production_status","sales_status","country","vehicle_attributes","models_code","engine_model",
+                "cylinder_volume","fuel_type","fuel_grade","horsepower","power_kw","power_rpm","torque_nm","torque_rpm",
+                "cylinder_arrangement","cylinders","valves_per_cylinder","compression_ratio","fuel_injection",
+                "combined_fuel_consumption","urban_fuel_consumption","suburb_fuel_consumption","acceleration",
+                "max_speed","engine_knowhow","catalyst","cooling_method","bore","stroke","gear_number",
+                "front_brake","rear_brake","front_suspension","rear_suspension",
+                "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
+        };
+        OutputStream outputStream = null;
+
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.cloudCarModelSomeFields);
             CellStyle cellStyle = workbook.createCellStyle(); //换行样式
             File file = new File(pathname);
 

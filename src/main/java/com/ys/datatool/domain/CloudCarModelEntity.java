@@ -24,6 +24,9 @@ public class CloudCarModelEntity {
      */
     private String itemCode;
 
+    /**
+     * 车型名称
+     */
     private String name;
 
     /**
