@@ -70,11 +70,11 @@ public class CloudCarService {
         MongoDatabase mongoDatabase = mongoClient.getDatabase("SuperManagerV2");
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
-        BasicDBObject query = new BasicDBObject();
+        BasicDBObject queryByCondition = new BasicDBObject();
         Pattern pattern = Pattern.compile("^WVW.*$", Pattern.CASE_INSENSITIVE);//左匹配
-        query.put("vin", pattern);
+        queryByCondition.put("vin", pattern);
 
-        FindIterable<Document> find = collection.find(query);
+        FindIterable<Document> find = collection.find(queryByCondition);
         MongoCursor<Document> mongoCur = find.iterator();
         while (mongoCur.hasNext()) {
             Document doc = mongoCur.next();
@@ -98,9 +98,60 @@ public class CloudCarService {
         }
 
 
+        String queryLevelId = "select level_id,manufacturers,brand,brand_no,series,models," +
+                "  year,produced_year,sales_name,vehicle_type,vehicle_size, " +
+                "  emission_standard,induction,engine_description,displacement," +
+                "  transmission_type,transmission_description " +
+                " from sm_cloud_car_model_all where level_id=";
+
+        if (cloudCarModelEntities.size() > 0) {
+            for (CloudCarModelEntity cloudCarModelEntity : cloudCarModelEntities) {
+                String levelId = cloudCarModelEntity.getLevelId();
+                String condition=queryLevelId+"'"+levelId+"';";
+
+                JDBC_TEMPLATE.query(condition,rs ->{
+                        String manufacturers = rs.getString("manufacturers");
+                        String brand = rs.getString("brand");
+                        String brandNo = rs.getString("brand_no");
+                        String series = rs.getString("series");
+                        String models = rs.getString("models");
+                        String producedYear = rs.getString("produced_year");
+                        String year = rs.getString("year");
+                        String salesName = rs.getString("sales_name");
+                        String vehicleType = rs.getString("vehicle_type");
+                        String vehicleSize = rs.getString("vehicle_size");
+                        String emissionStandard = rs.getString("emission_standard");
+                        String induction = rs.getString("induction");
+                        String engineDescription = rs.getString("engine_description");
+                        String displacement = rs.getString("displacement");
+                        String transmissionType = rs.getString("transmission_type");
+                        String transmissionDescription = rs.getString("transmission_description");
+
+                        cloudCarModelEntity.setManufacturers(manufacturers);
+                        cloudCarModelEntity.setBrand(brand);
+                        cloudCarModelEntity.setBrandNo(brandNo);
+                        cloudCarModelEntity.setSeries(series);
+                        cloudCarModelEntity.setModels(models);
+                        cloudCarModelEntity.setYear(year);
+                        cloudCarModelEntity.setProducedYear(producedYear);
+                        cloudCarModelEntity.setSalesName(salesName);
+                        cloudCarModelEntity.setVehicleType(vehicleType);
+                        cloudCarModelEntity.setVehicleSize(vehicleSize);
+                        cloudCarModelEntity.setEmissionStandard(emissionStandard);
+                        cloudCarModelEntity.setInduction(induction);
+                        cloudCarModelEntity.setEngineDescription(engineDescription);
+                        cloudCarModelEntity.setDisplacement(displacement);
+                        cloudCarModelEntity.setTransmissionType(transmissionType);
+                        cloudCarModelEntity.setTransmissionDescription(transmissionDescription);
+                });
+            }
+        }
+
         System.out.println("mongoDataJson数据为" + cloudCarModelEntities.toString());
         System.out.println("mongoDataJson为" + cloudCarModelEntities.size());
 
+        String pathname = "C:\\exportExcel\\vin对应levelId(WVW开头).xlsx";
+        ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
     }
 
     /**
