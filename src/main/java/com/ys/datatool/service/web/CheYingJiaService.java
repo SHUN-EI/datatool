@@ -37,28 +37,77 @@ public class CheYingJiaService {
 
     String QUERYSOAPAction = "http://tempuri.org/Query";
 
-    String USER_AGENT = "Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 4.0.30319.42000)";
-
     String CONTENT_TYPE = "text/xml; charset=utf-8";
 
     private Charset charset = Charset.forName("UTF-8");
 
-    private int carInfoNum = 276;
+    /**
+     * 车辆页面总页数
+     */
+    private int carInfoNum = 431;
 
+    /**
+     * 供应商页面总页数
+     */
     private int supplierNum = 6;
 
+    /**
+     * 服务页面总页数
+     */
     private int serviceNum = 20;
 
+    /**
+     * 商品页面总页数
+     */
     private int itemNum = 108;
 
+    /**
+     * 会员卡页面总页数
+     */
     private int memberCardNum = 323;//323
 
+    private String userName = "297edeb35a0eb000015a1baf767104da";
+
+    private String passWord = "3844FFFB48E49782625F10D54E4AACCD";
+
+    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
+
+    private String companyId = "297edeb357fb144a01580046ab245d37";
+
+    /**
+     * 解析返回数据传参
+     */
+    private String element = "_x0035_816";
+
+
+    /**
+     * 卡内项目-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchMemberCardItemData() throws IOException, DocumentException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>97ECCB8B1E6864097A1B1A44A3523C5F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header>" +
+                "<soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\">" +
+                "<storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -86,10 +135,20 @@ public class CheYingJiaService {
                 "  &lt;/DictionaryEntry&gt;\n" +
                 "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-        String cardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName>" +
-                "<PassWord>31DA01AD07722FCBA210270E00504C44</PassWord>" +
-                "<CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken>" +
-                "<CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId>" +
+        String cardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
                 "</MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\">" +
                 "<SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  " +
                 "where cardInfoId='{no}'</SQLString>" +
@@ -100,8 +159,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0036_474";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html, element);
 
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -205,11 +263,31 @@ public class CheYingJiaService {
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
+    /**
+     * 会员卡-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchMemberCardData() throws IOException, DocumentException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>97ECCB8B1E6864097A1B1A44A3523C5F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -242,8 +320,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0036_474";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html, element);
 
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -314,11 +391,31 @@ public class CheYingJiaService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
+    /**
+     * 商品-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchItemData() throws IOException, DocumentException {
         List<Product> products = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -352,8 +449,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0032_147";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html, element);
 
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -420,11 +516,31 @@ public class CheYingJiaService {
 
     }
 
+    /**
+     * 服务项目-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchServiceData() throws IOException, DocumentException {
         List<Product> products = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -456,8 +572,7 @@ public class CheYingJiaService {
             String params = StringUtils.replace(param, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
             String html = response.returnContent().asString(charset);
-            String target = "_x0034_00";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html, element);
 
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -499,11 +614,31 @@ public class CheYingJiaService {
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
+    /**
+     * 供应商-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchSupplierData() throws IOException, DocumentException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8716E6CC8546272AF64B127AEAEEDCF7</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -537,8 +672,7 @@ public class CheYingJiaService {
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0031_16";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html,element);
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
                     String companyName = "";
@@ -603,11 +737,33 @@ public class CheYingJiaService {
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
+    /**
+     * 车辆信息-标准模版导出
+     *
+     * @throws IOException
+     * @throws DocumentException
+     */
     @Test
     public void fetchCarInfoData() throws IOException, DocumentException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297ec67f6086c54001609ac4b8b81cdc</UserName><PassWord>8D51324FB76D92C19E625024B66AC76F</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb35d0b3080015d0ce0879e30af</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<soap:Header>" +
+                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+                "<UserName>" +
+                userName +
+                "</UserName>" +
+                "<PassWord>" +
+                passWord +
+                "</PassWord>" +
+                "<CyjToken>" +
+                cyjToken +
+                "</CyjToken>" +
+                "<CompanyId>" +
+                companyId +
+                "</CompanyId>" +
+                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -635,14 +791,44 @@ public class CheYingJiaService {
                 "  &lt;/DictionaryEntry&gt;\n" +
                 "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
+
+        String param2="<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a0eb000015a1baf767104da</UserName><PassWord>3844FFFB48E49782625F10D54E4AACCD</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb357fb144a01580046ab245d37</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;LEAGUERNUM desc,LEAGUERNAME,MOBILE&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;ID,LEAGUERNUM,MERID,LEAGUERNAME,ABBREVIATION,ZJTYPE,ZJNUM,SEX,BIRTHDAY,EMAIL,PHONE,MOBILE,ADDRESS,ZIPCODE,EDULEVEL,TRADETYPE,POST,COMTYPE,LEAGUERAREA,PIN,REGTIME,LOGOUTTIME,LEAGUERSTATE,C_SORTINDEX,CREATEDATE,CREATEEMP,LASTUPDATEDATE,UPDATEEMP,BAKONE,BAKTWO,BAKTHREE,BAKFOUR,BAKFIVE,BAKSIX,BAKSEVEN,BAKEIGHT,BAKNINE,BAKTEN,LEAGUERTYPEID,LEAGUERTYPE,MERNAME,STORESID,STORESNAME,ISONCREDIT,MAXCREDIT,ACCOUNTDAY,CLIENTMANAGERID,CLIENTMANAGER,CUSTOMERSOURCEID,CUSTOMERSOURCE,CARNUMBER,INTYPE,HYMONEY,INTEGRAL,MOBILEONE,case CUSTOMERSOURCE when '微信' then '微信' else '' end as ISWEIXIN, case leaguerState when '2' then '冻结客户' when '3' then '领养客户' else '正常客户' end as StateName,ADOPTTIME,LEVELNAME,LASTONSTORETIME,LASTVISITTIME,SumConsumptionAccount,SumConsumptionCount,FirstOnStoreDate &lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb357fb144a01580046ab245d37'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "  &lt;DictionaryEntry&gt;\n" +
+                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_leaguerInfo&lt;/Value&gt;\n" +
+                "  &lt;/DictionaryEntry&gt;\n" +
+                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+
         for (int i = 1; i <= carInfoNum; i++) {
 
-            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
-            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
+            String params = StringUtils.replace(param2, "{no}", String.valueOf(i));
+            Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction,params);
 
             String html = response.returnContent().asString(charset);
-            String target = "_x0035_511";
-            List<Element> dataList = getDataList(html, target);
+            List<Element> dataList = getDataList(html,element);
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
 
