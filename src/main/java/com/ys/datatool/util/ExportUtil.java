@@ -594,7 +594,13 @@ public class ExportUtil {
                 "cylinder_arrangement","cylinders","valves_per_cylinder","compression_ratio","fuel_injection",
                 "combined_fuel_consumption","urban_fuel_consumption","suburb_fuel_consumption","acceleration",
                 "max_speed","engine_knowhow","catalyst","cooling_method","bore","stroke","gear_number",
-                "front_brake","rear_brake","front_suspension","rear_suspension",
+                "front_brake","rear_brake","front_suspension","rear_suspension","steering","power_steering",
+                "min_ground_clearance","min_turning_radius","access_angle","departure_angle","engine_location",
+                "drive_mode","drive_model","body_type","length","width","height","wheelbase","front_track","rear_track",
+                "curb_weight","max_loading","fuel_tank_capacity","luggage_place","roof_type","calash","doors","seats",
+                "front_tyre","rear_tyre","front_rim","rear_rim","rims_material","spare_wheel","driver_airbag","passenger_airbag",
+                "front_side_airbag","rear_side_airbag","front_curtain_airbag","rear_curtain_airbag","knee_airbag","tire_pressure_monitor",
+                "run_flat_tyre","seatbelt_warning_lamp","isofix","latch","engine_antitheft","central_locking","remote_control",
                 "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
         };
         OutputStream outputStream = null;
