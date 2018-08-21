@@ -117,7 +117,7 @@ public class BillDetail {
     /**
      * 折扣
      */
-    private String discount;
+    private String discount="0";
 
 
     public String getDetailId() {

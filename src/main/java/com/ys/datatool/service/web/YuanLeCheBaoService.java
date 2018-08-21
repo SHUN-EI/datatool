@@ -26,13 +26,15 @@ import java.util.*;
 @Service
 public class YuanLeCheBaoService {
 
+    private String BILL_URL = "http://wh.youchepi.cn/Home/shopFinance/orderTable";
+
     private String CARDRIVINGLICENSE_URL = "http://wh.youchepi.cn/Home/car/drivingLicense";
 
     private String CLIENTLIST_URL = "http://wh.youchepi.cn/Home/receptionService/customerTable";
 
     private String CLIENTDETAIL_URL = "http://wh.youchepi.cn/Home/receptionService/customerDetail";
 
-    private String BILL_URL = "http://wh.youchepi.cn/Home/workbench/ajaxGetInServiceList";
+    private String BILLINSERVICE_URL = "http://wh.youchepi.cn/Home/workbench/ajaxGetInServiceList";
 
     private String MEMBERCARD_URL = "http://wh.youchepi.cn/Home/memberManagement/gerMemberUserLists";
 
@@ -101,7 +103,8 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=54FE6C98D9F6DAFCE186A152D8092DDC; usfl=YLmMiuyxiwW3ARBPWrf; lk=c351aa4b9987b48fd0884a480e04809c";
+    private String COOKIE = "JSESSIONID=D6FC30730FB5C4792CD4AACA8F23FED3; usfl=YLmMiuyxiwW3ARBPWrf; lk=c351aa4b9987b48fd0884a480e04809c";
+
 
     @Test
     public void test() throws Exception {
@@ -119,6 +122,93 @@ public class YuanLeCheBaoService {
         String price = doc.select(priceRegEx).text().replace("￥", "");
 
         System.out.println("结果为" + price);
+
+    }
+
+
+    /**
+     * 门店订单-单据
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchBillDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        List<BillDetail> billDetails = new ArrayList<>();
+
+        Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        String content = res.returnContent().asString();
+        Document document = Jsoup.parseBodyFragment(content);
+
+        String startRegEx = "\"data\"";
+        String endRegEx = "};";
+        JsonNode node = getDataNode(document, startRegEx, endRegEx);
+        JsonNode totalCount = node.get("totalCount");
+        int totalPage = WebClientUtil.getTotalPage(totalCount, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                JsonNode result = getDataNode(doc, startRegEx, endRegEx);
+                Iterator<JsonNode> it = result.get("data").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+                    String billNo = element.get("orderCode").asText();
+                    String carNumber = element.get("carNumber").asText();
+                    String phone = element.get("mobile").asText();
+                    String actualAmount = element.get("dealAmount").asText();
+                    String totalAmount = element.get("totalAmount").asText();
+                    String name = element.get("userName").asText();
+                    String dateAdded = element.get("orderTime").asText();
+                    String dateEnd = element.get("payTime").asText();//需要转换日期格式
+
+                    Bill bill = new Bill();
+                    bill.setCompanyName(companyName);
+                    bill.setBillNo(billNo);
+                    bill.setCarNumber(carNumber);
+                    bill.setPhone(phone);
+                    bill.setActualAmount(actualAmount);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setName(name);
+                    bill.setDateAdded(dateAdded);
+                    bill.setDateExpect(dateAdded);
+                    bill.setDateEnd(dateAdded);
+                    bills.add(bill);
+
+                    if (element.get("orderItemList") != null) {
+                        Iterator<JsonNode> items = element.get("orderItemList").iterator();
+                        while (items.hasNext()){
+                            JsonNode e = items.next();
+                            String itemName=e.get("itemName").asText();
+                            String num=e.get("quantity").asText();
+                            String price=e.get("itemPrice").asText();
+                            String itemCode=e.get("orderItemGuid").asText();
+
+                            BillDetail billDetail=new BillDetail();
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setBillNo(billNo);
+                            billDetail.setItemName(itemName);
+                            billDetail.setNum(num);
+                            billDetail.setItemType("服务项");
+                            billDetail.setPrice(price);
+                            billDetail.setItemCode(itemCode);
+                            billDetails.add(billDetail);
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println(" bills结果为" + bills.toString());
+        System.out.println(" bills结果为" + bills.size());
+
+        String pathname = "C:\\exportExcel\\元乐车宝单据.xls";
+        String pathname2 = "C:\\exportExcel\\元乐车宝单据明细.xls";
+        ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportBillDetailDataInLocal(billDetails, ExcelDatas.workbook, pathname2);
 
     }
 
@@ -252,7 +342,7 @@ public class YuanLeCheBaoService {
         String pathname = "C:\\exportExcel\\元乐车宝库存.xls";
         String pathname2 = "C:\\exportExcel\\元乐车宝库存（含分类）.xls";
         ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
-        ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks,ExcelDatas.workbook,pathname2);
+        ExportUtil.exportYuanLeCheBaoStockDataInLocal(stocks, ExcelDatas.workbook, pathname2);
     }
 
     /**
@@ -762,20 +852,20 @@ public class YuanLeCheBaoService {
     }
 
     /**
-     * 单据
+     * 工作台-单据(服务中)
      *
      * @throws IOException
      */
     @Test
-    public void fetchBillData() throws IOException {
+    public void fetchBillInServiceData() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams("1"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").iterator();
@@ -830,20 +920,20 @@ public class YuanLeCheBaoService {
     }
 
     /**
-     * 单据明细
+     * 工作台-单据明细(服务中)
      *
      * @throws IOException
      */
     @Test
-    public void fetchBillDetailData() throws IOException {
+    public void fetchBillDetailInServiceData() throws IOException {
         List<BillDetail> billDetails = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams("1"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").iterator();
@@ -1150,6 +1240,18 @@ public class YuanLeCheBaoService {
         }
 
         return memberCardMap;
+    }
+
+    private JsonNode getDataNode(Document document, String startRegEx, String endRegEx) throws IOException {
+        String docString = document.toString();
+        int start = docString.indexOf(startRegEx);
+        int end = docString.indexOf(endRegEx);
+
+        String dataStr = docString.substring(start, end);
+        String data = "{" + dataStr + "}";
+        JsonNode node = MAPPER.readTree(data);
+
+        return node;
     }
 
 }

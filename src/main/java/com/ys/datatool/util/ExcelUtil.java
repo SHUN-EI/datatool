@@ -74,7 +74,7 @@ public class ExcelUtil {
     public static List<Map<String, Object>> createCloudCarModelList(List<CloudCarModelEntity> carModelEntities) {
         List<Map<String, Object>> listMap = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
-        map.put("sheetName", "车型商品关系表");
+        map.put("sheetName", "车型表");
         listMap.add(map);
 
         CloudCarModelEntity cloudCarModelEntity = null;

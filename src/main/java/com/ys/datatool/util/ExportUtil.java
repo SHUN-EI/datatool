@@ -513,7 +513,7 @@ public class ExportUtil {
      * @param pathname
      * @throws IOException
      */
-    public static void exportBillItemDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
+    public static void exportBillDetailDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
         List<Map<String, Object>> list = ExcelUtil.createBillDetailList(billDetails);
         String[] keys = new String[]{"companyName", "billNo", "itemName", "num",
                 "price", "discount", "itemType", "firstCategoryName", "secondCategoryName", "itemCode"
