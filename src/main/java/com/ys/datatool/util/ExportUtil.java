@@ -604,7 +604,7 @@ public class ExportUtil {
                 "keyless_entry","keyless_go","abs","ebd","eba","asr","esp","epb","hdc","variable_suspension","air_suspension",
                 "variable_steering_ratio","blis","active_brake","active_steering","leather_steering_wheel","height_adjustable_steering_wheel",
                 "length_adjustable_steering_wheel","electric_adjustable_steering_wheel","multifunction_steering_wheel","steering_wheel_with_shift",
-                "leather_seat","sport_seat","height_adjustable_seat","lumber_support_adjustable","lumber_support_adjustable","shoulder_support_adjustable",
+                "leather_seat","sport_seat","height_adjustable_seat","lumber_support_adjustable","shoulder_support_adjustable",
                 "driver_seat_power_adjustable","passenger_seat_power_adjustable","second_row_backrest_adjustable","second_row_seat_position_adjustable",
                 "rear_seat_power_adjustable","memory_seat","front_seat_heater","rear_seat_heater","seat_ventilation","seat_massage",
                 "overall_rear_seats_fold_down","rear_seats_proportion_fold_down","third_row_seat","front_center_armrest","rear_center_armrest",
