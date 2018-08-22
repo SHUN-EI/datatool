@@ -601,6 +601,20 @@ public class ExportUtil {
                 "front_tyre","rear_tyre","front_rim","rear_rim","rims_material","spare_wheel","driver_airbag","passenger_airbag",
                 "front_side_airbag","rear_side_airbag","front_curtain_airbag","rear_curtain_airbag","knee_airbag","tire_pressure_monitor",
                 "run_flat_tyre","seatbelt_warning_lamp","isofix","latch","engine_antitheft","central_locking","remote_control",
+                "keyless_entry","keyless_go","abs","ebd","eba","asr","esp","epb","hdc","variable_suspension","air_suspension",
+                "variable_steering_ratio","blis","active_brake","active_steering","leather_steering_wheel","height_adjustable_steering_wheel",
+                "length_adjustable_steering_wheel","electric_adjustable_steering_wheel","multifunction_steering_wheel","steering_wheel_with_shift",
+                "leather_seat","sport_seat","height_adjustable_seat","lumber_support_adjustable","lumber_support_adjustable","shoulder_support_adjustable",
+                "driver_seat_power_adjustable","passenger_seat_power_adjustable","second_row_backrest_adjustable","second_row_seat_position_adjustable",
+                "rear_seat_power_adjustable","memory_seat","front_seat_heater","rear_seat_heater","seat_ventilation","seat_massage",
+                "overall_rear_seats_fold_down","rear_seats_proportion_fold_down","third_row_seat","front_center_armrest","rear_center_armrest",
+                "rear_cup_holder","ambientes_lamp","rear_back_window_glass_blind","rear_side_window_glass_blind","sunvisor_mirror",
+                "power_tailgate","sport_body_dress_up_kits","electric_suction_door","sunroof","panoramic_sunroof","hid_headlamp",
+                "led_headlamp","daytime_running_lamp","adaptive_headlamp","corner_headlamp","front_fog_lamp","height_adjustable_headlamp",
+                "headlamp_washer","front_power_window","rear_power_window","anti_pinch_glass","insulated_glass","electrically_adjustable_outside_mirror",
+                "heated_outside_mirror","auto_dimming_inside_mirror","power_fold_outside_mirror","inside_mirror_with_memory","rear_wiper",
+                "rain_sensing_wipers","cruise_control","parking_assist","rear_view_camera","trip_computer","hud","gps","interactive_information_services",
+                "lcd_screen","man_machine_interactive_system","internal_hard_disk","bluetooth","vehicle_tv","rear_entertainment_screen",
                 "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
         };
         OutputStream outputStream = null;
