@@ -615,6 +615,10 @@ public class ExportUtil {
                 "heated_outside_mirror","auto_dimming_inside_mirror","power_fold_outside_mirror","inside_mirror_with_memory","rear_wiper",
                 "rain_sensing_wipers","cruise_control","parking_assist","rear_view_camera","trip_computer","hud","gps","interactive_information_services",
                 "lcd_screen","man_machine_interactive_system","internal_hard_disk","bluetooth","vehicle_tv","rear_entertainment_screen",
+                "entertainment_connector","MP3","single_disc_cd","multi_disc_cd","virtual_multi_disc_cd","single_disc_dvd","multi_disc_dvd","speaker_number",
+                "ac","autoac","rearac","rear_vent","aczone_control","pollen_filter","refrigerator","automatic_parking","night_vision","splitview",
+                "acc","panoramic_camera","rear_parking_aid","telematics","valve_system","cylinder_head","cylinder_block","body_structure","parking_brake",
+                "warranty_period","vehicle_color","intelligent_stop_start","dipped_lights","high_beam","maintenance_remark",
                 "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
         };
         OutputStream outputStream = null;
