@@ -92,6 +92,15 @@ public class CloudCarService {
                     CloudCarModelEntity cloudCarModelEntity = new CloudCarModelEntity();
                     cloudCarModelEntity.setLevelId(levelId);
                     cloudCarModelEntity.setVin(vin);
+                    cloudCarModelEntity.setVinOnetoThree(vin.substring(0, 3));
+                    cloudCarModelEntity.setVinFour(vin.substring(3, 4));
+                    cloudCarModelEntity.setVinFive(vin.substring(4, 5));
+                    cloudCarModelEntity.setVinSix(vin.substring(5, 6));
+                    cloudCarModelEntity.setVinSeventoEight(vin.substring(6, 8));
+                    cloudCarModelEntity.setVinNine(vin.substring(8, 9));
+                    cloudCarModelEntity.setVinTen(vin.substring(9, 10));
+                    cloudCarModelEntity.setVinEleven(vin.substring(10, 11));
+                    cloudCarModelEntity.setVinTwelvetoSeventeen(vin.substring(11, vin.length()));
                     cloudCarModelEntities.add(cloudCarModelEntity);
                 }
             }
@@ -561,7 +570,8 @@ public class CloudCarService {
         System.out.println("mongoDataJson为" + cloudCarModelEntities.size());
 
         String pathname = "C:\\exportExcel\\vin对应levelId(WVW开头).xlsx";
-        ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
+        //ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCloudCarModelSomeFieldsInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -1085,8 +1095,9 @@ public class CloudCarService {
         System.out.println("mongoDatas数据为" + mongoDatas.toString());
         System.out.println("cloudCarModelEntities数据为" + cloudCarModelEntities.size());
 
-        String pathname = "C:\\exportExcel\\vin对应levelId车型详情(生产).xlsx";
-        ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
+        String pathname = "C:\\exportExcel\\vin对应levelId车型详情(全字段).xlsx";
+        //ExportUtil.exportCloudCarModelDataInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCloudCarModelSomeFieldsInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
 
     }
 
