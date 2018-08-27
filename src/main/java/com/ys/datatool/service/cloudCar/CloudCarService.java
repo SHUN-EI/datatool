@@ -36,6 +36,9 @@ public class CloudCarService {
 
     private String PASSWORD = "root";
 
+    //"^WVW.*$"
+    private String regEx="^LSV.*$";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     static {
@@ -71,7 +74,7 @@ public class CloudCarService {
         MongoCollection<Document> collection = mongoDatabase.getCollection("NotMatchVINLevelIds");
 
         BasicDBObject queryByCondition = new BasicDBObject();
-        Pattern pattern = Pattern.compile("^WVW.*$", Pattern.CASE_INSENSITIVE);//左匹配
+        Pattern pattern = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);//左匹配
         queryByCondition.put("vin", pattern);
 
         FindIterable<Document> find = collection.find(queryByCondition);
