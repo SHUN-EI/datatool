@@ -17,7 +17,7 @@ public class Stock {
     /**
      * 仓库
      */
-    private String storeRoomName;
+    private String storeRoomName="仓库";
 
     /**
      * 库位名称

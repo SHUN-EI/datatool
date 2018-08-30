@@ -30,6 +30,8 @@ import java.util.Map;
 @Service
 public class CheDianEJiaService {
 
+    private String STOCK_URL = "http://s.66ejia.com/RepertoryCenter/Repertorys.aspx?c=0";
+
     private String SUPPLIER_URL = "http://s.66ejia.com/RepertoryCenter/SupplierCenter.aspx";
 
     private String MEMBERCARD_URL = "http://s.66ejia.com/ShopMembers/ShopMemberList.aspx";
@@ -59,6 +61,71 @@ public class CheDianEJiaService {
     //获取数据的令牌
     private String COOKIE = "ASP.NET_SessionId=3hsvjj00kow2jondtrxcsrv2; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
 
+
+    /**
+     * 库存
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockData() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        getALLPages(STOCK_URL, 10);
+
+        for (int i = 0; i < pages.size(); i++) {
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+
+            for (int j = 2; j <= trSize; j++) {
+
+                String goodsNameRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                String productCodeRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(2)";
+                String brandRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(4)";
+                String carModelRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                String unitRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(7)";
+                String numRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(6)";
+                String priceRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(8)";
+
+                String goodsName = doc.select(StringUtils.replace(goodsNameRegEx, "{no}", String.valueOf(j))).text();
+                String productCode = doc.select(StringUtils.replace(productCodeRegEx, "{no}", String.valueOf(j))).text();
+                String brand = doc.select(StringUtils.replace(brandRegEx, "{no}", String.valueOf(j))).text();
+                String carModel = doc.select(StringUtils.replace(carModelRegEx, "{no}", String.valueOf(j))).text();
+                String unit = doc.select(StringUtils.replace(unitRegEx, "{no}", String.valueOf(j))).text();
+                String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(j))).text();
+                String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text();
+
+                Stock stock = new Stock();
+                stock.setGoodsName(goodsName);
+                stock.setBrand(brand);
+                stock.setProductCode(productCode);
+                stock.setPrice(price);
+                stock.setCompanyName(companyName);
+                stock.setInventoryNum(num);
+                stocks.add(stock);
+
+                Product product=new Product();
+                product.setProductName(goodsName);
+                product.setCompanyName(companyName);
+                product.setCode(productCode);
+                product.setBrandName(brand);
+                product.setCarModel(carModel);
+                product.setUnit(unit);
+                product.setItemType("配件");
+                product.setPrice(price);
+                products.add(product);
+            }
+        }
+
+        System.out.println("结果为" + pages.size());
+
+        String pathname = "C:\\exportExcel\\车店E家库存导出.xlsx";
+        String pathname2 = "C:\\exportExcel\\车店E家库存商品导出.xlsx";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
+
+
+    }
 
     /**
      * 供应商
@@ -97,7 +164,7 @@ public class CheDianEJiaService {
             suppliers.add(supplier);
         }
 
-        System.out.println("结果为" +  suppliers.toString());
+        System.out.println("结果为" + suppliers.toString());
 
         String pathname = "C:\\exportExcel\\车店E家供应商导出.xlsx";
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
