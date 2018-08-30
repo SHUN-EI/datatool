@@ -4,10 +4,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -33,6 +30,10 @@ import java.util.Map;
 @Service
 public class CheDianEJiaService {
 
+    private String CARINFODETAIL_URL = "http://s.66ejia.com/ShopMembers/";
+
+    private String CARINFO_URL = "http://s.66ejia.com/ShopMembers/ShopDriverList.aspx";
+
     private String MEMBERCARDITEMDETAIL_URL = "http://s.66ejia.com/ShopMembers/ShopMemberPackageEdit.aspx?id=";
 
     private String MEMBERCARDITEM_URL = "http://s.66ejia.com/ShopMembers/ShopMemberPackages.aspx";
@@ -43,13 +44,16 @@ public class CheDianEJiaService {
 
     private int count = 0;
 
+    private String companyName = "车店E家";
+
     private String userName = "gelunbu";
 
     private String password = "123456";
 
-    //获取数据的令牌
-    private String COOKIE = "ASP.NET_SessionId=zl4l4wg4waakctyg5l3otzhp; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
+    private String trRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr";
 
+    //获取数据的令牌
+    private String COOKIE = "ASP.NET_SessionId=rslcfgwfyrxqel5gyau15kpe; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
 
     @Test
     public void test() throws IOException {
@@ -62,9 +66,92 @@ public class CheDianEJiaService {
         List<MemberCard> memberCards = new ArrayList<>();
 
 
-
     }
 
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoData() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Map<String, CarInfo> carInfoMap = new HashMap<>();
+
+        WebClient webClient = getLoginWebClient();
+        HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
+        Document doc = Jsoup.parseBodyFragment(carInfoPage.asXml());
+
+        int total = getTotalPage(doc, 15);
+        pages.add(carInfoPage);
+        nextPage(carInfoPage, total);
+
+        for (int i = 0; i < pages.size(); i++) {
+            doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+            for (int j = 2; j <= trSize; j++) {
+
+                String idRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(9) > a";
+                String id = doc.select(StringUtils.replace(idRegEx, "{no}", String.valueOf(j))).attr("href");
+
+                String nameRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(1)";
+                String phoneRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(2)";
+                String brandRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(3)";
+                String carNumberRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(4)";
+                String vinCodeRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                String engineNumberRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(6)";
+
+                String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+                String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
+                String brand = doc.select(StringUtils.replace(brandRegEx, "{no}", String.valueOf(j))).text();
+                String carNumber = doc.select(StringUtils.replace(carNumberRegEx, "{no}", String.valueOf(j))).text();
+                String vinCode = doc.select(StringUtils.replace(vinCodeRegEx, "{no}", String.valueOf(j))).text();
+                String engineNumber = doc.select(StringUtils.replace(engineNumberRegEx, "{no}", String.valueOf(j))).text();
+
+                CarInfo carInfo = new CarInfo();
+                carInfo.setCompanyName(companyName);
+                carInfo.setName(name);
+                carInfo.setPhone(phone);
+                carInfo.setBrand(brand);
+                carInfo.setCarNumber(carNumber);
+                carInfo.setVINcode(vinCode);
+                carInfo.setEngineNumber(engineNumber);
+                carInfoMap.put(id, carInfo);
+            }
+        }
+
+        if (carInfoMap.size() > 0) {
+            for (String id : carInfoMap.keySet()) {
+                Response response = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
+                String html = response.returnContent().asString();
+                doc = Jsoup.parse(html);
+
+                String carModelRegEx = "#txtCarModel";
+                String vcInsuranceCompanyRegEx = "#txtBXCompany";
+                String vcInsuranceValidDateRegEx = "#txtBXTime";
+                String remarkRegEx = "#txtNS";//年审日期
+
+                String carModel = doc.select(carModelRegEx).attr("value");
+                String vcInsuranceCompany = doc.select(vcInsuranceCompanyRegEx).attr("value");
+                String vcInsuranceValidDate = doc.select(vcInsuranceValidDateRegEx).attr("value");
+                String remark = doc.select(remarkRegEx).attr("value");
+
+                CarInfo carInfo = carInfoMap.get(id);
+                carInfo.setCarModel(carModel);
+                carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                carInfo.setRemark(remark);
+                carInfos.add(carInfo);
+            }
+        }
+
+        System.out.println("结果为" + carInfos.toString());
+        System.out.println("结果为" + carInfos.size());
+
+        String pathname = "C:\\exportExcel\\车店E家车辆导出.xlsx";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 卡内项目
@@ -80,18 +167,12 @@ public class CheDianEJiaService {
         HtmlPage memberCardItemPage = webClient.getPage(MEMBERCARDITEM_URL);
         Document doc = Jsoup.parseBodyFragment(memberCardItemPage.asXml());
 
-        String totalRegEx = "#AspNetPager1 > a:nth-child(10)";
-        String totalPageStr = doc.select(totalRegEx).attr("href");
-        String getTotalRegEx = "(?<=,').*(?=')";
-        String totalStr = CommonUtil.fetchString(totalPageStr, getTotalRegEx);
-        int total = Integer.parseInt(totalStr);
-
+        int total = getTotalPage(doc, 10);
         pages.add(memberCardItemPage);
         nextPage(memberCardItemPage, total);
 
         for (int i = 0; i < pages.size(); i++) {
             doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
-            String trRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr";
             int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
 
             for (int j = 2; j <= trSize; j++) {
@@ -113,6 +194,7 @@ public class CheDianEJiaService {
                 String validTime = doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(j))).text();
 
                 MemberCardItem memberCardItem = new MemberCardItem();
+                memberCardItem.setCompanyName(companyName);
                 memberCardItem.setName(name);
                 memberCardItem.setPhone(cardCode);
                 memberCardItem.setCardCode(cardCode);
@@ -140,7 +222,7 @@ public class CheDianEJiaService {
                     String usedNumRegEx = "#form1 > div.formbody > table > tbody > tr:nth-child({no}) > td:nth-child(3) > input";
                     String firstCategoryNameRegEx = "#form1 > div.formbody > table > tbody > tr:nth-child({no}) > td:nth-child(1) > input[type=\"hidden\"]:nth-child(1)";
 
-                    String originalNumStr = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
+                    String originalNumStr = doc.select(StringUtils.replace(originalNumRegEx, "{no}",  String.valueOf(i))).text();
                     String usedNumStr = doc.select(StringUtils.replace(usedNumRegEx, "{no}", String.valueOf(i))).attr("value");
                     String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).attr("value");
                     String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).attr("value");
@@ -173,6 +255,18 @@ public class CheDianEJiaService {
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("大小为" + memberCardItems.size());
 
+    }
+
+    private int getTotalPage(Document doc, int index) {
+        //尾页按钮的位置:index
+        String totalRegEx = "#AspNetPager1 > a:nth-child(" + String.valueOf(index) + ")";
+        String totalPageStr = doc.select(totalRegEx).attr("href");
+        String getTotalRegEx = "(?<=,').*(?=')";
+
+        String totalStr = CommonUtil.fetchString(totalPageStr, getTotalRegEx);
+        int total = Integer.parseInt(totalStr);
+
+        return total;
     }
 
     private WebClient getLoginWebClient() throws IOException {
