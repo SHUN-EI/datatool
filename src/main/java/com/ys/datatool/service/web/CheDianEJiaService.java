@@ -30,6 +30,8 @@ import java.util.Map;
 @Service
 public class CheDianEJiaService {
 
+    private String MEMBERCARD_URL = "http://s.66ejia.com/ShopMembers/ShopMemberList.aspx";
+
     private String CARINFODETAIL_URL = "http://s.66ejia.com/ShopMembers/";
 
     private String CARINFO_URL = "http://s.66ejia.com/ShopMembers/ShopDriverList.aspx";
@@ -55,19 +57,6 @@ public class CheDianEJiaService {
     //获取数据的令牌
     private String COOKIE = "ASP.NET_SessionId=rslcfgwfyrxqel5gyau15kpe; CarSaasShopAdmin=eyJSb2xlQ29udGVudHMiOiIiLCJTaG9wU3RhdGUiOjAsIkNhck51bWJlckhlYWQiOiJcdTdDQTRBIiwiSUQiOiJmNWNjZjllMS1iMjQyLTQxOWUtYTA4MS05NDdiNWQ0MWZlNWIiLCJTaG9wSUQiOiIzZWUzYWM0Ny05ZGNlLTQ4NjctOGRmYS1jZGRiNTVlMTNhNzgiLCJMb2dpbk5hbWUiOiJnZWx1bmJ1IiwiTG9naW5Qd2QiOiIiLCJXWE9wZW5JRCI6IiIsIlRydWVOYW1lIjoiXHU3MzhCIiwiVXNlclBob25lIjoiMTgxMjcwNzc1NzMiLCJSb2xlSUQiOiIwIiwiUm9sZU5hbWUiOiJcdTdCQTFcdTc0MDZcdTU0NTgiLCJBZG1pblN0YXRlIjowLCJBZGRUaW1lIjoiMDkvMTgvMjAxNyAxOToyOTo0NyIsIlNob3BOYW1lIjoiXHU3QzczXHU1MTc2XHU2Nzk3Llx1OUE3MFx1NTJBMFx1NkM3RFx1OEY2Nlx1NjcwRFx1NTJBMVx1NUU5NyIsIk9yZ2FuSUQiOiJHREdaIiwiU2hvcExvZ28iOiIvVXBsb2FkL3B1YmxpYy9iNGYzMGNmZjI1NGE0NDc1YTA0YjJmZDgzNmE1NWZlNS5qcGciLCJTaG9wUGhvbmUiOiIwNzYwLTg2MzYzMDMzIiwiU2hvcE1hc3RlciI6Ilx1OTBFRFx1NUMwRlx1NTlEMCIsIlNob3BNYXN0ZXJQaG9uZSI6IjE4MDIyMTA4NDAwIiwiU2hvcFByb3ZpbmNlIjoiXHU1RTdGXHU0RTFDXHU3NzAxIiwiU2hvcENpdHkiOiJcdTRFMkRcdTVDNzFcdTVFMDIiLCJTaG9wQXJlYSI6Ilx1NTc2Nlx1NkQzMlx1OTU0NyIsIlNob3BBZGRyZXNzIjoiXHU3OEE3XHU1Qjg5XHU4REVGNFx1NTNGN1x1OTUyNlx1N0VFM1x1OTZDNVx1ODJEMTlcdTY3MUZcdUZGMDhcdTczQUZcdTZEMzJcdTUzMTdcdThERUZcdTRFMEVcdTc4QTdcdTVCODlcdThERUZcdTRFQTRcdTYzQTVcdTU5MDRcdUZGMDkiLCJTaG9wUGFyZW50SUQiOiIiLCJTaG9wQWRtaW5UeXBlIjoxMH0=";
 
-    @Test
-    public void test() throws IOException {
-
-    }
-
-
-    @Test
-    public void fetchMemberCardData() throws IOException {
-        List<MemberCard> memberCards = new ArrayList<>();
-
-
-    }
-
 
     /**
      * 车辆信息
@@ -78,17 +67,10 @@ public class CheDianEJiaService {
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
         Map<String, CarInfo> carInfoMap = new HashMap<>();
-
-        WebClient webClient = getLoginWebClient();
-        HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
-        Document doc = Jsoup.parseBodyFragment(carInfoPage.asXml());
-
-        int total = getTotalPage(doc, 15);
-        pages.add(carInfoPage);
-        nextPage(carInfoPage, total);
+        getALLPages(CARINFO_URL, 15);
 
         for (int i = 0; i < pages.size(); i++) {
-            doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
             int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
             for (int j = 2; j <= trSize; j++) {
 
@@ -125,7 +107,7 @@ public class CheDianEJiaService {
             for (String id : carInfoMap.keySet()) {
                 Response response = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
                 String html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Document doc = Jsoup.parse(html);
 
                 String carModelRegEx = "#txtCarModel";
                 String vcInsuranceCompanyRegEx = "#txtBXCompany";
@@ -151,6 +133,60 @@ public class CheDianEJiaService {
 
         String pathname = "C:\\exportExcel\\车店E家车辆导出.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+
+    }
+
+
+    /**
+     * 会员卡
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        getALLPages(MEMBERCARD_URL, 15);
+        for (int i = 0; i < pages.size(); i++) {
+
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+
+            for (int j = 2; j <= trSize; j++) {
+
+                String cardCodeRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(6)";
+                String memberCardNameRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(7)";
+                String carNumberRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(5)";
+                String dateCreatedRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(11)";
+                String balanceRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(9)";
+                String nameRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(2)";
+                String phoneRegEx = "#form1 > div.rightinfo > table.tablelist > tbody > tr:nth-child({no}) > td:nth-child(8)";
+
+                String name = doc.select(StringUtils.replace(nameRegEx, "{no}", String.valueOf(j))).text();
+                String phone = doc.select(StringUtils.replace(phoneRegEx, "{no}", String.valueOf(j))).text();
+                String balance = doc.select(StringUtils.replace(balanceRegEx, "{no}", String.valueOf(j))).text();
+                String dateCreated = doc.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(j))).text();
+                String carNumber = doc.select(StringUtils.replace(carNumberRegEx, "{no}", String.valueOf(j))).text();
+                String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
+                String cardCode = doc.select(StringUtils.replace(cardCodeRegEx, "{no}", String.valueOf(j))).text();
+
+                MemberCard memberCard = new MemberCard();
+                memberCard.setCardCode(phone);//手机号作为卡号
+                memberCard.setName(name);
+                memberCard.setPhone(phone);
+                memberCard.setCarNumber(carNumber);
+                memberCard.setDateCreated(dateCreated);
+                memberCard.setBalance(balance.replace("￥", ""));
+                memberCard.setMemberCardName(memberCardName);
+                memberCard.setCompanyName(companyName);
+                memberCards.add(memberCard);
+            }
+        }
+
+        System.out.println("结果为" + pages.size());
+
+        String pathname = "C:\\exportExcel\\车店E家会员卡导出.xlsx";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     /**
@@ -162,17 +198,10 @@ public class CheDianEJiaService {
     public void fetchMemberCardItemData() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCardItem> memberCardItemMap = new HashMap<>();
-
-        WebClient webClient = getLoginWebClient();
-        HtmlPage memberCardItemPage = webClient.getPage(MEMBERCARDITEM_URL);
-        Document doc = Jsoup.parseBodyFragment(memberCardItemPage.asXml());
-
-        int total = getTotalPage(doc, 10);
-        pages.add(memberCardItemPage);
-        nextPage(memberCardItemPage, total);
+        getALLPages(MEMBERCARDITEM_URL, 10);
 
         for (int i = 0; i < pages.size(); i++) {
-            doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
+            Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
             int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
 
             for (int j = 2; j <= trSize; j++) {
@@ -192,6 +221,7 @@ public class CheDianEJiaService {
                 String memberCardName = doc.select(StringUtils.replace(memberCardNameRegEx, "{no}", String.valueOf(j))).text();
                 String dateCreated = doc.select(StringUtils.replace(dateCreatedRegEx, "{no}", String.valueOf(j))).text();
                 String validTime = doc.select(StringUtils.replace(validTimeRegEx, "{no}", String.valueOf(j))).text();
+                String isValidForever = CommonUtil.getIsValidForever(validTime);
 
                 MemberCardItem memberCardItem = new MemberCardItem();
                 memberCardItem.setCompanyName(companyName);
@@ -200,8 +230,8 @@ public class CheDianEJiaService {
                 memberCardItem.setCardCode(cardCode);
                 memberCardItem.setMemberCardName(memberCardName);
                 memberCardItem.setDateCreated(dateCreated);
-                memberCardItem.setValidTime(validTime);
-
+                memberCardItem.setValidTime(validTime.replace("-", "/"));
+                memberCardItem.setIsValidForever(isValidForever);
                 memberCardItemMap.put(id, memberCardItem);
             }
         }
@@ -210,7 +240,7 @@ public class CheDianEJiaService {
             for (String id : memberCardItemMap.keySet()) {
                 Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEMDETAIL_URL + id, COOKIE);
                 String html = response.returnContent().asString();
-                doc = Jsoup.parse(html);
+                Document doc = Jsoup.parse(html);
 
                 String getTRRegEx = "#form1 > div.formbody > table > tbody > tr";
                 int tRSize = WebClientUtil.getTagSize(doc, getTRRegEx, HtmlTag.trName);
@@ -222,7 +252,7 @@ public class CheDianEJiaService {
                     String usedNumRegEx = "#form1 > div.formbody > table > tbody > tr:nth-child({no}) > td:nth-child(3) > input";
                     String firstCategoryNameRegEx = "#form1 > div.formbody > table > tbody > tr:nth-child({no}) > td:nth-child(1) > input[type=\"hidden\"]:nth-child(1)";
 
-                    String originalNumStr = doc.select(StringUtils.replace(originalNumRegEx, "{no}",  String.valueOf(i))).text();
+                    String originalNumStr = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
                     String usedNumStr = doc.select(StringUtils.replace(usedNumRegEx, "{no}", String.valueOf(i))).attr("value");
                     String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).attr("value");
                     String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).attr("value");
@@ -231,18 +261,11 @@ public class CheDianEJiaService {
                     int usedNum = Integer.parseInt(usedNumStr);
                     int num = originalNum - usedNum;
 
-                    MemberCardItem m = memberCardItemMap.get(id);
-                    MemberCardItem memberCardItem = new MemberCardItem();
+                    MemberCardItem memberCardItem = memberCardItemMap.get(id);
                     memberCardItem.setItemName(itemName);
                     memberCardItem.setOriginalNum(originalNumStr);
                     memberCardItem.setNum(String.valueOf(num));
                     memberCardItem.setFirstCategoryName(firstCategoryName);
-                    memberCardItem.setName(m.getName());
-                    memberCardItem.setPhone(m.getPhone());
-                    memberCardItem.setCardCode(m.getCardCode());
-                    memberCardItem.setMemberCardName(m.getMemberCardName());
-                    memberCardItem.setDateCreated(m.getDateCreated());
-                    memberCardItem.setValidTime(m.getValidTime());
                     memberCardItems.add(memberCardItem);
                 }
             }
@@ -250,11 +273,23 @@ public class CheDianEJiaService {
 
 
         String pathname = "C:\\exportExcel\\车店E家卡内项目导出.xlsx";
+        String pathname2 = "C:\\exportExcel\\车店E家卡内项目导出(模板).xlsx";
         ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
 
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("大小为" + memberCardItems.size());
 
+    }
+
+    private void getALLPages(String url, int num) throws IOException {
+        WebClient webClient = getLoginWebClient();
+        HtmlPage page = webClient.getPage(url);
+        Document doc = Jsoup.parseBodyFragment(page.asXml());
+
+        int total = getTotalPage(doc, num);
+        pages.add(page);
+        nextPage(page, total);
     }
 
     private int getTotalPage(Document doc, int index) {
