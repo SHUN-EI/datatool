@@ -36,24 +36,6 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doPostWithToken(String url, String param, String accept, String accept_encoding, String content_type, String cookie, String origin, String referer, String user_agent, String x_CSRF_Token, String x_JDY_Ver) throws IOException {
-
-        Response response = Request.Post(url)
-                .setHeader("Accept", accept)
-                .setHeader("accept-encoding", accept_encoding)
-                .setHeader("content-type", content_type)
-                .setHeader("cookie", cookie)
-                .setHeader("origin", origin)
-                .setHeader("referer", referer)
-                .setHeader("user-agent", user_agent)
-                .setHeader("X-CSRF-Token", x_CSRF_Token)
-                .setHeader("X-JDY-Ver", x_JDY_Ver)
-                .bodyString(param, ContentType.APPLICATION_JSON)
-                .execute();
-
-        return response;
-    }
-
     public static Response doPostWithJson(String url, String param, String authority, String accept, String accept_encoding, String accept_language, String content_type, String cookie, String origin, String referer, String user_agent) throws IOException {
 
         Response response = Request.Post(url)

@@ -428,7 +428,7 @@ public class ExcelUtil {
             carInfo = carInfos.get(i);
             Map<String, Object> mapValue = new HashMap<String, Object>();
             mapValue.put("name", carInfo.getName());
-            mapValue.put("mobile", carInfo.getPhone());
+            mapValue.put("phone", carInfo.getPhone());
             mapValue.put("carNumber", carInfo.getCarNumber());
             mapValue.put("brand", carInfo.getBrand());
             mapValue.put("carModel", carInfo.getCarModel());

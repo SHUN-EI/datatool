@@ -23,6 +23,10 @@ import java.util.*;
 @Service
 public class FourCService {
 
+    private String CARINFO_URL = "http://www.car-cloud.cn/Basic/Car/LoadData";
+
+    private String CLIENT_URL = "http://www.car-cloud.cn/Wy/WyCarOwner/LoadData";
+
     private String SERVICE_URL = "http://www.car-cloud.cn/Wy/WyArticle/LoadData";
 
     private String RECHARGERECORD_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerRechargeRecord";
@@ -41,13 +45,86 @@ public class FourCService {
 
     private String fieldName = "total";
 
-    private String companyName="4C系统-后市场管理系统";
+    private String companyName = "4C系统-后市场管理系统";
 
     private int num = 200;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String COOKIE = "UM_distinctid=1658e1e37d6d6-009474bfab936c-37664109-144000-1658e1e37d85b; CNZZDATA1263794507=1764275064-1535683701-%7C1535683701; ASP.NET_SessionId=rccbi5lv25gu2r44an1a3kpd; .ASPXAUTH=E8344216FECEE0AA295355B1F1B99FFC241F58979BF5262390E9F2562C399898CB27963C92BBEFA88AA0662B46FA89F90E35E51B8694B5775518CD4750BE00607C3C5A473F837E6002372181BB8B6587BDB32884FAE3B8CFF7842A7C9E317F21AE7496953AE95853AA89B81AFE28F4BED4C352FF1183A6DBBEE8DBBD0F1E080D798596C74F79FE1249C72AC23AF20DA4D19243A5C9228AE3AE9371A934AFE9A4D50BB4743ACD257321FD27C9AAA397F25F2972F705254BE9783B22600C94674AD945A92EA64E3512E8AFB871C14CB0CC81041C9DD62EC875A71F353CD32269A24673BA8B4D46108520C389D230625D5CE025D62F0C5FB328ABC211E9B023E9EB448C434BBE02BF5E64CEDD85EDFFC46AEE8DA5967A853300E55EEE12141A7F5741D4957D95B1E03AA57FB8B2B489453339A7A3D6751A167C5B73B3433707DEBBA8FC631D8F3CAEA0D20EB7044B79FEA18C3FB571317045AF8CFE41B003672123F6B99B47333AD1BF2065E03418B866ED6A49DF6B227F7A8AB8860F569EF4E8DD7F9C42EC545E0293A2CDC11B85F01BA78A34B2BDDBF1E15C3D1C7051C5A7D8A49CE23070033A6ADE78544540EA93DFD9FB2B932A99E6FF80D64FF4E202DA4F74A7F02A9ECB06C9B888959376D18F30BEB436597C0136CF47E33645EB4C8F68C8BAEB5B12C231CE1DF23066DE774F41A5C597973C776E53C4016D2DF5DCFF8EF286EED6B2148B93631D799E9DA9841885AB8A957D379DE7481F7FCA355E9792EFA61E8E1940D5E6776F1D4A23D8AA4E7020FBBAF4C8866DBE3ECA8F739A2E4441F106F1A1EF5D19FEA2CBC89A38520BCCB94AD824B839EE98DACF2C68BA6715FE7CD9912BDC2C7FD7082E3D1CA215181A22888525D1D905BDDEE8B8CBFC670420C66487FEF55EDA8CFE55E9B8C410E1F68E70D516EBE20A650E323D5C49C092A632E729BAA8EACF278EB38CF16AA887D0";
+
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoData() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String name = element.get("Name").asText();
+                    String phone = element.get("Phone").asText();
+                    String carNumber = element.get("CarCard").asText();
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setPhone(CommonUtil.formatString(phone));
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfos.add(carInfo);
+                }
+            }
+        }
+
+        if (carInfos.size() > 0) {
+            for (CarInfo carInfo : carInfos) {
+
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams("CarNum", carInfo.getCarNumber()), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                System.out.println("车牌为" + carInfo.getCarNumber());
+
+                if (result.get("rows").size() > 0) {
+                    JsonNode data = result.get("rows").get(0);
+                    String brand = data.get("CarBrand").asText();
+                    String carModel = data.get("CarStyle").asText();
+                    String vinCode = data.get("VIN").asText();
+                    String engineNumber = data.get("EngineNumber").asText();
+                    String registerDate = data.get("RegisterDate").asText();
+                    String remark = data.get("Remark").asText();
+                    String vcInsuranceCompany = data.get("InsuranceCompany").asText();
+                    String vcInsuranceValidDate = data.get("InsuranceDate").asText();
+
+                    carInfo.setBrand(CommonUtil.formatString(brand));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+                    carInfo.setVINcode(CommonUtil.formatString(vinCode));
+                    carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                    carInfo.setRegisterDate(CommonUtil.formatString(registerDate));
+                    carInfo.setRemark(CommonUtil.formatString(remark));
+                    carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
+                    carInfo.setVcInsuranceValidDate(CommonUtil.formatString(vcInsuranceValidDate));
+                }
+            }
+        }
+
+        System.out.println("结果为" + carInfos.toString());
+
+        String pathname = "C:\\exportExcel\\4C车辆导出.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 服务
@@ -73,9 +150,9 @@ public class FourCService {
                     String productName = element.get("Name").asText();
                     String price = element.get("Price").asText();
                     String firstCategoryName = element.get("Stype").asText();
-                    String id= element.get("Guid").asText();
+                    String id = element.get("Guid").asText();
 
-                    Product product=new Product();
+                    Product product = new Product();
                     product.setCompanyName(companyName);
                     product.setItemType("服务项");
                     product.setProductName(CommonUtil.formatString(productName));
@@ -85,7 +162,7 @@ public class FourCService {
                 }
             }
         }
-        System.out.println("结果为"+totalPage);
+        System.out.println("结果为" + totalPage);
 
         String pathname = "C:\\exportExcel\\4C服务导出.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
@@ -141,7 +218,7 @@ public class FourCService {
         }
 
         for (MemberCard m : memberCards) {
-            Response res = ConnectionUtil.doPostWithLeastParams(BUYPACKAGES_URL, getCardDetailParams(m.getMemberCardId()), COOKIE);
+            Response res = ConnectionUtil.doPostWithLeastParams(BUYPACKAGES_URL, getDetailParams("CarOwnerID", m.getMemberCardId()), COOKIE);
             JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
             int size = result.get("rows").size();
@@ -155,7 +232,7 @@ public class FourCService {
                     memberCardMap.put(carOwnerID, dateCreated);
                 }
             } else {
-                Response respon = ConnectionUtil.doPostWithLeastParams(RECHARGERECORD_URL, getCardDetailParams(m.getMemberCardId()), COOKIE);
+                Response respon = ConnectionUtil.doPostWithLeastParams(RECHARGERECORD_URL, getDetailParams("CarOwnerID", m.getMemberCardId()), COOKIE);
                 JsonNode resultNode = MAPPER.readTree(respon.returnContent().asString());
 
                 int resultSize = resultNode.get("rows").size();
@@ -227,7 +304,7 @@ public class FourCService {
         }
 
         for (String id : memberCardItemMap.keySet()) {
-            Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, getCardDetailParams(id), COOKIE);
+            Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, getDetailParams("CarOwnerID", id), COOKIE);
             JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
             int size = result.get("rows").size();
@@ -242,7 +319,7 @@ public class FourCService {
                     String validTime = element.get("ExpireDateTime").asText();
                     String code = element.get("ObjectID").asText();
 
-                    MemberCardItem m =memberCardItemMap.get(id);
+                    MemberCardItem m = memberCardItemMap.get(id);
                     m.setItemName(itemName);
                     m.setNum(num);
                     m.setOriginalNum(num);
@@ -460,6 +537,16 @@ public class FourCService {
 
         return params;
     }
+
+    private List<BasicNameValuePair> getDetailParams(String fieldName, String value) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair(fieldName, value));
+        params.add(new BasicNameValuePair("page", "1"));
+        params.add(new BasicNameValuePair("rows", "200"));
+
+        return params;
+    }
+
 
     private List<BasicNameValuePair> getParams(String pageNo) {
         List<BasicNameValuePair> params = new ArrayList<>();

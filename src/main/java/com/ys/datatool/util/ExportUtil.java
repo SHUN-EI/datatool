@@ -377,7 +377,7 @@ public class ExportUtil {
 
         List<Map<String, Object>> list = ExcelUtil.createCarInfoList(carInfos);
         String[] keys = new String[]{"companyName", "name", "carNumber", "brand",
-                "carModel", "mobile", "registerDate", "engineNumber",
+                "carModel", "phone", "registerDate", "engineNumber",
                 "VINcode", "vcInsuranceValidDate", "vcInsuranceCompany",
                 "tcInsuranceValidDate", "tcInsuranceCompany", "remark"};
 
