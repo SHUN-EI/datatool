@@ -157,19 +157,5 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWithXAGENT(String url, String accept, String cookie, String connection, String host, String referer, String x_REQUESTED_WITH, String uSER_AGENT, String xagent) throws IOException {
 
-        Response response = Request.Get(url)
-                .setHeader("Accept", accept)
-                .setHeader("Cookie", cookie)
-                .setHeader("Connection", connection)
-                .setHeader("Host", host)
-                .setHeader("Referer", referer)
-                .setHeader("X-Requested-With", x_REQUESTED_WITH)
-                .setHeader("User-Agent", uSER_AGENT)
-                .setHeader("xagent", xagent)
-                .execute();
-
-        return response;
-    }
 }

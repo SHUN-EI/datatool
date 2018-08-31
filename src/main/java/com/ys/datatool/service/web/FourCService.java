@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -16,11 +17,13 @@ import java.util.*;
 
 /**
  * Created by mo on @date  2018-06-12.
- * 4C系统
+ * 4C系统-后市场管理系统
  */
 
 @Service
 public class FourCService {
+
+    private String SERVICE_URL = "http://www.car-cloud.cn/Wy/WyArticle/LoadData";
 
     private String RECHARGERECORD_URL = "http://www.car-cloud.cn/Wy/WyBilling/LoadCarOwnerRechargeRecord";
 
@@ -38,12 +41,55 @@ public class FourCService {
 
     private String fieldName = "total";
 
+    private String companyName="4C系统-后市场管理系统";
+
     private int num = 200;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private String COOKIE = "UM_distinctid=163f1c740ba313-099c2ef31601ab-4323461-144000-163f1c740bbb5a; ASP.NET_SessionId=ek2lhloypptuxmnqta35vxsf; CNZZDATA1263794507=1449725428-1528765268-%7C1528956347; .ASPXAUTH=61856F7FB14B6076604F1D47D38FBFE2F891FC40F29387D7D9C1C020BDE2452445A4CE63F8E998DD91690AE3370C93B245C8BCB71BE2942673FBEA8B22AE792CED4F289E79268918FA7145F9BDEC0386CA98157D37BA0D1F46A1510FC451023B38231F0E02DEFD16C612C9DE21649E778E531957265C969DF15C28847085D76D972F01321E8E6D57A6142520E92790F7D09D2938B5112FEE45A733D61286EF29272F5BB561DA60746C7C8E376D22EBC4AA8618142F60F6C3807504666CCCEB13E03EFDF236F1BD60C6D8A5C2098A4C1380F22FAD0CB903A0EC4CF5A00DA63A400B910A9CE605F3953333319019FA3A34EC5DB342E403AC03B6841B0AA2E6DA9AB356F9729B43AD7FFEC1A871F979ACAD7D7C967B94A077D408B6A50D9E8684167C9DBE52AA70A6E490FEFD8E72D9192FCBC53A33F9EA10031DB4827D310D2B62884E24496E6B024C455C73BD1587BC19A76126E61D7577F97C6B9DA1C2330BADF32D50E6CFDBE826193DB1258615BBF5E20E70619D00994C40F4866B542D065EE5327A02EF0D5893AF8C00C2C12D089573970613E332B1F8FAC85F24806616DF61C83C39990446A09888C6939BFE0982DD6EE1959261FD5B73F0774ECB9161CA1EB09F4038AADB2DC6DB350A147EF6D15740CB6E411919DB9048938BA171B60B6F43C39AE2ED4559DB043AB74AF48EB8A58E307E5B0986F9424F2B8B8F1A974B4E2C7FF84300139C3A565BD6F450B0EE6C65C0494277B4421DE406B9652EA1B3B755848D30499339825525BFC74097B0741075FD2302B295684760FB8CF516B4F75A546DA11BA2259204FA928E162A3A7EFFFD7F1BE6DD0CCCA3FF71B40B8E06E8EE8EEADA7A683BA736B3C341EACE9DC19697E8F233A4154B4731CE9F0B5C403C2325DDB79BC8E14BA27086CC14A36891AAFB41CEE37A267C1CDF31607C00C9EBD5540E63184D251BB90B2BC7D33A6D";
+    private String COOKIE = "UM_distinctid=1658e1e37d6d6-009474bfab936c-37664109-144000-1658e1e37d85b; CNZZDATA1263794507=1764275064-1535683701-%7C1535683701; ASP.NET_SessionId=rccbi5lv25gu2r44an1a3kpd; .ASPXAUTH=E8344216FECEE0AA295355B1F1B99FFC241F58979BF5262390E9F2562C399898CB27963C92BBEFA88AA0662B46FA89F90E35E51B8694B5775518CD4750BE00607C3C5A473F837E6002372181BB8B6587BDB32884FAE3B8CFF7842A7C9E317F21AE7496953AE95853AA89B81AFE28F4BED4C352FF1183A6DBBEE8DBBD0F1E080D798596C74F79FE1249C72AC23AF20DA4D19243A5C9228AE3AE9371A934AFE9A4D50BB4743ACD257321FD27C9AAA397F25F2972F705254BE9783B22600C94674AD945A92EA64E3512E8AFB871C14CB0CC81041C9DD62EC875A71F353CD32269A24673BA8B4D46108520C389D230625D5CE025D62F0C5FB328ABC211E9B023E9EB448C434BBE02BF5E64CEDD85EDFFC46AEE8DA5967A853300E55EEE12141A7F5741D4957D95B1E03AA57FB8B2B489453339A7A3D6751A167C5B73B3433707DEBBA8FC631D8F3CAEA0D20EB7044B79FEA18C3FB571317045AF8CFE41B003672123F6B99B47333AD1BF2065E03418B866ED6A49DF6B227F7A8AB8860F569EF4E8DD7F9C42EC545E0293A2CDC11B85F01BA78A34B2BDDBF1E15C3D1C7051C5A7D8A49CE23070033A6ADE78544540EA93DFD9FB2B932A99E6FF80D64FF4E202DA4F74A7F02A9ECB06C9B888959376D18F30BEB436597C0136CF47E33645EB4C8F68C8BAEB5B12C231CE1DF23066DE774F41A5C597973C776E53C4016D2DF5DCFF8EF286EED6B2148B93631D799E9DA9841885AB8A957D379DE7481F7FCA355E9792EFA61E8E1940D5E6776F1D4A23D8AA4E7020FBBAF4C8866DBE3ECA8F739A2E4441F106F1A1EF5D19FEA2CBC89A38520BCCB94AD824B839EE98DACF2C68BA6715FE7CD9912BDC2C7FD7082E3D1CA215181A22888525D1D905BDDEE8B8CBFC670420C66487FEF55EDA8CFE55E9B8C410E1F68E70D516EBE20A650E323D5C49C092A632E729BAA8EACF278EB38CF16AA887D0";
 
+    /**
+     * 服务
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getParams("1"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getParams(String.valueOf(i)), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String productName = element.get("Name").asText();
+                    String price = element.get("Price").asText();
+                    String firstCategoryName = element.get("Stype").asText();
+                    String id= element.get("Guid").asText();
+
+                    Product product=new Product();
+                    product.setCompanyName(companyName);
+                    product.setItemType("服务项");
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setPrice(CommonUtil.formatString(price));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
+                    products.add(product);
+                }
+            }
+        }
+        System.out.println("结果为"+totalPage);
+
+        String pathname = "C:\\exportExcel\\4C服务导出.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 会员卡
@@ -81,13 +127,14 @@ public class FourCService {
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setMemberCardId(id);
-                    memberCard.setName(name == "null" ? "" : name);
-                    memberCard.setPhone(phone == "null" ? "" : phone);
+                    memberCard.setName(CommonUtil.formatString(name));
+                    memberCard.setPhone(CommonUtil.formatString(phone));
                     memberCard.setBalance(balance);
-                    memberCard.setMemberCardName(memberCardName == "null" ? "" : memberCardName);
-                    memberCard.setCardCode(cardCode == "null" ? "" : cardCode);
-                    memberCard.setCarNumber(carNumber == "null" ? "" : carNumber);
+                    memberCard.setMemberCardName(CommonUtil.formatString(memberCardName));
+                    memberCard.setCardCode(CommonUtil.formatString(cardCode));
+                    memberCard.setCarNumber(CommonUtil.formatString(carNumber));
                     memberCard.setDateCreated(dateCreated);
+                    memberCard.setCompanyName(companyName);
                     memberCards.add(memberCard);
                 }
             }
@@ -168,7 +215,7 @@ public class FourCService {
                     String dateCreated = element.get("DataTime").asText();
 
                     MemberCardItem memberCardItem = new MemberCardItem();
-                    memberCardItem.setCardCode(cardCode == "null" ? "" : cardCode);
+                    memberCardItem.setCardCode(CommonUtil.formatString(cardCode));
                     memberCardItem.setMemberCardName(memberCardName);
                     memberCardItem.setBalance(balance);
                     memberCardItem.setName(name);
@@ -195,20 +242,14 @@ public class FourCService {
                     String validTime = element.get("ExpireDateTime").asText();
                     String code = element.get("ObjectID").asText();
 
-                    MemberCardItem memberCardItem = memberCardItemMap.get(id);
-                    MemberCardItem m = new MemberCardItem();
+                    MemberCardItem m =memberCardItemMap.get(id);
                     m.setItemName(itemName);
                     m.setNum(num);
                     m.setOriginalNum(num);
                     m.setPrice(price);
                     m.setValidTime(validTime);
                     m.setCode(code);
-                    m.setCardCode(memberCardItem.getCardCode());
-                    m.setName(memberCardItem.getName());
-                    m.setPhone(memberCardItem.getPhone());
-                    m.setPrice(memberCardItem.getPrice());
-                    m.setDateCreated(memberCardItem.getDateCreated());
-                    m.setMemberCardName(memberCardItem.getMemberCardName());
+                    m.setCompanyName(companyName);
                     memberCardItems.add(m);
                 }
             }
@@ -251,14 +292,15 @@ public class FourCService {
                     String carModel = element.get("Fit").asText();
 
                     Product product = new Product();
-                    product.setProductName(productName == "null" ? "" : productName);
-                    product.setCode(code == "null" ? "" : code);
-                    product.setBarCode(barCode == "null" ? "" : barCode);
-                    product.setPrice(price == "null" ? "" : price);
-                    product.setFirstCategoryName(firstCategoryName == "null" ? "" : firstCategoryName);
-                    product.setBrandName(brandName == "null" ? "" : brandName);
-                    product.setCarModel(carModel == "null" ? "" : carModel);
+                    product.setProductName(CommonUtil.formatString(productName));
+                    product.setCode(CommonUtil.formatString(code));
+                    product.setBarCode(CommonUtil.formatString(barCode));
+                    product.setPrice(CommonUtil.formatString(price));
+                    product.setFirstCategoryName(CommonUtil.formatString(firstCategoryName));
+                    product.setBrandName(CommonUtil.formatString(brandName));
+                    product.setCarModel(CommonUtil.formatString(carModel));
                     product.setItemType("配件");
+                    product.setCompanyName(companyName);
                     products.add(product);
                 }
             }
@@ -299,8 +341,8 @@ public class FourCService {
                     String inventoryNum = element.get("FinalQty").asText();
 
                     Stock stock = new Stock();
-                    stock.setGoodsName(goodsName == "null" ? "" : goodsName);
-                    stock.setInventoryNum(inventoryNum == "null" ? "" : inventoryNum);
+                    stock.setGoodsName(CommonUtil.formatString(goodsName));
+                    stock.setInventoryNum(CommonUtil.formatString(inventoryNum));
                     stockMap.put(id, stock);
                 }
             }
@@ -325,10 +367,10 @@ public class FourCService {
                     String locationName = element.get("StoreLocation").asText();
 
                     Stock stock = new Stock();
-                    stock.setProductCode(code == "null" ? "" : code);
-                    stock.setPrice(price == "null" ? "" : price);
-                    stock.setStoreRoomName(storeRoomName == "null" ? "" : storeRoomName);
-                    stock.setLocationName(locationName == "null" ? "" : locationName);
+                    stock.setProductCode(CommonUtil.formatString(code));
+                    stock.setPrice(CommonUtil.formatString(price));
+                    stock.setStoreRoomName(CommonUtil.formatString(storeRoomName));
+                    stock.setLocationName(CommonUtil.formatString(locationName));
                     itemMap.put(id, stock);
                 }
             }
@@ -343,6 +385,7 @@ public class FourCService {
                 stock.setProductCode(s.getProductCode());
                 stock.setStoreRoomName(s.getStoreRoomName());
                 stock.setLocationName(s.getLocationName());
+                stock.setCompanyName(companyName);
                 stocks.add(stock);
             }
         }
@@ -386,14 +429,15 @@ public class FourCService {
                     String managerPhone = element.get("BusinessPhone").asText();
 
                     Supplier supplier = new Supplier();
-                    supplier.setContactName(contactName == "null" ? "" : contactName);
-                    supplier.setContactPhone(contactPhone == "null" ? "" : contactPhone);
-                    supplier.setName(name == "null" ? "" : name);
-                    supplier.setAddress(address == "null" ? "" : address);
-                    supplier.setRemark(remark == "null" ? "" : remark);
-                    supplier.setFax(fax == "null" ? "" : fax);
-                    supplier.setManager(manager == "null" ? "" : manager);
-                    supplier.setManagerPhone(managerPhone == "null" ? "" : managerPhone);
+                    supplier.setContactName(CommonUtil.formatString(contactName));
+                    supplier.setContactPhone(CommonUtil.formatString(contactPhone));
+                    supplier.setName(CommonUtil.formatString(name));
+                    supplier.setAddress(CommonUtil.formatString(address));
+                    supplier.setRemark(CommonUtil.formatString(remark));
+                    supplier.setFax(CommonUtil.formatString(fax));
+                    supplier.setManager(CommonUtil.formatString(manager));
+                    supplier.setManagerPhone(CommonUtil.formatString(managerPhone));
+                    supplier.setCompanyName(companyName);
                     suppliers.add(supplier);
                 }
             }
