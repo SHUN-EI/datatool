@@ -42,16 +42,6 @@ public class ZhiHuiCheDianService {
 
     private String COOKIE = "JSESSIONID=C7352A6412CB4A6EC01E1AB314396D90; user=zhongqi125; pwd=147258";
 
-    @Test
-    public void test() throws IOException {
-        List<CarInfo> carInfos = new ArrayList<>();
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-        System.out.println("结果为" + carInfos.toString());
-        System.out.println("大小为" + carInfos.size());
-
-    }
 
     /**
      * 库存
@@ -62,6 +52,46 @@ public class ZhiHuiCheDianService {
     public void fetchStockData() throws IOException {
         List<Stock> stocks = new ArrayList<>();
 
+        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(num), "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String inventoryNum = element.get("count").asText();
+                    String price = element.get("cost").asText();
+                    String goodsName = element.get("product").get("productName").asText();
+                    String productCode = element.get("product").get("productNumber").asText();
+                    String storeRoomName = element.get("warehouse").get("warehouseName").asText();
+
+                    Stock stock=new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setPrice(price);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setGoodsName(goodsName);
+                    stock.setProductCode(productCode);
+                    stock.setStoreRoomName(storeRoomName);
+                    stocks.add(stock);
+                }
+            }
+        }
+
+        System.out.println("stcok为" + stocks.toString());
+
+        String pathname = "C:\\exportExcel\\智慧车店库存导出.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
 
     }
 
@@ -332,6 +362,23 @@ public class ZhiHuiCheDianService {
 
         String pathname = "C:\\exportExcel\\智慧车店车辆信息导出.xlsx";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
+
+    /**
+     * 库存传参 1-全部库存，2-库存正常，3-库存不足
+     * @param num
+     * @param offset
+     * @param type
+     * @return
+     */
+    private List<BasicNameValuePair> getStockParams(String num, String offset,String type) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("type", type));
+        params.add(new BasicNameValuePair("search", ""));
+        params.add(new BasicNameValuePair("order", "asc"));
+        params.add(new BasicNameValuePair("limit", num));
+        params.add(new BasicNameValuePair("offset", offset));
+        return params;
     }
 
     private List<BasicNameValuePair> getParams(String num, String offset) {
