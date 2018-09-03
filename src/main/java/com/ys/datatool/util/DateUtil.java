@@ -463,13 +463,13 @@ public class DateUtil {
     }
 
     /**
-     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd )
+     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd 或  yyyy-MM-dd HH:mm:ss 转 yyyy/MM/dd HH:mm:ss)
      *
      * @param dateStr
      * @return
      */
     public static String formatSQLDateTime(String dateStr) {
-        // dateStr="2018-01-23";
+        // dateStr="2018-01-23",或"2018-01-23 00:00:00"
         if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
             return "";
         }

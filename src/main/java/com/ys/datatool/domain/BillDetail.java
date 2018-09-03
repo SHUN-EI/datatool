@@ -32,7 +32,7 @@ public class BillDetail {
     /**
      * 商品类别
      */
-    private String itemType;
+    private String itemType = "服务项";
 
     /**
      * 工时
@@ -117,7 +117,7 @@ public class BillDetail {
     /**
      * 折扣
      */
-    private String discount="0";
+    private String discount = "0";
 
 
     public String getDetailId() {

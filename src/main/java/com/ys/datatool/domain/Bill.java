@@ -104,7 +104,7 @@ public class Bill {
     /**
      * 支付类型
      */
-    private String payType;
+    private String payType="现金";
 
     /**
      * 车品牌

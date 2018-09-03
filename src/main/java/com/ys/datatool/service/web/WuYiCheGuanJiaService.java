@@ -57,7 +57,7 @@ public class WuYiCheGuanJiaService {
 
     private String startDate = "2005-01-01";
 
-    private String endDate = "2017-08-08";
+    private String endDate = "2018-09-03";
 
     private String companyName = "51车管家";
 
@@ -74,51 +74,40 @@ public class WuYiCheGuanJiaService {
     @Test
     public void fetchBillDetailData() throws IOException {
         List<BillDetail> billDetails = new ArrayList<>();
-        List<MemberCard> memberCards = new ArrayList<>();
-
-        int memberCardTotalPage = WebClientUtil.getTotalPageWithDoGet(getURL(MEMBERCARD_URL, 1, 25), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 25);
-        if (memberCardTotalPage > 0) {
-            for (int i = 1; i <= memberCardTotalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                Iterator<JsonNode> it = result.get("result").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-                    String memberCardId = element.get("MEMBER_ID").asText();
-                    String cardNo = element.get("CARD_NO").asText();
-                    String carNumber = element.get("CAR_PLATE_NUM").asText();
-
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setMemberCardId(memberCardId);
-                    memberCard.setCardCode(cardNo);
-                    memberCard.setCarNumber(carNumber);
-                    memberCards.add(memberCard);
-                }
-            }
-        }
+        List<MemberCard> memberCards = getMemberCards();
 
         if (memberCards.size() > 0) {
             for (MemberCard memberCard : memberCards) {
+
                 //encode
-                int billDetailTotalPage = WebClientUtil.getTotalPageWithDoGet(getURLInDifferentConditions(BILLDETAIL_URL, 1, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 20);
+                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, 1, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
+                int billDetailTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+
                 if (billDetailTotalPage > 0) {
                     for (int i = 1; i <= billDetailTotalPage; i++) {
-                        Response response = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, i, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
-                        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, i, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
+                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();
                         while (it.hasNext()) {
                             JsonNode element = it.next();
 
+                            String billNo = element.get("OUTBOUND_ID").asText();
+                            String itemName = element.get("PROD_SKU_NAME").asText();
+                            String firstCategoryName = element.get("PROD_SKU_TYPE").asText();
+                            String num=element.get("AMOUNT").asText();
+                            String totalAmount=element.get("TOTAL_MONEY").asText();
+                            String price=element.get("SALE_PRICE").asText();
+
                             BillDetail billDetail = new BillDetail();
-                            billDetail.setBillNo(element.get("OUTBOUND_ID").asText());
-                            billDetail.setItemName(element.get("PROD_SKU_NAME").asText());
-                            billDetail.setTotalAmount(CommonUtil.priceFormat(element.get("TOTAL_MONEY").asText()));
-                            billDetail.setPrice(CommonUtil.priceFormat(element.get("SALE_PRICE").asText()));
-                            billDetail.setNum(element.get("AMOUNT").asText());
+                            billDetail.setBillNo(billNo);
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setItemName(itemName);
+                            billDetail.setTotalAmount(CommonUtil.priceFormat(totalAmount));
+                            billDetail.setPrice(CommonUtil.priceFormat(price));
+                            billDetail.setNum(num);
                             billDetail.setDiscountRate(element.get("DISCOUNTS").asText());
-                            billDetail.setFirstCategoryName(element.get("PROD_SKU_TYPE").asText());
+                            billDetail.setFirstCategoryName(firstCategoryName);
                             billDetail.setCarNumber(memberCard.getCarNumber());
                             billDetails.add(billDetail);
                         }
@@ -126,6 +115,10 @@ public class WuYiCheGuanJiaService {
                 }
             }
         }
+
+
+        String pathname = "C:\\exportExcel\\51车管单据明细导出.xls";
+        ExportUtil.exportBillDetailDataInLocal(billDetails, ExcelDatas.workbook, pathname);
     }
 
 
@@ -135,128 +128,155 @@ public class WuYiCheGuanJiaService {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void fetchBillData() throws IOException, URISyntaxException {
+    @Test
+    public void fetchBillData() throws IOException {
         List<Bill> bills = new ArrayList<>();
-        List<MemberCard> memberCards = new ArrayList<>();
-
-        int memberCardTotalPage = WebClientUtil.getTotalPageWithDoGet(getURL(MEMBERCARD_URL, 1, 25), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 25);
-        if (memberCardTotalPage > 0) {
-            for (int i = 1; i <= memberCardTotalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                Iterator<JsonNode> it = result.get("result").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-                    String cardNo = element.get("CARD_NO").asText();
-                    String name = element.get("CUSTOMER_NAME").asText();
-                    String phone = element.get("PHONE_NUMBER").asText();
-                    String carNumber = element.get("CAR_PLATE_NUM").asText();
-
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setCardCode(cardNo);
-                    memberCard.setName(name);
-                    memberCard.setPhone(phone);
-                    memberCard.setCarNumber(carNumber);
-                    memberCards.add(memberCard);
-                }
-            }
-        }
+        List<MemberCard> memberCards = getMemberCards();
 
         if (memberCards.size() > 0) {
             for (MemberCard memberCard : memberCards) {
+
                 //encode
-                int billTotalPage = WebClientUtil.getTotalPageWithDoGet(getURLInDifferentConditions(BILL_URL, 1, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 20);
+                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, 1, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
+                int billTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
-                        Response response = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, i, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
-                        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, i, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
+                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();
                         while (it.hasNext()) {
                             JsonNode element = it.next();
 
+                            String billNo = element.get("OUTBOUND_ID").asText();
+                            String dateAdded = element.get("CREATE_DATE").asText();
+                            String actualAmount = element.get("ACCOUNTS_RECEIVABLE").asText();
+                            String totalAmount = element.get("ACCOUNTS_PAID").asText();
+
                             Bill bill = new Bill();
-                            bill.setBillNo(element.get("OUTBOUND_ID").asText());
+                            bill.setCompanyName(companyName);
+                            bill.setBillNo(billNo);
                             bill.setCarNumber(memberCard.getCarNumber());
                             bill.setPhone(memberCard.getPhone());
                             bill.setName(memberCard.getName());
-                            bill.setDateAdded(element.get("CREATE_DATE").asText());
-                            bill.setDateEnd(element.get("CREATE_DATE").asText());
-                            bill.setDateExpect(element.get("CREATE_DATE").asText());
-                            bill.setActualAmount(CommonUtil.priceFormat(element.get("ACCOUNTS_RECEIVABLE").asText()));
-                            bill.setTotalAmount(CommonUtil.priceFormat(element.get("ACCOUNTS_PAID").asText()));
-                            bill.setWaitInStore("否");
+                            bill.setDateAdded(DateUtil.formatSQLDateTime(dateAdded));
+                            bill.setDateEnd(DateUtil.formatSQLDateTime(dateAdded));
+                            bill.setDateExpect(DateUtil.formatSQLDateTime(dateAdded));
+                            bill.setActualAmount(CommonUtil.priceFormat(actualAmount));
+                            bill.setTotalAmount(CommonUtil.priceFormat(totalAmount));
                             bills.add(bill);
                         }
                     }
                 }
             }
         }
+
+        String pathname = "C:\\exportExcel\\51车管单据导出.xls";
+        ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
+
     }
+
 
     /**
      * 卡内项目
      *
      * @throws IOException
      */
+    @Test
     public void fetchMemberCardItemData() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
-        int totalPage = WebClientUtil.getTotalPageWithDoGet(getURL(MEMBERCARDITEM_URL, 1, 20), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 20);
+
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARDITEM_URL, 1, 20), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARDITEM_URL, i, 20), COOKIE);
+                response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARDITEM_URL, i, 20), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
+                    String cardCode = element.get("CARD_NO").asText();
+                    String itemName = element.get("PROD_SKU_NAME").asText();
+                    String num = element.get("SURPLUS").asText();
+                    String originalNum = element.get("TOTAL").asText();
+
+                    String validTime = element.get("EXPIRE_DAY").asText();
+                    validTime = DateUtil.formatDateTime(validTime);
+
+                    String isValidForever = CommonUtil.getIsValidForever(validTime);
+
                     MemberCardItem memberCardItem = new MemberCardItem();
-                    memberCardItem.setCardCode(element.get("CARD_NO").asText());
-                    memberCardItem.setItemName(element.get("PROD_SKU_NAME").asText());
-                    memberCardItem.setOriginalNum(element.get("TOTAL").asText());
-                    memberCardItem.setNum(element.get("SURPLUS").asText());
-                    memberCardItem.setDiscount("0");
+                    memberCardItem.setCompanyName(companyName);
+                    memberCardItem.setCardCode(cardCode);
+                    memberCardItem.setItemName(itemName);
+                    memberCardItem.setNum(num);
+                    memberCardItem.setOriginalNum(originalNum);
+                    memberCardItem.setValidTime(validTime);
+                    memberCardItem.setIsValidForever(isValidForever);
                     memberCardItems.add(memberCardItem);
                 }
             }
         }
+
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\51车管卡内项目导出.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
+
 
     /**
      * 会员卡
      *
      * @throws IOException
      */
+    @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        int totalPage = WebClientUtil.getTotalPageWithDoGet(getURL(MEMBERCARD_URL, 1, 25), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 25);
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, 1, 25), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 25);
+
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
+                response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
+                    String cardCode = element.get("CARD_NO").asText();
+                    String memberCardName = element.get("CARD_NAME").asText();
+                    String carNumber = element.get("CAR_PLATE_NUM").asText();
+                    String balance = element.get("BALANCE").asText();
+                    String name = element.get("CUSTOMER_NAME").asText();
+                    String phone = element.get("PHONE_NUMBER").asText();
+
+                    String dateCreated = element.get("CREATE_DATE").asText();
+                    dateCreated = DateUtil.formatDateTime(dateCreated);
+
                     MemberCard memberCard = new MemberCard();
-                    memberCard.setCardCode(element.get("CARD_NO").asText());
-                    memberCard.setMemberCardName(element.get("CARD_NAME").asText());
-                    memberCard.setCarNumber(element.get("CAR_PLATE_NUM").asText());
-                    memberCard.setDateCreated(element.get("CREATE_DATE").asText());
-                    memberCard.setBalance(CommonUtil.priceFormat(element.get("BALANCE").asText()));
-                    memberCard.setNum(element.get("residual_number").asText());
-                    memberCard.setName(element.get("CUSTOMER_NAME").asText());
-                    memberCard.setPhone(element.get("PHONE_NUMBER").asText());
-                    memberCard.setCardType(element.get("CARD_NAME").asText());
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setCompanyName(companyName);
+                    memberCard.setCarNumber(carNumber);
+                    memberCard.setBalance(CommonUtil.priceFormat(balance));
+                    memberCard.setName(name);
+                    memberCard.setPhone(phone);
+                    memberCard.setDateCreated(dateCreated);
+                    memberCard.setMemberCardName(memberCardName);
                     memberCards.add(memberCard);
                 }
             }
         }
+
+
+        String pathname = "C:\\exportExcel\\51车管会员卡导出.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
 
@@ -309,8 +329,6 @@ public class WuYiCheGuanJiaService {
                 }
             }
         }
-
-        System.out.println("结果为" + totalPage);
 
         String pathname = "C:\\exportExcel\\51车管车辆导出.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
@@ -407,6 +425,39 @@ public class WuYiCheGuanJiaService {
         String pathname = "C:\\exportExcel\\51车管家库存导出.xls";
         ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
 
+    }
+
+    private List<MemberCard> getMemberCards() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, 1, 25), COOKIE);
+        int memberCardTotalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 25);
+
+        if (memberCardTotalPage > 0) {
+            for (int i = 1; i <= memberCardTotalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("result").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+                    String cardCode = element.get("CARD_NO").asText();
+                    String name = element.get("CUSTOMER_NAME").asText();
+                    String phone = element.get("PHONE_NUMBER").asText();
+                    String carNumber = element.get("CAR_PLATE_NUM").asText();
+                    String memberCardId = element.get("MEMBER_ID").asText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setMemberCardId(memberCardId);
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setName(name);
+                    memberCard.setPhone(phone);
+                    memberCard.setCarNumber(carNumber);
+                    memberCards.add(memberCard);
+                }
+            }
+        }
+
+        return memberCards;
     }
 
 
