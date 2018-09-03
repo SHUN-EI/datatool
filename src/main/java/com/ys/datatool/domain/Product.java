@@ -46,9 +46,9 @@ public class Product {
     private String secondCategoryName;
 
     /**
-     * 商品类别-配件或服务项
+     * 商品类别-配件或服务项,默认为配件
      */
-    private String itemType;
+    private String itemType="配件";
 
     /**
      * 单位(服务项目没有单位)

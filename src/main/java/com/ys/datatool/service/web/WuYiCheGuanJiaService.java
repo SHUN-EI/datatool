@@ -21,35 +21,23 @@ import java.util.List;
 @Service
 public class WuYiCheGuanJiaService {
 
-    private static final String MEMBERCARDITEM_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryPackageCardConsumptionBargainPage?store_id=100675&tenant_id=10675&keys=&card_id=&prod_sku_name=&limit=20";
+    private String SERVICE_URL = "http://www.51chegj.com:8089/scm/store/service/qryserviceById?_dc=1535975204356&storeId=100675&tenantId=10675&limit=15";
 
-    private static final String BILLDETAIL_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryConsumptionDetailedPage?store_id=100675&tenant_id=10675&keys=&limit=20";
+    private String MEMBERCARDITEM_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryPackageCardConsumptionBargainPage?store_id=100675&tenant_id=10675&keys=&card_id=&prod_sku_name=&limit=20";
 
-    private static final String BILL_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryCardConsumptionPage?store_id=100675&tenant_id=10675&keys=&limit=20";
+    private String BILLDETAIL_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryConsumptionDetailedPage?store_id=100675&tenant_id=10675&keys=&limit=20";
 
-    private static final String MEMBERCARD_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryEffectiveMemberPage?tenantId=10675&keys=&card_id=&sale_person_id=&store_id=100675&limit=25";
+    private String BILL_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryCardConsumptionPage?store_id=100675&tenant_id=10675&keys=&limit=20";
 
-    private static final String CARINFO_URL = "http://www.51chegj.com:8089/scm/payment/custInfo/findCustInfo?tenantId=10675&storeId=100675&keys=&vipFlag=&limit=23";
+    private String MEMBERCARD_URL = "http://www.51chegj.com:8089/scm/member/memberStatistics/qryEffectiveMemberPage?tenantId=10675&keys=&card_id=&sale_person_id=&store_id=100675&limit=25";
 
-    private static final String SUPPLIER_URL = "http://www.51chegj.com:8089/scm/store/supplierMana/qrySupplierManaByPage?supplierName=&supplierCode=&provGeoName=&cityGeoName=&beloneId=100675&tenantId=10675&limit=15";
+    private String CARINFO_URL = "http://www.51chegj.com:8089/scm/payment/custInfo/findCustInfo?tenantId=10675&storeId=100675&keys=&vipFlag=&limit=23";
 
-    private static final String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
+    private String SUPPLIER_URL = "http://www.51chegj.com:8089/scm/store/supplierMana/qrySupplierManaByPage?supplierName=&supplierCode=&provGeoName=&cityGeoName=&beloneId=100675&tenantId=10675&limit=15";
 
-    private static final String COOKIE = "JSESSIONID=CE9335CB84CDD3EFF1165FDE813BF017; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
+    private String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
 
-    private static final String ACCEPT = "*/*";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String HOST = "www.51chegj.com:8089";
-
-    private static final String REFERER = "http://www.51chegj.com:8089/scm/main";
-
-    private static final String UPGRADE_INSECURE_REQUESTS = "1";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+    private String COOKIE = "JSESSIONID=CE9335CB84CDD3EFF1165FDE813BF017; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -65,6 +53,51 @@ public class WuYiCheGuanJiaService {
 
     private String memberIdStr = "&member_id=";
 
+
+    /**
+     * 服务项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(SERVICE_URL, 1, 15), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+
+                response = ConnectionUtil.doGetWithLeastParams(getURL(SERVICE_URL, i, 15), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("result").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String productName = element.get("PROD_NAME").asText();
+                    String firstCategoryName = element.get("CATA_NAME").asText();
+                    String price = element.get("SALE_PRICE").asText();
+                    String remark = element.get("DESCRIPTION").asText();
+
+                    Product product = new Product();
+                    product.setCompanyName(companyName);
+                    product.setItemType("服务项");
+                    product.setPrice(price);
+                    product.setRemark(remark);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setProductName(productName);
+                    products.add(product);
+                }
+            }
+        }
+
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\51车管服务项目导出.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 单据明细
@@ -95,9 +128,9 @@ public class WuYiCheGuanJiaService {
                             String billNo = element.get("OUTBOUND_ID").asText();
                             String itemName = element.get("PROD_SKU_NAME").asText();
                             String firstCategoryName = element.get("PROD_SKU_TYPE").asText();
-                            String num=element.get("AMOUNT").asText();
-                            String totalAmount=element.get("TOTAL_MONEY").asText();
-                            String price=element.get("SALE_PRICE").asText();
+                            String num = element.get("AMOUNT").asText();
+                            String totalAmount = element.get("TOTAL_MONEY").asText();
+                            String price = element.get("SALE_PRICE").asText();
 
                             BillDetail billDetail = new BillDetail();
                             billDetail.setBillNo(billNo);
@@ -115,7 +148,6 @@ public class WuYiCheGuanJiaService {
                 }
             }
         }
-
 
         String pathname = "C:\\exportExcel\\51车管单据明细导出.xls";
         ExportUtil.exportBillDetailDataInLocal(billDetails, ExcelDatas.workbook, pathname);
