@@ -447,6 +447,12 @@ public class DateUtil {
         return result.replace("-", "/");
     }
 
+    /**
+     * 日期转换为字符串(yyyy-MM-ddT00:00:00 转 yyyy/MM/dd HH:mm:ss)
+     *
+     * @param dateStr
+     * @return
+     */
     public static String formatSQLDate(String dateStr) {
         // dateStr="2018-01-23T00:00:00";
         if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
@@ -456,13 +462,19 @@ public class DateUtil {
         return dateStr.substring(0, 10).replace("-", "/");
     }
 
+    /**
+     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd )
+     *
+     * @param dateStr
+     * @return
+     */
     public static String formatSQLDateTime(String dateStr) {
-        // dateStr="2018-01-23T00:00:00";
+        // dateStr="2018-01-23";
         if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
             return "";
         }
 
-        return dateStr.substring(0, 10);
+        return dateStr.replace("-", "/");
     }
 
 

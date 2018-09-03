@@ -3,9 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
@@ -37,7 +35,7 @@ public class WuYiCheGuanJiaService {
 
     private static final String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
 
-    private static final String COOKIE = "JSESSIONID=B8821461584563B1D1F61C1FE869C813; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
+    private static final String COOKIE = "JSESSIONID=CE9335CB84CDD3EFF1165FDE813BF017; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
 
     private static final String ACCEPT = "*/*";
 
@@ -61,7 +59,7 @@ public class WuYiCheGuanJiaService {
 
     private String endDate = "2017-08-08";
 
-    private String fileName = "51车管家";
+    private String companyName = "51车管家";
 
     private String cardNoStr = "&card_no=";
 
@@ -261,99 +259,156 @@ public class WuYiCheGuanJiaService {
         }
     }
 
+
     /**
      * 车辆信息
      *
      * @throws IOException
      */
+    @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        int totalPage = WebClientUtil.getTotalPageWithDoGet(getURL(CARINFO_URL, 1, 23), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 23);
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(CARINFO_URL, 1, 23), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 23);
+
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(CARINFO_URL, i, 23), COOKIE);
+                response = ConnectionUtil.doGetWithLeastParams(getURL(CARINFO_URL, i, 23), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
+                    String name = element.get("CUSTOMER_NAME").asText();
+                    String phone = element.get("phoneNumber").asText();
+                    String carNumber = element.get("CUSTOMER_NAME").asText();
+                    String brand = element.get("BRAND_NAME").asText();
+                    String carModel = element.get("MODEL_NAME").asText();
+                    String engineNumber = element.get("ENGINE_NUMBER").asText();
+                    String vcInsuranceCompany = element.get("company").asText();
+
+                    String vcInsuranceValidDate = element.get("INSURANCE_PERIOND").asText();
+                    vcInsuranceValidDate = CommonUtil.formatString(vcInsuranceValidDate);
+                    if (vcInsuranceValidDate != "")
+                        vcInsuranceValidDate = DateUtil.formatSQLDateTime(vcInsuranceValidDate);
+
+
                     CarInfo carInfo = new CarInfo();
-                    carInfo.setName(element.get("CUSTOMER_NAME").asText());
-                    carInfo.setCarNumber(element.get("PLATE_NUM").asText());
-                    carInfo.setBrand(element.get("BRAND_NAME").asText());
-                    carInfo.setCarModel(element.get("MODEL_NAME").asText());
-                    carInfo.setPhone(element.get("phoneNumber").asText());
-                    carInfo.setVcInsuranceValidDate(element.get("INSURANCE_PERIOND").asText());
+                    carInfo.setName(name);
+                    carInfo.setPhone(phone);
+                    carInfo.setCarNumber(carNumber);
+                    carInfo.setBrand(brand);
+                    carInfo.setCarModel(carModel);
+                    carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                    carInfo.setEngineNumber(engineNumber);
+                    carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                    carInfo.setCompanyName(companyName);
                     carInfos.add(carInfo);
                 }
             }
         }
-    }
 
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\51车管车辆导出.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 供应商
+     *
      * @throws IOException
      */
+    @Test
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        int totalPage = WebClientUtil.getTotalPageWithDoGet(getURL(SUPPLIER_URL, 1, 15), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 15);
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(SUPPLIER_URL, 1, 15), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(SUPPLIER_URL, i, 15), COOKIE);
+                response = ConnectionUtil.doGetWithLeastParams(getURL(SUPPLIER_URL, i, 15), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
+                    String name = (element.get("supplierName")).asText();
+                    String contactName = element.get("contactPerson").asText();
+                    String contactPhone = element.get("contactPhone").asText();
+                    String address = element.get("contactAddress").asText();
+                    String code = element.get("supplierCode").asText();
+
                     Supplier supplier = new Supplier();
-                    supplier.setName(element.get("supplierName").asText());
-                    supplier.setContactPhone(element.get("contactPhone").asText());
-                    supplier.setAddress(element.get("contactAddress").asText());
-                    supplier.setContactName(element.get("contactPerson").asText());
+                    supplier.setName(name);
+                    supplier.setContactName(contactName);
+                    supplier.setContactPhone(contactPhone);
+                    supplier.setCompanyName(companyName);
+                    supplier.setCode(code);
+                    supplier.setAddress(address);
                     suppliers.add(supplier);
                 }
             }
         }
-    }
 
+        System.out.println("结果为" + suppliers.toString());
+
+        String pathname = "C:\\exportExcel\\51车管供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 库存
+     *
      * @throws IOException
      */
+    @Test
     public void fetchStockData() throws IOException {
-        List<Product> products = new ArrayList<>();
+        List<Stock> stocks = new ArrayList<>();
 
-        int totalPage = WebClientUtil.getTotalPageWithDoGet(getURL(STOCK_URL, 1, 20), ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT, MAPPER, fieldName, 20);
+        Response response = ConnectionUtil.doGetWithLeastParams(getURL(STOCK_URL, 1, 20), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 20);
+
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(getURL(STOCK_URL, i, 20), COOKIE);
+                response = ConnectionUtil.doGetWithLeastParams(getURL(STOCK_URL, i, 20), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
                     JsonNode element = it.next();
 
-                    Product product = new Product();
-                    product.setProductName(element.get("PROD_NAME").asText());
-                    product.setCode(element.get("BAR_CODE").asText());
-                    product.setPrice(CommonUtil.priceFormat(element.get("SALE_PRICE").asText()));
-                    product.setBarCode(element.get("BAR_CODE").asText());
-                    product.setUnit(element.get("PROD_UNIT_NAME").asText());
-                    product.setQuantity(element.get("ACTUAL_INVENTORY").asText());
-                    product.setUnitCost(CommonUtil.priceFormat(element.get("COST_PRICE").asText()));
-                    product.setStoreRoomName(element.get("STORAGE_NAME").asText());
-                    product.setFirstCategoryName(element.get("CATA_NAME").asText());
-                    products.add(product);
+
+                    String goodsName = element.get("PROD_NAME").asText();
+                    String productCode = element.get("BAR_CODE").asText();//条形码
+                    String price = element.get("COST_PRICE").asText();
+                    String inventoryNum = element.get("ACTUAL_INVENTORY").asText();
+                    String storeRoomName = element.get("STORAGE_NAME").asText();
+
+                    Stock stock = new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setGoodsName(goodsName);
+                    stock.setPrice(CommonUtil.priceFormat(price));
+                    stock.setProductCode(productCode);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setStoreRoomName(storeRoomName);
+                    stocks.add(stock);
                 }
             }
         }
+
+        System.out.println("结果为" + stocks.size());
+        System.out.println("结果为" + stocks.toString());
+
+        String pathname = "C:\\exportExcel\\51车管家库存导出.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+
     }
+
 
     private String getURLInDifferentConditions(String url, int pageNo, int row, String startDate, String endDate, String condition, String value) {
         String tempURL = getURL(url, pageNo, row);
