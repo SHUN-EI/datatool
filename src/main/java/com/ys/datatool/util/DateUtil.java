@@ -435,7 +435,7 @@ public class DateUtil {
     }
 
     /**
-     * 日期转换为字符串(yyyy-MM-dd 转 yyyy-MM-dd HH:mm:ss)
+     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd HH:mm:ss)
      *
      * @param dateStr
      * @return

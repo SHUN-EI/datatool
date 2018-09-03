@@ -3,10 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
@@ -21,6 +18,8 @@ import java.util.*;
  */
 @Service
 public class ZhiHuiCheDianService {
+
+    private String MEMBERCARDITEM_URL = "http://39.108.223.171/cs/membershipCard/info/listBy";
 
     private String SUPPLIER_URL = "http://39.108.223.171/cs/supplier/info/list";
 
@@ -76,7 +75,7 @@ public class ZhiHuiCheDianService {
                     String productCode = element.get("product").get("productNumber").asText();
                     String storeRoomName = element.get("warehouse").get("warehouseName").asText();
 
-                    Stock stock=new Stock();
+                    Stock stock = new Stock();
                     stock.setCompanyName(companyName);
                     stock.setPrice(price);
                     stock.setInventoryNum(inventoryNum);
@@ -147,6 +146,90 @@ public class ZhiHuiCheDianService {
         String pathname = "C:\\exportExcel\\智慧车店供应商导出.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
 
+    }
+
+    /**
+     * 卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemData() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                offSet = offSet + num;
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String id = element.get("id").asText();
+                    String cardCode = element.get("numberShipNumber").asText();
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setCardCode(cardCode);
+                    memberCardMap.put(id, memberCard);
+                }
+            }
+        }
+
+        if (memberCardMap.size() > 0) {
+            for (String id : memberCardMap.keySet()) {
+                List<BasicNameValuePair> params = new ArrayList<>();
+                params.add(new BasicNameValuePair("id", id));
+
+                MemberCard memberCard = memberCardMap.get(id);
+
+                Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, params, COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("list").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String num = element.get("count").asText();
+                    String price = element.get("price").asText();
+                    String firstCategoryName = element.get("items").get("parentName").asText();
+                    String itemName = element.get("items").get("itemName").asText();
+                    String code=element.get("items").get("code").asText();
+
+                    String validTimeStr = element.get("endTime").asText();
+                    String validTime = CommonUtil.formatString(validTimeStr);
+                    if (!"".equals(validTime))
+                        validTime = DateUtil.formatDateTime(validTime);
+
+                    String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                    MemberCardItem memberCardItem = new MemberCardItem();
+                    memberCardItem.setCompanyName(companyName);
+                    memberCardItem.setCardCode(memberCard.getCardCode());
+                    memberCardItem.setItemName(itemName);
+                    memberCardItem.setNum(num);
+                    memberCardItem.setCode(CommonUtil.formatString(code));
+                    memberCardItem.setOriginalNum(num);
+                    memberCardItem.setPrice(price);
+                    memberCardItem.setFirstCategoryName(firstCategoryName);
+                    memberCardItem.setValidTime(validTime);
+                    memberCardItem.setIsValidForever(isValidForever);
+
+                    memberCardItems.add(memberCardItem);
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\智慧车店卡内项目导出.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
 
@@ -366,12 +449,13 @@ public class ZhiHuiCheDianService {
 
     /**
      * 库存传参 1-全部库存，2-库存正常，3-库存不足
+     *
      * @param num
      * @param offset
      * @param type
      * @return
      */
-    private List<BasicNameValuePair> getStockParams(String num, String offset,String type) {
+    private List<BasicNameValuePair> getStockParams(String num, String offset, String type) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("type", type));
         params.add(new BasicNameValuePair("search", ""));

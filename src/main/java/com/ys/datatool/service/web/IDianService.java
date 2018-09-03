@@ -51,6 +51,10 @@ public class IDianService {
     private String companyName = "I店";
 
 
+    /**
+     * 单据
+     * @throws IOException
+     */
     @Test
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
