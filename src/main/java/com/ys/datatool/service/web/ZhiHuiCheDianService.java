@@ -2,10 +2,8 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.*;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -24,6 +22,10 @@ import java.util.*;
 @Service
 public class ZhiHuiCheDianService {
 
+    private String SUPPLIER_URL = "http://39.108.223.171/cs/supplier/info/list";
+
+    private String STOCK_URL = "http://39.108.223.171/cs/reception/info/queryProduct";
+
     private String MEMBERCARD_URL = "http://39.108.223.171/cs/membershipCard/info/list";
 
     private String ITEM_URL = "http://39.108.223.171/cs/product/info/list";
@@ -34,14 +36,16 @@ public class ZhiHuiCheDianService {
 
     private String fieldName = "total";
 
+    private String companyName = "智慧车店";
+
     private int num = 100;//分页参数为10、25、50、100
 
-    private String COOKIE = "JSESSIONID=0ED7278FEF1FEF6B37B4ABF38C7BA526";
+    private String COOKIE = "JSESSIONID=C7352A6412CB4A6EC01E1AB314396D90; user=zhongqi125; pwd=147258";
 
     @Test
     public void test() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
         System.out.println("结果为" + carInfos.toString());
@@ -49,6 +53,71 @@ public class ZhiHuiCheDianService {
 
     }
 
+    /**
+     * 库存
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockData() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+
+
+    }
+
+    /**
+     * 供应商
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchSupplierData() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+
+        Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(String.valueOf(num), "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int offSet = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                offSet = offSet + num;
+                System.out.println("offSet大小为" + offSet);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String contactName = element.get("contacts").asText();
+                    String contactPhone = element.get("mobilePhone").asText();
+                    String name = element.get("supplierName").asText();
+                    String code = element.get("supplierCode").asText();
+                    String remark = element.get("remark").asText();
+                    String address = element.get("addressInfo").asText();
+
+                    Supplier supplier = new Supplier();
+                    supplier.setContactName(contactName);
+                    supplier.setContactPhone(contactPhone);
+                    supplier.setName(name);
+                    supplier.setCode(code);
+                    supplier.setCompanyName(companyName);
+                    supplier.setRemark(remark);
+                    supplier.setAddress(CommonUtil.formatString(address));
+                    suppliers.add(supplier);
+                }
+            }
+        }
+
+        System.out.println("supplier为" + suppliers.toString());
+
+        String pathname = "C:\\exportExcel\\智慧车店供应商导出.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
+
+    }
 
 
     /**
@@ -62,14 +131,14 @@ public class ZhiHuiCheDianService {
         Map<String, CarInfo> carInfoMap = new HashMap<>();
         int totalPage = 0;
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -98,13 +167,13 @@ public class ZhiHuiCheDianService {
             }
         }
 
-        response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -128,6 +197,7 @@ public class ZhiHuiCheDianService {
                     memberCard.setBalance(balance);
                     memberCard.setPhone(phone);
                     memberCard.setName(name);
+                    memberCard.setCompanyName(companyName);
                     memberCard.setDateCreated(dateCreated);
 
                     if (carInfo != null)
@@ -151,14 +221,14 @@ public class ZhiHuiCheDianService {
     public void fetchItemData() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(num), "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
 
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
@@ -185,6 +255,7 @@ public class ZhiHuiCheDianService {
                     product.setProductName(productName);
                     product.setPrice(price);
                     product.setUnit(unit);
+                    product.setCompanyName(companyName);
                     product.setFirstCategoryName(firstCategoryName);
                     product.setSecondCategoryName(secondCategoryName);
                     product.setItemType("商品");
@@ -208,14 +279,14 @@ public class ZhiHuiCheDianService {
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), "0"), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -249,6 +320,7 @@ public class ZhiHuiCheDianService {
                     carInfo.setBrand(brand);
                     carInfo.setCarModel(carModel);
                     carInfo.setName(name);
+                    carInfo.setCompanyName(companyName);
                     carInfo.setPhone(phone);
                     carInfos.add(carInfo);
                 }
@@ -262,7 +334,7 @@ public class ZhiHuiCheDianService {
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
-    private List<BasicNameValuePair> getCarInfoParams(String num, String offset) {
+    private List<BasicNameValuePair> getParams(String num, String offset) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("search", ""));
         params.add(new BasicNameValuePair("order", "asc"));
