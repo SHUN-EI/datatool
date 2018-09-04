@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ import java.util.List;
  */
 @Service
 public class WuYiCheGuanJiaService {
+
+    private String ITEM_URL = "http://www.51chegj.com:8089/scm/store/purchase/findChooseProdSkus?_dc=1536042818090";
 
     private String SERVICE_URL = "http://www.51chegj.com:8089/scm/store/service/qryserviceById?_dc=1535975204356&storeId=100675&tenantId=10675&limit=15";
 
@@ -37,8 +40,6 @@ public class WuYiCheGuanJiaService {
 
     private String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
 
-    private String COOKIE = "JSESSIONID=CE9335CB84CDD3EFF1165FDE813BF017; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String fieldName = "totalRows";
@@ -49,10 +50,67 @@ public class WuYiCheGuanJiaService {
 
     private String companyName = "51车管家";
 
+    private String storeId = "100675";
+
+    private String tenantId = "10675";
+
+    private String limit = "13";
+
     private String cardNoStr = "&card_no=";
 
     private String memberIdStr = "&member_id=";
 
+    private String COOKIE = "JSESSIONID=4C31AD9FF047B785815F4F66F7D448EB; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
+
+
+    /**
+     * 商品
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchItemData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getItemParams("1", "0"), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 13);
+
+        if (totalPage > 0) {
+            int start = 0;
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getItemParams(String.valueOf(i), String.valueOf(start)), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                start = start + Integer.parseInt(limit);
+
+                System.out.println("start大小为" + start);
+                System.out.println("页数为" + i);
+
+                Iterator<JsonNode> it = result.get("result").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+
+                    String productName=element.get("prodName").asText();
+                    String brandName=element.get("brandName").asText();
+                    String barCode=element.get("barCode").asText();
+                    String price=element.get("salePrice").asText();
+                    String cost=element.get("purchasePrice").asText();//采购价
+
+                    Product product=new Product();
+                    product.setCompanyName(companyName);
+                    product.setBrandName(brandName);
+                    product.setBarCode(barCode);
+                    product.setPrice(price);
+                    product.setProductName(productName);
+                    products.add(product);
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\51车管商品导出.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 服务项目
@@ -92,8 +150,6 @@ public class WuYiCheGuanJiaService {
                 }
             }
         }
-
-        System.out.println("结果为" + totalPage);
 
         String pathname = "C:\\exportExcel\\51车管服务项目导出.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
@@ -492,6 +548,24 @@ public class WuYiCheGuanJiaService {
         return memberCards;
     }
 
+
+    /**
+     * 商品传参
+     *
+     * @param num
+     * @param start
+     * @return
+     */
+    private List<BasicNameValuePair> getItemParams(String num, String start) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("storeId", storeId));
+        params.add(new BasicNameValuePair("tenantId", tenantId));
+        params.add(new BasicNameValuePair("page", num));
+        params.add(new BasicNameValuePair("start", start));
+        params.add(new BasicNameValuePair("limit", limit));
+        params.add(new BasicNameValuePair("prodState", "PUBLISH,CANCEL"));
+        return params;
+    }
 
     private String getURLInDifferentConditions(String url, int pageNo, int row, String startDate, String endDate, String condition, String value) {
         String tempURL = getURL(url, pageNo, row);
