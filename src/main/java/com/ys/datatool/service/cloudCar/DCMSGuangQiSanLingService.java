@@ -3,8 +3,10 @@ package com.ys.datatool.service.cloudCar;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.Part;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.ExportUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
@@ -28,7 +30,9 @@ public class DCMSGuangQiSanLingService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private String COOKIE = "JSESSIONID=qXypjzH0DYzxx29wklvgQTjXd4IimjOq1NbAInKz3Qn6FGi9y184!1897524995";
+    private String companyName="广汽三菱";
+
+    private String COOKIE = "JSESSIONID=0Y6tBKeptquMEE_YXE9M6jWzaIhAxexKUqxBfC2tCvtkLJ6QFSmn!1897524995";
 
     @Test
     public void testData() throws IOException {
@@ -79,6 +83,7 @@ public class DCMSGuangQiSanLingService {
                     String replacePartCode = element.get("REPLACE_PART_CODE") != null ? element.get("REPLACE_PART_CODE").asText() : "";
 
                     Part part = new Part();
+                    part.setCompanyName(companyName);
                     part.setCode(code);
                     part.setName(name);
                     part.setPartsCode(partsCode);
@@ -106,6 +111,9 @@ public class DCMSGuangQiSanLingService {
         String pathname = "C:\\exportExcel\\广汽三菱系统配件.json";
         File file = new File(pathname);
         MAPPER.writeValue(file, parts);
+
+        String pathname2 = "C:\\exportExcel\\广汽三菱配件.xls";
+        ExportUtil.exportPartDataInLocal(parts, ExcelDatas.workbook, pathname2);
 
         System.out.println("结果为" + parts.toString());
         System.out.println("结果为" + parts.size());

@@ -18,6 +18,11 @@ public class Part {
     private String name;
 
     /**
+     * 车店名称
+     */
+    private String companyName;
+
+    /**
      * 替代零部件号
      */
     private String replacePartCode;
@@ -68,6 +73,14 @@ public class Part {
      * 备注
      */
     private String remark;
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
 
     public String getCode() {
         return code;

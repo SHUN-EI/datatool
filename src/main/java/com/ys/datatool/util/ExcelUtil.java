@@ -455,6 +455,34 @@ public class ExcelUtil {
         return listMap;
     }
 
+    public static List<Map<String, Object>> createPartsList(List<Part> parts) {
+        List<Map<String, Object>> listMap = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("sheetName", "配件信息");
+        listMap.add(map);
+
+        Part part = null;
+        for (int i = 0; i < parts.size(); i++) {
+            part = parts.get(i);
+            Map<String, Object> mapValue = new HashMap<String, Object>();
+            mapValue.put("code", part.getCode());
+            mapValue.put("name", part.getName());
+            mapValue.put("companyName", part.getCompanyName());
+            mapValue.put("replacePartCode", part.getReplacePartCode());
+            mapValue.put("partsCode", part.getPartsCode());
+            mapValue.put("origin", part.getOrigin());
+            mapValue.put("carModel", part.getCarModel());
+            mapValue.put("specification", part.getSpecification());
+            mapValue.put("specificationCapacity", part.getSpecificationCapacity());
+            mapValue.put("costPrice", part.getCostPrice());
+            mapValue.put("salePrice", part.getSalePrice());
+            mapValue.put("unit", part.getUnit());
+            mapValue.put("remark", part.getRemark());
+            listMap.add(mapValue);
+        }
+        return listMap;
+    }
+
     public static List<Map<String, Object>> createSupplierList(List<Supplier> suppliers) {
         List<Map<String, Object>> listMap = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();

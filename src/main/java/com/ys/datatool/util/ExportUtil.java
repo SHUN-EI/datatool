@@ -231,6 +231,41 @@ public class ExportUtil {
         }
     }
 
+
+    /**
+     * 配件
+     *
+     * @param parts
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
+    public static void exportPartDataInLocal(List<Part> parts, Workbook workbook, String pathname) throws IOException {
+
+        List<Map<String, Object>> list = ExcelUtil.createPartsList(parts);
+        String[] keys = new String[]{"companyName", "code", "name", "replacePartCode", "partsCode", "origin", "carModel",
+                "specification", "specificationCapacity", "costPrice", "salePrice", "unit", "remark"
+        };
+
+        OutputStream outputStream = null;
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.partDatas);
+            File file = new File(pathname);
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * 仓库-标准模版导出
      *
@@ -588,37 +623,37 @@ public class ExportUtil {
         String[] keys = new String[]{"vin", "levelId", "manufacturers", "brand", "brand_no", "series",
                 "models", "year", "produced_year", "sales_name", "vehicle_type", "vehicle_size", "emission_standard",
                 "induction", "engine_description", "displacement", "transmission_type", "transmission_description",
-                "name","series_no","generation","chassis_code","sales_version","guiding_price","listing_year","listing_month",
-                "idling_year","production_status","sales_status","country","vehicle_attributes","models_code","engine_model",
-                "cylinder_volume","fuel_type","fuel_grade","horsepower","power_kw","power_rpm","torque_nm","torque_rpm",
-                "cylinder_arrangement","cylinders","valves_per_cylinder","compression_ratio","fuel_injection",
-                "combined_fuel_consumption","urban_fuel_consumption","suburb_fuel_consumption","acceleration",
-                "max_speed","engine_knowhow","catalyst","cooling_method","bore","stroke","gear_number",
-                "front_brake","rear_brake","front_suspension","rear_suspension","steering","power_steering",
-                "min_ground_clearance","min_turning_radius","access_angle","departure_angle","engine_location",
-                "drive_mode","drive_model","body_type","length","width","height","wheelbase","front_track","rear_track",
-                "curb_weight","max_loading","fuel_tank_capacity","luggage_place","roof_type","calash","doors","seats",
-                "front_tyre","rear_tyre","front_rim","rear_rim","rims_material","spare_wheel","driver_airbag","passenger_airbag",
-                "front_side_airbag","rear_side_airbag","front_curtain_airbag","rear_curtain_airbag","knee_airbag","tire_pressure_monitor",
-                "run_flat_tyre","seatbelt_warning_lamp","isofix","latch","engine_antitheft","central_locking","remote_control",
-                "keyless_entry","keyless_go","abs","ebd","eba","asr","esp","epb","hdc","variable_suspension","air_suspension",
-                "variable_steering_ratio","blis","active_brake","active_steering","leather_steering_wheel","height_adjustable_steering_wheel",
-                "length_adjustable_steering_wheel","electric_adjustable_steering_wheel","multifunction_steering_wheel","steering_wheel_with_shift",
-                "leather_seat","sport_seat","height_adjustable_seat","lumber_support_adjustable","shoulder_support_adjustable",
-                "driver_seat_power_adjustable","passenger_seat_power_adjustable","second_row_backrest_adjustable","second_row_seat_position_adjustable",
-                "rear_seat_power_adjustable","memory_seat","front_seat_heater","rear_seat_heater","seat_ventilation","seat_massage",
-                "overall_rear_seats_fold_down","rear_seats_proportion_fold_down","third_row_seat","front_center_armrest","rear_center_armrest",
-                "rear_cup_holder","ambientes_lamp","rear_back_window_glass_blind","rear_side_window_glass_blind","sunvisor_mirror",
-                "power_tailgate","sport_body_dress_up_kits","electric_suction_door","sunroof","panoramic_sunroof","hid_headlamp",
-                "led_headlamp","daytime_running_lamp","adaptive_headlamp","corner_headlamp","front_fog_lamp","height_adjustable_headlamp",
-                "headlamp_washer","front_power_window","rear_power_window","anti_pinch_glass","insulated_glass","electrically_adjustable_outside_mirror",
-                "heated_outside_mirror","auto_dimming_inside_mirror","power_fold_outside_mirror","inside_mirror_with_memory","rear_wiper",
-                "rain_sensing_wipers","cruise_control","parking_assist","rear_view_camera","trip_computer","hud","gps","interactive_information_services",
-                "lcd_screen","man_machine_interactive_system","internal_hard_disk","bluetooth","vehicle_tv","rear_entertainment_screen",
-                "entertainment_connector","MP3","single_disc_cd","multi_disc_cd","virtual_multi_disc_cd","single_disc_dvd","multi_disc_dvd","speaker_number",
-                "ac","autoac","rearac","rear_vent","aczone_control","pollen_filter","refrigerator","automatic_parking","night_vision","splitview",
-                "acc","panoramic_camera","rear_parking_aid","telematics","valve_system","cylinder_head","cylinder_block","body_structure","parking_brake",
-                "warranty_period","vehicle_color","intelligent_stop_start","dipped_lights","high_beam","maintenance_remark",
+                "name", "series_no", "generation", "chassis_code", "sales_version", "guiding_price", "listing_year", "listing_month",
+                "idling_year", "production_status", "sales_status", "country", "vehicle_attributes", "models_code", "engine_model",
+                "cylinder_volume", "fuel_type", "fuel_grade", "horsepower", "power_kw", "power_rpm", "torque_nm", "torque_rpm",
+                "cylinder_arrangement", "cylinders", "valves_per_cylinder", "compression_ratio", "fuel_injection",
+                "combined_fuel_consumption", "urban_fuel_consumption", "suburb_fuel_consumption", "acceleration",
+                "max_speed", "engine_knowhow", "catalyst", "cooling_method", "bore", "stroke", "gear_number",
+                "front_brake", "rear_brake", "front_suspension", "rear_suspension", "steering", "power_steering",
+                "min_ground_clearance", "min_turning_radius", "access_angle", "departure_angle", "engine_location",
+                "drive_mode", "drive_model", "body_type", "length", "width", "height", "wheelbase", "front_track", "rear_track",
+                "curb_weight", "max_loading", "fuel_tank_capacity", "luggage_place", "roof_type", "calash", "doors", "seats",
+                "front_tyre", "rear_tyre", "front_rim", "rear_rim", "rims_material", "spare_wheel", "driver_airbag", "passenger_airbag",
+                "front_side_airbag", "rear_side_airbag", "front_curtain_airbag", "rear_curtain_airbag", "knee_airbag", "tire_pressure_monitor",
+                "run_flat_tyre", "seatbelt_warning_lamp", "isofix", "latch", "engine_antitheft", "central_locking", "remote_control",
+                "keyless_entry", "keyless_go", "abs", "ebd", "eba", "asr", "esp", "epb", "hdc", "variable_suspension", "air_suspension",
+                "variable_steering_ratio", "blis", "active_brake", "active_steering", "leather_steering_wheel", "height_adjustable_steering_wheel",
+                "length_adjustable_steering_wheel", "electric_adjustable_steering_wheel", "multifunction_steering_wheel", "steering_wheel_with_shift",
+                "leather_seat", "sport_seat", "height_adjustable_seat", "lumber_support_adjustable", "shoulder_support_adjustable",
+                "driver_seat_power_adjustable", "passenger_seat_power_adjustable", "second_row_backrest_adjustable", "second_row_seat_position_adjustable",
+                "rear_seat_power_adjustable", "memory_seat", "front_seat_heater", "rear_seat_heater", "seat_ventilation", "seat_massage",
+                "overall_rear_seats_fold_down", "rear_seats_proportion_fold_down", "third_row_seat", "front_center_armrest", "rear_center_armrest",
+                "rear_cup_holder", "ambientes_lamp", "rear_back_window_glass_blind", "rear_side_window_glass_blind", "sunvisor_mirror",
+                "power_tailgate", "sport_body_dress_up_kits", "electric_suction_door", "sunroof", "panoramic_sunroof", "hid_headlamp",
+                "led_headlamp", "daytime_running_lamp", "adaptive_headlamp", "corner_headlamp", "front_fog_lamp", "height_adjustable_headlamp",
+                "headlamp_washer", "front_power_window", "rear_power_window", "anti_pinch_glass", "insulated_glass", "electrically_adjustable_outside_mirror",
+                "heated_outside_mirror", "auto_dimming_inside_mirror", "power_fold_outside_mirror", "inside_mirror_with_memory", "rear_wiper",
+                "rain_sensing_wipers", "cruise_control", "parking_assist", "rear_view_camera", "trip_computer", "hud", "gps", "interactive_information_services",
+                "lcd_screen", "man_machine_interactive_system", "internal_hard_disk", "bluetooth", "vehicle_tv", "rear_entertainment_screen",
+                "entertainment_connector", "MP3", "single_disc_cd", "multi_disc_cd", "virtual_multi_disc_cd", "single_disc_dvd", "multi_disc_dvd", "speaker_number",
+                "ac", "autoac", "rearac", "rear_vent", "aczone_control", "pollen_filter", "refrigerator", "automatic_parking", "night_vision", "splitview",
+                "acc", "panoramic_camera", "rear_parking_aid", "telematics", "valve_system", "cylinder_head", "cylinder_block", "body_structure", "parking_brake",
+                "warranty_period", "vehicle_color", "intelligent_stop_start", "dipped_lights", "high_beam", "maintenance_remark",
                 "vinOnetoThree", "vinFour", "vinFive", "vinSix", "vinSeventoEight", "vinNine", "vinTen", "vinEleven", "vinTwelvetoSeventeen"
         };
         OutputStream outputStream = null;

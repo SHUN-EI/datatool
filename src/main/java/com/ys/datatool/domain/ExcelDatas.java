@@ -96,6 +96,13 @@ public class ExcelDatas {
     public static String[] YuanLeCheBaoStockDatas = new String[]{"车店名称", "仓库",
             "商品名称", "配件类型", "品牌", "型号", "规格", "销售价", "库存数量", "入库单价", "仓位", "商品编码"};
 
+
+    /**
+     * 配件
+     */
+    public static String[] partDatas = new String[]{"车店名称", "零部件号","零部件名称","替代零部件号","PNC","原产地","适用车型（车系）",
+            "规格属性",  "规格容量", "成本价","建议售价","单位","备注"};
+
     public static String[] storeRoomDatas = new String[]{"车店名称", "仓库名称",
             "备注", "库位名称"};
 
