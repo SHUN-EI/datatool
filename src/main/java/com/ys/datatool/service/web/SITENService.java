@@ -37,23 +37,7 @@ public class SITENService {
 
     private static final String BILLCSRF_URL = "http://erp.51sten.com/sheet/careSheetIn";
 
-    private static final String ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
-
     private static final String COOKIE = "JSESSIONID=CBDC1C32A12A951FB68E8466767A0927; nav1=102; nav2=102023001; SERVERID=47727ad8b9e9dbfa9c94ad11c15091d8|1500097266|1500097119";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String HOST = "erp.51sten.com";
-
-    private static final String ORIGIN = "http://erp.51sten.com";
-
-    private static final String REFERER = "http://erp.51sten.com/partInfo/partStockManage";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private static final String UPGRADE_INSECURE_REQUESTS = "1";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -227,6 +211,7 @@ public class SITENService {
 
     /**
      * 单据
+     *
      * @throws IOException
      */
     public void fetchBillData() throws IOException {
@@ -267,6 +252,7 @@ public class SITENService {
 
     /**
      * 车辆信息
+     *
      * @throws IOException
      */
     public void fetchCarInfoData() throws IOException {
@@ -280,7 +266,7 @@ public class SITENService {
                 params.add(row);
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
-                Response response = ConnectionUtil.doPost(CARINFO_URL, params, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, params, COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -315,7 +301,7 @@ public class SITENService {
                 params.add(row);
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
-                Response response = ConnectionUtil.doPost(STOCK_URL, params, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH);
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, params,COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -341,7 +327,8 @@ public class SITENService {
         params.add(row);
         params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
-        int total = WebClientUtil.getTotalPageWithDoPost(url, params, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH, MAPPER, fieldName, 50);
+        Response res = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
+        int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
 
         return total;
     }
@@ -376,13 +363,15 @@ public class SITENService {
         params.add(row);
         params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
-        int total = WebClientUtil.getTotalPageWithDoPost(url, params, ACCEPT, COOKIE, CONNECTION, HOST, ORIGIN, REFERER, USER_AGENT, X_REQUESTED_WITH, MAPPER, fieldName, 50);
+        Response res = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
+        int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
 
         return total;
     }
 
     private String getCSRF() throws IOException {
-        Response response = ConnectionUtil.doGet(BILLCSRF_URL, ACCEPT, COOKIE, CONNECTION, HOST, REFERER, X_REQUESTED_WITH, UPGRADE_INSECURE_REQUESTS, USER_AGENT);
+
+        Response response = ConnectionUtil.doGetWithLeastParams(BILLCSRF_URL, COOKIE);
 
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);

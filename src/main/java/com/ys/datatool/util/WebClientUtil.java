@@ -481,17 +481,6 @@ public class WebClientUtil {
         return Integer.parseInt(totalStr);
     }
 
-    public static int getTotalPageWithDoPost(String url, List params, String accept, String cookie, String connection,
-                                             String host, String origin, String referer, String user_agent, String x_requested_with,
-                                             ObjectMapper mapper, String fieldName, int num) throws IOException {
-
-        Response response = ConnectionUtil.doPost(url, params, accept, cookie, connection, host, origin, referer, user_agent, x_requested_with);
-
-        int totalPage = getTotalPage(response, mapper, fieldName, num);
-
-        return totalPage;
-
-    }
 
     /**
      * 获取总页数
