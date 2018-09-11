@@ -659,7 +659,7 @@ public class ExportUtil {
         OutputStream outputStream = null;
 
         try {
-            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.cloudCarModelSomeFields);
+            workbook = ExcelUtil.createXSSFWorkbook(list, keys, ExcelDatas.cloudCarModelSomeFields);
             CellStyle cellStyle = workbook.createCellStyle(); //换行样式
             File file = new File(pathname);
 
