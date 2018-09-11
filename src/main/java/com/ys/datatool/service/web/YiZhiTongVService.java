@@ -50,10 +50,6 @@ public class YiZhiTongVService {
 
     private String AFTCOOKIE = " userinfo1=id=2016030901&acountid=81&sid=张坤&name=张坤; main=height=607&width=1336";
 
-    @Test
-    public void test() throws IOException {
-
-    }
 
     /**
      * 服务项目

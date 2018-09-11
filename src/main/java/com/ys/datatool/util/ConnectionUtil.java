@@ -54,22 +54,6 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doPost(String url, List params, String accept, String cookie, String connection, String host, String origin, String referer, String user_Agent, String x_Requested_With) throws IOException {
-
-        Response response = Request.Post(url)
-                .setHeader("Accept", accept)
-                .setHeader("Cookie", cookie)
-                .setHeader("Connection", connection)
-                .setHeader("Host", host)
-                .setHeader("Origin", origin)
-                .setHeader("Referer", referer)
-                .setHeader("User-Agent", user_Agent)
-                .setHeader("X-Requested-With", x_Requested_With)
-                .bodyForm(params, Charset.forName("utf-8"))
-                .execute();
-
-        return response;
-    }
 
     public static Response doPostWithLeastParamJson(String url, String param, String cookie) throws IOException {
 
@@ -118,22 +102,6 @@ public class ConnectionUtil {
                 .setHeader("model", "iPhone9,1")
                 .setHeader("appVer", "5.0.7")
                 .bodyForm(params, Charset.forName("utf-8"))
-                .execute();
-
-        return response;
-    }
-
-    public static Response doGet(String url, String accept, String cookie, String connection, String host, String referer, String x_Requested_With, String upgrade_Insecure_Requests, String user_Agent) throws IOException {
-
-        Response response = Request.Get(url)
-                .setHeader("Accept", accept)
-                .setHeader("Cookie", cookie)
-                .setHeader("Connection", connection)
-                .setHeader("Host", host)
-                .setHeader("Referer", referer)
-                .setHeader("X-Requested-With", x_Requested_With)
-                .setHeader("Upgrade-Insecure-Requests", upgrade_Insecure_Requests)
-                .setHeader("User-Agent", user_Agent)
                 .execute();
 
         return response;
