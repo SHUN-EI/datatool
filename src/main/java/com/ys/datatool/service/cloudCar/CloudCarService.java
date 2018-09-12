@@ -82,8 +82,14 @@ public class CloudCarService {
         });
 
         if (manufacturers.size() > 0) {
-            //数据量过大，分开执行，size=175
-            for (int i = 0; i < 5; i++) {
+            /**
+             * 数据量过大，分开执行，size=175
+             * 0-5 5-10 10-15 15-20 20-23 23-24 24-25 25-27 27-30 30-34 34-40
+             * 40-45 45-49 49-55 55-64 64-68 68-77 77-87 87-99 99-107 107-127
+             * 127-148 148-158 158-175
+             * 改文件名字
+             */
+            for (int i = 158; i < manufacturers.size(); i++) {
                 String condition = queryByManufacturer + "'" + manufacturers.get(i) + "';";
 
                 JDBC_TEMPLATE.query(condition, rs -> {
@@ -542,7 +548,7 @@ public class CloudCarService {
         if (cloudCarModelEntities.size() > 0)
             fetchVINFromMongo(cloudCarModelEntities);
 
-        String pathname = "C:\\exportExcel\\vin前三位规律(1-5厂家).xlsx";
+        String pathname = "C:\\exportExcel\\vin前三位规律(158-175厂家).xlsx";
         ExportUtil.exportCloudCarModelSomeFieldsInLocal(cloudCarModelEntities, ExcelDatas.workbook, pathname);
 
 
