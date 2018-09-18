@@ -414,6 +414,10 @@ public class DateUtil {
      * @return
      */
     public static String formatDate2DateTime(String dateStr) {
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
         Date date = parseDateByAuto(dateStr);
         String result = formateDateTime(date);
 
@@ -427,6 +431,10 @@ public class DateUtil {
      * @return
      */
     public static String formatMillisecond2DateTime(String millisecond) {
+        if ("".equals(millisecond) || StringUtils.isBlank(millisecond)) {
+            return "";
+        }
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_PATTERN);
         Date date = new Date();
         date.setTime(Long.parseLong(millisecond));
@@ -441,6 +449,11 @@ public class DateUtil {
      * @return
      */
     public static String formatDateTime(String dateStr) {
+
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
         Date date = parseDate(dateStr);
         String result = formateDateTime(date);
 

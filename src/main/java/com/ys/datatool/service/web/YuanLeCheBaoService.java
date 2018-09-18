@@ -103,7 +103,7 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=D6FC30730FB5C4792CD4AACA8F23FED3; usfl=YLmMiuyxiwW3ARBPWrf; lk=c351aa4b9987b48fd0884a480e04809c";
+    private String COOKIE = "JSESSIONID=32C2AF1F55EEE88E181ADB7CE3AF2085; usfl=R4rtlTGQtKVjr7F03LW; lk=462547a467a6f8b585c477aaf99cfe1a";
 
 
     @Test
@@ -127,7 +127,7 @@ public class YuanLeCheBaoService {
 
 
     /**
-     * 门店订单-单据
+     * 门店订单-单据和单据明细
      *
      * @throws IOException
      */
@@ -162,8 +162,11 @@ public class YuanLeCheBaoService {
                     String actualAmount = element.get("dealAmount").asText();
                     String totalAmount = element.get("totalAmount").asText();
                     String name = element.get("userName").asText();
-                    String dateAdded = element.get("orderTime").asText();
+
                     String dateEnd = element.get("payTime").asText();//需要转换日期格式
+
+                    String dateAdded = element.get("orderTime").asText();
+                    dateAdded = DateUtil.formatDateTime(dateAdded);
 
                     Bill bill = new Bill();
                     bill.setCompanyName(companyName);
@@ -180,14 +183,14 @@ public class YuanLeCheBaoService {
 
                     if (element.get("orderItemList") != null) {
                         Iterator<JsonNode> items = element.get("orderItemList").iterator();
-                        while (items.hasNext()){
+                        while (items.hasNext()) {
                             JsonNode e = items.next();
-                            String itemName=e.get("itemName").asText();
-                            String num=e.get("quantity").asText();
-                            String price=e.get("itemPrice").asText();
-                            String itemCode=e.get("orderItemGuid").asText();
+                            String itemName = e.get("itemName").asText();
+                            String num = e.get("quantity").asText();
+                            String price = e.get("itemPrice").asText();
+                            String itemCode = e.get("orderItemGuid").asText();
 
-                            BillDetail billDetail=new BillDetail();
+                            BillDetail billDetail = new BillDetail();
                             billDetail.setCompanyName(companyName);
                             billDetail.setBillNo(billNo);
                             billDetail.setItemName(itemName);
