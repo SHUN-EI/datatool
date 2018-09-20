@@ -153,6 +153,7 @@ public class TransformTool {
 
         String pathname = "C:\\exportExcel\\历史消费记录.xls";
         ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        System.out.println("--------------------------------------历史消费记录解析成功---------------------------------------------------");
 
     }
 
