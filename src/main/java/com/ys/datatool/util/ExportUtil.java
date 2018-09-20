@@ -89,6 +89,32 @@ public class ExportUtil {
         }
     }
 
+    public static void exportConsumptionRecordDataInLocal(List<Bill> bills, Workbook workbook, String pathname) throws IOException {
+
+        List<Map<String, Object>> list = ExcelUtil.createBillList(bills);
+        String[] keys = new String[]{"companyName", "billNo", "dateEnd","carNumber", "mileage",
+                "serviceItemNames", "goodsNames", "totalAmount", "receptionistName",
+                "remark"};
+
+        OutputStream outputStream = null;
+        try {
+            workbook = ExcelUtil.createHSSFWorkbook(list, keys, ExcelDatas.consumptionRecordDatas);
+            File file = new File(pathname);
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void exportBillSomeFieldDataInLocal(List<Bill> bills, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createBillList(bills);

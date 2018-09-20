@@ -11,6 +11,24 @@ public class ExcelDatas {
 
     public static Workbook workbook;
 
+    public static String billNoName="单据号";
+
+    public static String dateEndName="提车日期";
+
+    public static String carNumberName="车牌号";
+
+    public static String mileageName="进店里程";
+
+    public static String serviceItemName="报价项目";
+
+    public static String goodsName="报价商品";
+
+    public static String totalAmountName="单据金额";
+
+    public static String receptionistName="业务员";
+
+    public static String remarkName="备注";
+
     public static String[] cloudCarModelSomeFields = new String[]{"VIN码", "力洋编号(LevelId)", "厂家", "品牌", "厂家品牌编号",
             "车系", "车型", "年款", "生产年份", "销售名称", "车辆类型", "车辆级别", "排放标准", "进气形式",
             "发动机描述","排量","变速箱类型","变速器描述",
@@ -56,6 +74,10 @@ public class ExcelDatas {
             "WIN码7-8位(车辆等级)","WIN码9位(检验位)","WIN码10位(生产年份)","WIN码11位(装配厂)","WIN码12-17位(生产顺序号)"
 
     };
+
+    public static String[] consumptionRecordDatas = new String[]{"车店名称", "单据号",
+            "提车日期", "车牌号", "进店里程", "报价项目", "报价商品", "单据金额",
+            "业务员", "备注"};
 
     public static String[] billItemDatas = new String[]{"车店名称", "单据号",
             "商品名称", "数量", "售价", "折扣", "类别", "一级分类名称",

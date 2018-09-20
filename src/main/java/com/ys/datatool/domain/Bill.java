@@ -31,6 +31,17 @@ public class Bill {
     private String carNumber;
 
     /**
+     * 报价项目
+     */
+    private String serviceItemNames;
+
+    /**
+     * 报价商品
+     */
+    private String goodsNames;
+
+
+    /**
      * 车型
      */
     private String automodel;
@@ -51,9 +62,14 @@ public class Bill {
     private String company;
 
     /**
-     * 总计
+     * 总计(单据金额)
      */
     private String totalAmount;
+
+    /**
+     * 业务员
+     */
+    private String receptionistName;
 
     /**
      * 实收 paid = total*(discount/10)
@@ -115,6 +131,30 @@ public class Bill {
      * 车型
      */
     private String carModel;
+
+    public String getServiceItemNames() {
+        return serviceItemNames;
+    }
+
+    public void setServiceItemNames(String serviceItemNames) {
+        this.serviceItemNames = serviceItemNames;
+    }
+
+    public String getGoodsNames() {
+        return goodsNames;
+    }
+
+    public void setGoodsNames(String goodsNames) {
+        this.goodsNames = goodsNames;
+    }
+
+    public String getReceptionistName() {
+        return receptionistName;
+    }
+
+    public void setReceptionistName(String receptionistName) {
+        this.receptionistName = receptionistName;
+    }
 
     public String getCompanyName() {
         return companyName;
