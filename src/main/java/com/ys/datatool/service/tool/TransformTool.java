@@ -91,15 +91,38 @@ public class TransformTool {
 
         for (int i = 1; i <= billSheet.getLastRowNum(); i++) {
             HSSFRow row = billSheet.getRow(i);
-            String billNo = row.getCell(billNoNum).toString();
-            String carNumber = row.getCell(carNumberNum).toString();
-            String mileage = row.getCell(mileageNum).toString();
-            String totalAmount = row.getCell(totalAmountNum).toString();
-            String receptionistName = row.getCell(receptionistNum).toString();
-            String remark = row.getCell(remarkNum).toString();
 
-            Date dateEnd = row.getCell(dateEndNum).getDateCellValue();
-            String dateEndStr = DateUtil.formatSQLDate(dateEnd);
+            String billNo = "";
+            String carNumber = "";
+            String mileage = "";
+            String totalAmount = "";
+            String receptionistName = "";
+            String remark = "";
+            String dateEndStr = "";
+
+            if (billNoNum != 0)
+                billNo = row.getCell(billNoNum).toString();
+
+            if (carNumberNum != 0)
+                carNumber = row.getCell(carNumberNum).toString();
+
+            if (mileageNum != 0)
+                mileage = row.getCell(mileageNum).toString();
+
+            if (totalAmountNum != 0) {
+                totalAmount = row.getCell(totalAmountNum).toString();
+            }
+
+            if (receptionistNum != 0)
+                receptionistName = row.getCell(receptionistNum).toString();
+
+            if (remarkNum != 0)
+                remark = row.getCell(remarkNum).toString();
+
+            if (dateEndNum != 0) {
+                Date dateEnd = row.getCell(dateEndNum).getDateCellValue();
+                dateEndStr = DateUtil.formatSQLDate(dateEnd);
+            }
 
             Bill bill = new Bill();
             bill.setCompanyName(companyName);
@@ -132,8 +155,14 @@ public class TransformTool {
         for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
             HSSFRow row = billDetailSheet.getRow(i);
 
-            String billNo = row.getCell(billNoNum).toString();
-            String serviceItemName = row.getCell(serviceItemNameNum).toString();
+            String billNo = "";
+            String serviceItemName = "";
+
+            if (billNoNum != 0)
+                billNo = row.getCell(billNoNum).toString();
+
+            if (serviceItemNameNum != 0)
+                serviceItemName = row.getCell(serviceItemNameNum).toString();
 
             Bill bill = billMap.get(billNo);
             if (null != bill.getServiceItemNames()) {
