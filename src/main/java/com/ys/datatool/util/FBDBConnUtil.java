@@ -11,7 +11,7 @@ public class FBDBConnUtil {
     private static final String DRIVER = "org.firebirdsql.jdbc.FBDriver";
 
     //"jdbc:firebirdsql:localhost/3050:D:\\datasource\\firebird_export\\vbms.fdb";
-    private static final String URL = "jdbc:firebirdsql:127.0.0.1/3050:D:\\datasource\\firebird_export\\vbms.fdb";
+    private static final String URL = "jdbc:firebirdsql:127.0.0.1/3050:D:\\datasource\\firebird\\vbms.fdb";
 
     private static final String USER = "SYSDBA";
 

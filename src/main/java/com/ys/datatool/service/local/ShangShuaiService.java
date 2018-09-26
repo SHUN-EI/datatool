@@ -1,13 +1,17 @@
 package com.ys.datatool.service.local;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.FBDBConnUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.firebirdsql.jdbc.FBDriver;
 import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -22,18 +26,51 @@ import java.util.List;
 @Service
 public class ShangShuaiService {
 
+    static JdbcTemplate JDBC_TEMPLATE;
+
     private Workbook workbook = new HSSFWorkbook();
 
     private String fileName = "商帅软件";
 
-       /* FBWrappingDataSource dataSource = new FBWrappingDataSource();
-        dataSource.setDatabase(URL);
-        dataSource.setUserName(USER);
-        dataSource.setPassword(PASSWORD);
-        JDBCTEMPLATE = new JdbcTemplate(dataSource);*/
+       /* FBWrappingDataSource dataSource = new FBWrappingDataSource();*/
+
+
+    static {
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setUrl("jdbc:firebirdsql:127.0.0.1/3050:D:\\datasource\\firebird\\VBMS.FDB");
+        FBDriver fbDriver=new FBDriver();
+        dataSource.setDriver(fbDriver);
+        //dataSource.setDriverClassName("org.firebirdsql.jdbc.FBDriver");
+        dataSource.setUsername("SYSDBA");
+        dataSource.setPassword("masterkey");
+        JDBC_TEMPLATE = new JdbcTemplate(dataSource);
+
+    }
+
 
     @Test
-    public void fetchServiceData() throws Exception{
+    public void fetchMData() throws Exception {
+
+        String serviceQuery = "select s.SERVICECODE,s.SERVICENAME,s.STANDPRICE,s.SERVICESORT from TB_SERVICE s ";
+
+        JDBC_TEMPLATE.query(serviceQuery, rs -> {
+            while (rs.next()) {
+
+
+                try {
+                    String firstCategoryName = new String(rs.getBytes("SERVICENAME"), "gb2312");
+                    String bb = "";
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+
+    @Test
+    public void fetchServiceData() throws Exception {
         List<Product> products = new ArrayList<>();
 
         String serviceQuery = "select s.SERVICECODE,s.SERVICENAME,s.STANDPRICE,s.SERVICESORT from TB_SERVICE s ";

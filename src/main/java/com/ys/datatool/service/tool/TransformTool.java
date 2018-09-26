@@ -100,8 +100,7 @@ public class TransformTool {
             String remark = "";
             String dateEndStr = "";
 
-            if (billNoNum != 0)
-                billNo = row.getCell(billNoNum).toString();
+            billNo = row.getCell(billNoNum).toString();
 
             if (carNumberNum != 0)
                 carNumber = row.getCell(carNumberNum).toString();
@@ -158,8 +157,7 @@ public class TransformTool {
             String billNo = "";
             String serviceItemName = "";
 
-            if (billNoNum != 0)
-                billNo = row.getCell(billNoNum).toString();
+            billNo = row.getCell(billNoNum).toString();
 
             if (serviceItemNameNum != 0)
                 serviceItemName = row.getCell(serviceItemNameNum).toString();
