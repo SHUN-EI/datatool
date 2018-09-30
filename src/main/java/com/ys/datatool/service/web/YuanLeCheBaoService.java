@@ -103,8 +103,7 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=32C2AF1F55EEE88E181ADB7CE3AF2085; usfl=R4rtlTGQtKVjr7F03LW; lk=462547a467a6f8b585c477aaf99cfe1a";
-
+    private String COOKIE = "JSESSIONID=E97CD0370B152A1E11DA917D8ED38339; usfl=J0Gr6RBAXSjCMUUzCrJ; lk=1a31802669eeca42bbefe84c22136876";
 
     @Test
     public void test() throws Exception {
