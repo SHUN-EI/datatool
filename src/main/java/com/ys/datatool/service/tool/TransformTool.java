@@ -125,7 +125,7 @@ public class TransformTool {
                     dateEndStr = DateUtil.formatDateTime2Date(dataCell);
 
                 if (dataCell.contains("-"))
-                    dateEndStr = DateUtil.formatDateTime2Date(dataCell.replace("-","/"));
+                    dateEndStr = DateUtil.formatDateTime2Date(dataCell.replace("-", "/"));
 
             }
 
@@ -162,23 +162,49 @@ public class TransformTool {
 
             String billNo = "";
             String serviceItemName = "";
+            String goodsName = "";
 
             billNo = row.getCell(billNoNum).toString();
-
-            if (serviceItemNameNum != 0)
-                serviceItemName = row.getCell(serviceItemNameNum).toString();
-
             Bill bill = billMap.get(billNo);
-            if (null != bill.getServiceItemNames()) {
-                String service = bill.getServiceItemNames() + "," + serviceItemName;
-                bill.setServiceItemNames(service);
+
+            if (bill !=null){
+                if (serviceItemNameNum != 0) {
+                    Cell cell = row.getCell(serviceItemNameNum);
+                    if (null == cell){
+                        serviceItemName = "";
+                    }else {
+                        serviceItemName = row.getCell(serviceItemNameNum).toString();
+                    }
+                }
+
+                if (null != bill.getServiceItemNames()) {
+                    String service = bill.getServiceItemNames() + "," + serviceItemName;
+                    bill.setServiceItemNames(service);
+                }
+
+                if (null == bill.getServiceItemNames()) {
+                    bill.setServiceItemNames(serviceItemName);
+                }
+
+                if (goodsNameNum != 0) {
+                    Cell cell = row.getCell(goodsNameNum);
+
+                    if (null == cell){
+                        goodsName = "";
+                    }else {
+                        goodsName = row.getCell(goodsNameNum).toString();
+                    }
+                }
+
+                if (null != bill.getGoodsNames()) {
+                    String goods = bill.getGoodsNames() + "," + goodsName;
+                    bill.setGoodsNames(goods);
+                }
+
+                if (null == bill.getGoodsNames()) {
+                    bill.setGoodsNames(goodsName);
+                }
             }
-
-
-            if (null == bill.getServiceItemNames()) {
-                bill.setServiceItemNames(serviceItemName);
-            }
-
         }
 
         System.out.println("bills结果为" + bills.toString());
