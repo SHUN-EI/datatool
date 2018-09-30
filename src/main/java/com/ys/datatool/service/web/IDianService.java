@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -36,9 +37,19 @@ public class IDianService {
 
     private String MEMBERCARD_URL = "http://app.idianchina.com:8082/api/vip/member/query";
 
-    private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=saleorder_queryallfilter_new&fromDate=2010-01-01&toDate=2018-08-12&licensePlate=&userPhone=&billStatus=0&tpyes=0&orderTypes=0&rows=50&page=";
+    private String fromDate = "2003-01-01";
 
-    private String COOKIE = "JSESSIONID=B0AC1AD6968333D50FE9AD2F4E98A24B";
+    private String toDate = "2018-09-28";
+
+    private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke" +
+            "?apiname=saleorder_queryallfilter_new&" +
+            "fromDate=" +
+            fromDate +
+            "&toDate=" +
+            toDate +
+            "&licensePlate=&userPhone=&billStatus=0&tpyes=0&orderTypes=0&rows=50&page=";
+
+    private String CONSUMPTIONRECORD_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=sale_opensale_vieworderinfo_new";
 
     private String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
@@ -50,23 +61,143 @@ public class IDianService {
 
     private String companyName = "I店";
 
+    private String COOKIE = "JSESSIONID=775C5D7DABBE6047818118AE07AC8C43";
+
 
     /**
-     * 单据
+     * 历史消费记录和消费记录相关车辆
+     *
      * @throws IOException
      */
     @Test
-    public void fetchBillDataStandard() throws IOException {
+    public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
+        List<CarInfo> carInfos = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE,ACCEPT_ENCODING,ACCEPT);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE, ACCEPT_ENCODING, ACCEPT);
         JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE,ACCEPT_ENCODING,ACCEPT);
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE, ACCEPT_ENCODING, ACCEPT);
+                JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
+
+                Iterator<JsonNode> it = content.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+                    String company = element.get("companyName").asText();
+                    String billNo = element.get("fid").asText();
+                    String carNumber = element.get("licensePlate").asText();
+                    String name = element.get("userName").asText();
+                    String totalAmount = element.get("totalProfit").asText();
+                    String remark = element.get("remark").asText();
+                    String dateAdded = element.get("openTime").asText();
+                    String dateEnd = element.get("closeTime").asText();
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setCarNumber(new String(carNumber.getBytes("UTF-8"), "UTF-8"));
+                    bill.setName(name);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setRemark(remark);
+                    bill.setDateEnd(dateEnd);
+                    bills.add(bill);
+                }
+            }
+        }
+
+        if (bills.size() > 0) {
+            for (Bill bill : bills) {
+                String billNo = bill.getBillNo();
+                List<BasicNameValuePair> params = new ArrayList<>();
+                params.add(new BasicNameValuePair("fid", billNo));
+
+                Response response = ConnectionUtil.doPostEncode(CONSUMPTIONRECORD_URL, params, COOKIE, ACCEPT_ENCODING, ACCEPT);
+                JsonNode content = MAPPER.readTree(response.returnContent().asString(charset));
+
+                String receptionistName = content.get("receptionName").asText();
+                String billNumber = content.get("saleNumber").asText();
+                String name = content.get("userName").asText();
+                String phone = content.get("userPhone").asText();
+                String carNumber = content.get("licensePlate").asText();
+                String vin = content.get("vin").asText();
+                String engineNumber = content.get("engineNumber").asText();
+                String brand = content.get("carFullName").asText();
+                String mileage = content.get("enterKilometre").asText();
+
+
+                //工时项目
+                JsonNode serviceNode = content.get("entry");
+                if (serviceNode.size() > 0) {
+                    Iterator<JsonNode> services = serviceNode.iterator();
+                    while (services.hasNext()) {
+                        JsonNode element = services.next();
+                        String serviceItemName = element.get("goodsName").asText();
+
+                        if (null != bill.getServiceItemNames()) {
+                            String service = bill.getServiceItemNames() + "," + serviceItemName;
+                            bill.setServiceItemNames(service);
+                        }
+
+                        if (null == bill.getServiceItemNames()) {
+                            bill.setServiceItemNames(serviceItemName);
+                        }
+                    }
+                }
+
+                String dateEndStr = content.get("openTime").asText();
+                if ("null".equals(dateEndStr))
+                    dateEndStr = "1900/01/01";
+
+                String dateEnd = DateUtil.formatSQLDate(dateEndStr);
+
+                bill.setReceptionistName(CommonUtil.formatString(receptionistName));
+                bill.setBillNo(billNumber);
+                bill.setCarNumber(carNumber);
+                bill.setMileage(mileage);
+                bill.setDateEnd(dateEnd);
+
+                CarInfo carInfo = new CarInfo();
+                carInfo.setCompanyName(companyName);
+                carInfo.setName(name);
+                carInfo.setPhone(phone);
+                carInfo.setCarNumber(carNumber);
+                carInfo.setVINcode(CommonUtil.formatString(vin));
+                carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                carInfos.add(carInfo);
+            }
+        }
+
+        System.out.println("结果为" + bills.toString());
+        System.out.println("结果为" + bills.size());
+
+        String pathname = "C:\\exportExcel\\i店消费记录.xls";
+        String pathname2 = "C:\\exportExcel\\i店消费记录-车辆.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
+
+    }
+
+    /**
+     * 单据
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchBillDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE, ACCEPT_ENCODING, ACCEPT);
+        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+        String totalStr = result.get("total").asText();
+        int total = Integer.parseInt(totalStr);
+
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE, ACCEPT_ENCODING, ACCEPT);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
@@ -105,12 +236,12 @@ public class IDianService {
         String pathname = "C:\\exportExcel\\i店单据.xlsx";
         ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
 
-
     }
 
     /**
      * 车辆信息
      * 需要获取全部车牌号码，此方法需要读取所有车牌的excel
+     *
      * @throws IOException
      */
     @Test
@@ -144,14 +275,14 @@ public class IDianService {
                 JsonNode userObject = result.get("userObject");
                 Iterator<JsonNode> it = userObject.iterator();
 
-                while (it.hasNext()){
+                while (it.hasNext()) {
                     JsonNode element = it.next();
 
-                    String name=element.get("name").asText();
-                    String phone=element.get("userPhone").asText();
-                    String brand=element.get("carBrandName").asText();
+                    String name = element.get("name").asText();
+                    String phone = element.get("userPhone").asText();
+                    String brand = element.get("carBrandName").asText();
 
-                    CarInfo carInfo=new CarInfo();
+                    CarInfo carInfo = new CarInfo();
                     carInfo.setCompanyName(companyName);
                     carInfo.setName(name);
                     carInfo.setPhone(phone);

@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -26,24 +26,33 @@ import java.util.List;
 @Service
 public class ShangShuaiService {
 
+    private static final String URL = "jdbc:firebirdsql:127.0.0.1/3050:D:\\datasource\\firebird\\VBMS.FDB";
+
+    private static final String DRIVER = "org.firebirdsql.jdbc.FBDriver";
+
+    private static final String USER = "SYSDBA";
+
+    private static final String PASSWORD = "masterkey";
+
     static JdbcTemplate JDBC_TEMPLATE;
 
     private Workbook workbook = new HSSFWorkbook();
 
     private String fileName = "商帅软件";
 
-       /* FBWrappingDataSource dataSource = new FBWrappingDataSource();*/
+    /* FBWrappingDataSource dataSource = new FBWrappingDataSource();*/
 
 
     static {
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setUrl("jdbc:firebirdsql:127.0.0.1/3050:D:\\datasource\\firebird\\VBMS.FDB");
-        FBDriver fbDriver=new FBDriver();
+        FBDriver fbDriver = new FBDriver();
         dataSource.setDriver(fbDriver);
         //dataSource.setDriverClassName("org.firebirdsql.jdbc.FBDriver");
         dataSource.setUsername("SYSDBA");
         dataSource.setPassword("masterkey");
         JDBC_TEMPLATE = new JdbcTemplate(dataSource);
+
 
     }
 
@@ -51,21 +60,20 @@ public class ShangShuaiService {
     @Test
     public void fetchMData() throws Exception {
 
+        Class.forName(DRIVER);
+
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        Statement statement = connection.createStatement();
+
+
         String serviceQuery = "select s.SERVICECODE,s.SERVICENAME,s.STANDPRICE,s.SERVICESORT from TB_SERVICE s ";
+        ResultSet rs = statement.executeQuery(serviceQuery);
+        while (rs.next()) {
+            String firstCategoryName = new String(rs.getBytes("SERVICENAME"), "gb2312");
+            String bb = "";
+        }
 
-        JDBC_TEMPLATE.query(serviceQuery, rs -> {
-            while (rs.next()) {
 
-
-                try {
-                    String firstCategoryName = new String(rs.getBytes("SERVICENAME"), "gb2312");
-                    String bb = "";
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
 
     }
 

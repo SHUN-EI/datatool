@@ -474,7 +474,7 @@ public class DateUtil {
     }
 
     /**
-     * 日期转换为字符串(yyyy-MM-ddT00:00:00 转 yyyy/MM/dd HH:mm:ss)
+     * 日期转换为字符串(yyyy-MM-ddT00:00:00 或yyyy-MM-dd 00:00:00 转 yyyy/MM/dd)
      *
      * @param dateStr
      * @return
@@ -502,7 +502,6 @@ public class DateUtil {
 
         return dateStr.replace("-", "/");
     }
-
 
     //-----------------格式化字符串为日期--------------------------------------
 
