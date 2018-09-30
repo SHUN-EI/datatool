@@ -126,6 +126,38 @@ public class YuanLeCheBaoService {
     }
 
 
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException{
+        List<Bill> bills = new ArrayList<>();
+
+        Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
+        String content = res.returnContent().asString();
+        Document document = Jsoup.parseBodyFragment(content);
+
+        String startRegEx = "\"data\"";
+        String endRegEx = "};";
+        JsonNode node = getDataNode(document, startRegEx, endRegEx);
+        JsonNode totalCount = node.get("totalCount");
+        int totalPage = WebClientUtil.getTotalPage(totalCount, num);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
+                String html = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                JsonNode result = getDataNode(doc, startRegEx, endRegEx);
+                Iterator<JsonNode> it = result.get("data").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("orderCode").asText();
+                    String carNumber = element.get("carNumber").asText();
+                }
+            }
+        }
+    }
+
     /**
      * 门店订单-单据和单据明细
      *
