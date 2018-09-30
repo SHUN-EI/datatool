@@ -425,6 +425,19 @@ public class DateUtil {
     }
 
     /**
+     * 日期转换(yyyy/MM/dd HH:mm:ss转换为yyyy/MM/dd)
+     * @param dateStr
+     * @return
+     */
+    public static String formatDateTime2Date(String dateStr) {
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
+        return dateStr.substring(0,10);
+    }
+
+    /**
      * 毫秒数转换为日期(yyyy-MM-dd)
      *
      * @param millisecond

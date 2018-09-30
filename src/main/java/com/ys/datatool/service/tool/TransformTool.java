@@ -119,8 +119,14 @@ public class TransformTool {
                 remark = row.getCell(remarkNum).toString();
 
             if (dateEndNum != 0) {
-                Date dateEnd = row.getCell(dateEndNum).getDateCellValue();
-                dateEndStr = DateUtil.formatSQLDate(dateEnd);
+                String dataCell = row.getCell(dateEndNum).toString();
+
+                if (dataCell.contains("/"))
+                    dateEndStr = DateUtil.formatDateTime2Date(dataCell);
+
+                if (dataCell.contains("-"))
+                    dateEndStr = DateUtil.formatDateTime2Date(dataCell.replace("-","/"));
+
             }
 
             Bill bill = new Bill();
