@@ -103,7 +103,7 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=E97CD0370B152A1E11DA917D8ED38339; usfl=J0Gr6RBAXSjCMUUzCrJ; lk=1a31802669eeca42bbefe84c22136876";
+    private String COOKIE = "JSESSIONID=2B4D83B0D0C310826F73C67FDCF2A88F; usfl=oEv0jN5CnAQ4JkblkTW; lk=be985d01b29104a8e512b449cf22a2ae";
 
     @Test
     public void test() throws Exception {
@@ -125,9 +125,15 @@ public class YuanLeCheBaoService {
     }
 
 
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
     @Test
-    public void fetchConsumptionRecordDataStandard() throws IOException{
+    public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
+        List<CarInfo> carInfos = new ArrayList<>();
 
         Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getPageInfoParams("1"), COOKIE);
         String content = res.returnContent().asString();
@@ -152,9 +158,56 @@ public class YuanLeCheBaoService {
 
                     String billNo = element.get("orderCode").asText();
                     String carNumber = element.get("carNumber").asText();
+
+                    String remark = element.get("tagName").asText();//订单类型
+                    String totalAmount = element.get("totalAmount").asText();
+                    String dateEnd = element.get("orderTime").asText();
+                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+
+                    String name = element.get("userName").asText();
+                    String phone = element.get("mobile").asText();
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setCarNumber(carNumber);
+                    bill.setCompanyName(companyName);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setDateEnd(dateEnd);
+
+                    JsonNode orderItemNode = element.get("orderItemList");
+                    if (orderItemNode.size() > 0) {
+                        Iterator<JsonNode> items = orderItemNode.iterator();
+                        while (items.hasNext()) {
+                            JsonNode e = items.next();
+                            String serviceItemName = e.get("itemName").asText();
+
+                            if (null != bill.getServiceItemNames()) {
+                                String service = bill.getServiceItemNames() + "," + serviceItemName;
+                                bill.setServiceItemNames(service);
+                            }
+
+                            if (null == bill.getServiceItemNames()) {
+                                bill.setServiceItemNames(serviceItemName);
+                            }
+                        }
+                    }
+
+                    bills.add(bill);
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setName(name);
+                    carInfo.setPhone(phone);
+                    carInfo.setCarNumber(carNumber);
+                    carInfos.add(carInfo);
                 }
             }
         }
+
+        String pathname = "C:\\exportExcel\\元乐车宝消费记录.xls";
+        String pathname2 = "C:\\exportExcel\\元乐车宝记录-车辆.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
     }
 
     /**
