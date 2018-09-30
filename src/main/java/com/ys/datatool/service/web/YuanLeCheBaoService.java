@@ -103,7 +103,7 @@ public class YuanLeCheBaoService {
      */
     private String shopBranchId = "100";
 
-    private String COOKIE = "JSESSIONID=2B4D83B0D0C310826F73C67FDCF2A88F; usfl=oEv0jN5CnAQ4JkblkTW; lk=be985d01b29104a8e512b449cf22a2ae";
+    private String COOKIE = "JSESSIONID=3ADF28611EDCFF61C892E784D350B3E6; usfl=R4rtlTGQtKVjr7F03LW; lk=9cff794eff68389c379ccbd8425b9a5e";
 
     @Test
     public void test() throws Exception {
@@ -160,7 +160,7 @@ public class YuanLeCheBaoService {
                     String carNumber = element.get("carNumber").asText();
 
                     String remark = element.get("tagName").asText();//订单类型
-                    String totalAmount = element.get("totalAmount").asText();
+                    String totalAmount = element.get("dealAmount").asText();//totalAmount
                     String dateEnd = element.get("orderTime").asText();
                     dateEnd = DateUtil.formatSQLDateTime(dateEnd);
 

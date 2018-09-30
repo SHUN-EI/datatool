@@ -22,6 +22,8 @@ import java.util.*;
 @Service
 public class ZhangShangCheDianService {
 
+    private String BILL_URL = "http://czbbb.cn/mnt/czbbb/order/czbbbApi.action";
+
     private String STOCK_URL = "http://czbbb.cn/mnt/czbbb/stock/czbbbApi.action";
 
     private String MEMBERCARDDETAIL_URL = "http://czbbb.cn/mnt/czbbb/card/viewUserCard.action?userCardInfoId=";
@@ -33,6 +35,9 @@ public class ZhangShangCheDianService {
     private String SUPPLIER_URL = "http://czbbb.cn/mnt/czbbb/supplierMgmt/czbbbApi.action";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    //接车管理-订单列表页面方法传参
+    private String billMethod = "20122";
 
     //会员详情页面方法传参
     private String memberCardMethod = "6015";
@@ -54,7 +59,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=D04F1421B12E7272D2FF7CA3180EB7C0; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ3MjkzMWU3LWU0YjUtNDg1Yi1hMWIwLWNhZmQzNjNiNjVhOCIsImV4cCI6MTUzMzI2NTMzNiwibmJmIjoxNTMzMTc4OTM2LCJzdG9yZUlkIjoiODJjMTM4OTUtNzg5MC00OGM2LWE1ZWItY2RhNmUxNDhlN2M5IiwidXNlclR5cGUiOiIwIn0.ovldrFlPjZ39PsuMysgy60LppAKF7B33YcGSfX0BW6Sa8uddu4-kevW5gN8NvbtxEwXUxnZey34psaxWDaLd5A; Hm_lvt_678c2a986264dd9650b6a59042718858=1533092304,1533178949; Hm_lpvt_678c2a986264dd9650b6a59042718858=1533178987; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1533178987|1533178884";
+    private String COOKIE = "JSESSIONID=DDDC685EA022088348F5BD76857AC691; Hm_lvt_678c2a986264dd9650b6a59042718858=1538295137; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImNjMzYxYzE3LTk0ZGEtNDg1Yi05NDBlLWQxNDkwYzhmMzE1NiIsImV4cCI6MTUzODM4MTUzNywibmJmIjoxNTM4Mjk1MTM3LCJzdG9yZUlkIjoiNzA0YWU4NTMtYTg4Zi00MDE0LTkzZmEtNWJiYjc1NThmYmU3IiwidXNlclR5cGUiOiIwIn0.muoImfkeyJDyEgRm64s5PoxxsSC6jeTRN10zxk6OcmD_3v6P8gul-mxqur13grNq-hvfA3-VDfCyZMAn2ud_LA; Hm_lpvt_678c2a986264dd9650b6a59042718858=1538297945; SERVERID=b810ac6d9315e3be005b170045c65755|1538298867|1538295056";
 
     @Test
     public void test() throws IOException {
@@ -67,6 +72,59 @@ public class ZhangShangCheDianService {
 
         System.out.println("结果为" + totalPage);
     }
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        /**
+         * 进行中
+         * data: {"pageSize":15,"pageNo":0,"status":0,"getCount":false,"workStatus":0,"beginDate":"","endDate":"","searchStoreId":"","sort":0}
+         * 已挂起
+         * data: {"pageSize":15,"pageNo":0,"status":0,"getCount":false,"workStatus":1,"beginDate":"","endDate":"","searchStoreId":"","sort":0}
+         * 已挂账
+         * data: {"pageSize":15,"pageNo":0,"status":1,"getCount":false,"beginDate":"","endDate":"","suspendedStatusStr":[1],"searchStoreId":"","sort":0}
+         * 已完成
+         * data: {"pageSize":15,"pageNo":0,"status":1,"getCount":false,"beginDate":"2008-01-01","endDate":"2018-09-30","suspendedStatusStr":[0,2],"searchStoreId":"","sort":0}
+         * 已失效
+         * data: {"pageSize":15,"pageNo":0,"status":10,"getCount":false,"beginDate":"2008-01-01","endDate":"2018-09-30","searchStoreId":"","sort":0}
+         *
+         */
+
+        //进行中的订单
+        String value1 = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + 0 + "," +
+                "\"status\":" + 0 + "," +
+                "\"getCount\":" + false + "," +
+                "\"workStatus\":" + 0 + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"sort\":" + 0 + "}";
+        Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value1), COOKIE);
+        JsonNode result1 = MAPPER.readTree(res1.returnContent().asString());
+
+        //已挂起的订单
+        String value2 = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + 0 + "," +
+                "\"status\":" + 0 + "," +
+                "\"getCount\":" + false + "," +
+                "\"workStatus\":" + 1 + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"sort\":" + 0 + "}";
+
+        Response res2 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value2), COOKIE);
+        JsonNode result2 = MAPPER.readTree(res2.returnContent().asString());
+
+        String bbb = "";
+
+    }
+
 
     /**
      * 库存-标准模版导出
@@ -202,7 +260,7 @@ public class ZhangShangCheDianService {
                         memberCardItem.setOriginalNum(originalNum);
                         memberCardItem.setFirstCategoryName(firstCategoryName);
                         memberCardItem.setSecondCategoryName(secondCategoryName);
-                        memberCardItem.setValidTime(validTime.replace("-","/"));
+                        memberCardItem.setValidTime(validTime.replace("-", "/"));
                         memberCardItem.setIsValidForever(isValidForever);
                         memberCardItems.add(memberCardItem);
 
@@ -272,7 +330,7 @@ public class ZhangShangCheDianService {
                 memberCard.setName(name);
                 memberCard.setPhone(phone);
                 memberCard.setBalance(balance.replace("￥", ""));
-                memberCard.setDateCreated(dateCreated.replace("-","/"));
+                memberCard.setDateCreated(dateCreated.replace("-", "/"));
                 memberCard.setCompanyName(companyName);
                 memberCards.add(memberCard);
             }
