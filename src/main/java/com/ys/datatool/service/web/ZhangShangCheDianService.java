@@ -57,9 +57,13 @@ public class ZhangShangCheDianService {
     //库存页面方法传参
     private String stockMethod = "60002";
 
+    //当前抓取日期
+    private String endData = "2018-10-09";
+
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=DDDC685EA022088348F5BD76857AC691; Hm_lvt_678c2a986264dd9650b6a59042718858=1538295137; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImNjMzYxYzE3LTk0ZGEtNDg1Yi05NDBlLWQxNDkwYzhmMzE1NiIsImV4cCI6MTUzODM4MTUzNywibmJmIjoxNTM4Mjk1MTM3LCJzdG9yZUlkIjoiNzA0YWU4NTMtYTg4Zi00MDE0LTkzZmEtNWJiYjc1NThmYmU3IiwidXNlclR5cGUiOiIwIn0.muoImfkeyJDyEgRm64s5PoxxsSC6jeTRN10zxk6OcmD_3v6P8gul-mxqur13grNq-hvfA3-VDfCyZMAn2ud_LA; Hm_lpvt_678c2a986264dd9650b6a59042718858=1538297945; SERVERID=b810ac6d9315e3be005b170045c65755|1538298867|1538295056";
+    private String COOKIE = "JSESSIONID=603C8980AA3A08263B2C1C2F445D71D4; Hm_lvt_678c2a986264dd9650b6a59042718858=1538295137,1539072316; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImNjMzYxYzE3LTk0ZGEtNDg1Yi05NDBlLWQxNDkwYzhmMzE1NiIsImV4cCI6MTUzOTE1ODcxNywibmJmIjoxNTM5MDcyMzE3LCJzdG9yZUlkIjoiNzA0YWU4NTMtYTg4Zi00MDE0LTkzZmEtNWJiYjc1NThmYmU3IiwidXNlclR5cGUiOiIwIn0.10_OwIYZMlgBe3zxhzDJJQXa-q_OpDKZ6gc2dBJ7ZQyCixNwtaZXKdGDKw5PI3ecXTPBRk4Rz25NeC4anbEyjA; Hm_lpvt_678c2a986264dd9650b6a59042718858=1539072638; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1539072639|1539071924";
+
 
     @Test
     public void test() throws IOException {
@@ -98,20 +102,20 @@ public class ZhangShangCheDianService {
          *
          */
 
+        int pageNo = 0;
         //进行中的订单
         String value1 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + 0 + "," +
+                "\"pageNo\":" + pageNo + "," +
                 "\"status\":" + 0 + "," +
                 "\"getCount\":" + false + "," +
                 "\"workStatus\":" + 0 + "," +
                 "\"searchStoreId\":" + "\"\"" + "," +
                 "\"sort\":" + 0 + "}";
         Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value1), COOKIE);
-        JsonNode result1 = MAPPER.readTree(res1.returnContent().asString());
 
         //已挂起的订单
         String value2 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + 0 + "," +
+                "\"pageNo\":" + pageNo + "," +
                 "\"status\":" + 0 + "," +
                 "\"getCount\":" + false + "," +
                 "\"workStatus\":" + 1 + "," +
@@ -119,9 +123,60 @@ public class ZhangShangCheDianService {
                 "\"sort\":" + 0 + "}";
 
         Response res2 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value2), COOKIE);
-        JsonNode result2 = MAPPER.readTree(res2.returnContent().asString());
+
+        //已挂账的订单
+        String value3 = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 1 + "," +
+                "\"getCount\":" + false + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"suspendedStatusStr\":" + "[1]" + "," +
+                "\"sort\":" + 0 + "}";
+
+        Response res3 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value3), COOKIE);
+
+        //已完成的订单
+        String value4 = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 1 + "," +
+                "\"getCount\":" + false + "," +
+                "\"beginDate\":" + "\"2008-01-01\"" + "," +
+                "\"endDate\":" + "\"2018-10-09\"" + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"suspendedStatusStr\":" + "[0,2]" + "," +
+                "\"sort\":" + 0 + "}";
+
+        Response res4 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value4), COOKIE);
+
+        //已失效的订单
+        String value5 = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 10 + "," +
+                "\"getCount\":" + false + "," +
+                "\"beginDate\":" + "\"2008-01-01\"" + "," +
+                "\"endDate\":" + "\"2018-10-09\"" + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"sort\":" + 0 + "}";
+
+        Response res5 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value5), COOKIE);
+
+        int total1 = getbBillTotalPage(res1, 15);
+        int total2 = getbBillTotalPage(res2, 15);
+        int total3 = getbBillTotalPage(res3, 15);
+        int total4 = getbBillTotalPage(res4, 15);
+        int total5 = getbBillTotalPage(res5, 15);
+
+        if (total1 > 0) {
+            for (int i = 0; i <= total1; i++) {
+                pageNo = i;
+
+                Response response1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value1), COOKIE);
+            }
+        }
+
 
         String bbb = "";
+
 
     }
 
@@ -568,6 +623,22 @@ public class ZhangShangCheDianService {
             } else
                 totalPage = count / num + 1;
 
+        }
+        return totalPage;
+    }
+
+    private int getbBillTotalPage(Response response, int num) throws IOException {
+        int totalPage = 0;
+
+        if (response != null) {
+            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            String countStr = result.get("data").get("count").asText();
+            int count = Integer.parseInt(countStr);
+
+            if (count % num == 0) {
+                totalPage = count / num;
+            } else
+                totalPage = count / num + 1;
         }
         return totalPage;
     }

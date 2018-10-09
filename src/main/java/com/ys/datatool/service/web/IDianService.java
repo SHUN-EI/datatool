@@ -61,7 +61,7 @@ public class IDianService {
 
     private String companyName = "I店";
 
-    private String COOKIE = "JSESSIONID=775C5D7DABBE6047818118AE07AC8C43";
+    private String COOKIE = "JSESSIONID=42FC878D2B5EBD31B99C8523EFD2573D";
 
 
     /**
@@ -79,8 +79,14 @@ public class IDianService {
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
+        /**
+         * 单据状态tpyes:全部状态-0,已开单-1,已结算-2,已提车-3,已取消-4
+         * billStatus  已开单-10,已结算-20,已提车-30,已取消-40
+         *
+         */
+
         if (total > 0) {
-            for (int i = 1; i <= total; i++) {
+            for (int i = 1; i <= 10; i++) {
                 res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE, ACCEPT_ENCODING, ACCEPT);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
@@ -91,10 +97,31 @@ public class IDianService {
                     String billNo = element.get("fid").asText();
                     String carNumber = element.get("licensePlate").asText();
                     String name = element.get("userName").asText();
-                    String totalAmount = element.get("totalProfit").asText();
                     String remark = element.get("remark").asText();
                     String dateAdded = element.get("openTime").asText();
                     String dateEnd = element.get("closeTime").asText();
+
+
+                    String totalAmount = element.get("balAmount").asText();
+                    if ("0E-10".equals(totalAmount))
+                        totalAmount = "0";
+
+                    String billStatus = element.get("billStatus").asText();
+                    switch (billStatus) {
+                        case "10":
+                            billStatus = "已开单";
+                            break;
+                        case "20":
+                            billStatus = "已结算";
+                            break;
+                        case "30":
+                            billStatus = "已提车";
+                            break;
+                        case "40":
+                            billStatus = "已取消";
+                            break;
+                    }
+
 
                     Bill bill = new Bill();
                     bill.setBillNo(billNo);
@@ -102,7 +129,7 @@ public class IDianService {
                     bill.setCarNumber(new String(carNumber.getBytes("UTF-8"), "UTF-8"));
                     bill.setName(name);
                     bill.setTotalAmount(totalAmount);
-                    bill.setRemark(remark);
+                    bill.setRemark(remark + " " + billStatus);
                     bill.setDateEnd(dateEnd);
                     bills.add(bill);
                 }
