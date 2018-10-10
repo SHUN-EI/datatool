@@ -171,10 +171,10 @@ public class TransformTool {
 
             if (bill != null) {
                 if (serviceItemNameNum != 0) {
-                    serviceItemName=getCell(row,serviceItemNameNum,serviceItemName);
+                    serviceItemName = getCell(row, serviceItemNameNum, serviceItemName);
                 }
 
-                if (null != bill.getServiceItemNames()) {
+                if (null != bill.getServiceItemNames() && !"".equals(serviceItemName)) {
                     String service = bill.getServiceItemNames() + "," + serviceItemName;
                     bill.setServiceItemNames(service);
                 }
@@ -184,12 +184,13 @@ public class TransformTool {
                 }
 
                 if (goodsNameNum != 0) {
-                    goodsName =getCell(row,goodsNameNum,goodsName);
+                    goodsName = getCell(row, goodsNameNum, goodsName);
                 }
 
-                if (null != bill.getGoodsNames()) {
+                if (null != bill.getGoodsNames() && !"".equals(goodsName)) {
                     String goods = bill.getGoodsNames() + "," + goodsName;
                     bill.setGoodsNames(goods);
+
                 }
 
                 if (null == bill.getGoodsNames()) {
