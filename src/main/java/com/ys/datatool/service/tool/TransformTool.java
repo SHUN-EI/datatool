@@ -103,29 +103,29 @@ public class TransformTool {
             billNo = row.getCell(billNoNum).toString();
 
             if (carNumberNum != 0)
-                carNumber = row.getCell(carNumberNum).toString();
+                carNumber = getCell(row, carNumberNum, carNumber);
 
             if (mileageNum != 0)
-                mileage = row.getCell(mileageNum).toString();
+                mileage = getCell(row, mileageNum, mileage);
 
-            if (totalAmountNum != 0) {
-                totalAmount = row.getCell(totalAmountNum).toString();
-            }
+            if (totalAmountNum != 0)
+                totalAmount = getCell(row, totalAmountNum, totalAmount);
 
             if (receptionistNum != 0)
-                receptionistName = row.getCell(receptionistNum).toString();
+                receptionistName = getCell(row, receptionistNum, receptionistName);
 
             if (remarkNum != 0)
-                remark = row.getCell(remarkNum).toString();
+                remark = getCell(row, remarkNum, remark);
+
 
             if (dateEndNum != 0) {
-                String dataCell = row.getCell(dateEndNum).toString();
+                dateEndStr = getCell(row, dateEndNum, dateEndStr);
 
-                if (dataCell.contains("/"))
-                    dateEndStr = DateUtil.formatDateTime2Date(dataCell);
+                if (dateEndStr.contains("/"))
+                    dateEndStr = DateUtil.formatDateTime2Date(dateEndStr);
 
-                if (dataCell.contains("-"))
-                    dateEndStr = DateUtil.formatDateTime2Date(dataCell.replace("-", "/"));
+                if (dateEndStr.contains("-"))
+                    dateEndStr = DateUtil.formatDateTime2Date(dateEndStr.replace("-", "/"));
 
             }
 
@@ -160,6 +160,8 @@ public class TransformTool {
         for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
             HSSFRow row = billDetailSheet.getRow(i);
 
+            System.out.println("----------------------------------第" + i + "行----------------------------------------------");
+
             String billNo = "";
             String serviceItemName = "";
             String goodsName = "";
@@ -167,14 +169,9 @@ public class TransformTool {
             billNo = row.getCell(billNoNum).toString();
             Bill bill = billMap.get(billNo);
 
-            if (bill !=null){
+            if (bill != null) {
                 if (serviceItemNameNum != 0) {
-                    Cell cell = row.getCell(serviceItemNameNum);
-                    if (null == cell){
-                        serviceItemName = "";
-                    }else {
-                        serviceItemName = row.getCell(serviceItemNameNum).toString();
-                    }
+                    serviceItemName=getCell(row,serviceItemNameNum,serviceItemName);
                 }
 
                 if (null != bill.getServiceItemNames()) {
@@ -187,13 +184,7 @@ public class TransformTool {
                 }
 
                 if (goodsNameNum != 0) {
-                    Cell cell = row.getCell(goodsNameNum);
-
-                    if (null == cell){
-                        goodsName = "";
-                    }else {
-                        goodsName = row.getCell(goodsNameNum).toString();
-                    }
+                    goodsName =getCell(row,goodsNameNum,goodsName);
                 }
 
                 if (null != bill.getGoodsNames()) {
@@ -214,6 +205,18 @@ public class TransformTool {
         ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
         System.out.println("--------------------------------------历史消费记录解析成功---------------------------------------------------");
 
+    }
+
+
+    private String getCell(HSSFRow row, int num, String result) {
+
+        Cell cell = row.getCell(num);
+        if (cell != null) {
+            result = row.getCell(num).toString();
+        } else
+            result = "";
+
+        return result;
     }
 
 
