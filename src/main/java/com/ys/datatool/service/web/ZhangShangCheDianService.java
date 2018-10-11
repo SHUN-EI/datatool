@@ -57,8 +57,13 @@ public class ZhangShangCheDianService {
     //库存页面方法传参
     private String stockMethod = "60002";
 
+    //查询出库单方法传参
+    private String stockOutMethod = "60201";
+
+    private String beginDate = "2008-01-01";
+
     //当前抓取日期
-    private String endData = "2018-10-09";
+    private String endDate = "2018-10-09";
 
     private String companyName = "掌上车店";
 
@@ -67,14 +72,13 @@ public class ZhangShangCheDianService {
 
     @Test
     public void test() throws IOException {
-        String value = "{" + "\"pageSize\":" + "15" + "," + "\"typesName\":" + "\"" + "NGK" + "\"" + "," +
-                "\"pageNo\":" + "1" + "}";
+        String value = "9bf042fc-6af3-4d33-8e19-51040465c143";
+        String b = getStockOutParam(value);
 
-        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(stockMethod, value), COOKIE);
-        int totalPage = getTotalPage(res, 15);
-        String a = "";
+        Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(stockOutMethod, b), COOKIE);
+        JsonNode result = MAPPER.readTree(res1.returnContent().asString());
 
-        System.out.println("结果为" + totalPage);
+        String abc = "";
     }
 
 
@@ -102,63 +106,20 @@ public class ZhangShangCheDianService {
          *
          */
 
-        int pageNo = 0;
         //进行中的订单
-        String value1 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + pageNo + "," +
-                "\"status\":" + 0 + "," +
-                "\"getCount\":" + false + "," +
-                "\"workStatus\":" + 0 + "," +
-                "\"searchStoreId\":" + "\"\"" + "," +
-                "\"sort\":" + 0 + "}";
-        Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value1), COOKIE);
+        Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(0, 0)), COOKIE);
 
         //已挂起的订单
-        String value2 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + pageNo + "," +
-                "\"status\":" + 0 + "," +
-                "\"getCount\":" + false + "," +
-                "\"workStatus\":" + 1 + "," +
-                "\"searchStoreId\":" + "\"\"" + "," +
-                "\"sort\":" + 0 + "}";
-
-        Response res2 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value2), COOKIE);
+        Response res2 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(0, 1)), COOKIE);
 
         //已挂账的订单
-        String value3 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + pageNo + "," +
-                "\"status\":" + 1 + "," +
-                "\"getCount\":" + false + "," +
-                "\"searchStoreId\":" + "\"\"" + "," +
-                "\"suspendedStatusStr\":" + "[1]" + "," +
-                "\"sort\":" + 0 + "}";
-
-        Response res3 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value3), COOKIE);
+        Response res3 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(0, "[1]")), COOKIE);
 
         //已完成的订单
-        String value4 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + pageNo + "," +
-                "\"status\":" + 1 + "," +
-                "\"getCount\":" + false + "," +
-                "\"beginDate\":" + "\"2008-01-01\"" + "," +
-                "\"endDate\":" + "\"2018-10-09\"" + "," +
-                "\"searchStoreId\":" + "\"\"" + "," +
-                "\"suspendedStatusStr\":" + "[0,2]" + "," +
-                "\"sort\":" + 0 + "}";
-
-        Response res4 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value4), COOKIE);
+        Response res4 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(0, "[0,2]")), COOKIE);
 
         //已失效的订单
-        String value5 = "{" + "\"pageSize\":" + 15 + "," +
-                "\"pageNo\":" + pageNo + "," +
-                "\"status\":" + 10 + "," +
-                "\"getCount\":" + false + "," +
-                "\"beginDate\":" + "\"2008-01-01\"" + "," +
-                "\"endDate\":" + "\"2018-10-09\"" + "," +
-                "\"searchStoreId\":" + "\"\"" + "," +
-                "\"sort\":" + 0 + "}";
-
-        Response res5 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value5), COOKIE);
+        Response res5 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(0)), COOKIE);
 
         int total1 = getbBillTotalPage(res1, 15);
         int total2 = getbBillTotalPage(res2, 15);
@@ -166,18 +127,121 @@ public class ZhangShangCheDianService {
         int total4 = getbBillTotalPage(res4, 15);
         int total5 = getbBillTotalPage(res5, 15);
 
-        if (total1 > 0) {
-            for (int i = 0; i <= total1; i++) {
-                pageNo = i;
+        fetchBillData(bills, total1, 0, "进行中");
+        fetchBillData(bills, total2, 1, "已挂起");
+        fetchBillData(bills, total3, "[1]", "已挂账");
+        fetchBillData(bills, total4, "[0,2]", "已完成");
+        fetchBillData(bills, total5, "已失效");
 
-                Response response1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, value1), COOKIE);
+        String pathname = "C:\\exportExcel\\掌上车店消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+    }
+
+
+    /**
+     * 获取进行中，已挂起的订单
+     *
+     * @param bills
+     * @param total
+     * @param workStatus
+     * @param remark
+     * @throws IOException
+     */
+    private void fetchBillData(List<Bill> bills, int total, int workStatus, String remark) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(i, workStatus)), COOKIE);
+                analysisBillData(response, bills, remark);
             }
         }
 
+    }
 
-        String bbb = "";
+    /**
+     * 获取已挂账，已完成的订单
+     *
+     * @param bills
+     * @param total
+     * @param suspendedStatusStr
+     * @param remark
+     * @throws IOException
+     */
+    private void fetchBillData(List<Bill> bills, int total, String suspendedStatusStr, String remark) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(i, suspendedStatusStr)), COOKIE);
+                analysisBillData(response, bills, remark);
+            }
+        }
 
+    }
 
+    /**
+     * 获取已失效的订单
+     *
+     * @param bills
+     * @param total
+     * @param remark
+     * @throws IOException
+     */
+    private void fetchBillData(List<Bill> bills, int total, String remark) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(billMethod, getBillParam(i)), COOKIE);
+                analysisBillData(response, bills, remark);
+            }
+        }
+
+    }
+
+    private void analysisBillData(Response response, List<Bill> bills, String remark) throws IOException {
+        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+        Iterator<JsonNode> it = result.get("data").elements();
+        while (it.hasNext()) {
+            JsonNode element = it.next();
+
+            String carNumber = element.get("carPlateNo").asText();
+            String billNo = element.get("orderSn").asText();
+            String companyName = element.get("storeName").asText();
+            String serviceItemNames = element.get("productInfoNames").asText();
+            String totalAmount = element.get("totalPrice").asText();
+            String receptionistName = element.get("creatorName").asText();
+            String serviceId = element.get("id").asText();
+            String dateEnd = element.get("orderDate").asText();
+            dateEnd = DateUtil.formatMillisecond2DateTime(dateEnd);
+
+            Bill bill = new Bill();
+            bill.setCarNumber(carNumber);
+            bill.setBillNo(billNo);
+            bill.setCompanyName(companyName);
+            bill.setServiceItemNames(serviceItemNames);
+            bill.setTotalAmount(totalAmount);
+            bill.setReceptionistName(receptionistName);
+            bill.setDateEnd(dateEnd);
+            bill.setRemark(remark);
+
+            Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(stockOutMethod, getStockOutParam(serviceId)), COOKIE);
+            JsonNode content = MAPPER.readTree(res.returnContent().asString());
+
+            Iterator<JsonNode> data = content.get("data").elements();
+            while (data.hasNext()) {
+                JsonNode e = data.next();
+
+                String goodsNames = e.get("productInfos").asText();
+
+                if (null != bill.getGoodsNames() && !"".equals(goodsNames)) {
+                    String goods = bill.getGoodsNames() + "," + goodsNames;
+                    bill.setGoodsNames(goods);
+                }
+
+                if (null == bill.getGoodsNames()) {
+                    bill.setGoodsNames(goodsNames);
+                }
+            }
+
+            bills.add(bill);
+        }
     }
 
 
@@ -673,6 +737,61 @@ public class ZhangShangCheDianService {
                 totalPage = count / num + 1;
         }
         return totalPage;
+    }
+
+    private String getBillParam(int pageNo, int workStatus) {
+
+        //workStatus:进行中-0,已挂起-1
+        String param = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 0 + "," +
+                "\"getCount\":" + false + "," +
+                "\"workStatus\":" + workStatus + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"sort\":" + 0 + "}";
+
+        return param;
+    }
+
+    private String getBillParam(int pageNo, String suspendedStatusStr) {
+
+        //suspendedStatusStr:已挂账-[1]，已完成-[0,2]
+        String param = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 1 + "," +
+                "\"getCount\":" + false + "," +
+                "\"beginDate\":" + "\"" + beginDate + "\"" + "," +
+                "\"endDate\":" + "\"" + endDate + "\"" + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"suspendedStatusStr\":" + suspendedStatusStr + "," +
+                "\"sort\":" + 0 + "}";
+
+        return param;
+    }
+
+
+    private String getBillParam(int pageNo) {
+
+        //status:已失效-10
+        String param = "{" + "\"pageSize\":" + 15 + "," +
+                "\"pageNo\":" + pageNo + "," +
+                "\"status\":" + 10 + "," +
+                "\"getCount\":" + false + "," +
+                "\"beginDate\":" + "\"" + beginDate + "\"" + "," +
+                "\"endDate\":" + "\"" + endDate + "\"" + "," +
+                "\"searchStoreId\":" + "\"\"" + "," +
+                "\"sort\":" + 0 + "}";
+
+        return param;
+    }
+
+    private String getStockOutParam(String serviceId) {
+
+        String param = "{" + "\"serviceId\":" + "\"" + serviceId + "\"" + "," +
+                "\"opType\":" + 1 + "," +
+                "\"status\":" + 1 + "}";
+
+        return param;
     }
 
 

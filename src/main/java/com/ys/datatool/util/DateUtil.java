@@ -452,7 +452,7 @@ public class DateUtil {
         Date date = new Date();
         date.setTime(Long.parseLong(millisecond));
         String result = simpleDateFormat.format(date);
-        return result.substring(0, 10);
+        return result.substring(0, 10).replace("-","/");
     }
 
     /**
