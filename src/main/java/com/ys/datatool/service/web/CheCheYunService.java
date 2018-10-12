@@ -3,10 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
@@ -58,6 +55,8 @@ public class CheCheYunService {
             endDate +
             "&get_stat=1&limit=200&order=DESC&sort=date_added&substore_id=1&page=";
 
+    private String BILLDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&id=";
+
     private String fieldName = "count";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -78,12 +77,99 @@ public class CheCheYunService {
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 200);
+        Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 200);
 
-        System.out.println("结果为"+totalPage);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("orders").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("no").asText();
+                    String id = element.get("id").asText();
+                    String companyName = element.get("substore").asText();
+                    String carNumber = element.get("car_license").asText();
+                    String receptionistName = element.get("receiver").asText();
+                    String totalAmount = element.get("total_amount").asText();
+                    String actualAmount = element.get("actual_amount").asText();
+
+                    String type = element.get("invoice_type_str").asText();//工单类型
+                    String remark = element.get("comment").asText();//备注
+                    String state = element.get("text_status").asText();//结算状态;已结算，未结算
+
+                    String dateEnd = element.get("bill_date").asText();
+                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+
+                    Bill bill = new Bill();
+                    bill.setId(id);
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setCarNumber(carNumber);
+                    bill.setReceptionistName(receptionistName);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setRemark(remark + " " + state + " " + type);
+                    bill.setDateEnd(dateEnd);
+                    bill.setMileage("实收:" + actualAmount);
+
+                    Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
+                    JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+
+                    JsonNode data = content.get("data");
+
+                    JsonNode service = data.get("services");
+                    if (service.size() > 0) {
+                        Iterator<JsonNode> services = service.elements();
+
+                        while (services.hasNext()) {
+                            JsonNode e = services.next();
+
+                            String serviceItemNames = e.get("name").asText();
+
+                            if (null != bill.getServiceItemNames() && !"".equals(serviceItemNames)) {
+                                String s = bill.getServiceItemNames() + "," + serviceItemNames;
+                                bill.setServiceItemNames(s);
+                            }
+
+                            if (null == bill.getServiceItemNames()) {
+                                bill.setServiceItemNames(serviceItemNames);
+                            }
+                        }
+                    }
 
 
+                    JsonNode product = data.get("products");
+                    if (product.size() > 0) {
+                        Iterator<JsonNode> products = product.elements();
+
+                        while (products.hasNext()) {
+                            JsonNode e = products.next();
+
+                            String goodsNames = e.get("name").asText();
+
+                            if (null != bill.getGoodsNames() && !"".equals(goodsNames)) {
+                                String goods = bill.getGoodsNames() + "," + goodsNames;
+                                bill.setGoodsNames(goods);
+                            }
+
+                            if (null == bill.getGoodsNames()) {
+                                bill.setGoodsNames(goodsNames);
+                            }
+                        }
+                    }
+
+                    bills.add(bill);
+                }
+            }
+        }
+
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\车车云消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
     }
 
 
