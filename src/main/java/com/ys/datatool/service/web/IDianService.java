@@ -3,21 +3,12 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.DateUtil;
-import com.ys.datatool.util.ExportUtil;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -63,13 +54,15 @@ public class IDianService {
 
     private String meid = "688FFA7A-C3C9-48A5-AD1C-EE41EE2FB1CF";
 
-    private String sign = "A5704DA99A3B9B8E74D284DAA62D8C22";
+    private String sign = "A981267F656C9196B9AAA97267B5D7F8";
 
-    private String token = "F219929B88C2768BA6313F3063DC8014";
+    private String token = "18F2ED753909A4CDF84026B69D3A42F0";
 
     private String userPhone = "18924800202";
 
-    private String COOKIE = "JSESSIONID=7026F61FE1C588F8DA0ED88B0F9D7512";
+    private String COOKIE_PHONE = "JSESSIONID=1DC9F25B9DA3DA5849340341F79468D8";
+
+    private String COOKIE_WEB = "JSESSIONID=9F94F1E754C6E99BEA16783FF875FFA9";
 
 
     /**
@@ -82,7 +75,7 @@ public class IDianService {
         List<Bill> bills = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE, ACCEPT_ENCODING, ACCEPT);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
         JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
@@ -95,7 +88,7 @@ public class IDianService {
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE, ACCEPT_ENCODING, ACCEPT);
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
@@ -150,7 +143,7 @@ public class IDianService {
                 List<BasicNameValuePair> params = new ArrayList<>();
                 params.add(new BasicNameValuePair("fid", billNo));
 
-                Response response = ConnectionUtil.doPostEncode(CONSUMPTIONRECORD_URL, params, COOKIE, ACCEPT_ENCODING, ACCEPT);
+                Response response = ConnectionUtil.doPostEncode(CONSUMPTIONRECORD_URL, params, COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
                 JsonNode content = MAPPER.readTree(response.returnContent().asString(charset));
 
                 String receptionistName = content.get("receptionName").asText();
@@ -225,14 +218,14 @@ public class IDianService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE, ACCEPT_ENCODING, ACCEPT);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
         JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE, ACCEPT_ENCODING, ACCEPT);
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
                 JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
@@ -275,7 +268,8 @@ public class IDianService {
 
     /**
      * 会员卡车辆信息
-     * 根据会员卡excel的车牌号这一列数据，去查询车辆信息详情
+     * <p>
+     * 先从APP端获取会员车牌号，再到web端查询车辆信息详情
      *
      * @throws IOException
      */
@@ -284,6 +278,8 @@ public class IDianService {
         List<CarInfo> carInfos = new ArrayList<>();
         List<String> carNumbers = new ArrayList<>();
 
+
+      /*  //读取会员卡excel表中车牌列数据
         File file = new File("C:\\exportExcel\\i店会员卡.xlsx");
         FileInputStream in = new FileInputStream(file);
         HSSFWorkbook wb = new HSSFWorkbook(in);
@@ -299,31 +295,55 @@ public class IDianService {
             cell = row.getCell(3);//取得i行的第四列车牌号
             String cellValue = cell.getStringCellValue().trim();
             carNumbers.add(cellValue);
-        }
+        }*/
 
+        int totalPage = getMemberCardTotalPage();
+        if (totalPage > 0) {
+            for (int i = 0; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
+
+                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode userObject = result.get("userObject");
+                JsonNode memberList = userObject.get("memberList");
+
+                if (memberList.size() > 0) {
+                    Iterator<JsonNode> it = memberList.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String carNumber = element.get("licensePlate").asText();
+                        carNumbers.add(carNumber);
+                    }
+                }
+            }
+        }
 
         if (carNumbers.size() > 0) {
             for (String carNumber : carNumbers) {
-                Response res = ConnectionUtil.doGetEncode(CARINFO_URL + URLEncoder.encode(carNumber, "utf-8"), COOKIE, ACCEPT_ENCODING, ACCEPT);
+                String sss = CARINFO_URL + URLEncoder.encode(carNumber, "utf-8");
+                Response res = ConnectionUtil.doGetEncode(CARINFO_URL + URLEncoder.encode(carNumber, "utf-8"), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
 
                 JsonNode userObject = result.get("userObject");
-                Iterator<JsonNode> it = userObject.iterator();
+                if (userObject != null) {
+                    Iterator<JsonNode> it = userObject.iterator();
 
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
 
-                    String name = element.get("name").asText();
-                    String phone = element.get("userPhone").asText();
-                    String brand = element.get("carBrandName").asText();
+                        String name = element.get("name").asText();
+                        String phone = element.get("userPhone").asText();
+                        String brand = element.get("carBrandName").asText();
 
-                    CarInfo carInfo = new CarInfo();
-                    carInfo.setCompanyName(companyName);
-                    carInfo.setName(name);
-                    carInfo.setPhone(phone);
-                    carInfo.setBrand(brand);
-                    carInfo.setCarNumber(carNumber);
-                    carInfos.add(carInfo);
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setBrand(brand);
+                        carInfo.setCarNumber(carNumber);
+                        carInfos.add(carInfo);
+                    }
                 }
             }
         }
@@ -334,7 +354,7 @@ public class IDianService {
     }
 
     /**
-     * 卡内项目
+     * 卡内项目-APP端
      *
      * @throws IOException
      */
@@ -343,58 +363,62 @@ public class IDianService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Set<String> ids = new HashSet<>();
 
-        for (int i = 0; i <= 21; i++) {
-            Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE);
-
-            JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
-            JsonNode userObject = result.get("userObject");
-            JsonNode memberList = userObject.get("memberList");
-
-            if (!"".equals(memberList.toString())) {
-                Iterator<JsonNode> it = memberList.iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
-
-                    String cardCode = element.get("memberId").asText();
-                    ids.add(cardCode);
-                }
-            }
-        }
-
-        if (ids.size() > 0) {
-            for (String id : ids) {
-                Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARDITEM_URL, getMemberCardItemParams(id), COOKIE);
+        int totalPage = getMemberCardTotalPage();
+        if (totalPage > 0) {
+            for (int i = 0; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
 
                 JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
                 JsonNode userObject = result.get("userObject");
+                JsonNode memberList = userObject.get("memberList");
 
-                Iterator<JsonNode> it = userObject.get("timesDetailList").iterator();
-                while (it.hasNext()) {
-                    JsonNode element = it.next();
+                if (memberList.size() > 0) {
+                    Iterator<JsonNode> it = memberList.iterator();
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
 
-                    String validTime = element.get("validityTime").asText();
-                    String isValidForever = CommonUtil.getIsValidForever(validTime);
+                        String cardCode = element.get("memberId").asText();
+                        ids.add(cardCode);
+                    }
+                }
+            }
 
-                    JsonNode goodsList = element.get("goodsList");
-                    if (!"".equals(goodsList.toString())) {
-                        Iterator<JsonNode> items = goodsList.iterator();
-                        while (items.hasNext()) {
-                            JsonNode e = items.next();
+            if (ids.size() > 0) {
+                for (String id : ids) {
+                    Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARDITEM_URL, getMemberCardItemParams(id), COOKIE_PHONE);
 
-                            String code = e.get("fid").asText();
-                            String num = e.get("leftCount").asText();
-                            String itemName = e.get("projectName").asText();
+                    JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                    JsonNode userObject = result.get("userObject");
 
-                            MemberCardItem memberCardItem = new MemberCardItem();
-                            memberCardItem.setCardCode(id);
-                            memberCardItem.setItemName(itemName);
-                            memberCardItem.setNum(num);
-                            memberCardItem.setOriginalNum(num);
-                            memberCardItem.setCompanyName(companyName);
-                            memberCardItem.setCode(code);
-                            memberCardItem.setValidTime(validTime);
-                            memberCardItem.setIsValidForever(isValidForever);
-                            memberCardItems.add(memberCardItem);
+                    Iterator<JsonNode> it = userObject.get("timesDetailList").iterator();
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String validTime = element.get("validityTime").asText();
+                        validTime = DateUtil.formatDateTime(validTime);
+                        String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                        JsonNode goodsList = element.get("goodsList");
+                        if (goodsList.size() > 0) {
+                            Iterator<JsonNode> items = goodsList.iterator();
+                            while (items.hasNext()) {
+                                JsonNode e = items.next();
+
+                                String code = e.get("fid").asText();
+                                String num = e.get("leftCount").asText();
+                                String itemName = e.get("projectName").asText();
+
+                                MemberCardItem memberCardItem = new MemberCardItem();
+                                memberCardItem.setCardCode(id);
+                                memberCardItem.setItemName(itemName);
+                                memberCardItem.setNum(num);
+                                memberCardItem.setOriginalNum(num);
+                                memberCardItem.setCompanyName(companyName);
+                                memberCardItem.setCode(code);
+                                memberCardItem.setValidTime(validTime);
+                                memberCardItem.setIsValidForever(isValidForever);
+                                memberCardItems.add(memberCardItem);
+                            }
                         }
                     }
                 }
@@ -409,7 +433,7 @@ public class IDianService {
     }
 
     /**
-     * 会员卡
+     * 会员卡-APP端
      *
      * @throws IOException
      */
@@ -417,36 +441,52 @@ public class IDianService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
+        int totalPage = getMemberCardTotalPage();
+
         //String params = "MEID=1F3F7042-675B-4BAD-BE11-448A267326F0&deviceType=2&format=json&keyword=&memberLevelId=&sign=1B0BC2BC981BF781DDB9D55FAA886D3E&token=A19873FDF327F6D7F14A8110513DB9F7&user_phone=18934388886&versionCode=507&versionName=5.0.7&currentPageIndex=";
-        for (int i = 0; i <= 21; i++) {
-            Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE);
+        if (totalPage > 0) {
+            for (int i = 0; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
 
-            JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
-            JsonNode userObject = result.get("userObject");
+                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode userObject = result.get("userObject");
 
-            Iterator<JsonNode> it = userObject.get("memberList").iterator();
-            while (it.hasNext()) {
-                JsonNode element = it.next();
+                Iterator<JsonNode> it = userObject.get("memberList").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
 
-                String cardCode = element.get("memberId").asText();
-                String memberCardName = element.get("memberLevelName").asText();
-                String carNumber = element.get("licensePlate").asText();
-                String balance = element.get("amount").asText();
-                String dateCreated = element.get("openCardTime").asText();
+                    String cardCode = element.get("memberId").asText();
+                    String memberCardName = element.get("memberLevelName").asText();
+                    String carNumber = element.get("licensePlate").asText();
+                    String balance = element.get("amount").asText();
+                    String dateCreated = element.get("openCardTime").asText();
+                    dateCreated = DateUtil.formatDateTime(dateCreated);
 
-                MemberCard memberCard = new MemberCard();
-                memberCard.setCardCode(cardCode);
-                memberCard.setMemberCardName(memberCardName == "" ? "普通会员卡" : memberCardName);
-                memberCard.setCarNumber(carNumber);
-                memberCard.setCompanyName(companyName);
-                memberCard.setBalance(balance);
-                memberCard.setDateCreated(dateCreated);
-                memberCards.add(memberCard);
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setCardCode(cardCode);
+                    memberCard.setMemberCardName(memberCardName == "" ? "普通会员卡" : memberCardName);
+                    memberCard.setCarNumber(carNumber);
+                    memberCard.setCompanyName(companyName);
+                    memberCard.setBalance(balance);
+                    memberCard.setDateCreated(dateCreated);
+                    memberCards.add(memberCard);
+                }
             }
         }
 
         String pathname = "C:\\exportExcel\\i店会员卡.xlsx";
         ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+    }
+
+    private int getMemberCardTotalPage() throws IOException {
+        Response response = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams("0"), COOKIE_PHONE);
+        JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+        JsonNode userObject = result.get("userObject");
+        JsonNode totalCount = userObject.get("totalCount");
+
+        int totalPage = WebClientUtil.getTotalPage(totalCount, 10);
+
+        return totalPage != 0 ? totalPage : 0;
     }
 
 

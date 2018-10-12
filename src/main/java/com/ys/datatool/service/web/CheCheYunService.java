@@ -46,15 +46,46 @@ public class CheCheYunService {
 
     private String CARINFO_URL = "https://www.checheweike.com/crm/index.php?route=member/car/gets&limit=20&order=DESC&sort=c.date_added&page=";
 
+
+    private String beginDate = "2001-01-01";
+
+    //当前抓取日期
+    private String endDate = "2018-10-12";
+
+    private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
+            beginDate +
+            "&date_end=" +
+            endDate +
+            "&get_stat=1&limit=200&order=DESC&sort=date_added&substore_id=1&page=";
+
+    private String fieldName = "count";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Random random = new Random();
 
-    private String fieldName = "count";
-
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=U9jhCk23c20dCO8mwqRgavCnavav; PHPSESSID=oorm8gm9h94f54ne8tndrlrkt5; ccwk_backend_tracking=oorm8gm9h94f54ne8tndrlrkt5-10535; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1533202596,1533288090,1533880613; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1533880616; SERVERID=03485b53178f0de6cfb6b08218d57da6|1533887854|1533880604";
+    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=et7q9jinp0pbkk0p5fkuqb6hu3; ccwk_backend_tracking=et7q9jinp0pbkk0p5fkuqb6hu3-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1536743089,1539321273; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539322433; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1539322809|1539321154";
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 200);
+
+        System.out.println("结果为"+totalPage);
+
+
+    }
+
 
     /**
      * 卡内项目
@@ -103,8 +134,8 @@ public class CheCheYunService {
             }
         }
 
-        System.out.println("结果为"+memberCardItems.toString());
-        System.out.println("结果为"+memberCardItems.size());
+        System.out.println("结果为" + memberCardItems.toString());
+        System.out.println("结果为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\车车云卡内项目.xls";
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
@@ -184,7 +215,7 @@ public class CheCheYunService {
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
-            for (int i = 1; i <= 3; i++) {
+            for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + i + "", COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 

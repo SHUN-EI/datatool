@@ -63,7 +63,7 @@ public class ZhangShangCheDianService {
     private String beginDate = "2008-01-01";
 
     //当前抓取日期
-    private String endDate = "2018-10-09";
+    private String endDate = "2018-10-12";
 
     private String companyName = "掌上车店";
 
