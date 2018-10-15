@@ -41,7 +41,7 @@ public class CheCheYunService {
 
     private String CARINFODETAIL_URL = "https://www.checheweike.com/crm/index.php?route=member/car/get&car_id=";
 
-    private String CARINFO_URL = "https://www.checheweike.com/crm/index.php?route=member/car/gets&limit=20&order=DESC&sort=c.date_added&page=";
+    private String CARINFO_URL = "https://www.checheweike.com/crm/index.php?route=member/car/gets&limit=50&order=DESC&sort=c.date_added&page=";
 
 
     private String beginDate = "2001-01-01";
@@ -65,7 +65,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=et7q9jinp0pbkk0p5fkuqb6hu3; ccwk_backend_tracking=et7q9jinp0pbkk0p5fkuqb6hu3-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1536743089,1539321273; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539322433; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1539322809|1539321154";
+    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=1b6pd65dm2opqobcoq6n20t336; ccwk_backend_tracking=1b6pd65dm2opqobcoq6n20t336-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539585209; SERVERID=44fa044763f68345a9d119d26c10de1c|1539585280|1539572506";
 
 
     /**
@@ -531,7 +531,6 @@ public class CheCheYunService {
     @Test
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
-        Map<String, CarInfo> carInfoMap = new HashMap<>();
 
         Response res = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
@@ -554,21 +553,22 @@ public class CheCheYunService {
                     String VINCode = element.get("vin").asText();
 
                     CarInfo carInfo = new CarInfo();
-                    carInfo.setCarNumber(carNumber);
-                    carInfo.setName(name);
-                    carInfo.setPhone(phone);
-                    carInfo.setCompanyName(companyName);
-                    carInfo.setCarModel(carModel);
-                    carInfo.setBrand(carModel);
-                    carInfo.setVINcode(VINCode);
-                    carInfoMap.put(carId, carInfo);
+                    carInfo.setCarId(carId);
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(phone));
+                    carInfo.setCompanyName(CommonUtil.formatString(companyName));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+                    carInfo.setBrand(CommonUtil.formatString(carModel));
+                    carInfo.setVINcode(CommonUtil.formatString(VINCode));
+                    carInfos.add(carInfo);
                 }
             }
         }
 
-        if (carInfoMap.size() > 0) {
-            for (String carId : carInfoMap.keySet()) {
-                res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId + "", COOKIE);
+        if (carInfos.size() > 0) {
+            for (CarInfo carInfo : carInfos) {
+                res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carInfo.getCarId(), COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("car");
@@ -580,14 +580,12 @@ public class CheCheYunService {
                 String tcInsuranceValidDate = data.get("date_compulsory_insurance_end").asText();
                 String registerDate = data.get("date_registered").asText();
 
-                CarInfo carInfo = carInfoMap.get(carId);
-                carInfo.setEngineNumber(engineNumber);
-                carInfo.setVcInsuranceCompany(vcInsuranceCompany);
-                carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                carInfo.setTcInsuranceCompany(tcInsuranceCompany);
-                carInfo.setTcInsuranceValidDate(tcInsuranceValidDate);
+                carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
+                carInfo.setVcInsuranceValidDate(CommonUtil.formatString(vcInsuranceValidDate));
+                carInfo.setTcInsuranceCompany(CommonUtil.formatString(tcInsuranceCompany));
+                carInfo.setTcInsuranceValidDate(CommonUtil.formatString(tcInsuranceValidDate));
                 carInfo.setRegisterDate(registerDate);
-                carInfos.add(carInfo);
             }
         }
 

@@ -55,10 +55,11 @@ public class ConnectionUtil {
     }
 
 
-    public static Response doPostWithLeastParamJson(String url, String param, String cookie) throws IOException {
+    public static Response doPostWithLeastParamJson(String url, String param, String cookie, String content_type) throws IOException {
 
         Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)
+                .setHeader("content-type", content_type)
                 .bodyString(param, ContentType.APPLICATION_JSON)
                 .execute();
 
