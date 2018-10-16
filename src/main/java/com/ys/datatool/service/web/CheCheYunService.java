@@ -47,7 +47,7 @@ public class CheCheYunService {
     private String beginDate = "2001-01-01";
 
     //当前抓取日期
-    private String endDate = "2018-10-12";
+    private String endDate = "2018-10-16";
 
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
@@ -65,7 +65,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=1b6pd65dm2opqobcoq6n20t336; ccwk_backend_tracking=1b6pd65dm2opqobcoq6n20t336-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539659681; SERVERID=44fa044763f68345a9d119d26c10de1c|1539659685|1539659651";
+    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=5chtgjvrhn1v7cajoqsen4am66; ccwk_backend_tracking=5chtgjvrhn1v7cajoqsen4am66-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1539668871|1539664049; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539668871";
 
 
     /**
@@ -76,6 +76,7 @@ public class CheCheYunService {
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
+        List<BillDetail> billDetails = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 200);
@@ -128,15 +129,65 @@ public class CheCheYunService {
                             JsonNode e = services.next();
 
                             String serviceItemNames = e.get("name").asText();
+                            String total = e.get("amount").asText();
+                            String num = e.get("quantity").asText();
+                            String price = e.get("sale_price").asText();//单价
+                            String firstCategoryName = e.get("business_type_name").asText();
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setBillNo(billNo);
+                            billDetail.setItemName(serviceItemNames);
+                            billDetail.setNum(num);
+                            billDetail.setPrice(price);
+                            billDetail.setItemType("服务项");
+                            billDetail.setFirstCategoryName(firstCategoryName);
+                            billDetails.add(billDetail);
 
                             if (null != bill.getServiceItemNames() && !"".equals(serviceItemNames)) {
+                                serviceItemNames = serviceItemNames + "*" + total;
                                 String s = bill.getServiceItemNames() + "," + serviceItemNames;
                                 bill.setServiceItemNames(s);
                             }
 
                             if (null == bill.getServiceItemNames()) {
-                                bill.setServiceItemNames(serviceItemNames);
+                                bill.setServiceItemNames(serviceItemNames + "*" + total);
                             }
+
+
+                            if (e.hasNonNull("products") == true) {
+                                Iterator<JsonNode> items = e.get("products").iterator();
+
+                                while (items.hasNext()) {
+                                    JsonNode node = items.next();
+
+                                    String salePrice = e.get("amount").asText();//总价
+                                    String goodsNames = node.get("name").asText();
+                                    String unitPrice = e.get("sale_price").asText();//单价
+                                    String quantity = e.get("quantity").asText();//数量
+                                    String firstCategory = e.get("business_type_name").asText();
+
+                                    BillDetail detail = new BillDetail();
+                                    detail.setBillNo(billNo);
+                                    detail.setItemName(goodsNames);
+                                    detail.setNum(quantity);
+                                    detail.setPrice(unitPrice);
+                                    detail.setItemType("配件");
+                                    detail.setFirstCategoryName(firstCategory);
+                                    billDetails.add(detail);
+
+                                    if (null != bill.getGoodsNames() && !"".equals(goodsNames)) {
+                                        goodsNames = goodsNames + "*" + salePrice;
+                                        String goods = bill.getGoodsNames() + "," + goodsNames;
+                                        bill.setGoodsNames(goods);
+                                    }
+
+                                    if (null == bill.getGoodsNames()) {
+                                        bill.setGoodsNames(goodsNames + "*" + salePrice);
+                                    }
+
+                                }
+                            }
+
                         }
                     }
 
@@ -149,14 +200,28 @@ public class CheCheYunService {
                             JsonNode e = products.next();
 
                             String goodsNames = e.get("name").asText();
+                            String total = e.get("amount").asText();
+                            String num = e.get("quantity").asText();
+                            String unitPrice = e.get("sale_price").asText();//单价
+                            String firstCategoryName = e.get("business_type_name").asText();
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setBillNo(billNo);
+                            billDetail.setItemName(goodsNames);
+                            billDetail.setNum(num);
+                            billDetail.setPrice(unitPrice);
+                            billDetail.setItemType("配件");
+                            billDetail.setFirstCategoryName(firstCategoryName);
+                            billDetails.add(billDetail);
 
                             if (null != bill.getGoodsNames() && !"".equals(goodsNames)) {
+                                goodsNames = goodsNames + "*" + total;
                                 String goods = bill.getGoodsNames() + "," + goodsNames;
                                 bill.setGoodsNames(goods);
                             }
 
                             if (null == bill.getGoodsNames()) {
-                                bill.setGoodsNames(goodsNames);
+                                bill.setGoodsNames(goodsNames + "*" + total);
                             }
                         }
                     }
@@ -169,7 +234,9 @@ public class CheCheYunService {
         System.out.println("结果为" + totalPage);
 
         String pathname = "C:\\exportExcel\\车车云消费记录.xls";
+        String pathname2 = "C:\\exportExcel\\车车云消费记录-明细.xls";
         ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportBillDetailDataInLocal(billDetails, ExcelDatas.workbook, pathname2);
     }
 
 

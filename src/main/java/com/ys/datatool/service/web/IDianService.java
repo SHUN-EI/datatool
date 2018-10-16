@@ -36,7 +36,7 @@ public class IDianService {
 
     private String fromDate = "2003-01-01";
 
-    private String toDate = "2018-09-28";
+    private String toDate = "2018-10-16";
 
     private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke" +
             "?apiname=saleorder_queryallfilter_new&" +
@@ -68,7 +68,7 @@ public class IDianService {
 
     private String COOKIE_PHONE = "JSESSIONID=04A303A0842F861C1FF2DFD8A34E88D9";
 
-    private String COOKIE_WEB = "JSESSIONID=DBAF3923EBA441D806ACEB16ACF90A4C";
+    private String COOKIE_WEB = "JSESSIONID=BC3E0D40689DA06F713895BBF26C5D3B";
 
 
     /**
