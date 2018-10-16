@@ -65,7 +65,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=1b6pd65dm2opqobcoq6n20t336; ccwk_backend_tracking=1b6pd65dm2opqobcoq6n20t336-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539585209; SERVERID=44fa044763f68345a9d119d26c10de1c|1539585280|1539572506";
+    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=1b6pd65dm2opqobcoq6n20t336; ccwk_backend_tracking=1b6pd65dm2opqobcoq6n20t336-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539659681; SERVERID=44fa044763f68345a9d119d26c10de1c|1539659685|1539659651";
 
 
     /**

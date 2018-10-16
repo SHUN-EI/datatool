@@ -6,9 +6,15 @@ import com.ys.datatool.domain.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -54,13 +60,13 @@ public class IDianService {
 
     private String meid = "688FFA7A-C3C9-48A5-AD1C-EE41EE2FB1CF";
 
-    private String sign = "A981267F656C9196B9AAA97267B5D7F8";
+    private String sign = "4D21974FAA5F9DF5AC74DB230D10F9CB";
 
-    private String token = "18F2ED753909A4CDF84026B69D3A42F0";
+    private String token = "089EAEF21EE02A0DB978A9D4C37BE513";
 
     private String userPhone = "18924800202";
 
-    private String COOKIE_PHONE = "JSESSIONID=1DC9F25B9DA3DA5849340341F79468D8";
+    private String COOKIE_PHONE = "JSESSIONID=04A303A0842F861C1FF2DFD8A34E88D9";
 
     private String COOKIE_WEB = "JSESSIONID=DBAF3923EBA441D806ACEB16ACF90A4C";
 
@@ -279,7 +285,7 @@ public class IDianService {
         List<String> carNumbers = new ArrayList<>();
 
 
-      /*  //读取会员卡excel表中车牌列数据
+        //读取excel表中车牌列数据,根据车牌号为条件查询车辆详情,excel文件和对应的列需要更改
         File file = new File("C:\\exportExcel\\i店会员卡.xlsx");
         FileInputStream in = new FileInputStream(file);
         HSSFWorkbook wb = new HSSFWorkbook(in);
@@ -295,8 +301,9 @@ public class IDianService {
             cell = row.getCell(3);//取得i行的第四列车牌号
             String cellValue = cell.getStringCellValue().trim();
             carNumbers.add(cellValue);
-        }*/
+        }
 
+       /* //调用接口获取APP端的会员车牌号码
         int totalPage = getMemberCardTotalPage();
         if (totalPage > 0) {
             for (int i = 0; i <= totalPage; i++) {
@@ -317,7 +324,7 @@ public class IDianService {
                     }
                 }
             }
-        }
+        }*/
 
         if (carNumbers.size() > 0) {
             for (String carNumber : carNumbers) {
