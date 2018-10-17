@@ -2,10 +2,15 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.MemberCard;
+import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
@@ -21,23 +26,14 @@ import java.util.List;
  */
 @Service
 public class DianDianYangCheService {
-    private static final String MEMBERCARD_URL = "https://ndsm.ddyc.com/ndsm/member/list";
 
-    private static final String AUTHORITY = "ndsm.ddyc.com";
+    private String BILL_URL = "https://ndsm.ddyc.com/ndsm/work/getWorkPageList";
 
-    private static final String ACCEPT = "application/json, text/plain, */*";
+    private String CARINFODETAIL_URL = "https://ndsm.ddyc.com/ndsm/car/carDetails?carInfoId=";
 
-    private static final String ACCEPT_ENCODING = "gzip, deflate, br";
+    private String CARINFO_URL = "https://ndsm.ddyc.com/ndsm/car/getShopCarList";
 
-    private static final String ACCEPT_lANGUAGE = "zh-CN,zh;q=0.8";
-
-    private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
-
-    private static final String ORIGIN = "https://ndsm.ddyc.com";
-
-    private static final String REFERER = "https://ndsm.ddyc.com/ndsm/member/memberList/index";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
+    private String MEMBERCARD_URL = "https://ndsm.ddyc.com/ndsm/member/list";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -47,24 +43,84 @@ public class DianDianYangCheService {
 
     private int num = 10;
 
-    private static final String COOKIE = "gr_user_id=d22a54e1-15bf-48e5-81d4-2d5e965b8b4b; JSESSIONID=E4B478B7925A9370B5CF5D0D9DAE03E9; gr_session_id_e2f213a5f5164248817464925de8c1af=15ae9b21-ef1a-4e11-a0b2-22ca55cb5275";
+    private static final String COOKIE = "JSESSIONID=DE5229B3A6017A4A44326542941B12D8; gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; gr_session_id_e2f213a5f5164248817464925de8c1af=55746d30-1c66-4a59-bbc6-6a9ac03d7503; gr_session_id_e2f213a5f5164248817464925de8c1af_55746d30-1c66-4a59-bbc6-6a9ac03d7503=true";
+
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getTotalParams("1"), COOKIE);
+        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        String totalStr = result.get("data").get("totalPage").asText();
+        int total = Integer.parseInt(totalStr);
+
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getTotalParams(String.valueOf(i)), COOKIE);
+                result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").get("data").elements();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String carId = element.get("carInfoId").asText();
+                    String carNumber = element.get("carNumber").asText();
+                    String phone = element.get("phone").asText();
+                    String name = element.get("carOwnerName").asText();
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(phone));
+
+                    Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, COOKIE);
+                    JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+
+                    if (content.hasNonNull("data") == true) {
+                        JsonNode data = content.get("data");
+                        String brand = data.get("carBrandName").asText();
+                        String carModel = data.get("carModelName").asText();
+                        String vin = data.get("vinCode").asText();
+
+                        carInfo.setBrand(CommonUtil.formatString(brand));
+                        carInfo.setCarModel(CommonUtil.formatString(carModel));
+                        carInfo.setVINcode(CommonUtil.formatString(vin));
+                    }
+                    carInfos.add(carInfo);
+                }
+            }
+        }
+
+        System.out.println("结果为" + carInfos.toString());
+
+        String pathname = "C:\\exportExcel\\典典养车车辆信息.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+
+
+    }
 
     /**
      * 会员卡
+     *
      * @throws IOException
      */
     @Test
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), AUTHORITY, ACCEPT, ACCEPT_ENCODING, ACCEPT_lANGUAGE, CONTENT_TYPE, COOKIE, ORIGIN, REFERER, USER_AGENT);
+        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get("total");
         int totalPage = WebClientUtil.getTotalPage(totalNode, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), AUTHORITY, ACCEPT, ACCEPT_ENCODING, ACCEPT_lANGUAGE, CONTENT_TYPE, COOKIE, ORIGIN, REFERER, USER_AGENT);
+                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), COOKIE);
                 result = MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").iterator();
@@ -90,6 +146,13 @@ public class DianDianYangCheService {
         System.out.println("总数为" + memberCards.size());
         System.out.println("结果为" + memberCards.toString());
 
+    }
+
+    private List<BasicNameValuePair> getTotalParams(String pageNo) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("pageSize", "10"));
+        params.add(new BasicNameValuePair("pageNumber", pageNo));
+        return params;
     }
 
     private String getParam(int index) {

@@ -36,18 +36,10 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doPostWithJson(String url, String param, String authority, String accept, String accept_encoding, String accept_language, String content_type, String cookie, String origin, String referer, String user_agent) throws IOException {
+    public static Response doPostWithJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Post(url)
-                .setHeader("authority", authority)
-                .setHeader("Accept", accept)
-                .setHeader("accept-encoding", accept_encoding)
-                .setHeader("accept-language", accept_language)
-                .setHeader("content-type", content_type)
                 .setHeader("cookie", cookie)
-                .setHeader("origin", origin)
-                .setHeader("referer", referer)
-                .setHeader("user-agent", user_agent)
                 .bodyString(param, ContentType.APPLICATION_JSON)
                 .execute();
 
