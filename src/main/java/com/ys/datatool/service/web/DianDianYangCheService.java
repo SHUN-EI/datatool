@@ -2,10 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -25,6 +22,8 @@ import java.util.List;
 @Service
 public class DianDianYangCheService {
 
+    private String STOCK_URL = "https://ndsm.ddyc.com/ndsm/stock/getList";
+
     private String BILLDETAIL_URL = "https://ndsm.ddyc.com/ndsm/order/getOrderInfo?orderId=";
 
     private String BILL_URL = "https://ndsm.ddyc.com/ndsm/work/getWorkPageList";
@@ -43,8 +42,62 @@ public class DianDianYangCheService {
 
     private int num = 10;
 
-    private static final String COOKIE = "JSESSIONID=DE5229B3A6017A4A44326542941B12D8; gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; gr_session_id_e2f213a5f5164248817464925de8c1af=09e914d0-e2b8-4a5b-b0c1-33a3f55bfa11; gr_session_id_e2f213a5f5164248817464925de8c1af_09e914d0-e2b8-4a5b-b0c1-33a3f55bfa11=true";
+    private static final String COOKIE = "JSESSIONID=DE5229B3A6017A4A44326542941B12D8; gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; gr_session_id_e2f213a5f5164248817464925de8c1af=a086f553-ba53-4085-8760-e277c3a4d38f; gr_session_id_e2f213a5f5164248817464925de8c1af_a086f553-ba53-4085-8760-e277c3a4d38f=true";
 
+
+    /**
+     * 库存
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithJson(STOCK_URL, getStockParam(1), COOKIE);
+        int totalPage = getTotalPageNo(response);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithJson(STOCK_URL, getBillParam(i), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("data").get("data").elements();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String goodsName = element.get("commodityName").asText();
+                    String productCode = element.get("commodityCode").asText();
+                    String inventoryNum = element.get("count").asText();
+                    String price = element.get("costPrice").asText();
+                    String firstCategoryName = element.get("lv1CategoryName").asText();
+                    String secondCategoryName = element.get("lv2CategoryName").asText();
+
+                    Stock stock = new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setGoodsName(goodsName);
+                    stock.setProductCode(productCode);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setPrice(price);
+
+                    Product product = new Product();
+                    product.setCompanyName(companyName);
+                    product.setProductName(goodsName);
+                    product.setPrice(price);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setSecondCategoryName(secondCategoryName);
+                    products.add(product);
+
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\典典养车库存.xls";
+        String pathname2 = "C:\\exportExcel\\典典养车商品.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
+    }
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -87,7 +140,7 @@ public class DianDianYangCheService {
                     System.out.println("车牌号为" + carNumber);
                     System.out.println("网址为" + BILLDETAIL_URL + id);
 
-                    if (!"null".equals(id)){
+                    if (!"null".equals(id)) {
                         Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
                         JsonNode content = MAPPER.readTree(res2.returnContent().asString());
 
@@ -227,6 +280,20 @@ public class DianDianYangCheService {
 
     }
 
+    private String getStockParam(int pageNo) {
+        String param = "{" +
+                "\"lv1CategoryCode\":\"\"," +
+                "\"lv2CategoryCode\":\"\"," +
+                "\"commodityName\":\"\"," +
+                "\"pageSize\":10," +
+                "\"page\":" + pageNo + "," +
+                "\"sortByCount\":false," +
+                "\"sortDefType\":false" +
+                "}";
+
+        return param;
+    }
+
     private String getBillParam(int pageNo) {
         String param = "{" +
                 "\"pageNumber\":" +
@@ -271,5 +338,12 @@ public class DianDianYangCheService {
 
         return total;
 
+    }
+
+    private int getTotalPageNo(Response response) throws IOException {
+        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode totalNode = result.get("data").get("total");
+        int totalPage = WebClientUtil.getTotalPage(totalNode, num);
+        return totalPage;
     }
 }
