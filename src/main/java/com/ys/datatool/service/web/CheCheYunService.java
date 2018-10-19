@@ -65,7 +65,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=5chtgjvrhn1v7cajoqsen4am66; ccwk_backend_tracking=5chtgjvrhn1v7cajoqsen4am66-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1539668871|1539664049; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539668871";
+    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=5chtgjvrhn1v7cajoqsen4am66; ccwk_backend_tracking=5chtgjvrhn1v7cajoqsen4am66-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539939660; SERVERID=03485b53178f0de6cfb6b08218d57da6|1539941775|1539939551";
 
 
     /**
@@ -129,7 +129,7 @@ public class CheCheYunService {
                             JsonNode e = services.next();
 
                             String serviceItemNames = e.get("name").asText();
-                            String total = e.get("amount").asText();
+                            String total = e.get("amount").asText();//总价
                             String num = e.get("quantity").asText();
                             String price = e.get("sale_price").asText();//单价
                             String firstCategoryName = e.get("business_type_name").asText();
@@ -160,11 +160,11 @@ public class CheCheYunService {
                                 while (items.hasNext()) {
                                     JsonNode node = items.next();
 
-                                    String salePrice = e.get("amount").asText();//总价
+                                    String totalPrice = node.get("amount").asText();//总价
                                     String goodsNames = node.get("name").asText();
-                                    String unitPrice = e.get("sale_price").asText();//单价
-                                    String quantity = e.get("quantity").asText();//数量
-                                    String firstCategory = e.get("business_type_name").asText();
+                                    String unitPrice = node.get("sale_price").asText();//单价
+                                    String quantity = node.get("quantity").asText();//数量
+                                    String firstCategory = node.get("business_type_name").asText();
 
                                     BillDetail detail = new BillDetail();
                                     detail.setBillNo(billNo);
@@ -176,13 +176,13 @@ public class CheCheYunService {
                                     billDetails.add(detail);
 
                                     if (null != bill.getGoodsNames() && !"".equals(goodsNames)) {
-                                        goodsNames = goodsNames + "*" + salePrice;
+                                        goodsNames = goodsNames + "*" + totalPrice;
                                         String goods = bill.getGoodsNames() + "," + goodsNames;
                                         bill.setGoodsNames(goods);
                                     }
 
                                     if (null == bill.getGoodsNames()) {
-                                        bill.setGoodsNames(goodsNames + "*" + salePrice);
+                                        bill.setGoodsNames(goodsNames + "*" + totalPrice);
                                     }
 
                                 }
