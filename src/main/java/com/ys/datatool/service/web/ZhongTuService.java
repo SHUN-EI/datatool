@@ -27,25 +27,27 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
-    private String MEMBERCARDITEM_URL = "http://crm.zhongtukj.com/Boss/Customer/CustomerPackageList.aspx";
+    private String BILL_URL = "http://crm.xmheigu.com/Boss/Finance/Service/GetBillsTable.ashx";
 
-    private String MEMBERCARD_URL = "http://crm.zhongtukj.com/Boss/Customer/CustomerCardListMem.aspx?action=GetList&groupId={no}&keyword=&rows=20&sort=ID&order=desc&page=";
+    private String MEMBERCARDITEM_URL = "http://crm.xmheigu.com/Boss/Customer/CustomerPackageList.aspx";
 
-    private String STOCK_URL = "http://crm.zhongtukj.com/Boss/Stock/Stockservice/StockSearch.ashx";
+    private String MEMBERCARD_URL = "http://crm.xmheigu.com/Boss/Customer/CustomerCardListMem.aspx?action=GetList&groupId={no}&keyword=&rows=20&sort=ID&order=desc&page=";
 
-    private String CARINFODETAIL_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetData.ashx";
+    private String STOCK_URL = "http://crm.xmheigu.com/Boss/Stock/Stockservice/StockSearch.ashx";
 
-    private String CARINFO_URL = "http://crm.zhongtukj.com/Boss/Customer/ashx/GetCustomerData.ashx";
+    private String CARINFODETAIL_URL = "http://crm.xmheigu.com/Boss/Customer/ashx/GetData.ashx";
 
-    private String SERVICE_URL = "http://crm.zhongtukj.com/Boss/Stock/XN_ShopList.aspx";
+    private String CARINFO_URL = "http://crm.xmheigu.com/Boss/Customer/ashx/GetCustomerData.ashx";
 
-    private String LOGIN_URL = "http://crm.zhongtukj.com/Boss/Index.aspx";
+    private String SERVICE_URL = "http://crm.xmheigu.com/Boss/Stock/XN_ShopList.aspx";
 
-    private String SUPPLIER_URL = "http://crm.zhongtukj.com/Boss/Stock/SupplierList.aspx";
+    private String LOGIN_URL = "http://crm.xmheigu.com/Boss/Index.aspx";
 
-    private String SUPPLIERDETAIL_URL = "http://crm.zhongtukj.com/Boss/Stock/SupplierEdit.aspx?action=edit&id=";
+    private String SUPPLIER_URL = "http://crm.xmheigu.com/Boss/Stock/SupplierList.aspx";
 
-    private String ITEM_URL = "http://crm.zhongtukj.com/Boss/Stock/Stockservice/StockShop.ashx";
+    private String SUPPLIERDETAIL_URL = "http://crm.xmheigu.com/Boss/Stock/SupplierEdit.aspx?action=edit&id=";
+
+    private String ITEM_URL = "http://crm.xmheigu.com/Boss/Stock/Stockservice/StockShop.ashx";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -72,11 +74,57 @@ public class ZhongTuService {
     private String trRegEx = "#form1 > div.ctn.h > div > div.form_div > div > table > tbody > tr";
 
     //车店编号
-    private String companyId = "1";
+    private String groupId = "1";
+
+    private String btime = "2001-01-01";
+
+    //当前日期
+    private String etime = "2018-10-22";
 
     private String companyName = "众途";
 
-    private String COOKIE = "ASP.NET_SessionId=pxocb3o1s1nqnhxvowptggyf; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=2cn3ulN4mp4=&CSID=J2bEaFLTtLg=&UserName=TOO8TcMDlsmCn2Rjc6p+kA==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+    private String COOKIE = "ASP.NET_SessionId=j1ip4zeffwaerjctjbczsozi; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=YJWelm6Yb9U=&CSID=YJWelm6Yb9U=&UserName=3uLp7ZTjgZW6OssgsPootw==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        Map<String, Bill> billMap = new HashMap<>();
+
+        String act = "GetData";
+        Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getBillParams("1", "100", act), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getBillParams(String.valueOf(i), "100", act), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("OrderID").asText();
+
+                    String carNumber = element.get("CarCode").asText();
+                    String mileage = element.get("Themileage").asText();
+
+
+
+
+
+                }
+            }
+        }
+
+        System.out.println("页数为" + totalPage);
+
+    }
 
     /**
      * 卡内项目
@@ -153,12 +201,12 @@ public class ZhongTuService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", companyId) + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", companyId) + i + "", COOKIE);
+                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + i + "", COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
 
@@ -211,12 +259,12 @@ public class ZhongTuService {
         Map<String, String> storeRoomMap = new HashMap<>();
 
         String act = "GetStockList";
-        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1", "20", companyId, act), COOKIE);
+        Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1", "20", act), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i), "20", companyId, act), COOKIE);
+                res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i), "20", act), COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode companyNode = result.get("columns0").get(0);
@@ -289,12 +337,12 @@ public class ZhongTuService {
         Map<String, CarInfo> carInfoMap = new HashMap<>();
 
         String act = "";
-        Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams("1", "20", companyId, act), COOKIE);
+        Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams("1", "20", act), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(i), "20", companyId, act), COOKIE);
+                res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(i), "20", act), COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -468,12 +516,12 @@ public class ZhongTuService {
         List<Product> products = new ArrayList<>();
 
         String act = "GetShopList";
-        Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1", "15", companyId, act), COOKIE);
+        Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1", "15", act), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i), "15", companyId, act), COOKIE);
+                res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i), "15", act), COOKIE);
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -556,12 +604,26 @@ public class ZhongTuService {
 
     }
 
-    private List<BasicNameValuePair> getParams(String page, String rows, String GroupID, String act) {
+    private List<BasicNameValuePair> getBillParams(String page, String rows, String act) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("act", act));
+        params.add(new BasicNameValuePair("page", page));
+        params.add(new BasicNameValuePair("btime", btime));
+        params.add(new BasicNameValuePair("etime", etime));
+        params.add(new BasicNameValuePair("rows", rows));
+        params.add(new BasicNameValuePair("groupId", groupId));
+        params.add(new BasicNameValuePair("paymentId", "-1"));
+        params.add(new BasicNameValuePair("businessId", "-1"));
+        return params;
+    }
+
+
+    private List<BasicNameValuePair> getParams(String page, String rows, String act) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("act", act));
         params.add(new BasicNameValuePair("page", page));
         params.add(new BasicNameValuePair("rows", rows));
-        params.add(new BasicNameValuePair("GroupID", GroupID));
+        params.add(new BasicNameValuePair("GroupID", groupId));
         return params;
     }
 

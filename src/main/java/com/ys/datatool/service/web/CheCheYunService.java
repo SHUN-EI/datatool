@@ -47,7 +47,7 @@ public class CheCheYunService {
     private String beginDate = "2001-01-01";
 
     //当前抓取日期
-    private String endDate = "2018-10-16";
+    private String endDate = "2018-10-19" ;
 
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
@@ -75,6 +75,7 @@ public class CheCheYunService {
      */
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException {
+
         List<Bill> bills = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
 
