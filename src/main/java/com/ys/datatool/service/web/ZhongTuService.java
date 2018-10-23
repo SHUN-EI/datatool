@@ -167,10 +167,16 @@ public class ZhongTuService {
                     bill.setServiceItemNames(serviceItemNames);
                     bill.setGoodsNames(goodsNames);
                     billMap.put(billNo, bill);
-                    bills.add(bill);
                 }
             }
         }
+
+        if (billMap.size() > 0) {
+            billMap.entrySet().forEach(b -> {
+                bills.add(b.getValue());
+            });
+        }
+
 
         System.out.println("页数为" + totalPage);
 
