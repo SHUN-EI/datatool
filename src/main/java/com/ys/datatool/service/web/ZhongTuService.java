@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -26,6 +27,8 @@ import java.util.*;
  */
 @Service
 public class ZhongTuService {
+
+    private String BILLITEM_URL = "http://crm.xmheigu.com/Boss/Finance/Service/GetPartsDetailed.ashx";
 
     private String BILL_URL = "http://crm.xmheigu.com/Boss/Finance/Service/GetBillsTable.ashx";
 
@@ -79,7 +82,7 @@ public class ZhongTuService {
     private String btime = "2001-01-01";
 
     //当前日期
-    private String etime = "2018-10-22";
+    private String etime = "2018-10-23";
 
     private String companyName = "众途";
 
@@ -95,6 +98,7 @@ public class ZhongTuService {
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
         Map<String, Bill> billMap = new HashMap<>();
+        Map<String, Bill> billItemMap = getBillItemData();
 
         String act = "GetData";
         Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getBillParams("1", "100", act), COOKIE);
@@ -110,20 +114,114 @@ public class ZhongTuService {
                     JsonNode element = it.next();
 
                     String billNo = element.get("OrderID").asText();
-
                     String carNumber = element.get("CarCode").asText();
                     String mileage = element.get("Themileage").asText();
+                    String remark = element.get("ItemRemark").asText();
+                    String receptionistName = element.get("Adviser").asText();
+                    String num = element.get("ProNum").asText();
+                    String unitPrice = element.get("ProPrice").asText();
 
+                    String dateEnd = element.get("SettlementTime").asText();
+                    dateEnd = DateUtil.formatDateTime2Date(dateEnd);
 
+                    String totalAmountStr = element.get("ProSum").asText();
+                    String serviceItemNames = element.get("ProductName").asText();
+                    serviceItemNames = serviceItemNames + "*" + totalAmountStr;
 
+                    //汇总项目
+                    if (billMap.size() > 0 && null != billMap.get(billNo)) {
+                        Bill b = billMap.get(billNo);
 
+                        if (null != b.getServiceItemNames() && !"".equals(serviceItemNames)) {
+                            serviceItemNames = b.getServiceItemNames() + "," + serviceItemNames;
+                        }
+                    }
 
+                    //计算单据总价
+                    BigDecimal sum = element.get("ProSum").decimalValue();
+                    if (billMap.size() > 0 && null != billMap.get(billNo)) {
+                        Bill b = billMap.get(billNo);
+                        String totalPriceStr = b.getTotalAmount();
+                        BigDecimal totalPrice = new BigDecimal(totalPriceStr);
+                        sum = sum.add(totalPrice);
+                        sum.setScale(2, BigDecimal.ROUND_HALF_UP);
+                        totalAmountStr = sum.toString();
+                    }
+
+                    //获取配件
+                    String goodsNames = "";
+                    if (null != billItemMap.get(billNo)) {
+                        Bill b = billItemMap.get(billNo);
+                        goodsNames = b.getGoodsNames();
+                    }
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setCarNumber(CommonUtil.formatString(carNumber));
+                    bill.setMileage(CommonUtil.formatString(mileage));
+                    bill.setRemark(CommonUtil.formatString(remark));
+                    bill.setReceptionistName(CommonUtil.formatString(receptionistName));
+                    bill.setTotalAmount(totalAmountStr);
+                    bill.setDateEnd(dateEnd);
+                    bill.setServiceItemNames(serviceItemNames);
+                    bill.setGoodsNames(goodsNames);
+                    billMap.put(billNo, bill);
+                    bills.add(bill);
                 }
             }
         }
 
         System.out.println("页数为" + totalPage);
 
+        String pathname = "C:\\exportExcel\\众途历史消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+
+    }
+
+    private Map<String, Bill> getBillItemData() throws IOException {
+        Map<String, Bill> billItemMap = new HashMap<>();
+
+        String act = "GetData";
+        Response response = ConnectionUtil.doPostWithLeastParams(BILLITEM_URL, getBillItemParams("1", "100", act), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParams(BILLITEM_URL, getBillItemParams(String.valueOf(i), "100", act), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("OrderID").asText();
+                    String num = element.get("Num").asText();
+                    String totalAmountStr = element.get("Amount").asText();
+                    totalAmountStr = totalAmountStr.replace("-", "");
+                    String unitPrice = element.get("Cost").asText();
+
+                    String goodsNames = element.get("ProductName").asText();
+                    goodsNames = goodsNames + "*" + totalAmountStr;
+
+                    //汇总配件
+                    if (billItemMap.size() > 0 && null != billItemMap.get(billNo)) {
+                        Bill b = billItemMap.get(billNo);
+
+                        if (null != b.getGoodsNames() && !"".equals(goodsNames)) {
+                            goodsNames = b.getGoodsNames() + "," + goodsNames;
+                        }
+                    }
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setGoodsNames(goodsNames);
+                    billItemMap.put(billNo, bill);
+                }
+            }
+        }
+
+        return billItemMap;
     }
 
     /**
@@ -334,7 +432,6 @@ public class ZhongTuService {
     @Test
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
-        Map<String, CarInfo> carInfoMap = new HashMap<>();
 
         String act = "";
         Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams("1", "20", act), COOKIE);
@@ -359,41 +456,34 @@ public class ZhongTuService {
 
                     CarInfo carInfo = new CarInfo();
                     carInfo.setCompanyName(companyName);
-                    carInfo.setCarNumber(carNumber);
-                    carInfo.setName(name);
-                    carInfo.setPhone(phone);
-                    carInfo.setBrand(brand);
-                    carInfo.setCarModel(carModel);
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(phone));
+                    carInfo.setBrand(CommonUtil.formatString(brand));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+
                     carInfo.setCarId(carId);
-                    carInfoMap.put(carId, carInfo);
+                    List<BasicNameValuePair> params = new ArrayList<>();
+                    params.add(new BasicNameValuePair("Type", "Customer"));
+                    params.add(new BasicNameValuePair("ID", carId));
+
+                    Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, params, COOKIE);
+                    JsonNode content = MAPPER.readTree(response.returnContent().asString());
+
+                    JsonNode data = content.get(0);
+                    String VINCode = data.get("CarFrame").asText();
+                    String engineNumber = data.get("CarEngineNo").asText();
+                    String vcInsuranceCompany = data.get("BaoXianGs").asText();
+
+                    String vcInsuranceValidDateStr = data.get("InsuranceDate").asText();
+                    String vcInsuranceValidDate = CommonUtil.formatString(vcInsuranceValidDateStr);
+
+                    carInfo.setVINcode(CommonUtil.formatString(VINCode));
+                    carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                    carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
+                    carInfo.setVcInsuranceValidDate(DateUtil.formatSQLDate(vcInsuranceValidDate));
+                    carInfos.add(carInfo);
                 }
-            }
-        }
-
-        if (carInfoMap.size() > 0) {
-            for (String carId : carInfoMap.keySet()) {
-
-                List<BasicNameValuePair> params = new ArrayList<>();
-                params.add(new BasicNameValuePair("Type", "Customer"));
-                params.add(new BasicNameValuePair("ID", carId));
-
-                Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
-
-                JsonNode data = result.get(0);
-                String VINCode = data.get("CarFrame").asText();
-                String engineNumber = data.get("CarEngineNo").asText();
-                String vcInsuranceCompany = data.get("BaoXianGs").asText();
-
-                String vcInsuranceValidDateStr = data.get("InsuranceDate").asText();
-                String vcInsuranceValidDate = CommonUtil.formatString(vcInsuranceValidDateStr);
-
-                CarInfo carInfo = carInfoMap.get(carId);
-                carInfo.setVINcode(CommonUtil.formatString(VINCode));
-                carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
-                carInfo.setVcInsuranceCompany(CommonUtil.formatString(vcInsuranceCompany));
-                carInfo.setVcInsuranceValidDate(DateUtil.formatSQLDate(vcInsuranceValidDate));
-                carInfos.add(carInfo);
             }
         }
 
@@ -602,6 +692,19 @@ public class ZhongTuService {
         }
 
 
+    }
+
+    private List<BasicNameValuePair> getBillItemParams(String page, String rows, String act) {
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("act", act));
+        params.add(new BasicNameValuePair("page", page));
+        params.add(new BasicNameValuePair("keyword", ""));
+        params.add(new BasicNameValuePair("type", "0"));
+        params.add(new BasicNameValuePair("btime", btime));
+        params.add(new BasicNameValuePair("etime", etime));
+        params.add(new BasicNameValuePair("rows", rows));
+        params.add(new BasicNameValuePair("groupId", groupId));
+        return params;
     }
 
     private List<BasicNameValuePair> getBillParams(String page, String rows, String act) {

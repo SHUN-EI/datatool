@@ -425,7 +425,8 @@ public class DateUtil {
     }
 
     /**
-     * 日期转换(yyyy/MM/dd HH:mm:ss转换为yyyy/MM/dd)
+     * 日期转换(yyyy/MM/dd HH:mm:ss,yyyy-MM-dd HH:mm转换为yyyy/MM/dd)
+     *
      * @param dateStr
      * @return
      */
@@ -434,7 +435,7 @@ public class DateUtil {
             return "";
         }
 
-        return dateStr.substring(0,10);
+        return dateStr.replace("-", "/").substring(0, 10);
     }
 
     /**
@@ -452,7 +453,7 @@ public class DateUtil {
         Date date = new Date();
         date.setTime(Long.parseLong(millisecond));
         String result = simpleDateFormat.format(date);
-        return result.substring(0, 10).replace("-","/");
+        return result.substring(0, 10).replace("-", "/");
     }
 
     /**
