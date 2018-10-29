@@ -36,10 +36,16 @@ public class CheMoShiService {
 
     private String trRegEx = "#list-con > div.main_con > table > tbody:nth-child(2) > tr";
 
+    private String companyName = "车魔师";
+
     //获取数据的令牌
     private String COOKIE = "CUSGRID_CvtList_SortCol=; CUSGRID_CvtList_SortColName=; CUSGRID_CvtList_SortWay=; CUSGRID_CvtList_PageIndex=1; JSESSIONID=abcikm3byYXha7q7HAdsw; ROUTEID=.traf94; username=13531100432; ET=WEB";
 
 
+    /**
+     * 服务项目
+     * @throws IOException
+     */
     @Test
     public void fetchServiceData() throws IOException {
         List<Product> products = new ArrayList<>();
@@ -96,8 +102,6 @@ public class CheMoShiService {
                 }
             }
         }
-
-        String a = "";
 
         String pathname = "C:\\exportExcel\\车魔师服务导出.xlsx";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);

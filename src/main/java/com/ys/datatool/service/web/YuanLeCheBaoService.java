@@ -95,15 +95,15 @@ public class YuanLeCheBaoService {
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)、86(宜章财君)
      */
-    private String companyId = "86";
+    private String companyId = "287";
 
     /**
      * 分店编号-shopBranchId：
      * 146(路胜通汽车)、298(摩范汽车)、100(宜章财君)
      */
-    private String shopBranchId = "100";
+    private String shopBranchId = "303";
 
-    private String COOKIE = "JSESSIONID=3ADF28611EDCFF61C892E784D350B3E6; usfl=R4rtlTGQtKVjr7F03LW; lk=9cff794eff68389c379ccbd8425b9a5e";
+    private String COOKIE = "JSESSIONID=1CAC58D28C4E3A74B3EB9B5DB5B5D996; usfl=R4rtlTGQtKVjr7F03LW; lk=307400b9b86881b61bd61ecce4a5ae60";
 
     @Test
     public void test() throws Exception {
@@ -164,8 +164,13 @@ public class YuanLeCheBaoService {
                     String dateEnd = element.get("orderTime").asText();
                     dateEnd = DateUtil.formatSQLDateTime(dateEnd);
 
-                    String name = element.get("userName").asText();
-                    String phone = element.get("mobile").asText();
+                    String name = "";
+                    if (element.get("userName") != null)
+                        name = element.get("userName").asText();
+
+                    String phone = "";
+                    if (element.get("mobile") != null)
+                        phone = element.get("mobile").asText();
 
                     Bill bill = new Bill();
                     bill.setBillNo(billNo);
@@ -1218,7 +1223,8 @@ public class YuanLeCheBaoService {
         return params;
     }
 
-    private List<BasicNameValuePair> getCarInfoDetailParams(String userName, String userId, String carArea, String carNum, String mobile) {
+    private List<BasicNameValuePair> getCarInfoDetailParams(String userName, String userId, String carArea, String
+            carNum, String mobile) {
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("shopId", companyId));//车店编号
         params.add(new BasicNameValuePair("staffId", "1649"));
@@ -1261,7 +1267,8 @@ public class YuanLeCheBaoService {
         return url;
     }
 
-    private int getTotalPage(String url, List<BasicNameValuePair> params, String regEx, String replaceRegEx) throws IOException {
+    private int getTotalPage(String url, List<BasicNameValuePair> params, String regEx, String replaceRegEx) throws
+            IOException {
         Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
         String html = response.returnContent().asString(charset);
         Document doc = Jsoup.parse(html);
