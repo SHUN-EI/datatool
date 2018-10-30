@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mo on @date  2018/4/27.
@@ -26,6 +30,11 @@ public class TransformTool {
 
     private String companyName = "车店";
 
+    /**
+     * 根据单据和单据明细表合并成历史消费记录表
+     *
+     * @throws IOException
+     */
     @Test
     public void formatBillExcelData() throws IOException {
         List<Bill> bills = new ArrayList<>();
@@ -208,6 +217,78 @@ public class TransformTool {
 
     }
 
+
+    /**
+     * 根据单据明细表计算单据总金额得到单据表
+     *
+     * @throws IOException
+     */
+    @Test
+    public void countBillTotalAmountExcelData() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        Map<String, Bill> billMap = new HashMap<>();
+
+        File billDetailFile = new File("C:\\exportExcel\\单据明细.xls");
+
+        FileInputStream billDetailStream = new FileInputStream(billDetailFile);
+        HSSFWorkbook billDetailWorkbook = new HSSFWorkbook(billDetailStream);
+        HSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
+
+        int billNoNum = 0;
+        int totalAmountNum = 0;
+        for (Cell cell : billDetailSheet.getRow(0)) {
+            if (cell.getCellTypeEnum() == CellType.STRING) {
+                String content = cell.getRichStringCellValue().getString().trim();
+
+                if (ExcelDatas.billNoName.equals(content))
+                    billNoNum = cell.getColumnIndex();
+
+                if (ExcelDatas.totalAmountName.equals(content))
+                    totalAmountNum = cell.getColumnIndex();
+            }
+        }
+
+        for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
+            HSSFRow row = billDetailSheet.getRow(i);
+
+            System.out.println("----------------------------------第" + i + "行----------------------------------------------");
+
+            String billNo = "";
+            String totalAmount = "";
+
+            billNo = row.getCell(billNoNum).toString();
+
+            if (totalAmountNum != 0)
+                totalAmount = getCell(row, totalAmountNum, totalAmount);
+
+            //计算单据总价
+            BigDecimal sum = new BigDecimal(totalAmount);
+            if (billMap.size() > 0 && billMap.get(billNo) != null) {
+                Bill b = billMap.get(billNo);
+                String totalPriceStr = b.getTotalAmount();
+                BigDecimal totalPrice = new BigDecimal(totalPriceStr);
+                sum = sum.add(totalPrice);
+                sum.setScale(2, BigDecimal.ROUND_HALF_UP);
+                totalAmount = sum.toString();
+            }
+
+            Bill bill = new Bill();
+            bill.setBillNo(billNo);
+            bill.setCompanyName(companyName);
+            bill.setTotalAmount(totalAmount);
+            billMap.put(billNo, bill);
+        }
+
+        if (billMap.size() > 0) {
+            billMap.entrySet().forEach(b -> {
+                bills.add(b.getValue());
+            });
+        }
+
+        String pathname = "C:\\exportExcel\\单据.xls";
+        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+
+    }
 
     private String getCell(HSSFRow row, int num, String result) {
 
