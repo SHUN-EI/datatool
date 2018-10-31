@@ -60,14 +60,11 @@ public class ZhangShangCheDianService {
     //查询出库单方法传参
     private String stockOutMethod = "60201";
 
-    private String beginDate = "2008-01-01";
-
-    //当前抓取日期
-    private String endDate = "2018-10-12";
+    private String beginDate = "2001-01-01";
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=603C8980AA3A08263B2C1C2F445D71D4; Hm_lvt_678c2a986264dd9650b6a59042718858=1538295137,1539072316; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImNjMzYxYzE3LTk0ZGEtNDg1Yi05NDBlLWQxNDkwYzhmMzE1NiIsImV4cCI6MTUzOTE1ODcxNywibmJmIjoxNTM5MDcyMzE3LCJzdG9yZUlkIjoiNzA0YWU4NTMtYTg4Zi00MDE0LTkzZmEtNWJiYjc1NThmYmU3IiwidXNlclR5cGUiOiIwIn0.10_OwIYZMlgBe3zxhzDJJQXa-q_OpDKZ6gc2dBJ7ZQyCixNwtaZXKdGDKw5PI3ecXTPBRk4Rz25NeC4anbEyjA; Hm_lpvt_678c2a986264dd9650b6a59042718858=1539072638; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1539072639|1539071924";
+    private String COOKIE = "JSESSIONID=7F9B9CFB7C9BAF9AE79ED98DFF96AA34; Hm_lvt_678c2a986264dd9650b6a59042718858=1539072316,1539574485,1540960547; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjkwMWU0M2MwLWVkMzgtNDViZC04YmFjLTAzYWU0MTZiYTk0NiIsImV4cCI6MTU0MTA0Njk0NywibmJmIjoxNTQwOTYwNTQ3LCJzdG9yZUlkIjoiNDhkNjdiNWItZTFjNC00NjI0LWE4ODctYjQ0Y2NjNjM4NjIyIiwidXNlclR5cGUiOiIwIn0.QtSvWub7qw-bNHPYIswFn323Aq1w26dBBWJDFLYAbTSSz02cz-x7mLwjQsbVRcCUaZmcDOx6pxrqdH640bDwoA; SERVERID=b810ac6d9315e3be005b170045c65755|1540960569|1540960251; Hm_lpvt_678c2a986264dd9650b6a59042718858=1540960568";
 
 
     @Test
@@ -761,7 +758,7 @@ public class ZhangShangCheDianService {
                 "\"status\":" + 1 + "," +
                 "\"getCount\":" + false + "," +
                 "\"beginDate\":" + "\"" + beginDate + "\"" + "," +
-                "\"endDate\":" + "\"" + endDate + "\"" + "," +
+                "\"endDate\":" + "\"" +  DateUtil.formatCurrentDate() + "\"" + "," +
                 "\"searchStoreId\":" + "\"\"" + "," +
                 "\"suspendedStatusStr\":" + suspendedStatusStr + "," +
                 "\"sort\":" + 0 + "}";
@@ -778,7 +775,7 @@ public class ZhangShangCheDianService {
                 "\"status\":" + 10 + "," +
                 "\"getCount\":" + false + "," +
                 "\"beginDate\":" + "\"" + beginDate + "\"" + "," +
-                "\"endDate\":" + "\"" + endDate + "\"" + "," +
+                "\"endDate\":" + "\"" + DateUtil.formatCurrentDate() + "\"" + "," +
                 "\"searchStoreId\":" + "\"\"" + "," +
                 "\"sort\":" + 0 + "}";
 

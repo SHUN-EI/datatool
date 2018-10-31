@@ -50,9 +50,8 @@ public class ZhongYiZhiLianService {
 
     private int num = 20;//分页参数为10、15、20、25
 
-    private String begintime = "2011-01-01";
+    private String begintime = "2001-01-01";
 
-    private String endtime = "2018-05-31";
 
     /**
      * 家喻汽车集团各店(12间)
@@ -73,8 +72,7 @@ public class ZhongYiZhiLianService {
 
     private String companyName = "中易智联";
 
-    private String COOKIE = "_uab_collina=153205459358668378190893; acw_tc=AQAAAPzfYiHJTwYA2blvcVnldZ1d8ZiS; spellName=; ASP.NET_SessionId=4g2x31hvhk5lq0kalq4m1iy3; SysType=0; u_asec=099%23KAFEhEEKE74EJETLEEEEEpEQz0yFD6DFDc3qC60TZcLEW6gTSXiEG60TZXL5E7EFlllbrmQTEE7EERpCjYFET%2FdosyaStqMTEhdEvRIu%2FqYWcTZB95esCR4B3R07Fps1HshnPvZ1UfIWPs2CivZ0lRMAbL4H1OOybspBpEep%2FtWabe7nCGrbAwUWcTDt9yy0ry4B3ED7OfoZHshnwBZBQO4WPsMRi%2FrZbOMAb4QHPfrGbspBTFZGDiabE7EUlllP%2F3iSllllluLSt37FX9llWsaStEgtlllO%2F3iS16allurdt37InHGTEELlluaMIHGkKcQTEEMFluutG%2FBUE7TxE1rWEFy8B1Aa3mvkqUYlqaqQiMQuVi5ZRJ9yk8lDqwP%2BM6A0puEWoZjDB0ANtkj2qHA3kmwNB1b%2B0IYRyUQGBwD4DYAkl%2BKSI%2BCoiZWcqHGl69QTEEjtBKlV";
-
+    private String COOKIE = "_uab_collina=154096157034755864867124; acw_tc=781bad0915403517135157114e27c8c975d2896a196d44e60b8dba8ca355f9; spellName=; ASP.NET_SessionId=f2jd2q0za34xl4zmophdsvza; SysType=0; u_asec=099%23KAFE%2BYEKEcSEhGTLEEEEEpEQz0yFD6zhZcsFD6gEDXiIW6zHZXL4Z60HD67TEEiStEE7WEFE5YTl2EThQL4Wqifq1nZW2h5YqqsM2e04IwFQLzArUBjayC1oiZWc6NGd062qm%2FPP0ht8JjUSVL7ncieqawvYRJfr2T4IcWgdphQbJobWsJSGpi%2FbE7EUt3illuZdt3iStTEfsyaZO3iSH3lP%2F3XBt375luZdtdlStTilsyanaDGTEELStE1mKorR%2BcQTEEyZtY7EZUahE7TiETXCuOaIcLYfNnDprd%2BVHaCZ5T1rGgXAPs0tYeJxcOXZb4VtNupVcOXZ1SssbLoCbLaqaWw7J0XBqMZczQ4dPLZd5qnW8yXZNWMpwRemzwoCbPThE7Eht3alluZdlYFETKxqAjHXE7EFEE1CbY%3D%3D";
 
     /**
      * 卡内项目
@@ -437,7 +435,7 @@ public class ZhongYiZhiLianService {
 
         if (stocks.size() > 0) {
             for (Stock stock : stocks) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams(shopId, begintime, endtime, stock.getBarCode()), COOKIE);
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKCOST_URL, getStockCostParams(shopId, begintime, DateUtil.formatCurrentDate(), stock.getBarCode()), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
                 String cost = result.get(0).get("COSTPRICE").asText();

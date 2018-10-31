@@ -81,12 +81,9 @@ public class ZhongTuService {
 
     private String btime = "2001-01-01";
 
-    //当前日期
-    private String etime = "2018-10-23";
-
     private String companyName = "众途";
 
-    private String COOKIE = "ASP.NET_SessionId=j1ip4zeffwaerjctjbczsozi; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=YJWelm6Yb9U=&CSID=YJWelm6Yb9U=&UserName=3uLp7ZTjgZW6OssgsPootw==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+    private String COOKIE = "ASP.NET_SessionId=qqlpvkda02kf5owagjknxc1e; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=YJWelm6Yb9U=&CSID=YJWelm6Yb9U=&UserName=3uLp7ZTjgZW6OssgsPootw==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
 
 
     /**
@@ -239,7 +236,7 @@ public class ZhongTuService {
     public void fetchMemberCardItemDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        fetchServiceData(products, productMap);
+        getServiceData(products, productMap);
 
         WebClient webClient = WebClientUtil.getWebClient();
         getAllPages(webClient, MEMBERCARDITEM_URL);
@@ -508,7 +505,7 @@ public class ZhongTuService {
      */
     @Test
     public void fetchServiceDataStandard() throws IOException {
-        fetchServiceData(products, productMap);
+        getServiceData(products, productMap);
 
         System.out.println("结果为" + products.toString());
         System.out.println("结果为" + products.size());
@@ -655,7 +652,7 @@ public class ZhongTuService {
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
-    private void fetchServiceData(List<Product> products, Map<String, Product> productMap) throws IOException {
+    private void getServiceData(List<Product> products, Map<String, Product> productMap) throws IOException {
         WebClient webClient = WebClientUtil.getWebClient();
         getAllPages(webClient, SERVICE_URL);
 
@@ -707,7 +704,7 @@ public class ZhongTuService {
         params.add(new BasicNameValuePair("keyword", ""));
         params.add(new BasicNameValuePair("type", "0"));
         params.add(new BasicNameValuePair("btime", btime));
-        params.add(new BasicNameValuePair("etime", etime));
+        params.add(new BasicNameValuePair("etime", DateUtil.formatCurrentDate()));
         params.add(new BasicNameValuePair("rows", rows));
         params.add(new BasicNameValuePair("groupId", groupId));
         return params;
@@ -718,7 +715,7 @@ public class ZhongTuService {
         params.add(new BasicNameValuePair("act", act));
         params.add(new BasicNameValuePair("page", page));
         params.add(new BasicNameValuePair("btime", btime));
-        params.add(new BasicNameValuePair("etime", etime));
+        params.add(new BasicNameValuePair("etime", DateUtil.formatCurrentDate()));
         params.add(new BasicNameValuePair("rows", rows));
         params.add(new BasicNameValuePair("groupId", groupId));
         params.add(new BasicNameValuePair("paymentId", "-1"));

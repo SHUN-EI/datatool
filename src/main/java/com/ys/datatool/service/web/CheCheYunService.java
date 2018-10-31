@@ -46,13 +46,10 @@ public class CheCheYunService {
 
     private String beginDate = "2001-01-01";
 
-    //当前抓取日期
-    private String endDate = "2018-10-19" ;
-
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
             "&date_end=" +
-            endDate +
+            DateUtil.formatCurrentDate() +
             "&get_stat=1&limit=200&order=DESC&sort=date_added&substore_id=1&page=";
 
     private String BILLDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&id=";
@@ -65,7 +62,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=8kjaql27y3pxaa5IhtOsggjv79bX; PHPSESSID=5chtgjvrhn1v7cajoqsen4am66; ccwk_backend_tracking=5chtgjvrhn1v7cajoqsen4am66-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1539939660; SERVERID=03485b53178f0de6cfb6b08218d57da6|1539941775|1539939551";
+    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=7mu76drc8sifr391padoptn1s4; ccwk_backend_tracking=7mu76drc8sifr391padoptn1s4-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069,1540960001; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1540960007; SERVERID=03485b53178f0de6cfb6b08218d57da6|1540960033|1540959986";
 
 
     /**

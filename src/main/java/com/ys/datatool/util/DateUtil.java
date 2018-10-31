@@ -146,7 +146,7 @@ public class DateUtil {
     }
 
     /**
-     * 获取当前时间
+     * 获取当前日期时间(yyyy-MM-dd)
      *
      * @return
      */
@@ -155,7 +155,7 @@ public class DateUtil {
     }
 
     /**
-     * 获取当前时间
+     * 获取当前日期时间(yyyy-MM-dd HH:mm:ss)
      *
      * @return
      */
