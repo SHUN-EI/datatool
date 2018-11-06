@@ -129,13 +129,7 @@ public class TransformTool {
 
             if (dateEndNum != 0) {
                 dateEndStr = getCell(row, dateEndNum, dateEndStr);
-
-                if (dateEndStr.contains("/"))
-                    dateEndStr = DateUtil.formatDateTime2Date(dateEndStr);
-
-                if (dateEndStr.contains("-"))
-                    dateEndStr = DateUtil.formatDateTime2Date(dateEndStr.replace("-", "/"));
-
+                dateEndStr = DateUtil.formatDateTime2Date(dateEndStr);
             }
 
             Bill bill = new Bill();
