@@ -287,6 +287,7 @@ public class TransformTool {
 
         String pathname = "C:\\exportExcel\\单据.xls";
         ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        System.out.println("--------------------------------------单据总金额计算完成---------------------------------------------------");
 
     }
 
