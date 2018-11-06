@@ -46,8 +46,6 @@ public class WuYiCheGuanJiaService {
 
     private String startDate = "2005-01-01";
 
-    private String endDate = "2018-09-03";
-
     private String companyName = "51车管家";
 
     private String storeId = "100675";
@@ -91,13 +89,13 @@ public class WuYiCheGuanJiaService {
                     JsonNode element = it.next();
 
 
-                    String productName=element.get("prodName").asText();
-                    String brandName=element.get("brandName").asText();
-                    String barCode=element.get("barCode").asText();
-                    String price=element.get("salePrice").asText();
-                    String cost=element.get("purchasePrice").asText();//采购价
+                    String productName = element.get("prodName").asText();
+                    String brandName = element.get("brandName").asText();
+                    String barCode = element.get("barCode").asText();
+                    String price = element.get("salePrice").asText();
+                    String cost = element.get("purchasePrice").asText();//采购价
 
-                    Product product=new Product();
+                    Product product = new Product();
                     product.setCompanyName(companyName);
                     product.setBrandName(brandName);
                     product.setBarCode(barCode);
@@ -169,12 +167,12 @@ public class WuYiCheGuanJiaService {
             for (MemberCard memberCard : memberCards) {
 
                 //encode
-                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, 1, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
+                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, 1, 20, startDate, DateUtil.formatCurrentDate(), memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
                 int billDetailTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
                 if (billDetailTotalPage > 0) {
                     for (int i = 1; i <= billDetailTotalPage; i++) {
-                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, i, 20, startDate, endDate, memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
+                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, i, 20, startDate, DateUtil.formatCurrentDate(), memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
                         JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();
@@ -225,12 +223,12 @@ public class WuYiCheGuanJiaService {
             for (MemberCard memberCard : memberCards) {
 
                 //encode
-                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, 1, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
+                Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, 1, 20, startDate,  DateUtil.formatCurrentDate(), cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
                 int billTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
-                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, i, 20, startDate, endDate, cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
+                        res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, i, 20, startDate,  DateUtil.formatCurrentDate(), cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
                         JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();

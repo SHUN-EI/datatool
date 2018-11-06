@@ -36,14 +36,12 @@ public class IDianService {
 
     private String fromDate = "2003-01-01";
 
-    private String toDate = "2018-10-16";
-
     private String BILL_URL = "http://www.idsz.xin:7070/posapi_invoke" +
             "?apiname=saleorder_queryallfilter_new&" +
             "fromDate=" +
             fromDate +
             "&toDate=" +
-            toDate +
+            DateUtil.formatCurrentDate() +
             "&licensePlate=&userPhone=&billStatus=0&tpyes=0&orderTypes=0&rows=50&page=";
 
     private String CONSUMPTIONRECORD_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=sale_opensale_vieworderinfo_new";

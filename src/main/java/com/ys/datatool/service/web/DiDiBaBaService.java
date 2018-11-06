@@ -42,7 +42,7 @@ public class DiDiBaBaService {
 
     private Charset charset = Charset.forName("UTF-8");
 
-    private String companyName = "非凡尚品汽车美容养护中心";
+    private String companyName = "DiDiBaBa系统";
 
     private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; pageNo=1; listPageUrl=/ctm/cardmanage";
 
