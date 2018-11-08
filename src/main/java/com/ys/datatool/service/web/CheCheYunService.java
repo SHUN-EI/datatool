@@ -233,7 +233,7 @@ public class CheCheYunService {
 
         String pathname = "C:\\exportExcel\\车车云消费记录.xls";
         String pathname2 = "C:\\exportExcel\\车车云消费记录-明细.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
         ExportUtil.exportBillDetailDataInLocal(billDetails, ExcelDatas.workbook, pathname2);
     }
 

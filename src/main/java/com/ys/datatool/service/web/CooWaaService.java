@@ -135,7 +135,7 @@ public class CooWaaService {
         System.out.println("结果为" + bills.toString());
 
         String pathname = "C:\\exportExcel\\酷蛙快修消费记录.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
 
     }
 

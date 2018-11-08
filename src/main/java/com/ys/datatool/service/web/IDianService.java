@@ -208,7 +208,7 @@ public class IDianService {
 
         String pathname = "C:\\exportExcel\\i店消费记录.xls";
         String pathname2 = "C:\\exportExcel\\i店消费记录-车辆.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
 
     }

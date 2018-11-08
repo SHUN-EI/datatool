@@ -176,7 +176,7 @@ public class DianDianYangCheService {
 
         System.out.println("结果为" + bills.toString());
         String pathname = "C:\\exportExcel\\典典养车消费记录.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
     }
 
     /**

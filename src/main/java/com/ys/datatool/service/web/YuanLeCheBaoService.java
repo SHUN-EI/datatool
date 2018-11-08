@@ -211,7 +211,7 @@ public class YuanLeCheBaoService {
 
         String pathname = "C:\\exportExcel\\元乐车宝消费记录.xls";
         String pathname2 = "C:\\exportExcel\\元乐车宝记录-车辆.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
     }
 

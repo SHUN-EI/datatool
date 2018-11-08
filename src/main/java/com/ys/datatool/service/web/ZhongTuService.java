@@ -178,7 +178,7 @@ public class ZhongTuService {
         System.out.println("页数为" + totalPage);
 
         String pathname = "C:\\exportExcel\\众途历史消费记录.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
 
     }
 

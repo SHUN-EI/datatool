@@ -131,7 +131,7 @@ public class ZhangShangCheDianService {
         fetchBillData(bills, total5, "已失效");
 
         String pathname = "C:\\exportExcel\\掌上车店消费记录.xls";
-        ExportUtil.exportConsumptionRecordDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
     }
 
 
