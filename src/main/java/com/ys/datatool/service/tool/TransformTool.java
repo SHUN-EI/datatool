@@ -19,10 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018/4/27.
@@ -33,8 +30,115 @@ public class TransformTool {
 
     private String companyName = "车店";
 
+    private int billNoNum = 0;
+    private int dateEndNum = 0;
+    private int carNumberNum = 0;
+    private int mileageNum = 0;
+    private int serviceItemNameNum = 0;
+    private int goodsNameNum = 0;
+    private int totalAmountNum = 0;
+    private int receptionistNum = 0;
+    private int remarkNum = 0;
+
 
     //-------合并消费记录表，计算单据总金额程序(支持excel2007格式)---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    @Test
+    public void testExcelData() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        Map<String, Bill> billNoMap = new HashMap<>();
+
+        File billFile = new File("C:\\exportExcel\\单据.xlsx");
+        File billDetailFile = new File("C:\\exportExcel\\单据明细.xlsx");
+
+        FileInputStream billStream = new FileInputStream(billFile);
+        XSSFWorkbook billWorkbook = new XSSFWorkbook(billStream);
+        XSSFSheet billSheet = billWorkbook.getSheetAt(0);
+
+        FileInputStream billDetailStream = new FileInputStream(billDetailFile);
+        XSSFWorkbook billDetailWorkbook = new XSSFWorkbook(billDetailStream);
+        XSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
+
+
+        //获取指定表头所在位置
+        for (Cell cell : billSheet.getRow(0)) {
+            //cell.getCellType()==Cell.CELL_TYPE_STRING
+            if (cell.getCellTypeEnum() == CellType.STRING) {
+                String content = cell.getRichStringCellValue().getString().trim();
+
+                if (ExcelDatas.billNoName.equals(content))
+                    billNoNum = cell.getColumnIndex();
+
+                if (ExcelDatas.dateEndName.equals(content))
+                    dateEndNum = cell.getColumnIndex();
+
+                if (ExcelDatas.carNumberName.equals(content))
+                    carNumberNum = cell.getColumnIndex();
+
+                if (ExcelDatas.serviceItemName.equals(content))
+                    serviceItemNameNum = cell.getColumnIndex();
+
+                if (ExcelDatas.mileageName.equals(content))
+                    mileageNum = cell.getColumnIndex();
+
+                if (ExcelDatas.goodsName.equals(content))
+                    goodsNameNum = cell.getColumnIndex();
+
+                if (ExcelDatas.totalAmountName.equals(content))
+                    totalAmountNum = cell.getColumnIndex();
+
+                if (ExcelDatas.remarkName.equals(content))
+                    remarkNum = cell.getColumnIndex();
+
+                if (ExcelDatas.receptionistName.equals(content))
+                    receptionistNum = cell.getColumnIndex();
+            }
+        }
+
+        for (int i = 1; i <= billSheet.getLastRowNum(); i++) {
+            XSSFRow row = billSheet.getRow(i);
+
+            String billNo = "";
+            billNo = row.getCell(billNoNum).toString();
+            billNoMap.put(billNo, new Bill());
+        }
+
+
+        for (Cell cell : billDetailSheet.getRow(0)) {
+            if (cell.getCellTypeEnum() == CellType.STRING) {
+                String content = cell.getRichStringCellValue().getString().trim();
+
+                if (ExcelDatas.serviceItemName.equals(content))
+                    serviceItemNameNum = cell.getColumnIndex();
+
+                if (ExcelDatas.billNoName.equals(content))
+                    billNoNum = cell.getColumnIndex();
+
+                if (ExcelDatas.goodsName.equals(content))
+                    goodsNameNum = cell.getColumnIndex();
+            }
+        }
+
+        for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
+            XSSFRow row = billDetailSheet.getRow(i);
+
+            String billNo = "";
+            billNo = row.getCell(billNoNum).toString();
+
+            if (billNoMap.get(billNo) != null) {
+
+                Bill bill = billNoMap.get(billNo);
+                Set<String> billNoRows = bill.getBillNoRows();
+                billNoRows.add(String.valueOf(i));
+                bill.setBillNoRows(billNoRows);
+                billNoMap.put(billNo, bill);
+            }
+        }
+
+        System.out.println("结果为"+billNoMap.toString());
+        System.out.println("结果size为"+billNoMap.size());
+
+    }
 
 
     /**
@@ -58,15 +162,6 @@ public class TransformTool {
         XSSFWorkbook billDetailWorkbook = new XSSFWorkbook(billDetailStream);
         XSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
 
-        int billNoNum = 0;
-        int dateEndNum = 0;
-        int carNumberNum = 0;
-        int mileageNum = 0;
-        int serviceItemNameNum = 0;
-        int goodsNameNum = 0;
-        int totalAmountNum = 0;
-        int receptionistNum = 0;
-        int remarkNum = 0;
 
         //获取指定表头所在位置
         for (Cell cell : billSheet.getRow(0)) {
@@ -234,8 +329,6 @@ public class TransformTool {
         XSSFWorkbook billDetailWorkbook = new XSSFWorkbook(billDetailStream);
         XSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
 
-        int billNoNum = 0;
-        int totalAmountNum = 0;
         for (Cell cell : billDetailSheet.getRow(0)) {
             if (cell.getCellTypeEnum() == CellType.STRING) {
                 String content = cell.getRichStringCellValue().getString().trim();
@@ -314,16 +407,6 @@ public class TransformTool {
         FileInputStream billDetailStream = new FileInputStream(billDetailFile);
         HSSFWorkbook billDetailWorkbook = new HSSFWorkbook(billDetailStream);
         HSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
-
-        int billNoNum = 0;
-        int dateEndNum = 0;
-        int carNumberNum = 0;
-        int mileageNum = 0;
-        int serviceItemNameNum = 0;
-        int goodsNameNum = 0;
-        int totalAmountNum = 0;
-        int receptionistNum = 0;
-        int remarkNum = 0;
 
 
         //获取指定表头所在位置
@@ -494,8 +577,6 @@ public class TransformTool {
         HSSFWorkbook billDetailWorkbook = new HSSFWorkbook(billDetailStream);
         HSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
 
-        int billNoNum = 0;
-        int totalAmountNum = 0;
         for (Cell cell : billDetailSheet.getRow(0)) {
             if (cell.getCellTypeEnum() == CellType.STRING) {
                 String content = cell.getRichStringCellValue().getString().trim();

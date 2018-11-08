@@ -1,5 +1,8 @@
 package com.ys.datatool.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by mo on  2017/5/30.
  *
@@ -131,6 +134,19 @@ public class Bill {
      * 车型
      */
     private String carModel;
+
+    /**
+     * 单据号所在行数集合
+     */
+    private Set<String> billNoRows=new HashSet<>();
+
+    public Set<String> getBillNoRows() {
+        return billNoRows;
+    }
+
+    public void setBillNoRows(Set<String> billNoRows) {
+        this.billNoRows = billNoRows;
+    }
 
     public String getServiceItemNames() {
         return serviceItemNames;
