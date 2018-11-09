@@ -9,6 +9,9 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -43,8 +46,9 @@ public class TransformTool {
 
     //-------合并消费记录表，计算单据总金额程序(支持excel2007格式)---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
     @Test
-    public void testExcelData() throws IOException {
+    public void testExcelData2() throws IOException {
         List<Bill> bills = new ArrayList<>();
         Map<String, Bill> billNoMap = new HashMap<>();
 
@@ -135,8 +139,8 @@ public class TransformTool {
             }
         }
 
-        System.out.println("结果为"+billNoMap.toString());
-        System.out.println("结果size为"+billNoMap.size());
+        System.out.println("结果为" + billNoMap.toString());
+        System.out.println("结果size为" + billNoMap.size());
 
     }
 
@@ -153,15 +157,18 @@ public class TransformTool {
         Map<String, Bill> billMap = new HashMap<>();
 
         File billFile = new File("C:\\exportExcel\\单据.xlsx");
-        File billDetailFile = new File("C:\\exportExcel\\单据明细.xlsx");
         FileInputStream billStream = new FileInputStream(billFile);
         XSSFWorkbook billWorkbook = new XSSFWorkbook(billStream);
-        XSSFSheet billSheet = billWorkbook.getSheetAt(0);
+        SXSSFWorkbook billbook = new SXSSFWorkbook(billWorkbook, 200);
+        SXSSFSheet billSheet = billbook.getSheetAt(0);
 
+        File billDetailFile = new File("C:\\exportExcel\\单据明细.xlsx");
         FileInputStream billDetailStream = new FileInputStream(billDetailFile);
         XSSFWorkbook billDetailWorkbook = new XSSFWorkbook(billDetailStream);
-        XSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
+        SXSSFWorkbook billDetailbook = new SXSSFWorkbook(billDetailWorkbook, 200);
+        SXSSFSheet billDetailSheet = billDetailbook.getSheetAt(0);
 
+        long startTime = System.currentTimeMillis();
 
         //获取指定表头所在位置
         for (Cell cell : billSheet.getRow(0)) {
@@ -200,7 +207,7 @@ public class TransformTool {
 
 
         for (int i = 1; i <= billSheet.getLastRowNum(); i++) {
-            XSSFRow row = billSheet.getRow(i);
+            SXSSFRow row = billSheet.getRow(i);
 
             String billNo = "";
             String carNumber = "";
@@ -262,7 +269,7 @@ public class TransformTool {
         }
 
         for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
-            XSSFRow row = billDetailSheet.getRow(i);
+            SXSSFRow row = billDetailSheet.getRow(i);
 
             System.out.println("----------------------------------第" + i + "行----------------------------------------------");
 
@@ -303,11 +310,15 @@ public class TransformTool {
             }
         }
 
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+
         System.out.println("bills结果为" + bills.toString());
         System.out.println(" bills大小为" + bills.size());
 
         String pathname = "C:\\exportExcel\\历史消费记录.xlsx";
         ExportUtil.exportConsumptionRecordDataToExcel07InLocal(bills, ExcelDatas.workbook, pathname);
+        System.out.println("-------解析时长为-------" + totalTime / 1000 + "s");
         System.out.println("--------------------------------------历史消费记录解析成功---------------------------------------------------");
 
     }
@@ -324,10 +335,12 @@ public class TransformTool {
         Map<String, Bill> billMap = new HashMap<>();
 
         File billDetailFile = new File("C:\\exportExcel\\单据明细.xlsx");
-
         FileInputStream billDetailStream = new FileInputStream(billDetailFile);
         XSSFWorkbook billDetailWorkbook = new XSSFWorkbook(billDetailStream);
-        XSSFSheet billDetailSheet = billDetailWorkbook.getSheetAt(0);
+        SXSSFWorkbook billDetailbook = new SXSSFWorkbook(billDetailWorkbook, 200);
+        SXSSFSheet billDetailSheet = billDetailbook.getSheetAt(0);
+
+        long startTime = System.currentTimeMillis();
 
         for (Cell cell : billDetailSheet.getRow(0)) {
             if (cell.getCellTypeEnum() == CellType.STRING) {
@@ -342,7 +355,7 @@ public class TransformTool {
         }
 
         for (int i = 1; i <= billDetailSheet.getLastRowNum(); i++) {
-            XSSFRow row = billDetailSheet.getRow(i);
+            SXSSFRow row = billDetailSheet.getRow(i);
 
             System.out.println("----------------------------------第" + i + "行----------------------------------------------");
 
@@ -378,8 +391,12 @@ public class TransformTool {
             });
         }
 
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+
         String pathname = "C:\\exportExcel\\单据.xlsx";
         ExportUtil.exportConsumptionRecordDataToExcel07InLocal(bills, ExcelDatas.workbook, pathname);
+        System.out.println("-------解析时长为-------" + totalTime / 1000 + "s");
         System.out.println("--------------------------------------单据总金额计算完成---------------------------------------------------");
 
     }
@@ -632,7 +649,7 @@ public class TransformTool {
 
     }
 
-    private String getCell(XSSFRow row, int num, String result) {
+    private String getCell(SXSSFRow row, int num, String result) {
 
         Cell cell = row.getCell(num);
         if (cell != null) {
