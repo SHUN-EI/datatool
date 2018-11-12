@@ -474,6 +474,16 @@ public class WebClientUtil {
         }
     }
 
+    public static String getTotalPage(HtmlPage htmlPage) {
+        Document doc = Jsoup.parseBodyFragment(htmlPage.asXml());
+        String lastLabelRegEx = "(?<=\\<a href=).*(?= 尾页)";
+        String lastRegEx = "(?<=,').*(?=')";
+        String lastLabel = CommonUtil.fetchString(doc.toString(), lastLabelRegEx);
+        String total = CommonUtil.fetchString(lastLabel, lastRegEx);
+
+        return total;
+    }
+
     //获取总页数
     public static int getTotalPage(Response response, ObjectMapper mapper, String fieldName) throws IOException {
         JsonNode result = mapper.readTree(response.returnContent().asString());
@@ -540,16 +550,6 @@ public class WebClientUtil {
             if (StringUtils.isNotBlank(id))
                 ids.add(id);
         }
-    }
-
-    public static String getTotalPage(HtmlPage htmlPage) {
-        Document doc = Jsoup.parseBodyFragment(htmlPage.asXml());
-        String lastLabelRegEx = "(?<=\\<a href=).*(?= 尾页)";
-        String lastRegEx = "(?<=,').*(?=')";
-        String lastLabel = CommonUtil.fetchString(doc.toString(), lastLabelRegEx);
-        String total = CommonUtil.fetchString(lastLabel, lastRegEx);
-
-        return total;
     }
 
     public static int getTagSize(Document document, String regEx, String tagName) {
