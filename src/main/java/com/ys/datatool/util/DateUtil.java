@@ -438,6 +438,9 @@ public class DateUtil {
         if (dateStr.contains("-") && dateStr.length() > 9)
             dateStr = dateStr.replace("-", "/").substring(0, 10);
 
+        if (dateStr.contains("/") && dateStr.length() > 0)
+            dateStr = dateStr.substring(0, 10);
+
         return dateStr;
     }
 

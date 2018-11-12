@@ -2,18 +2,17 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ys.datatool.domain.Bill;
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -33,6 +32,10 @@ public class ZhiNengGongJiangService {
             dc +
             "&page=1&start=0&limit=25&memberId=";
 
+    private String BILLDETAIL_URL = "http://z1001.cn/order/queryOrderListByDept.atc?_dc=" +
+            dc +
+            "&page={no}&limit=500&start=";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private int num = 500;
@@ -43,6 +46,109 @@ public class ZhiNengGongJiangService {
 
     private String COOKIE = "JSESSIONID=B58B2EDE378DF0A30A56C96B5BFCA4E0; login.userName=%u97E9%u5609%u7EA2; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542005119";
 
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        Map<String, Bill> billMap = new HashMap<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", "1") + 0, COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+
+        if (totalPage > 0) {
+            int start = 0;
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                start = start + num;
+                Iterator<JsonNode> it = result.get("orderList").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("orderId").asText();
+                    String carNumber = element.get("carNumber").asText();
+
+                    String dateEnd = element.get("saleDate").asText();
+                    dateEnd = DateUtil.formatDateTime2Date(dateEnd);
+
+                    String num = element.get("number").asText();
+                    String price = element.get("price").asText();
+
+                    String itemName = element.get("goodsName").asText();
+                    itemName = itemName + "*" + num + "(" + price + ")";
+
+                    //计算单据总价
+                    if (billMap.size() > 0 && null != billMap.get(billNo)) {
+                        Bill b = billMap.get(billNo);
+
+                        String totalPriceStr = b.getTotalAmount();
+                        BigDecimal totalPrice = new BigDecimal(totalPriceStr);
+                        BigDecimal p = new BigDecimal(price);
+                        p = p.add(totalPrice);
+                        p.setScale(2, BigDecimal.ROUND_HALF_UP);
+                        price = p.toString();
+                    }
+
+                    Bill bill = new Bill();
+
+                    //goodsType 1-项目,2-商品
+                    int goodsType = element.get("goodsType").asInt();
+                    if (goodsType == 1) {
+
+                        //汇总项目
+                        if (billMap.size() > 0 && null != billMap.get(billNo)) {
+                            Bill b = billMap.get(billNo);
+
+                            if (null != b.getServiceItemNames() && !"".equals(itemName)) {
+                                itemName = b.getServiceItemNames() + "," + itemName;
+                            }
+                        }
+
+                        bill.setServiceItemNames(itemName);
+                    }
+
+                    if (goodsType == 2) {
+
+                        //汇总商品
+                        if (billMap.size() > 0 && null != billMap.get(billNo)) {
+                            Bill b = billMap.get(billNo);
+
+                            if (null != b.getGoodsNames() && !"".equals(itemName)) {
+                                itemName = b.getGoodsNames() + "," + itemName;
+                            }
+                        }
+
+                        bill.setGoodsNames(itemName);
+
+                    }
+
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setCarNumber(CommonUtil.formatString(carNumber));
+                    bill.setTotalAmount(price);
+                    bill.setDateEnd(dateEnd);
+                    billMap.put(billNo, bill);
+                }
+            }
+        }
+
+        if (billMap.size() > 0) {
+            billMap.entrySet().forEach(b -> {
+                bills.add(b.getValue());
+            });
+        }
+
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\智能工匠消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 车辆信息-标准模版导出
