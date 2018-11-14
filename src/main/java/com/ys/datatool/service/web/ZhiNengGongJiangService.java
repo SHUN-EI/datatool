@@ -44,8 +44,7 @@ public class ZhiNengGongJiangService {
 
     private String companyName = "智能工匠系统";
 
-    private String COOKIE = "JSESSIONID=B58B2EDE378DF0A30A56C96B5BFCA4E0; login.userName=%u97E9%u5609%u7EA2; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542005119";
-
+    private String COOKIE = "JSESSIONID=79CCEEE95E7099662AE4712A7CA657C8; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699,1542172931; login.userName=%u97E9%u5609%u7EA2; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542173869";
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -83,53 +82,54 @@ public class ZhiNengGongJiangService {
                     String itemName = element.get("goodsName").asText();
                     itemName = itemName + "*" + num + "(" + price + ")";
 
-                    //计算单据总价
+                    String serviceItemNames = "";
+                    String goodsNames = "";
+
+
+                    //goodsType 1-项目,2-商品
+                    int goodsType = element.get("goodsType").asInt();
+                    if (goodsType == 1)
+                        serviceItemNames = itemName;
+                    if (goodsType == 2)
+                        goodsNames = itemName;
+
                     if (billMap.size() > 0 && null != billMap.get(billNo)) {
                         Bill b = billMap.get(billNo);
 
+                        //计算单据总价
                         String totalPriceStr = b.getTotalAmount();
                         BigDecimal totalPrice = new BigDecimal(totalPriceStr);
                         BigDecimal p = new BigDecimal(price);
                         p = p.add(totalPrice);
                         p.setScale(2, BigDecimal.ROUND_HALF_UP);
                         price = p.toString();
+
+                        serviceItemNames = b.getServiceItemNames();
+                        if (goodsType == 1) {
+                            serviceItemNames = itemName;
+                            //汇总项目
+                            if (null != b.getServiceItemNames() && !"".equals(serviceItemNames)) {
+                                serviceItemNames = b.getServiceItemNames() + "," + serviceItemNames;
+                            }
+
+                        }
+
+                        goodsNames = b.getGoodsNames();
+                        if (goodsType == 2) {
+                            goodsNames = itemName;
+                            //汇总商品
+                            if (null != b.getGoodsNames() && !"".equals(goodsNames)) {
+                                goodsNames = b.getGoodsNames() + "," + goodsNames;
+                            }
+                        }
+
                     }
 
                     Bill bill = new Bill();
-
-                    //goodsType 1-项目,2-商品
-                    int goodsType = element.get("goodsType").asInt();
-                    if (goodsType == 1) {
-
-                        //汇总项目
-                        if (billMap.size() > 0 && null != billMap.get(billNo)) {
-                            Bill b = billMap.get(billNo);
-
-                            if (null != b.getServiceItemNames() && !"".equals(itemName)) {
-                                itemName = b.getServiceItemNames() + "," + itemName;
-                            }
-                        }
-
-                        bill.setServiceItemNames(itemName);
-                    }
-
-                    if (goodsType == 2) {
-
-                        //汇总商品
-                        if (billMap.size() > 0 && null != billMap.get(billNo)) {
-                            Bill b = billMap.get(billNo);
-
-                            if (null != b.getGoodsNames() && !"".equals(itemName)) {
-                                itemName = b.getGoodsNames() + "," + itemName;
-                            }
-                        }
-
-                        bill.setGoodsNames(itemName);
-
-                    }
-
                     bill.setBillNo(billNo);
                     bill.setCompanyName(companyName);
+                    bill.setServiceItemNames(serviceItemNames);
+                    bill.setGoodsNames(goodsNames);
                     bill.setCarNumber(CommonUtil.formatString(carNumber));
                     bill.setTotalAmount(price);
                     bill.setDateEnd(dateEnd);

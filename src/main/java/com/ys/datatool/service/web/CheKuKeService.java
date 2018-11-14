@@ -28,6 +28,8 @@ import java.util.Set;
 @Service
 public class CheKuKeService {
 
+    private String BILLDETAIL_URL="http://sa.chekuke.com/StatisticalCenter/ShopUserConsuRecordList.aspx";
+
     private String MEMBER_URL = "http://sa.chekuke.com/MemberManage/MemberList.aspx";
 
     private String BILL_URL = "http://sa.chekuke.com/Shop/ShopProjectOrderList.aspx";
@@ -54,10 +56,6 @@ public class CheKuKeService {
 
     private String BTNLOGIN = "btnLogin";
 
-    private String USERNAME = "s8161";
-
-    private String PASSWORD = "4721198";
-
     private String STATESELECT = "ddl_state";
 
     private String trMemberCardRegEx = "#card_tab > tbody > tr";
@@ -70,24 +68,56 @@ public class CheKuKeService {
 
     private List<HtmlPage> pages = new ArrayList();
 
-    private int count = 0;
-
-    private int sign = 0;//会员卡对应的行数
-
-    private int memberCardEnd = 20;//会员卡片列表最后几页
-
-    private int carEnd = 170;//会员车辆列表最后几页
-
-    private int billEnd = 120;//开单管理最后几页
-
-    private int memberEnd = 20;//车主列表最后几页
-
     private String nameStr = "";
 
     private String phoneStr = "";
 
+    private int count = 0;
+
+    //会员卡对应的行数
+    private int sign = 0;
+
+    //会员卡片列表最后几页
+    private int memberCardEnd = 20;
+
+    //会员车辆列表最后几页
+    private int carEnd = 170;
+
+    //开单管理最后几页
+    private int billEnd = 120;
+
+    //车主列表最后几页
+    private int memberEnd = 20;
+
+    //总消费记录最后几页
+    private int billDetailEnd=430;
+
+    //登录账号和密码
+    private String USERNAME = "qn900";
+
+    private String PASSWORD = "yyyyy123.";
+
+
     /**
-     * 车主列表-车辆信息详情
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllPages(webClient, BILL_URL, billDetailEnd);
+
+        System.out.println("结果为"+pages.size());
+    }
+
+
+    /**
+     * 车辆信息
+     * 网页-车主列表(首页-点击总车主)
+     * 首页-点击总车主)-车主列表-车辆信息详情
      *
      * @throws IOException
      */
@@ -273,7 +303,8 @@ public class CheKuKeService {
     }
 
     /**
-     * 开单管理-车辆信息详情
+     * 车辆信息
+     * 网页-店铺管理-开单管理-车辆信息详情
      *
      * @throws IOException
      */
@@ -386,11 +417,13 @@ public class CheKuKeService {
 
     /**
      * 车辆信息
+     * 网页-店铺管理-会员车辆列表
      * <p>
      * 车酷客系统后台，每页返回的数据都不一样
      *
      * @throws IOException
      */
+    @Deprecated
     @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
@@ -562,6 +595,7 @@ public class CheKuKeService {
 
     /**
      * 卡内项目
+     * 网页-店铺管理-会员套餐列表
      *
      * @throws IOException
      */
@@ -655,6 +689,7 @@ public class CheKuKeService {
 
     /**
      * 会员卡
+     * 网页-店铺管理-会员卡片列表
      *
      * @throws IOException
      */
