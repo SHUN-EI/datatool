@@ -28,7 +28,7 @@ import java.util.Set;
 @Service
 public class CheKuKeService {
 
-    private String BILLDETAIL_URL="http://sa.chekuke.com/StatisticalCenter/ShopUserConsuRecordList.aspx";
+    private String BILLDETAIL_URL = "http://sa.chekuke.com/StatisticalCenter/ShopUserConsuRecordList.aspx";
 
     private String MEMBER_URL = "http://sa.chekuke.com/MemberManage/MemberList.aspx";
 
@@ -77,20 +77,20 @@ public class CheKuKeService {
     //会员卡对应的行数
     private int sign = 0;
 
-    //会员卡片列表最后几页
+    //会员卡片列表尾页取整数
     private int memberCardEnd = 20;
 
-    //会员车辆列表最后几页
+    //会员车辆列表尾页取整数
     private int carEnd = 170;
 
-    //开单管理最后几页
+    //开单管理尾页取整数
     private int billEnd = 120;
 
-    //车主列表最后几页
-    private int memberEnd = 20;
+    //车主列表尾页取整数
+    private int memberEnd = 50;
 
-    //总消费记录最后几页
-    private int billDetailEnd=430;
+    //总消费记录尾页取整数
+    private int billDetailEnd = 430;
 
     //登录账号和密码
     private String USERNAME = "qn900";
@@ -110,14 +110,17 @@ public class CheKuKeService {
         WebClient webClient = WebClientUtil.getWebClient();
         getAllPages(webClient, BILL_URL, billDetailEnd);
 
-        System.out.println("结果为"+pages.size());
+        System.out.println("结果为" + pages.size());
     }
 
 
     /**
      * 车辆信息
      * 网页-车主列表(首页-点击总车主)
-     * 首页-点击总车主)-车主列表-车辆信息详情
+     * 打开路径:首页-点击总车主-车主列表-车辆信息详情
+     *
+     * <p>
+     * 使用前需要先修改memberEnd的值
      *
      * @throws IOException
      */
@@ -142,6 +145,7 @@ public class CheKuKeService {
             }
         }
 
+        //把获得的会员卡号遍历,到会员车辆列表中查询获取车辆详情
         for (String cardNo : cardNoSet) {
             HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
             HtmlInput cardNoInput = (HtmlInput) carInfoPage.getElementById("txt_number");
@@ -305,6 +309,9 @@ public class CheKuKeService {
     /**
      * 车辆信息
      * 网页-店铺管理-开单管理-车辆信息详情
+     * 打开路径:店铺管理-开单管理-车辆信息详情
+     * <p>
+     * 使用前需要先修改billEnd的值
      *
      * @throws IOException
      */
@@ -330,6 +337,7 @@ public class CheKuKeService {
             }
         }
 
+        //把获得的会员卡号遍历,到会员车辆列表中查询获取车辆详情
         for (String carNumber : carNumberSet) {
             HtmlPage carInfoPage = webClient.getPage(CARINFO_URL);
             HtmlInput carNumberInput = (HtmlInput) carInfoPage.getElementById("txt_number");
@@ -596,6 +604,10 @@ public class CheKuKeService {
     /**
      * 卡内项目
      * 网页-店铺管理-会员套餐列表
+     * <p>
+     * 打开路径:店铺管理-会员套餐列表
+     * <p>
+     * 使用前需要先修改memberCardEnd的值
      *
      * @throws IOException
      */
@@ -690,6 +702,9 @@ public class CheKuKeService {
     /**
      * 会员卡
      * 网页-店铺管理-会员卡片列表
+     * 打开路径:店铺管理-会员卡片列表
+     * <p>
+     * 使用前需要先修改memberCardEnd的值
      *
      * @throws IOException
      */
