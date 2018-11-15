@@ -3,12 +3,13 @@ package com.ys.datatool.service.web;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,9 @@ import java.util.Set;
 @Service
 public class CheKuKeService {
 
-    private String BILLDETAIL_URL = "http://sa.chekuke.com/StatisticalCenter/ShopUserConsuRecordList.aspx";
+    private String CONSURECORDDETAIL_URL = "http://sa.chekuke.com/Shop/ShopProjectConsuRecordList.aspx?No=";
+
+    private String CONSURECORD_URL = "http://sa.chekuke.com/StatisticalCenter/ShopUserConsuRecordList.aspx";
 
     private String MEMBER_URL = "http://sa.chekuke.com/MemberManage/MemberList.aspx";
 
@@ -72,6 +75,8 @@ public class CheKuKeService {
 
     private String phoneStr = "";
 
+    private String companyName = "车酷客";
+
     private int count = 0;
 
     //会员卡对应的行数
@@ -97,20 +102,135 @@ public class CheKuKeService {
 
     private String PASSWORD = "yyyyy123.";
 
+    private String COOKIE = "ASP.NET_SessionId=go5qfgdu3vkfd22dtuik3x1x; LOGINNAME=qn900; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1540795914,1542020988,1542188759; LOGINKEY=3b4abe4aa9ea40b9a42dacc8c6d51e4f; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1542269501";
+
 
     /**
      * 历史消费记录和消费记录相关车辆
+     * 网页-服务记录-总消费记录
+     * 打开路径:服务记录-总消费记录
      *
      * @throws IOException
      */
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
+        Set<String> billNoSet = new HashSet<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, BILL_URL, billDetailEnd);
+        getAllPages(webClient, CONSURECORD_URL, billDetailEnd);
 
-        System.out.println("结果为" + pages.size());
+        String tableBillRegEx = "#form1 > table";
+        for (HtmlPage page : pages) {
+            Document doc = Jsoup.parseBodyFragment(page.asXml());
+            String trBillRegEx = "table > tbody > tr:nth-child(1) > td[colspan='7']";
+
+            Elements elements = doc.select(tableBillRegEx).attr("class", "list_tb1");
+            for (Element element : elements) {
+
+                String tdStr = element.select(trBillRegEx).text();
+                String billNo = tdStr.replace("【项目消费】单号：", "");
+                if (StringUtils.isNotBlank(billNo))
+                    billNoSet.add(billNo);
+            }
+        }
+
+        if (billNoSet.size() > 0) {
+            for (String billNo : billNoSet) {
+                Response response = ConnectionUtil.doGetWithLeastParams(CONSURECORDDETAIL_URL + billNo, COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(html);
+
+                Elements elements = doc.select(tableBillRegEx).attr("class", "list_tb1");
+                Element e1 = elements.get(0);
+                Element e2 = elements.get(1);
+
+                String detail = e1.getElementsByTag("td").get(0).toString();
+                Elements tbodys = e2.getElementsByTag("tbody");
+                Elements trs = tbodys.get(0).children();
+
+                String totalAmount = trs.get(trs.size() - 1).getElementsByTag("td").get(7).text();
+                totalAmount = totalAmount.replace(" 元", "");
+
+                String getBillNoRegEx = "(?<=单号：)(.*)(?=<br> 消费会员)";
+                String no = CommonUtil.fetchString(detail, getBillNoRegEx);
+
+                String getCarNumberRegEx = "(?<=消费车辆：)(.*)(?=<br> 接单人)";
+                String carNumber = CommonUtil.fetchString(detail, getCarNumberRegEx);
+
+                String getReceptionistNameRegEx = "(?<=接单人：)(.*)(?=<br> 进厂时间)";
+                String receptionistName = CommonUtil.fetchString(detail, getReceptionistNameRegEx);
+
+                String getDateEndRegEx = "(?<=进厂时间：)(.*)(?=<br> 进厂公里)";
+                String dateEnd = CommonUtil.fetchString(detail, getDateEndRegEx);
+                dateEnd = DateUtil.formatDateTime2Date(dateEnd);
+
+                String getMileageRegEx = "(?<=进厂公里：)(.*)(?=<br> </td>)";
+                String mileage = CommonUtil.fetchString(detail, getMileageRegEx);
+
+                String serviceNames = "";
+                String itemNames = "";
+                if (trs.size() > 0) {
+                    for (int i = 2; i < trs.size() - 2; i++) {
+                        Element e = trs.get(i);
+
+                        if (StringUtils.isBlank(e.text()))
+                            continue;
+
+                        if (e.toString().contains("table")) {
+
+                            Elements itemTbodys = e.getElementsByTag("tbody");
+                            Elements itemTrs = itemTbodys.get(0).children();
+                            int itemTrsSize = itemTrs.size();
+                            if (itemTrsSize > 0) {
+                                for (int j = 3; j < itemTrsSize; j++) {
+                                    Element data = itemTrs.get(j);
+                                    String num = data.getElementsByTag("td").get(2).text();
+                                    String totalPrice = data.getElementsByTag("td").get(4).text();//总价
+                                    String price = data.getElementsByTag("td").get(1).text();//原价
+
+                                    String goodsNames = data.getElementsByTag("td").get(0).text();
+                                    goodsNames = goodsNames + "*" + num + "(" + price + ")";
+
+                                    if (!"".equals(itemNames))
+                                        itemNames = itemNames + "," + goodsNames;
+
+                                    if ("".equals(itemNames))
+                                        itemNames = goodsNames;
+                                }
+                            }
+                        } else {
+                            String serviceItemNames = e.getElementsByTag("td").get(0).text();
+                            String price = e.getElementsByTag("td").get(7).text();
+                            price = price.replace(" 元", "");
+                            serviceItemNames = serviceItemNames + "(" + price + ")";
+
+                            if (!"".equals(serviceNames))
+                                serviceNames = serviceNames + "," + serviceItemNames;
+
+                            if ("".equals(serviceNames))
+                                serviceNames = serviceItemNames;
+
+                        }
+                    }
+                }
+
+                Bill bill = new Bill();
+                bill.setCompanyName(companyName);
+                bill.setBillNo(no);
+                bill.setCarNumber(carNumber);
+                bill.setReceptionistName(receptionistName);
+                bill.setDateEnd(dateEnd);
+                bill.setMileage(mileage);
+                bill.setServiceItemNames(serviceNames);
+                bill.setGoodsNames(itemNames);
+                bill.setTotalAmount(totalAmount);
+                bills.add(bill);
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\车酷客消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
     }
 
 
@@ -216,6 +336,7 @@ public class CheKuKeService {
                         nameStr = name;
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
+                        carInfo.setCompanyName(companyName);
                         carInfo.setName(name);
                         carInfo.setPhone(name);
                         carInfo.setVINcode(VINCode);
@@ -280,6 +401,7 @@ public class CheKuKeService {
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);
+                        carInfo.setCompanyName(companyName);
                         carInfo.setPhone(nameStr);
                         carInfo.setName(nameStr);
                         carInfo.setVINcode(VINCode);
@@ -398,6 +520,7 @@ public class CheKuKeService {
 
             CarInfo carInfo = new CarInfo();
             carInfo.setCarNumber(carNo);
+            carInfo.setCompanyName(companyName);
             carInfo.setName(name);
             carInfo.setPhone(name);
             carInfo.setVINcode(VINCode);
@@ -656,6 +779,7 @@ public class CheKuKeService {
                                 MemberCardItem memberCardItem = new MemberCardItem();
                                 memberCardItem.setMemberCardItemId(id);
                                 memberCardItem.setItemName(itemName);
+                                memberCardItem.setCompanyName(companyName);
                                 memberCardItem.setNum(num);
                                 memberCardItem.setOriginalNum(num);
                                 memberCardItems.add(memberCardItem);
@@ -685,6 +809,7 @@ public class CheKuKeService {
                                 memberCardItem.setItemName(itemName);
                                 memberCardItem.setMemberCardItemId(id);
                                 memberCardItem.setNum(num);
+                                memberCardItem.setCompanyName(companyName);
                                 memberCardItem.setOriginalNum(num);
                                 memberCardItems.add(memberCardItem);
                             }
@@ -761,6 +886,7 @@ public class CheKuKeService {
 
                         MemberCard memberCard = new MemberCard();
                         memberCard.setMemberCardId(id);
+                        memberCard.setCompanyName(companyName);
                         memberCard.setName(name);
                         memberCard.setPhone(phone);
                         memberCard.setCarNumber(carNumber);
@@ -796,6 +922,7 @@ public class CheKuKeService {
 
                         MemberCard memberCard = new MemberCard();
                         memberCard.setMemberCardId(id);
+                        memberCard.setCompanyName(companyName);
                         memberCard.setName(name);
                         memberCard.setPhone(phone);
                         memberCard.setCarNumber(carNumber);
@@ -820,6 +947,8 @@ public class CheKuKeService {
         pages.add(page);
 
         String total = WebClientUtil.getTotalPage(page);
+
+        //根据总页数开始递归（Integer.parseInt(total)）
         nextPage(page, Integer.parseInt(total), end);
     }
 

@@ -11,5 +11,7 @@ public class HtmlTag {
 
     public static String tdName = "td";
 
+    public static String tableName = "table";
+
     public static String divName = "div";
 }
