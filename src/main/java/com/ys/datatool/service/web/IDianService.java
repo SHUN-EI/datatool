@@ -400,7 +400,7 @@ public class IDianService {
                         JsonNode element = it.next();
 
                         String validTime = element.get("validityTime").asText();
-                        validTime = DateUtil.formatDateTime(validTime);
+                        validTime = DateUtil.formatSQLDateTime(validTime);
                         String isValidForever = CommonUtil.getIsValidForever(validTime);
 
                         JsonNode goodsList = element.get("goodsList");
@@ -465,7 +465,7 @@ public class IDianService {
                     String carNumber = element.get("licensePlate").asText();
                     String balance = element.get("amount").asText();
                     String dateCreated = element.get("openCardTime").asText();
-                    dateCreated = DateUtil.formatDateTime(dateCreated);
+                    dateCreated = DateUtil.formatSQLDateTime(dateCreated);
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setCardCode(cardCode);

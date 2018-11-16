@@ -345,7 +345,7 @@ public class ZhangShangCheDianService {
                 String isValidForever = CommonUtil.getIsValidForever(validTime);
 
                 if (!"-".equals(validTime) && StringUtils.isNotBlank(validTime))
-                    validTime = DateUtil.formatDate2DateTime(validTime);
+                    validTime = DateUtil.formatSQLDateTime(validTime);
 
 
                 String trRegEx = "#listCon > tr";
@@ -437,7 +437,7 @@ public class ZhangShangCheDianService {
                 String validTime = doc.select(validTimeRegEx).text();
 
                 if (!"-".equals(dateCreated))
-                    dateCreated = DateUtil.formatDate2DateTime(dateCreated);
+                    dateCreated = DateUtil.formatSQLDateTime(dateCreated);
 
                 MemberCard memberCard = new MemberCard();
                 memberCard.setCardCode(cardCode);

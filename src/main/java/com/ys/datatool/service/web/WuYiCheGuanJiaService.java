@@ -246,9 +246,9 @@ public class WuYiCheGuanJiaService {
                             bill.setCarNumber(memberCard.getCarNumber());
                             bill.setPhone(memberCard.getPhone());
                             bill.setName(memberCard.getName());
-                            bill.setDateAdded(DateUtil.formatSQLDateTime(dateAdded));
-                            bill.setDateEnd(DateUtil.formatSQLDateTime(dateAdded));
-                            bill.setDateExpect(DateUtil.formatSQLDateTime(dateAdded));
+                            bill.setDateAdded(DateUtil.formatSQLDate(dateAdded));
+                            bill.setDateEnd(DateUtil.formatSQLDate(dateAdded));
+                            bill.setDateExpect(DateUtil.formatSQLDate(dateAdded));
                             bill.setActualAmount(CommonUtil.priceFormat(actualAmount));
                             bill.setTotalAmount(CommonUtil.priceFormat(totalAmount));
                             bills.add(bill);
@@ -291,7 +291,7 @@ public class WuYiCheGuanJiaService {
                     String originalNum = element.get("TOTAL").asText();
 
                     String validTime = element.get("EXPIRE_DAY").asText();
-                    validTime = DateUtil.formatDateTime(validTime);
+                    validTime = DateUtil.formatSQLDateTime(validTime);
 
                     String isValidForever = CommonUtil.getIsValidForever(validTime);
 
@@ -344,7 +344,7 @@ public class WuYiCheGuanJiaService {
                     String phone = element.get("PHONE_NUMBER").asText();
 
                     String dateCreated = element.get("CREATE_DATE").asText();
-                    dateCreated = DateUtil.formatDateTime(dateCreated);
+                    dateCreated = DateUtil.formatSQLDateTime(dateCreated);
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setCardCode(cardCode);
@@ -398,7 +398,7 @@ public class WuYiCheGuanJiaService {
                     String vcInsuranceValidDate = element.get("INSURANCE_PERIOND").asText();
                     vcInsuranceValidDate = CommonUtil.formatString(vcInsuranceValidDate);
                     if (vcInsuranceValidDate != "")
-                        vcInsuranceValidDate = DateUtil.formatSQLDateTime(vcInsuranceValidDate);
+                        vcInsuranceValidDate = DateUtil.formatSQLDate(vcInsuranceValidDate);
 
 
                     CarInfo carInfo = new CarInfo();

@@ -21,6 +21,7 @@ public class DateUtil {
     public static final String TIME_FORMAT = "HH:mm:ss";
     public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH-mm-ss";//24小时
     public static final String SQL_DATE_FORMAT = "yyyy/MM/dd";
+    public static final String SQL_DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
     //-------------------日期自动转化------------------------------------------------
 
@@ -403,49 +404,80 @@ public class DateUtil {
         return formatDate(date, SQL_DATE_FORMAT);
     }
 
+    public static String formatSQLDateTime(Date date) {
+        return formatDate(date, SQL_DATETIME_FORMAT);
+    }
+
+
     public static String formateTime(Date date) {
         return formatDate(date, TIME_FORMAT);
     }
 
+
     /**
-     * 日期转换(yyyy-MM-dd HH:mm转换为yyyy-MM-dd HH:mm:ss)
+     * 日期转换
+     * yyyy-mm-dd,yyyy-mm-d,yyyy-m-d,yyyy-m-dd,
+     * yyyy-mm-dd hh:mm:ss,yyyy-mm-d hh:mm:ss,yyyy-m-d hh:mm:ss,yyyy-m-dd hh:mm:ss
+     * yyyy-mm-dd hh:mm,yyyy-mm-d hh:mm,yyyy-m-d hh:mm,yyyy-m-dd hh:mm
+     * yyyy/mm/dd,yyyy/mm/d,yyyy/m/d,yyyy/m/d,
+     * yyyy/mm/dd hh:mm:ss,yyyy/mm/d hh:mm:ss，yyyy/m/d hh:mm:ss，yyyy/m/dd hh:mm:ss
+     * yyyy/mm/dd hh:mm，yyyy/mm/d hh:mm，yyyy/m/d hh:mm，yyyy/m/dd hh:mm，
+     * <p>
+     * 转换为yyyy/mm/dd hh:mm:ss
      *
      * @param dateStr
      * @return
      */
-    public static String formatDate2DateTime(String dateStr) {
+    public static String formatSQLDateTime(String dateStr) {
         if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
             return "";
         }
 
-        Date date = parseDateByAuto(dateStr);
-        String result = formateDateTime(date);
+        if (dateStr.contains("T")) {
+            dateStr = dateStr.replace("T", " ");
+        }
+
+        Date date = DateUtil.parseDateByAuto(dateStr);
+        String result = DateUtil.formatSQLDateTime(date);
+
+        return result;
+    }
+
+
+    /**
+     * 日期转换
+     * <p>
+     * yyyy-mm-dd,yyyy-mm-d,yyyy-m-d,yyyy-m-dd,
+     * yyyy-mm-dd hh:mm:ss,yyyy-mm-d hh:mm:ss,yyyy-m-d hh:mm:ss,yyyy-m-dd hh:mm:ss
+     * yyyy-mm-dd hh:mm,yyyy-mm-d hh:mm,yyyy-m-d hh:mm,yyyy-m-dd hh:mm
+     * yyyy/mm/dd,yyyy/mm/d,yyyy/m/d,yyyy/m/d,
+     * yyyy/mm/dd hh:mm:ss,yyyy/mm/d hh:mm:ss，yyyy/m/d hh:mm:ss，yyyy/m/dd hh:mm:ss
+     * yyyy/mm/dd hh:mm，yyyy/mm/d hh:mm，yyyy/m/d hh:mm，yyyy/m/dd hh:mm，
+     * <p>
+     * 转换为yyyy/mm/dd
+     *
+     * @param dateStr
+     * @return
+     */
+    public static String formatSQLDate(String dateStr) {
+
+        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
+            return "";
+        }
+
+        // dateStr="2018-01-23T00:00:00";
+        if (dateStr.contains("T")) {
+            dateStr = dateStr.replace("T", " ");
+        }
+
+        Date date = DateUtil.parseDateByAuto(dateStr);
+        String result = DateUtil.formatSQLDate(date);
 
         return result;
     }
 
     /**
-     * 日期转换(yyyy/MM/dd HH:mm:ss,yyyy-MM-dd HH:mm转换为yyyy/MM/dd)
-     *
-     * @param dateStr
-     * @return
-     */
-    public static String formatDateTime2Date(String dateStr) {
-        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
-            return "";
-        }
-
-        if (dateStr.contains("-") && dateStr.length() > 9)
-            dateStr = dateStr.replace("-", "/").substring(0, 10);
-
-        if (dateStr.contains("/") && dateStr.length() > 9)
-            dateStr = dateStr.substring(0, 10);
-
-        return dateStr;
-    }
-
-    /**
-     * 毫秒数转换为日期(yyyy-MM-dd)
+     * 毫秒数转换为日期(yyyy/MM/dd)
      *
      * @param millisecond
      * @return
@@ -460,54 +492,6 @@ public class DateUtil {
         date.setTime(Long.parseLong(millisecond));
         String result = simpleDateFormat.format(date);
         return result.substring(0, 10).replace("-", "/");
-    }
-
-    /**
-     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd HH:mm:ss)
-     *
-     * @param dateStr
-     * @return
-     */
-    public static String formatDateTime(String dateStr) {
-
-        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
-            return "";
-        }
-
-        Date date = parseDate(dateStr);
-        String result = formateDateTime(date);
-
-        return result.replace("-", "/");
-    }
-
-    /**
-     * 日期转换为字符串(yyyy-MM-ddT00:00:00 或yyyy-MM-dd 00:00:00 转 yyyy/MM/dd)
-     *
-     * @param dateStr
-     * @return
-     */
-    public static String formatSQLDate(String dateStr) {
-        // dateStr="2018-01-23T00:00:00";
-        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
-            return "";
-        }
-
-        return dateStr.substring(0, 10).replace("-", "/");
-    }
-
-    /**
-     * 日期转换为字符串(yyyy-MM-dd 转 yyyy/MM/dd 或  yyyy-MM-dd HH:mm:ss 转 yyyy/MM/dd HH:mm:ss)
-     *
-     * @param dateStr
-     * @return
-     */
-    public static String formatSQLDateTime(String dateStr) {
-        // dateStr="2018-01-23",或"2018-01-23 00:00:00"
-        if ("".equals(dateStr) || StringUtils.isBlank(dateStr)) {
-            return "";
-        }
-
-        return dateStr.replace("-", "/");
     }
 
     //-----------------格式化字符串为日期--------------------------------------

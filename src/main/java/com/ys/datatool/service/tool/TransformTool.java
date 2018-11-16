@@ -237,7 +237,7 @@ public class TransformTool {
 
             if (dateEndNum != 0) {
                 dateEndStr = getCell(row, dateEndNum, dateEndStr);
-                dateEndStr = DateUtil.formatDateTime2Date(dateEndStr);
+                dateEndStr = DateUtil.formatSQLDate(dateEndStr);
             }
 
             Bill bill = new Bill();
@@ -494,7 +494,7 @@ public class TransformTool {
 
             if (dateEndNum != 0) {
                 dateEndStr = getCell(row, dateEndNum, dateEndStr);
-                dateEndStr = DateUtil.formatDateTime2Date(dateEndStr);
+                dateEndStr = DateUtil.formatSQLDate(dateEndStr);
             }
 
             Bill bill = new Bill();

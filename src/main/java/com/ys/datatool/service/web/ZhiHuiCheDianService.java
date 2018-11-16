@@ -207,7 +207,7 @@ public class ZhiHuiCheDianService {
                     String validTimeStr = element.get("endTime").asText();
                     String validTime = CommonUtil.formatString(validTimeStr);
                     if (!"".equals(validTime))
-                        validTime = DateUtil.formatDateTime(validTime);
+                        validTime = DateUtil.formatSQLDateTime(validTime);
 
                     String isValidForever = CommonUtil.getIsValidForever(validTime);
 

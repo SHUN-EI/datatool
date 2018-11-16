@@ -17,10 +17,7 @@ import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mo on @date  2018/6/21.
@@ -104,7 +101,6 @@ public class CheKuKeService {
 
     private String COOKIE = "ASP.NET_SessionId=go5qfgdu3vkfd22dtuik3x1x; LOGINNAME=qn900; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1540795914,1542020988,1542188759; LOGINKEY=3b4abe4aa9ea40b9a42dacc8c6d51e4f; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1542269501";
 
-
     /**
      * 历史消费记录和消费记录相关车辆
      * 网页-服务记录-总消费记录
@@ -163,7 +159,7 @@ public class CheKuKeService {
 
                 String getDateEndRegEx = "(?<=进厂时间：)(.*)(?=<br> 进厂公里)";
                 String dateEnd = CommonUtil.fetchString(detail, getDateEndRegEx);
-                dateEnd = DateUtil.formatDateTime2Date(dateEnd);
+                dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                 String getMileageRegEx = "(?<=进厂公里：)(.*)(?=<br> </td>)";
                 String mileage = CommonUtil.fetchString(detail, getMileageRegEx);

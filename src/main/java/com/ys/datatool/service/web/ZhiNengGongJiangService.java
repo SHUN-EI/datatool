@@ -74,7 +74,7 @@ public class ZhiNengGongJiangService {
                     String carNumber = element.get("carNumber").asText();
 
                     String dateEnd = element.get("saleDate").asText();
-                    dateEnd = DateUtil.formatDateTime2Date(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     String num = element.get("number").asText();
                     String price = element.get("price").asText();

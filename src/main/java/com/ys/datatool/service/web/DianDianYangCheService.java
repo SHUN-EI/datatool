@@ -123,7 +123,7 @@ public class DianDianYangCheService {
                     String billNo = element.get("workId").asText();
                     String carNumber = element.get("carNumber").asText();
                     String dateEnd = element.get("businessStarDate").asText();
-                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     String id = element.get("orderId").asText();
                     String totalAmount = element.get("receivableAccount").asText();//应收

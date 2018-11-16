@@ -101,7 +101,7 @@ public class CheCheYunService {
                     String state = element.get("text_status").asText();//结算状态;已结算，未结算
 
                     String dateEnd = element.get("bill_date").asText();
-                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     Bill bill = new Bill();
                     bill.setId(id);

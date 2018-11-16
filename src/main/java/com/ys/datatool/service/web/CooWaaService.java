@@ -69,7 +69,7 @@ public class CooWaaService {
                     String remark = element.get("TypeNameArr").asText();
 
                     String dateEnd = element.get("OrderTime").asText();
-                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     Bill bill = new Bill();
                     bill.setBillNo(billNo);

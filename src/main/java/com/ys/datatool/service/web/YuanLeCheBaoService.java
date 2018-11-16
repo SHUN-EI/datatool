@@ -162,7 +162,7 @@ public class YuanLeCheBaoService {
                     String remark = element.get("tagName").asText();//订单类型
                     String totalAmount = element.get("dealAmount").asText();//totalAmount
                     String dateEnd = element.get("orderTime").asText();
-                    dateEnd = DateUtil.formatSQLDateTime(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     String name = "";
                     if (element.get("userName") != null)
@@ -255,7 +255,7 @@ public class YuanLeCheBaoService {
                     String dateEnd = element.get("payTime").asText();//需要转换日期格式
 
                     String dateAdded = element.get("orderTime").asText();
-                    dateAdded = DateUtil.formatDateTime(dateAdded);
+                    dateAdded = DateUtil.formatSQLDateTime(dateAdded);
 
                     Bill bill = new Bill();
                     bill.setCompanyName(companyName);
@@ -819,7 +819,7 @@ public class YuanLeCheBaoService {
                         memberCardItem.setNum(num.replace("次数", ""));
                         memberCardItem.setRemark(remark);
                         memberCardItem.setIsValidForever(isValidForever);
-                        memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+                        memberCardItem.setValidTime(DateUtil.formatSQLDateTime(validTime));
                         memberCardItems.add(memberCardItem);
                     }
                 }
@@ -927,7 +927,7 @@ public class YuanLeCheBaoService {
                         memberCard.setMemberCardName(m.getMemberCardName());
                         memberCard.setCardCode(m.getCardCode());
                         memberCard.setCardSort(m.getCardSort());
-                        memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
+                        memberCard.setDateCreated(DateUtil.formatSQLDateTime(dateCreated));
                         memberCard.setCompanyName(companyName);
                         memberCards.add(memberCard);
                     }

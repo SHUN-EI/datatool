@@ -176,7 +176,7 @@ public class ZhongYiZhiLianService {
             memberCardItem.setDiscount("0");
             memberCardItem.setNum(num);
             memberCardItem.setOriginalNum(originalNum);
-            memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+            memberCardItem.setValidTime(DateUtil.formatSQLDateTime(validTime));
             memberCardItem.setIsValidForever(isValidForever);
             memberCardItem.setPrice(product.getPrice());
             memberCardItem.setFirstCategoryName(product.getFirstCategoryName());
@@ -306,7 +306,7 @@ public class ZhongYiZhiLianService {
                     memberCard.setName(CommonUtil.formatString(name));
                     memberCard.setPhone(CommonUtil.formatString(phone));
                     memberCard.setCarNumber(carNumber);
-                    memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
+                    memberCard.setDateCreated(DateUtil.formatSQLDateTime(dateCreated));
                     memberCard.setBalance(balance);
                     memberCard.setRemark(validTime);
                     memberCard.setMemberCardId(id);
@@ -369,7 +369,7 @@ public class ZhongYiZhiLianService {
                     memberCard.setName(CommonUtil.formatString(name));
                     memberCard.setPhone(CommonUtil.formatString(phone));
                     memberCard.setCarNumber(CommonUtil.formatString(carNumber));
-                    memberCard.setDateCreated(DateUtil.formatDateTime(dateCreated));
+                    memberCard.setDateCreated(DateUtil.formatSQLDateTime(dateCreated));
                     memberCard.setBalance(balance);
                     memberCard.setRemark(state);
                     memberCards.add(memberCard);

@@ -119,7 +119,7 @@ public class ZhongTuService {
                     String unitPrice = element.get("ProPrice").asText();
 
                     String dateEnd = element.get("SettlementTime").asText();
-                    dateEnd = DateUtil.formatDateTime2Date(dateEnd);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                     String totalAmountStr = element.get("ProSum").asText();
                     String serviceItemNames = element.get("ProductName").asText();
@@ -267,7 +267,7 @@ public class ZhongTuService {
                         memberCardItem.setItemName(itemName);
                         memberCardItem.setOriginalNum(originalNum);
                         memberCardItem.setNum(num);
-                        memberCardItem.setValidTime(DateUtil.formatDateTime(validTime));
+                        memberCardItem.setValidTime(DateUtil.formatSQLDateTime(validTime));
                         memberCardItem.setCompanyName(companyName);
                         memberCardItem.setIsValidForever(CommonUtil.getIsValidForever(validTime));
 
