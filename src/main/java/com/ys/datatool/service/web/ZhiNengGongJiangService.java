@@ -38,13 +38,13 @@ public class ZhiNengGongJiangService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private int num = 500;
+    private int num = 100;
 
     private String fieldName = "totalCount";
 
     private String companyName = "智能工匠系统";
 
-    private String COOKIE = "JSESSIONID=79CCEEE95E7099662AE4712A7CA657C8; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699,1542172931; login.userName=%u97E9%u5609%u7EA2; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542173869";
+    private String COOKIE = "login.userName=%u97E9%u5609%u7EA2; JSESSIONID=09A62AB25A4CBB27ABF98FEAC5D1140F; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699,1542172931,1542689152; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542689159";
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -62,8 +62,8 @@ public class ZhiNengGongJiangService {
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
                 Iterator<JsonNode> it = result.get("orderList").iterator();
@@ -166,8 +166,8 @@ public class ZhiNengGongJiangService {
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", String.valueOf(i)) + start, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", String.valueOf(i)) + start, COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
                 Iterator<JsonNode> it = result.get("memberList").iterator();
@@ -180,7 +180,7 @@ public class ZhiNengGongJiangService {
                     String phone = element.get("mobile").asText();
 
                     JsonNode carList = element.get("carList");
-                    if (carList != null && carList.size() > 0) {
+                    if (carList.size() > 0) {
                         Iterator<JsonNode> content = carList.iterator();
                         while (content.hasNext()) {
                             JsonNode e = content.next();
@@ -212,8 +212,8 @@ public class ZhiNengGongJiangService {
                             carInfos.add(carInfo);
                             carInfoMap.put(carId, carInfo);
 
-                            Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
-                            JsonNode data = MAPPER.readTree(res.returnContent().asString());
+                          /*  Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
+                            JsonNode data = MAPPER.readTree(res2.returnContent().asString());
 
                             Iterator<JsonNode> iterator = data.get("carList").iterator();
                             while (iterator.hasNext()) {
@@ -225,7 +225,7 @@ public class ZhiNengGongJiangService {
                                     CarInfo car = carInfoMap.get(id);
                                     car.setBrand(CommonUtil.formatString(brand));
                                 }
-                            }
+                            }*/
                         }
                     }
                 }
