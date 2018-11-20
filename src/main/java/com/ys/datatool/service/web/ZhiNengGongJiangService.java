@@ -38,7 +38,7 @@ public class ZhiNengGongJiangService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private int num = 100;
+    private int num = 200;
 
     private String fieldName = "totalCount";
 
@@ -212,7 +212,7 @@ public class ZhiNengGongJiangService {
                             carInfos.add(carInfo);
                             carInfoMap.put(carId, carInfo);
 
-                          /*  Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
+                            Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
                             JsonNode data = MAPPER.readTree(res2.returnContent().asString());
 
                             Iterator<JsonNode> iterator = data.get("carList").iterator();
@@ -225,7 +225,7 @@ public class ZhiNengGongJiangService {
                                     CarInfo car = carInfoMap.get(id);
                                     car.setBrand(CommonUtil.formatString(brand));
                                 }
-                            }*/
+                            }
                         }
                     }
                 }
