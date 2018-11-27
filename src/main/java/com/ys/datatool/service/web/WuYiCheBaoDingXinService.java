@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.ys.datatool.domain.Bill;
 import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.HtmlTag;
+import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -26,9 +27,61 @@ public class WuYiCheBaoDingXinService {
 
     private String ACCOUNTING_URL = "http://saas.51chebao.com/store/dingxinqixiu/accounting/index?t=&wk_sys_type=store&wk_sys_directory=dingxinqixiu&t=&page=";
 
+    private String SERVICE_URL = "http://saas.51chebao.com/store/dingxinqixiu/service?page=";
+
     private String companyName = "鼎鑫名车";
 
     private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%5D; PHPSESSID=ffc1933qqd626j55vchfaf1sl2; language=cn";
+
+
+    /**
+     * 服务项目
+     * 系统设置-服务项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        int totalPage = WebClientUtil.getHtmlTotalPage(SERVICE_URL, COOKIE);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + String.valueOf(i), COOKIE);
+                String html = response.returnContent().asString();
+                Document document = Jsoup.parse(html);
+
+                String trRegEx = "#form > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(document, trRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int j = 2; j <= trSize; j++) {
+                        String productNameRegEx=trRegEx+":nth-child("+j+") " +"> td.left.serviceTR";
+                        String firstCategoryNameRegEx=trRegEx+":nth-child("+j+") " +"> td:nth-child(3)";
+                        String priceRegEx=trRegEx+":nth-child("+j+") " +"> td:nth-child(5) > input";
+
+                        String productName=document.select(productNameRegEx) .text();
+                        String firstCategoryName=document.select(firstCategoryNameRegEx) .text();
+                        String price=document.select(priceRegEx).attr("value");
+
+                        Product product=new Product();
+                        product.setCompanyName(companyName);
+                        product.setProductName(productName);
+                        product.setFirstCategoryName(firstCategoryName);
+                        product.setPrice(price);
+                        product.setItemType("服务项");
+                        products.add(product);
+                    }
+                }
+            }
+        }
+
+        System.out.println("结果为" + totalPage);
+
+        String pathname = "C:\\exportExcel\\鼎鑫名车服务项目.xls";
+        ExportUtil.exportProductDataInLocal(products,ExcelDatas.workbook,pathname);
+    }
 
     /**
      * 财务记账数据
