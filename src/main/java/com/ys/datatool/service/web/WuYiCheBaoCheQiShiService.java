@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
@@ -18,33 +19,19 @@ import java.util.List;
  * 车奇士系统
  */
 @Service
-public class CheQiShiService {
+public class WuYiCheBaoCheQiShiService {
 
-    private static final String MEMBERCARDITEM_URL = "http://cheqishi.51chebao.com/card/edit?card_number={no}";
+    private static final String MEMBERCARDITEM_URL = "http://cheqishi.51chebao.com/card/edit?card_number=";
 
-    private static final String MEMBERCARD_URL = "http://cheqishi.51chebao.com/card?store_id=599&page={page}";
+    private static final String MEMBERCARD_URL = "http://cheqishi.51chebao.com/card?store_id=599&page=";
 
-    private static final String CARINFO_URL = "http://cheqishi.51chebao.com/customer?page={page}";
+    private static final String CARINFO_URL = "http://cheqishi.51chebao.com/customer?page=";
 
-    private static final String SUPPLIER_URL = "http://cheqishi.51chebao.com/dealer?page={page}";
+    private static final String SUPPLIER_URL = "http://cheqishi.51chebao.com/dealer?page=";
 
-    private static final String BILL_URL = "http://cheqishi.51chebao.com/order?store_id=599&page={page}";
+    private static final String BILL_URL = "http://cheqishi.51chebao.com/order?store_id=599&page=";
 
-    private static final String BILLDETAIL_URL = "http://cheqishi.51chebao.com/order/view?order_number={billNo}";
-
-    private static final String ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String HOST = "cheqishi.51chebao.com";
-
-    private static final String REFERER = "http://cheqishi.51chebao.com/main";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private static final String UPGRADE_INSECURE_REQUESTS = "1";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+    private static final String BILLDETAIL_URL = "http://cheqishi.51chebao.com/order/view?order_number=";
 
     private String fileName = "车保无忧-河南车奇士";
 
@@ -59,12 +46,12 @@ public class CheQiShiService {
     public void fetchMemberCardItemData() throws IOException {
         List<String> memberCardNos = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
-        int totalPage = getHtmlTotalPage(MEMBERCARD_URL);
+        int totalPage = WebClientUtil.getHtmlTotalPage(MEMBERCARD_URL, COOKIE);
         Document document = null;
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{page}", String.valueOf(i)), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + String.valueOf(i), COOKIE);
                 String html = response.returnContent().asString();
                 document = Jsoup.parse(html);
 
@@ -78,7 +65,7 @@ public class CheQiShiService {
         }
 
         for (int i = 0; i < memberCardNos.size(); i++) {
-            Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDITEM_URL, "{no}", memberCardNos.get(i)), COOKIE);
+            Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + memberCardNos.get(i), COOKIE);
             String html = response.returnContent().asString();
             document = Jsoup.parse(html);
 
@@ -112,11 +99,11 @@ public class CheQiShiService {
      */
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
-        int totalPage = getHtmlTotalPage(CARINFO_URL);
+        int totalPage = WebClientUtil.getHtmlTotalPage(CARINFO_URL, COOKIE);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{page}", i + ""), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -142,11 +129,11 @@ public class CheQiShiService {
      */
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
-        int totalPage = getHtmlTotalPage(SUPPLIER_URL);
+        int totalPage = WebClientUtil.getHtmlTotalPage(SUPPLIER_URL, COOKIE);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIER_URL, "{page}", i + ""), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIER_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -178,11 +165,11 @@ public class CheQiShiService {
         List<String> billNos = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
 
-        int totalPage = getHtmlTotalPage(BILL_URL);
+        int totalPage = WebClientUtil.getHtmlTotalPage(BILL_URL, COOKIE);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILL_URL, "{page}", i + ""), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -196,12 +183,12 @@ public class CheQiShiService {
         }
 
         for (int i = 0; i < billNos.size(); i++) {
-            Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{billNo}", billNos.get(i)), COOKIE);
+            Response response = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + billNos.get(i), COOKIE);
             String html = response.returnContent().asString();
             Document document = Jsoup.parse(html);
 
             String trRegEx = "#content > div > div.content > div:nth-child(3) > table > tbody > tr";
-            int trSize = document.select(trRegEx).tagName("tr").size();
+            int trSize = WebClientUtil.getTagSize(document,trRegEx,HtmlTag.trName);
 
             if (trSize > 0) {
                 for (int j = 1; j <= trSize; j++) {
@@ -268,15 +255,16 @@ public class CheQiShiService {
 
     /**
      * 单据
+     *
      * @throws IOException
      */
     public void fetchBillData() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        int totalPage = getHtmlTotalPage(BILL_URL);
+        int totalPage = WebClientUtil.getHtmlTotalPage(BILL_URL, COOKIE);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILL_URL, "{page}", String.valueOf(i)), COOKIE);
+                Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -303,21 +291,4 @@ public class CheQiShiService {
         }
     }
 
-    private int getHtmlTotalPage(String url) throws IOException {
-        int totalPage = 0;
-
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(url, "{page}", "1"), COOKIE);
-        String html = response.returnContent().asString();
-        Document document = null;
-        if (StringUtils.isNotBlank(html)) {
-            document = Jsoup.parse(html);
-            String strTotalPage = document.select("div[class=results]").text();
-            String regEx = ".*共计\\s(\\d+)\\s.*";
-            String total = CommonUtil.filterString(strTotalPage, regEx);
-
-            totalPage = Integer.parseInt(total);
-        }
-
-        return totalPage;
-    }
 }

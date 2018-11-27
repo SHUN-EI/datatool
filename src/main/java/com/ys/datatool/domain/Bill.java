@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * Created by mo on  2017/5/30.
- *
+ * <p>
  * 单据
  */
 
@@ -81,9 +81,8 @@ public class Bill {
 
     /**
      * 单据折扣(基于总计的折扣)
-     *
      */
-    private String discount="0";
+    private String discount = "0";
 
     /**
      * 开单日期
@@ -118,12 +117,12 @@ public class Bill {
     /**
      * 是否在店等
      */
-    private String waitInStore="否";
+    private String waitInStore = "否";
 
     /**
      * 支付类型
      */
-    private String payType="现金";
+    private String payType = "现金";
 
     /**
      * 车品牌
@@ -138,7 +137,34 @@ public class Bill {
     /**
      * 单据号所在行数集合
      */
-    private Set<String> billNoRows=new HashSet<>();
+    private Set<String> billNoRows = new HashSet<>();
+
+    /**
+     * 51车宝-出库编号
+     */
+    private String stockOutNumber;
+
+    /**
+     * 51车宝-记账类型
+     */
+    private String accountType;
+
+
+    public String getStockOutNumber() {
+        return stockOutNumber;
+    }
+
+    public void setStockOutNumber(String stockOutNumber) {
+        this.stockOutNumber = stockOutNumber;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
 
     public Set<String> getBillNoRows() {
         return billNoRows;
@@ -348,8 +374,6 @@ public class Bill {
     public void setCarModel(String carModel) {
         this.carModel = carModel;
     }
-
-
 
 
 }

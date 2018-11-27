@@ -378,6 +378,8 @@ public class ExcelUtil {
             mapValue.put("serviceItemNames", bill.getServiceItemNames());
             mapValue.put("goodsNames", bill.getGoodsNames());
             mapValue.put("receptionistName", bill.getReceptionistName());
+            mapValue.put("stockOutNumber", bill.getStockOutNumber());
+            mapValue.put("accountType", bill.getAccountType());
             listMap.add(mapValue);
         }
         return listMap;

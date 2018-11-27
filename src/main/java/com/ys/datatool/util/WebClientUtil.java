@@ -534,6 +534,33 @@ public class WebClientUtil {
     }
 
     /**
+     * 获取总页数
+     * 适用于51车宝系统，车奇士，鼎鑫
+     *
+     * @param url
+     * @param cookie
+     * @return
+     * @throws IOException
+     */
+    public static int getHtmlTotalPage(String url, String cookie) throws IOException {
+        int totalPage = 0;
+
+        Response response = ConnectionUtil.doGetWithLeastParams(url + "1", cookie);
+        String html = response.returnContent().asString();
+        Document document = null;
+        if (StringUtils.isNotBlank(html)) {
+            document = Jsoup.parse(html);
+            String strTotalPage = document.select("div[class=results]").text();
+            String regEx = ".*共计\\s(\\d+)\\s.*";
+            String total = CommonUtil.filterString(strTotalPage, regEx);
+
+            totalPage = Integer.parseInt(total);
+        }
+
+        return totalPage;
+    }
+
+    /**
      * 网页抓取客户ID，适用于中易智联和众途的网页端
      *
      * @param ids
