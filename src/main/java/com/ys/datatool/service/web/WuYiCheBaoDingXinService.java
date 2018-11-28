@@ -1,10 +1,8 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.http.client.fluent.Response;
@@ -25,6 +23,10 @@ import java.util.List;
 @Service
 public class WuYiCheBaoDingXinService {
 
+    private String BILLDETAIL_URL = "http://saas.51chebao.com/store/dingxinqixiu/order/view?order_number=";
+
+    private String BILL_URL = "http://saas.51chebao.com/store/dingxinqixiu/order?store_id=870&page=";
+
     private String ACCOUNTING_URL = "http://saas.51chebao.com/store/dingxinqixiu/accounting/index?t=&wk_sys_type=store&wk_sys_directory=dingxinqixiu&t=&page=";
 
     private String SERVICE_URL = "http://saas.51chebao.com/store/dingxinqixiu/service?page=";
@@ -32,6 +34,139 @@ public class WuYiCheBaoDingXinService {
     private String companyName = "鼎鑫名车";
 
     private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%5D; PHPSESSID=ffc1933qqd626j55vchfaf1sl2; language=cn";
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     * 营销管理-订单管理
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        List<CarInfo> carInfos = new ArrayList<>();
+        List<String> billNos = new ArrayList<>();
+
+        int totalPage = WebClientUtil.getHtmlTotalPage(BILL_URL, COOKIE);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                String html = response.returnContent().asString();
+                Document document = Jsoup.parse(html);
+
+                String trRegEx = "#tbl_list > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(document, trRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int j = 3; j <= trSize; j++) {
+                        String billNoRegEx = trRegEx + ":nth-child(" + j + ") " + "> td:nth-child(3) > a";
+                        String billNo = document.select(billNoRegEx).text();
+                        billNos.add(billNo);
+                    }
+                }
+            }
+        }
+
+        if (billNos.size() > 0) {
+            for (String billNo : billNos) {
+                Response response = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + billNo, COOKIE);
+                String html = response.returnContent().asString();
+                Document doc = Jsoup.parse(html);
+
+                String carNumberRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(4)";
+                String mileageRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(6)";
+                String dateEndRegEx = "#content > div > div.content > table > tbody > tr:nth-child(4) > td:nth-child(6)";
+                String totalAmountRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(4)";
+                String receptionistNameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(6)";
+                String billTypeRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(2)";
+                String remarkRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(4)";
+                String nameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(2)";
+                String phoneRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(4)";
+                String vinRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(2)";
+                String brandRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2)";
+
+                String carNumber = doc.select(carNumberRegEx).text();
+                String mileage = doc.select(mileageRegEx).text();
+                String totalAmount = doc.select(totalAmountRegEx).text();
+                String receptionistName = doc.select(receptionistNameRegEx).text();
+                String billType = doc.select(billTypeRegEx).text();
+                String remark = doc.select(remarkRegEx).text();
+                String name = doc.select(nameRegEx).text();
+                String phone = doc.select(phoneRegEx).text();
+                String vin = doc.select(vinRegEx).text();
+                String brand = doc.select(brandRegEx).text();
+
+                String dateEnd = doc.select(dateEndRegEx).text();
+                dateEnd = DateUtil.formatSQLDate(dateEnd);
+
+                String trRegEx = "#content > div > div.content > div:nth-child(3) > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+
+                String serviceNames = "";
+                String itemNames = "";
+                if (trSize > 0) {
+                    for (int i = 1; i < trSize; i++) {
+                        String serviceItemNamesRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(1)";
+                        String goodsNamesRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(2)";
+                        String numRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(3)";
+                        String priceRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(5)";
+
+                        String serviceItemNames = doc.select(serviceItemNamesRegEx).text();
+                        String goodsNames = doc.select(goodsNamesRegEx).text();
+                        String num = doc.select(numRegEx).text();
+                        String price = doc.select(priceRegEx).text();
+                        price = price.replace("￥", "");
+
+                        serviceItemNames = serviceItemNames + "*" + num + "(" + price + ")";
+                        if (!"".equals(serviceNames))
+                            serviceNames = serviceNames + "," + serviceItemNames;
+
+                        if ("".equals(serviceNames))
+                            serviceNames = serviceItemNames;
+
+                        if ("".equals(goodsNames))
+                            continue;
+
+                        if (!"".equals(itemNames))
+                            itemNames = itemNames + "," + goodsNames;
+
+                        if ("".equals(itemNames))
+                            itemNames = goodsNames;
+
+                    }
+                }
+
+                Bill bill = new Bill();
+                bill.setBillNo(billNo);
+                bill.setCarNumber(carNumber);
+                bill.setMileage(mileage);
+                bill.setDateEnd(dateEnd);
+                bill.setCompanyName(companyName);
+                bill.setTotalAmount(totalAmount.replace("￥", ""));
+                bill.setReceptionistName(receptionistName);
+                bill.setRemark(billType + " " + remark);
+                bill.setGoodsNames(itemNames);
+                bill.setServiceItemNames(serviceNames);
+                bills.add(bill);
+
+                CarInfo carInfo = new CarInfo();
+                carInfo.setCompanyName(companyName);
+                carInfo.setCarNumber(carNumber);
+                carInfo.setName(name);
+                carInfo.setPhone(phone);
+                carInfo.setVINcode(vin);
+                carInfo.setBrand(brand);
+                carInfos.add(carInfo);
+
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\鼎鑫名车消费记录.xls";
+        String pathname2 = "C:\\exportExcel\\鼎鑫名车消费记录-车辆.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
+    }
 
 
     /**
@@ -57,15 +192,15 @@ public class WuYiCheBaoDingXinService {
 
                 if (trSize > 0) {
                     for (int j = 2; j <= trSize; j++) {
-                        String productNameRegEx=trRegEx+":nth-child("+j+") " +"> td.left.serviceTR";
-                        String firstCategoryNameRegEx=trRegEx+":nth-child("+j+") " +"> td:nth-child(3)";
-                        String priceRegEx=trRegEx+":nth-child("+j+") " +"> td:nth-child(5) > input";
+                        String productNameRegEx = trRegEx + ":nth-child(" + j + ") " + "> td.left.serviceTR";
+                        String firstCategoryNameRegEx = trRegEx + ":nth-child(" + j + ") " + "> td:nth-child(3)";
+                        String priceRegEx = trRegEx + ":nth-child(" + j + ") " + "> td:nth-child(5) > input";
 
-                        String productName=document.select(productNameRegEx) .text();
-                        String firstCategoryName=document.select(firstCategoryNameRegEx) .text();
-                        String price=document.select(priceRegEx).attr("value");
+                        String productName = document.select(productNameRegEx).text();
+                        String firstCategoryName = document.select(firstCategoryNameRegEx).text();
+                        String price = document.select(priceRegEx).attr("value");
 
-                        Product product=new Product();
+                        Product product = new Product();
                         product.setCompanyName(companyName);
                         product.setProductName(productName);
                         product.setFirstCategoryName(firstCategoryName);
@@ -80,7 +215,7 @@ public class WuYiCheBaoDingXinService {
         System.out.println("结果为" + totalPage);
 
         String pathname = "C:\\exportExcel\\鼎鑫名车服务项目.xls";
-        ExportUtil.exportProductDataInLocal(products,ExcelDatas.workbook,pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
