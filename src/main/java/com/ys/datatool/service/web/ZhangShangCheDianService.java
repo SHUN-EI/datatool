@@ -64,19 +64,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=7F9B9CFB7C9BAF9AE79ED98DFF96AA34; Hm_lvt_678c2a986264dd9650b6a59042718858=1539072316,1539574485,1540960547; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjkwMWU0M2MwLWVkMzgtNDViZC04YmFjLTAzYWU0MTZiYTk0NiIsImV4cCI6MTU0MTA0Njk0NywibmJmIjoxNTQwOTYwNTQ3LCJzdG9yZUlkIjoiNDhkNjdiNWItZTFjNC00NjI0LWE4ODctYjQ0Y2NjNjM4NjIyIiwidXNlclR5cGUiOiIwIn0.QtSvWub7qw-bNHPYIswFn323Aq1w26dBBWJDFLYAbTSSz02cz-x7mLwjQsbVRcCUaZmcDOx6pxrqdH640bDwoA; SERVERID=b810ac6d9315e3be005b170045c65755|1540960569|1540960251; Hm_lpvt_678c2a986264dd9650b6a59042718858=1540960568";
-
-
-    @Test
-    public void test() throws IOException {
-        String value = "9bf042fc-6af3-4d33-8e19-51040465c143";
-        String b = getStockOutParam(value);
-
-        Response res1 = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(stockOutMethod, b), COOKIE);
-        JsonNode result = MAPPER.readTree(res1.returnContent().asString());
-
-        String abc = "";
-    }
+    private String COOKIE = "JSESSIONID=04131A409F595F795984F6C209552A0F; Hm_lvt_678c2a986264dd9650b6a59042718858=1543569473; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImI1MWQxZDNjLTk3NzQtNDQ5Zi05ZDhmLWVmYzY0ZDA1MTkxMCIsImV4cCI6MTU0MzY1NTg3MywibmJmIjoxNTQzNTY5NDczLCJzdG9yZUlkIjoiZmM0Y2FjY2EtMWJjMS00NjNlLWJkMDAtYTc5MDI3MmIwMTE4IiwidXNlclR5cGUiOiIwIn0.EdQx75XFhCkmGpMCyjifFKwP_11pNlsXwZW3f7WeRcrJ7KqHWsnORcJYT0IRZBLCTE8_jBWv97k5Eqcu-CQI9A; SERVERID=b810ac6d9315e3be005b170045c65755|1543569478|1543568248; Hm_lpvt_678c2a986264dd9650b6a59042718858=1543569478";
 
 
     /**
@@ -313,13 +301,16 @@ public class ZhangShangCheDianService {
     }
 
     /**
-     * 卡内项目-标准模版导出
+     * 会员卡，卡内项目，卡内项目商品-标准模版导出
+     *
+     * 会员管理-会员卡发放管理-会员卡详情
      *
      * @throws IOException
      */
     @Test
-    public void fetchMemberCardItemDataStandard() throws IOException {
+    public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
+        List<MemberCard> memberCards = new ArrayList<>();
         List<Product> products = new ArrayList<>();
 
         Set<String> cardIds = getMemberCardId();
@@ -334,37 +325,62 @@ public class ZhangShangCheDianService {
                 if ("无项目".equals(itemIsExist))
                     continue;
 
-                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(3) > div:nth-child(2)";
-                String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
+                String cardNameRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(2)";
+                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(4)";
+                String nameRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(2)";
+                String phoneRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(6)";
+                String carNumberRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(4)";
+                String dateCreatedRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(3) > th:nth-child(2)";
+                String balanceRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(4) > th:nth-child(2)";
+                String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(3) > th:nth-child(4)";
 
-                String cardCode = doc.select(cardCodeRegEx).text();
+                //到期时间
                 String validTime = doc.select(validTimeRegEx).text();
                 if ("-".equals(validTime))
                     validTime = "";
 
-                String isValidForever = CommonUtil.getIsValidForever(validTime);
-
                 if (!"-".equals(validTime) && StringUtils.isNotBlank(validTime))
                     validTime = DateUtil.formatSQLDateTime(validTime);
 
+                String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                String cardCode = doc.select(cardCodeRegEx).text();
+                String memberCardName=doc.select(cardNameRegEx).text();
+                String carNumber=doc.select(carNumberRegEx).text();
+                String name=doc.select(nameRegEx).text();
+                String phone=doc.select(phoneRegEx).text();
+                String balance=doc.select(balanceRegEx).text();
+                String dateCreated=doc.select(dateCreatedRegEx).text();
+                dateCreated=DateUtil.formatSQLDateTime(dateCreated);
+
+                MemberCard memberCard = new MemberCard();
+                memberCard.setCardCode(cardCode);
+                memberCard.setMemberCardName(memberCardName);
+                memberCard.setCarNumber(carNumber);
+                memberCard.setName(name);
+                memberCard.setPhone(phone);
+                memberCard.setBalance(balance.replace("￥", ""));
+                memberCard.setDateCreated(dateCreated);
+                memberCard.setCompanyName(companyName);
+                memberCards.add(memberCard);
 
                 String trRegEx = "#listCon > tr";
                 int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
-                        String firstCategoryNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(1)";
-                        String secondCategoryNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(2)";
-                        String itemNameRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(3)";
-                        String priceRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(4)";
-                        String originalNumRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(5)";
-                        String numRegEx = "#listCon > tr:nth-child({no}) > td:nth-child(7)";
+                        String firstCategoryNameRegEx = trRegEx + ":nth-child(" + i + ") > td:nth-child(1)";
+                        String secondCategoryNameRegEx = trRegEx + ":nth-child(" + i + ") > td:nth-child(2)";
+                        String itemNameRegEx = trRegEx + ":nth-child( " + i + ") > td:nth-child(3)";
+                        String priceRegEx = trRegEx + ":nth-child(" + i + ") > td:nth-child(4)";
+                        String originalNumRegEx = trRegEx + ":nth-child(" + i + ") > td:nth-child(5)";
+                        String numRegEx = trRegEx + ":nth-child(" + i + ") > td:nth-child(7)";
 
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
-                        String secondCategoryName = doc.select(StringUtils.replace(secondCategoryNameRegEx, "{no}", String.valueOf(i))).text();
-                        String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
-                        String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
-                        String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
+                        String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+                        String secondCategoryName = doc.select(secondCategoryNameRegEx).text();
+                        String itemName = doc.select(itemNameRegEx).text();
+                        String price = doc.select(priceRegEx).text();
+                        String originalNum = doc.select(originalNumRegEx).text();
+                        String num = doc.select(numRegEx).text();
 
                         MemberCardItem memberCardItem = new MemberCardItem();
                         memberCardItem.setCompanyName(companyName);
@@ -396,67 +412,12 @@ public class ZhangShangCheDianService {
         System.out.println("结果为" + memberCardItems.toString());
         System.out.println("结果为" + memberCardItems.size());
 
-        String pathname = "C:\\exportExcel\\掌上车店卡内项目.xls";
-        String pathname2 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
-        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
-    }
-
-    /**
-     * 会员卡-标准模版导出
-     *
-     * @throws IOException
-     */
-    @Test
-    public void fetchMemberCardDataStandard() throws IOException {
-        List<MemberCard> memberCards = new ArrayList<>();
-
-        Set<String> cardIds = getMemberCardId();
-        if (cardIds.size() > 0) {
-            for (String cardId : cardIds) {
-                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
-                String html = res.returnContent().asString();
-                Document doc = Jsoup.parseBodyFragment(html);
-
-                String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(3) > div:nth-child(2)";
-                String memberCardNameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(2)";
-                String carNumberRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(4) > div:nth-child(4)";
-                String nameRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(2)";
-                String phoneRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(5) > div:nth-child(6)";
-                String balanceRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(6) > div:nth-child(2) > b";
-                String dateCreatedRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(2)";
-                String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > div.select-title > div.input-item > div:nth-child(7) > div:nth-child(4)";
-
-                String cardCode = doc.select(cardCodeRegEx).text();
-                String memberCardName = doc.select(memberCardNameRegEx).text();
-                String carNumber = doc.select(carNumberRegEx).text();
-                String name = doc.select(nameRegEx).text();
-                String phone = doc.select(phoneRegEx).text();
-                String balance = doc.select(balanceRegEx).text();
-                String dateCreated = doc.select(dateCreatedRegEx).text();
-                String validTime = doc.select(validTimeRegEx).text();
-
-                if (!"-".equals(dateCreated))
-                    dateCreated = DateUtil.formatSQLDateTime(dateCreated);
-
-                MemberCard memberCard = new MemberCard();
-                memberCard.setCardCode(cardCode);
-                memberCard.setMemberCardName(memberCardName);
-                memberCard.setCarNumber(carNumber);
-                memberCard.setName(name);
-                memberCard.setPhone(phone);
-                memberCard.setBalance(balance.replace("￥", ""));
-                memberCard.setDateCreated(dateCreated.replace("-", "/"));
-                memberCard.setCompanyName(companyName);
-                memberCards.add(memberCard);
-            }
-        }
-
-        System.out.println("结果为" + memberCards.toString());
-        System.out.println("结果为" + memberCards.size());
-
         String pathname = "C:\\exportExcel\\掌上车店会员卡.xls";
+        String pathname2 = "C:\\exportExcel\\掌上车店卡内项目.xls";
+        String pathname3 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
         ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname3);
     }
 
     /**
@@ -758,7 +719,7 @@ public class ZhangShangCheDianService {
                 "\"status\":" + 1 + "," +
                 "\"getCount\":" + false + "," +
                 "\"beginDate\":" + "\"" + beginDate + "\"" + "," +
-                "\"endDate\":" + "\"" +  DateUtil.formatCurrentDate() + "\"" + "," +
+                "\"endDate\":" + "\"" + DateUtil.formatCurrentDate() + "\"" + "," +
                 "\"searchStoreId\":" + "\"\"" + "," +
                 "\"suspendedStatusStr\":" + suspendedStatusStr + "," +
                 "\"sort\":" + 0 + "}";
