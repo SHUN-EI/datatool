@@ -40,7 +40,18 @@ public class ConnectionUtil {
 
         Response response = Request.Post(url)
                 .setHeader("cookie", cookie)
-                .bodyString(param, ContentType.APPLICATION_JSON)
+                .bodyString(param, ContentType.APPLICATION_FORM_URLENCODED)
+                .execute();
+
+        return response;
+    }
+
+    public static Response doPostWithToken(String url, String param, String cookie, String token) throws IOException {
+
+        Response response = Request.Post(url)
+                .setHeader("Cookie", cookie)
+                .setHeader("token", token)
+                .bodyString(param, ContentType.APPLICATION_FORM_URLENCODED)
                 .execute();
 
         return response;
