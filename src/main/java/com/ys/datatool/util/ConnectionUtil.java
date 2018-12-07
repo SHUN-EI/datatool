@@ -22,15 +22,11 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWithAuthority(String url, String accept, String cookie, String referer, String authority, String x_Requested_With, String user_Agent) throws IOException {
+    public static Response doGetWith(String url, String cookie, String x_Requested_With) throws IOException {
 
         Response response = Request.Get(url)
-                .setHeader("Accept", accept)
                 .setHeader("Cookie", cookie)
-                .setHeader("authority", authority)
-                .setHeader("Referer", referer)
                 .setHeader("X-Requested-With", x_Requested_With)
-                .setHeader("User-Agent", user_Agent)
                 .execute();
 
         return response;
