@@ -1,24 +1,23 @@
 package com.ys.datatool.service.web;
 
+import com.ys.datatool.domain.ExcelDatas;
 import com.ys.datatool.domain.HtmlTag;
 import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.DateUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.util.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mo on @date  2018/12/5.
@@ -41,7 +40,7 @@ public class YunDianYiService {
 
     private String companyName = "云店易";
 
-    private String COOKIE = " PHPSESSID=qqcu0r41di30gungg9dqcip5m2;";
+    private String COOKIE = "PHPSESSID=ag05ngpe5rkod40ep7jamd4166;";
 
 
     /**
@@ -54,8 +53,9 @@ public class YunDianYiService {
      */
     @Test
     public void fetchMemberCardItemDataStandard() throws Exception {
-        Map<String, String> memberCardMap = new HashMap<>();
         List<MemberCard> memberCards = new ArrayList<>();
+        List<MemberCard> cards = new ArrayList<>();
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(PACKAGEPAGE_URL + 1, COOKIE);
         String html = response.returnContent().asString();
@@ -91,18 +91,28 @@ public class YunDianYiService {
                         String getIdRegEx = "(?<=id/)(.*)(?=/')";
                         String cardId = CommonUtil.fetchString(cardIdStr, getIdRegEx);
 
+                        //套餐到期时间
+                        String validTimeRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(5) > span:nth-child(2)";
+                        String validTime = doc.select(validTimeRegEx).text();
+                        validTime = DateUtil.formatSQLDateTime(validTime);
+
                         String memberCardName = doc.select(memberCardNameRegEx).text();
-                        memberCardMap.put(cardId, memberCardName);
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setMemberCardId(cardId);
+                        memberCard.setValidTime(validTime);
+                        cards.add(memberCard);
                     }
                 }
             }
         }
 
         //获取每个套餐对应的所有车辆
-        if (memberCardMap.size() > 0) {
-            for (String cardId : memberCardMap.keySet()) {
+        if (cards.size() > 0) {
+            for (MemberCard card : cards) {
 
-                String cardName = memberCardMap.get(cardId);
+                String cardName = card.getMemberCardName();
+                String cardId = card.getMemberCardId();
                 String pageUrl = PACKAGECARPAGE_URL + cardId + "/";
                 Response res = ConnectionUtil.doGetWith(pageUrl, COOKIE, X_REQUESTED_WITH);
                 String content = res.returnContent().asString();
@@ -159,6 +169,7 @@ public class YunDianYiService {
                                 memberCard.setDateCreated(dateCreated);
                                 memberCard.setBalance(balance);
                                 memberCard.setMemberCardName(cardName);
+                                memberCard.setValidTime(card.getValidTime());
                                 memberCards.add(memberCard);
                             }
                         }
@@ -173,15 +184,56 @@ public class YunDianYiService {
 
                 String url = CARINFO_URL + clientId + "/";
                 Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
-                String body=res.returnContent().asString();
+                String body = res.returnContent().asString();
+                Document docu = Jsoup.parse(body);
 
-                String aaa="";
+                String trRegEx = "#sale_table > div > div.widget-body > div > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(docu, trRegEx, HtmlTag.trName);
 
+                if (trSize > 0) {
+                    Elements elements = docu.select(trRegEx).tagName(HtmlTag.trName);
+                    for (Element e : elements) {
+
+                        if (e.hasClass("info") || e.hasClass("green"))
+                            continue;
+
+                        String tableRegEx = "table[class=table table-hover] > tbody > tr";
+                        Elements trElements = e.select(tableRegEx);
+
+                        for (Element element : trElements) {
+
+                            if (element.hasClass("info"))
+                                continue;
+
+                            String itemNameRegEx = "td:nth-child(1)";
+                            String originalNumRegEx = "td:nth-child(2)";
+                            String numRegEx = "td:nth-child(4)";
+
+                            String itemName = element.select(itemNameRegEx).text();
+                            String originalNum = element.select(originalNumRegEx).text();
+                            String num = element.select(numRegEx).text();
+
+                            String validTime = memberCard.getValidTime();
+                            String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                            MemberCardItem memberCardItem = new MemberCardItem();
+                            memberCardItem.setItemName(itemName);
+                            memberCardItem.setOriginalNum(originalNum);
+                            memberCardItem.setNum(num);
+                            memberCardItem.setCompanyName(companyName);
+                            memberCardItem.setCardCode(memberCard.getCardCode());
+                            memberCardItem.setValidTime(validTime);
+                            memberCardItem.setIsValidForever(isValidForever);
+                            memberCardItems.add(memberCardItem);
+                        }
+                    }
+                }
             }
-
         }
 
         String pathname = "C:\\exportExcel\\云店易会员卡.xls";
-        //ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        String pathname2 = "C:\\exportExcel\\云店易卡内项目.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
     }
 }

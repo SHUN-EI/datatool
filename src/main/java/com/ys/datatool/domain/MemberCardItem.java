@@ -52,7 +52,7 @@ public class MemberCardItem {
     /**
      * 售价
      */
-    private String price;
+    private String price="0";
 
     /**
      * 折扣
