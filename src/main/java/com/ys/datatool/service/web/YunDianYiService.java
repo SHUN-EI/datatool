@@ -17,7 +17,9 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mo on @date  2018/12/5.
@@ -40,7 +42,7 @@ public class YunDianYiService {
 
     private String companyName = "云店易";
 
-    private String COOKIE = "PHPSESSID=ag05ngpe5rkod40ep7jamd4166;";
+    private String COOKIE = "PHPSESSID=8g2fp407ctdqg9mh0r9sc2ntk4;";
 
 
     /**
@@ -56,6 +58,7 @@ public class YunDianYiService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCard> cards = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
+        Map<String, MemberCard> memberCardMap = new HashMap<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(PACKAGEPAGE_URL + 1, COOKIE);
         String html = response.returnContent().asString();
@@ -171,6 +174,7 @@ public class YunDianYiService {
                                 memberCard.setMemberCardName(cardName);
                                 memberCard.setValidTime(card.getValidTime());
                                 memberCards.add(memberCard);
+                                memberCardMap.put(clientId, memberCard);
                             }
                         }
                     }
@@ -178,9 +182,9 @@ public class YunDianYiService {
             }
         }
 
-        if (memberCards.size() > 0) {
-            for (MemberCard memberCard : memberCards) {
-                String clientId = memberCard.getClientId();
+        if (memberCardMap.size() > 0) {
+            for (String clientId : memberCardMap.keySet()) {
+                MemberCard memberCard = memberCardMap.get(clientId);
 
                 String url = CARINFO_URL + clientId + "/";
                 Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
@@ -192,10 +196,20 @@ public class YunDianYiService {
 
                 if (trSize > 0) {
                     Elements elements = docu.select(trRegEx).tagName(HtmlTag.trName);
+                    String validTime = "";
                     for (Element e : elements) {
 
-                        if (e.hasClass("info") || e.hasClass("green"))
+                        if (e.hasClass("info"))
                             continue;
+
+                        if (e.hasClass("green")) {
+
+                            String validTimeRegEx = "td:nth-child(2)";
+                            validTime = e.select(validTimeRegEx).text();
+                            int start = validTime.indexOf("至");
+                            validTime = validTime.substring(start + 1, validTime.length());
+                            validTime = DateUtil.formatSQLDateTime(validTime);
+                        }
 
                         String tableRegEx = "table[class=table table-hover] > tbody > tr";
                         Elements trElements = e.select(tableRegEx);
@@ -213,7 +227,6 @@ public class YunDianYiService {
                             String originalNum = element.select(originalNumRegEx).text();
                             String num = element.select(numRegEx).text();
 
-                            String validTime = memberCard.getValidTime();
                             String isValidForever = CommonUtil.getIsValidForever(validTime);
 
                             MemberCardItem memberCardItem = new MemberCardItem();
