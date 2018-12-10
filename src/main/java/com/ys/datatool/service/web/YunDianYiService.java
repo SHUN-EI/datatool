@@ -16,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,14 @@ import java.util.Map;
 
 @Service
 public class YunDianYiService {
+
+    private String COUPONCARDETAIL_URL = "https://vip.yundianyi.com/promotion/ajaxgetcode/type/enable/cardid/";
+
+    private String COUPONCAR_URL = "https://vip.yundianyi.com/promotion/ajaxcarduser/id/";
+
+    private String COUPONLIST_URL = "https://vip.yundianyi.com/promotion/getcardpage/type/enable/page/";
+
+    private String COUPONPAGE_URL = "https://vip.yundianyi.com/promotion/card/";
 
     private String CARINFO_URL = "https://vip.yundianyi.com/custom/getcustom/id/";
 
@@ -44,6 +53,120 @@ public class YunDianYiService {
 
     private String COOKIE = "PHPSESSID=8g2fp407ctdqg9mh0r9sc2ntk4;";
 
+
+    /**
+     * 优惠券数据
+     * 营销管理-优惠券-有效优惠券
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCouponData() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        List<MemberCard> memberCardList = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(COUPONPAGE_URL, COOKIE);
+        String html = response.returnContent().asString();
+        Document document = Jsoup.parse(html);
+
+        String totalRegEx = "#enableCard > div.text-center > ul > li:nth-child(3) > input";
+        String totalPageStr = document.select(totalRegEx).attr("data-max-page");
+        int total = Integer.parseInt(totalPageStr);
+
+        //获取所有优惠券
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                String url = COUPONLIST_URL + i;
+                Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                String content = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String trRegEx = "body > div > div > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int j = 2; j <= trSize; j++) {
+
+                        String memberCardNameRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(1)";
+                        String memberCardTypeRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(2)";
+                        String validTimeRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(3)";
+                        String stateRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(8)";//发放方式
+
+                        String cardIdRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(10) > a.btn.btn-success.btn-minier";
+                        String cardIdStr = doc.select(cardIdRegEx).attr("onclick");
+                        String getIdRegEx = "(?<=id/)(.*)(?=')";
+                        String cardId = CommonUtil.fetchString(cardIdStr, getIdRegEx);
+
+                        String state = doc.select(stateRegEx).text();
+                        String validTime = doc.select(validTimeRegEx).text();
+                        String memberCardType = doc.select(memberCardTypeRegEx).text();
+                        String memberCardName = doc.select(memberCardNameRegEx).text();
+
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setMemberCardId(cardId);
+                        memberCard.setState(state);
+                        memberCard.setCardSort(state);
+                        memberCard.setValidTime(validTime);
+                        memberCard.setCardType(memberCardType);
+                        memberCardList.add(memberCard);
+                    }
+                }
+            }
+        }
+
+
+        if (memberCardList.size() > 0) {
+            for (MemberCard memberCard : memberCardList) {
+                String cardId = memberCard.getMemberCardId();
+
+                String url = COUPONCAR_URL + cardId;
+                Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                String content = res.returnContent().asString();
+                Document doc = Jsoup.parseBodyFragment(content);
+
+                String totalPageRegEx = "#enableItemCard > div.text-center > ul > li:nth-child(3) > input";
+                String totalStr = doc.select(totalPageRegEx).attr("data-max-page");
+
+                if (totalStr == "")
+                    continue;
+
+                int totalPage = Integer.parseInt(totalStr);
+                if (totalPage > 0) {
+                    for (int i = 1; i <= totalPage; i++) {
+
+                        url = COUPONCARDETAIL_URL + cardId + "/page/" + i;
+                        Response res2 = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                        String body = res2.returnContent().asString();
+                        Document docu = Jsoup.parseBodyFragment(body);
+
+                        String trRegEx = "body > table > tbody > tr";
+                        int trSize = WebClientUtil.getTagSize(docu, trRegEx, HtmlTag.trName);
+
+                        if (trSize > 0) {
+                            for (int j = 2; j <= trSize; j++) {
+                                String nameRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(1)";
+                                String name = docu.select(nameRegEx).text();
+
+                                MemberCard m = new MemberCard();
+                                m.setCompanyName(companyName);
+                                m.setName(name);
+                                m.setMemberCardName(memberCard.getMemberCardName());
+                                m.setDateCreated(memberCard.getValidTime());
+                                m.setCardType(memberCard.getCardType());
+                                m.setCardSort(memberCard.getCardSort());
+                                memberCards.add(m);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\云店易优惠券.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 促销套餐数据(该客户只有洗车套餐数据)
@@ -67,7 +190,6 @@ public class YunDianYiService {
         String totalRegEx = "#package_page_table_enable_1 > table > tbody > tr > td > div > ul > li:nth-child(3) > input";
         String totalPageStr = document.select(totalRegEx).attr("data-max-page");
         int total = Integer.parseInt(totalPageStr);
-
 
         //获取所有套餐
         if (total > 0) {
