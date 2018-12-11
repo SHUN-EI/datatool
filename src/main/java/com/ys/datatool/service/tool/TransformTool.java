@@ -672,4 +672,58 @@ public class TransformTool {
     }
 
 
+    @Test
+    public void fetchDataByCompareDate() throws IOException {
+        List<Bill> bills=new ArrayList<>();
+        Map<String, Bill> billMap = new HashMap<>();
+        File billFile = new File("C:\\exportExcel\\result.xls");
+
+        FileInputStream billStream = new FileInputStream(billFile);
+        HSSFWorkbook billWorkbook = new HSSFWorkbook(billStream);
+        HSSFSheet billSheet = billWorkbook.getSheetAt(0);
+
+        for (int i = 1; i <= billSheet.getLastRowNum(); i++) {
+            HSSFRow row = billSheet.getRow(i);
+
+            String billNo = "";
+            String itemCode = "";
+            String dateAdded = "";
+
+            itemCode = getCell(row, 3, itemCode);
+            billNo = getCell(row, 1, billNo);
+            dateAdded = getCell(row, 0, billNo);
+            Date date = DateUtil.parseDateByAuto(dateAdded);
+
+            if (!"".equals(itemCode)) {
+
+                if (billMap.get(itemCode) != null) {
+                    Bill bill = billMap.get(itemCode);
+                    Date billDate = DateUtil.parseDateByAuto(bill.getDateEnd());
+
+                    //最新时间
+                    if (date.after(billDate))
+                        bill.setBillNo(billNo);
+                }
+
+                if (billMap.get(itemCode) == null) {
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setDateEnd(dateAdded);
+                    bill.setRemark(itemCode);
+                    billMap.put(itemCode, bill);
+                }
+            }
+        }
+
+        if (billMap.size() > 0) {
+            billMap.entrySet().forEach(b -> {
+                bills.add(b.getValue());
+            });
+        }
+
+        String pathname = "C:\\exportExcel\\最新时间单.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
+    }
+
+
 }
