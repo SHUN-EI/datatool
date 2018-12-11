@@ -701,8 +701,10 @@ public class TransformTool {
                     Date billDate = DateUtil.parseDateByAuto(bill.getDateEnd());
 
                     //最新时间
-                    if (date.after(billDate))
+                    if (date.after(billDate)) {
                         bill.setBillNo(billNo);
+                        bill.setDateEnd(dateAdded);
+                    }
                 }
 
                 if (billMap.get(itemCode) == null) {
