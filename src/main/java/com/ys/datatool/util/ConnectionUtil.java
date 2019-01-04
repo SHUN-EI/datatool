@@ -32,6 +32,17 @@ public class ConnectionUtil {
         return response;
     }
 
+    public static Response doPutWithJson(String url, String param, String cookie, String content_type) throws IOException {
+
+        Response response = Request.Put(url)
+                .setHeader("Cookie", cookie)
+                .setHeader("content-type", content_type)
+                .bodyString(param, ContentType.APPLICATION_JSON)
+                .execute();
+
+        return response;
+    }
+
     public static Response doPostWithJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Post(url)

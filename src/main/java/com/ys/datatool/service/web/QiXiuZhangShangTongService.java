@@ -2,10 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.Product;
-import com.ys.datatool.domain.Stock;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -27,6 +24,8 @@ import java.util.List;
 @Service
 public class QiXiuZhangShangTongService {
 
+    private String CARINFO_URL = "http://xlc.qxgs.net/api/pc/def/sp/owner/getNewOwnerList";
+
     private String STOCKDETAIL_URL = "http://xlc.qxgs.net/api/pc/def/sp/shop_parts/";
 
     private String STOCK_URL = "http://xlc.qxgs.net/api/pc/def/sp/shop_parts/overview/page?pageSize=10&itemsCount={num}&pageNo=";
@@ -39,7 +38,55 @@ public class QiXiuZhangShangTongService {
 
     private String companyName = "汽修掌上通";
 
-    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546490520; sid=7da50a60-55dc-4b82-9f19-fc70eaf73164";
+    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546583504; sid=5f24629d-45d0-4137-81b9-dc413f4f657a";
+
+
+    /**
+     * 车辆信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, CONTENT_TYPE);
+        int totalPage = getTotalPage(response);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, CONTENT_TYPE);
+                JsonNode content = MAPPER.readTree(res.returnContent().asString());
+
+                JsonNode node = content.get("data").get(0).get("results");
+                if (node.size() > 0) {
+                    Iterator<JsonNode> it = node.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String carNumber=element.get("plateNo").asText();
+                        String name=element.get("ownerName").asText();
+                        String phone=element.get("mobile").asText();
+                        String carModel=element.get("model").asText();
+                        String vin=element.get("vin").asText();
+
+                        CarInfo carInfo=new CarInfo();
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                        carInfo.setName(CommonUtil.formatString(name));
+                        carInfo.setPhone(CommonUtil.formatString(phone));
+                        carInfo.setCarModel(CommonUtil.formatString(carModel));
+                        carInfo.setVINcode(CommonUtil.formatString(vin));
+                        carInfos.add(carInfo);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\汽修掌上通车辆信息.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -100,7 +147,7 @@ public class QiXiuZhangShangTongService {
 
                         stocks.add(stock);
 
-                        Product product=new Product();
+                        Product product = new Product();
                         product.setCompanyName(companyName);
                         product.setProductName(goodsName);
                         product.setCode(productCode);
@@ -179,6 +226,15 @@ public class QiXiuZhangShangTongService {
         int totalPage = WebClientUtil.getTotalPage(totalNode, 10);
 
         return totalPage > 0 ? totalPage : 0;
+    }
+
+    private String getPageParam(int pageNo) {
+        String param = "{" +
+                "\"pageSize\":10," +
+                "\"pageIndex\":" + pageNo +
+                "}";
+
+        return param;
     }
 
     private String getParam(int pageNo) {
