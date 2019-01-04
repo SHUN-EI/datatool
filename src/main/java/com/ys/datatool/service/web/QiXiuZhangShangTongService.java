@@ -3,19 +3,14 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mo on @date  2019/1/2.
@@ -23,6 +18,10 @@ import java.util.List;
  */
 @Service
 public class QiXiuZhangShangTongService {
+
+    private String BILLDETAIL_URL = "http://xlc.qxgs.net/api/pc/def/carinfo/payhistory/detail/";
+
+    private String BILL_URL = "http://xlc.qxgs.net/api/pc/def/carinfo/payhistory";
 
     private String CARINFO_URL = "http://xlc.qxgs.net/api/pc/def/sp/owner/getNewOwnerList";
 
@@ -39,6 +38,146 @@ public class QiXiuZhangShangTongService {
     private String companyName = "汽修掌上通";
 
     private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546583504; sid=5f24629d-45d0-4137-81b9-dc413f4f657a";
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        Map<String, String> carMap = new HashMap<>();
+
+        //获取所有客户车辆的Uuid
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, CONTENT_TYPE);
+        int totalPage = getTotalPage(response);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, CONTENT_TYPE);
+                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+
+                JsonNode node = content.get("data").get(0).get("results");
+                if (node.size() > 0) {
+                    Iterator<JsonNode> it = node.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String carUuid = element.get("carUuid").asText();
+                        String carNumber = element.get("plateNo").asText();
+                        carMap.put(carUuid, carNumber);
+
+                    }
+                }
+            }
+        }
+
+        if (carMap.size() > 0) {
+            for (String uuid : carMap.keySet()) {
+
+                String carNumber = carMap.get(uuid);
+
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, 1), COOKIE, CONTENT_TYPE);
+                int billTotalPage = getTotalPage(res);
+
+                if (billTotalPage > 0) {
+                    for (int i = 1; i <= billTotalPage; i++) {
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, i), COOKIE, CONTENT_TYPE);
+                        JsonNode content = MAPPER.readTree(res.returnContent().asString());
+
+                        JsonNode node = content.get("data").get(0).get("results");
+                        if (node.size() > 0) {
+                            Iterator<JsonNode> it = node.iterator();
+
+                            while (it.hasNext()) {
+                                JsonNode element = it.next();
+
+                                String billNo = element.get("orderNo").asText();
+                                String orderUuid = element.get("orderUuid").asText();
+                                String totalAmount = element.get("allprices").asText();
+                                String remark = element.get("orderType").asText();
+                                String mileage = element.get("mileage").asText();
+                                String dateEnd = element.get("receiveTime").asText();
+                                dateEnd = DateUtil.formatMillisecond2DateTime(dateEnd);
+
+                                Bill bill = new Bill();
+                                bill.setCompanyName(companyName);
+                                bill.setBillNo(billNo);
+                                bill.setTotalAmount(totalAmount);
+                                bill.setRemark(remark);
+                                bill.setMileage(mileage);
+                                bill.setDateEnd(dateEnd);
+                                bill.setCarNumber(carNumber);
+
+                                Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + orderUuid, COOKIE);
+                                JsonNode body = MAPPER.readTree(res2.returnContent().asString());
+
+                                JsonNode data = body.get("data").get(0).get("hyOrderItemResults");
+                                if (data.size() > 0) {
+                                    Iterator<JsonNode> services = data.iterator();
+
+                                    while (services.hasNext()) {
+                                        JsonNode e = services.next();
+
+                                        String receptionistNam = e.get("principalName").asText();
+                                        bill.setReceptionistName(receptionistNam);
+
+                                        String serviceItemName = e.get("itemName").asText();
+                                        String serviceItemPrice = e.get("itemPrice").asText();
+                                        serviceItemName = serviceItemName + "(" + serviceItemPrice + ")";
+
+                                        //汇总项目
+                                        if (bill.getServiceItemNames() != null && !"".equals(bill.getServiceItemNames())) {
+                                            serviceItemName = bill.getServiceItemNames() + "," + serviceItemName;
+                                            bill.setServiceItemNames(serviceItemName);
+
+                                        }
+
+                                        if (bill.getServiceItemNames() == null) {
+                                            bill.setServiceItemNames(serviceItemName);
+                                        }
+
+                                        JsonNode goodNode = e.get("hyOrderItemPartResults");
+                                        if (goodNode.size() > 0) {
+                                            Iterator<JsonNode> goods = goodNode.iterator();
+                                            while (goods.hasNext()) {
+
+                                                JsonNode e2 = goods.next();
+
+                                                String goodName = e2.get("partName").asText();
+                                                String num = e2.get("amount").asText();
+                                                String goodCode = e2.get("code").asText();
+                                                String price = e2.get("realPrice").asText();
+
+                                                String goodsNames = goodName + "[" + goodCode + "]" + "*" + num + "(" + price + ")";
+
+                                                //汇总配件
+                                                if (bill.getGoodsNames() != null && !"".equals(bill.getGoodsNames())) {
+                                                    goodsNames = bill.getGoodsNames() + "," + goodsNames;
+                                                    bill.setGoodsNames(goodsNames);
+                                                }
+
+                                                if (bill.getGoodsNames() == null) {
+                                                    bill.setGoodsNames(goodsNames);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                bills.add(bill);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\汽修掌上通消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -65,13 +204,13 @@ public class QiXiuZhangShangTongService {
                     while (it.hasNext()) {
                         JsonNode element = it.next();
 
-                        String carNumber=element.get("plateNo").asText();
-                        String name=element.get("ownerName").asText();
-                        String phone=element.get("mobile").asText();
-                        String carModel=element.get("model").asText();
-                        String vin=element.get("vin").asText();
+                        String carNumber = element.get("plateNo").asText();
+                        String name = element.get("ownerName").asText();
+                        String phone = element.get("mobile").asText();
+                        String carModel = element.get("model").asText();
+                        String vin = element.get("vin").asText();
 
-                        CarInfo carInfo=new CarInfo();
+                        CarInfo carInfo = new CarInfo();
                         carInfo.setCompanyName(companyName);
                         carInfo.setCarNumber(CommonUtil.formatString(carNumber));
                         carInfo.setName(CommonUtil.formatString(name));
@@ -226,6 +365,17 @@ public class QiXiuZhangShangTongService {
         int totalPage = WebClientUtil.getTotalPage(totalNode, 10);
 
         return totalPage > 0 ? totalPage : 0;
+    }
+
+    private String getBillParam(String carUuid, int pageNo) {
+        String param = "{" +
+                "\"carUuid\":" +
+                "\"" + carUuid + "\"" + "," +
+                "\"pageSize\":10," +
+                "\"pageIndex\":" + pageNo +
+                "}";
+
+        return param;
     }
 
     private String getPageParam(int pageNo) {
