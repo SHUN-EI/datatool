@@ -19,6 +19,8 @@ import java.util.*;
 @Service
 public class QiXiuZhangShangTongService {
 
+    private String SERVICE_URL = "http://xlc.qxgs.net/api/pc/sp_service_item?pageSize=10&pageNo=";
+
     private String BILLDETAIL_URL = "http://xlc.qxgs.net/api/pc/def/carinfo/payhistory/detail/";
 
     private String BILL_URL = "http://xlc.qxgs.net/api/pc/def/carinfo/payhistory";
@@ -37,8 +39,54 @@ public class QiXiuZhangShangTongService {
 
     private String companyName = "汽修掌上通";
 
-    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546583504; sid=5f24629d-45d0-4137-81b9-dc413f4f657a";
+    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546849724; sid=e7daae4c-5b5c-427e-aed0-7726df698a72; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22";
 
+
+    /**
+     * 服务项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceDataStandard() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        Response response=ConnectionUtil.doGetWithLeastParams(SERVICE_URL+1,COOKIE);
+        int totalPage =getTotalPage(response);
+
+        if (totalPage>0){
+            for (int i=1;i<=totalPage;i++){
+                response=ConnectionUtil.doGetWithLeastParams(SERVICE_URL+i,COOKIE);
+                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+
+                JsonNode node = content.get("data").get(0).get("results");
+                if (node.size()>0){
+                    Iterator<JsonNode> it = node.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String name=element.get("name").asText();
+                        String code=element.get("no").asText();
+                        String price=element.get("levelB").asText();
+                        String firstCategoryName=element.get("typeName").asText();
+
+                        Product product=new Product();
+                        product.setCompanyName(companyName);
+                        product.setProductName(name);
+                        product.setCode(code);
+                        product.setPrice(price);
+                        product.setFirstCategoryName(firstCategoryName);
+                        products.add(product);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\汽修掌上通服务.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+
+    }
 
     /**
      * 历史消费记录和消费记录相关车辆
