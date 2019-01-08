@@ -79,18 +79,42 @@ public class QiXiuZhangShangTongService {
                         String dateCreated = element.get("vipCreateTime").asText();
                         dateCreated = DateUtil.formatMillisecond2DateTime(dateCreated);
 
-                        //可能出现一个车主多辆车的情况
-                        MemberCard memberCard = new MemberCard();
-                        memberCard.setCompanyName(companyName);
-                        memberCard.setName(name);
-                        memberCard.setCardCode(phone);
-                        memberCard.setPhone(phone);
-                        memberCard.setMemberCardName(memberCardName);
-                        memberCard.setBalance(balance);
-                        memberCard.setDateCreated(dateCreated);
+                        Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, 1), COOKIE, CONTENT_TYPE);
+                        int carTotalPage=getTotalPage(res);
 
-                        Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
-                        JsonNode data = MAPPER.readTree(res.returnContent().asString());
+                        if (carTotalPage>0){
+                            for (int j=1;j<=carTotalPage;j++){
+                                res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, j), COOKIE, CONTENT_TYPE);
+
+                                JsonNode carInfoData = MAPPER.readTree(res.returnContent().asString());
+                                JsonNode carInfos = carInfoData.get("data").get(0).get("results");
+
+                                if (carInfos.size() > 0) {
+                                    Iterator<JsonNode> iterator = carInfos.iterator();
+
+                                    while (iterator.hasNext()) {
+                                        JsonNode e = iterator.next();
+                                        String carNumber = e.get("plateNo").asText();
+
+                                        //一个车主多辆车
+                                        MemberCard memberCard = new MemberCard();
+                                        memberCard.setCompanyName(companyName);
+                                        memberCard.setName(name);
+                                        memberCard.setCardCode(phone);
+                                        memberCard.setPhone(phone);
+                                        memberCard.setMemberCardName(memberCardName);
+                                        memberCard.setBalance(balance);
+                                        memberCard.setDateCreated(dateCreated);
+                                        memberCard.setCarNumber(CommonUtil.formatString(carNumber));
+                                        memberCards.add(memberCard);
+                                    }
+                                }
+                            }
+                        }
+
+                        //卡内项目
+                        Response res2 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
+                        JsonNode data = MAPPER.readTree(res2.returnContent().asString());
 
                         JsonNode body = data.get("data").get(0).get("mealItems");
                         if (body != null) {
@@ -102,8 +126,8 @@ public class QiXiuZhangShangTongService {
                                 String itemName = e.get("itemName").asText();
                                 String carNumber = e.get("remark").asText();
                                 String num = e.get("freeTimes").asText();
-                                String code= e.get("itemNo").asText();
-                                String mealsName= e.get("mealsName").asText();//卡套餐名称
+                                String code = e.get("itemNo").asText();
+                                String mealsName = e.get("mealsName").asText();//卡套餐名称
                                 String validTime = e.get("expire").asText();
 
                                 if ("0".equals(validTime))
@@ -112,9 +136,9 @@ public class QiXiuZhangShangTongService {
                                 if (!"0".equals(validTime) && !"".equals(validTime))
                                     validTime = DateUtil.formatMillisecond2DateTime(validTime);
 
-                                String isValidForever=CommonUtil.getIsValidForever(validTime);
+                                String isValidForever = CommonUtil.getIsValidForever(validTime);
 
-                                MemberCardItem memberCardItem=new MemberCardItem();
+                                MemberCardItem memberCardItem = new MemberCardItem();
                                 memberCardItem.setCompanyName(companyName);
                                 memberCardItem.setItemName(itemName);
                                 memberCardItem.setCardCode(phone);
@@ -124,13 +148,8 @@ public class QiXiuZhangShangTongService {
                                 memberCardItem.setIsValidForever(isValidForever);
                                 memberCardItem.setCode(code);
                                 memberCardItems.add(memberCardItem);
-
-                                memberCard.setCarNumber(CommonUtil.formatString(carNumber));
                             }
                         }
-
-                        memberCards.add(memberCard);
-
                     }
                 }
             }
@@ -538,6 +557,16 @@ public class QiXiuZhangShangTongService {
     private String getParam(int pageNo) {
         String param = "{" +
                 "\"all\":1," +
+                "\"pageSize\":10," +
+                "\"pageIndex\":" + pageNo +
+                "}";
+
+        return param;
+    }
+
+    private String getCarInfoParam(String ownerInfo, int pageNo) {
+        String param = "{" +
+                "\"ownerInfo\":" + ownerInfo + "," +
                 "\"pageSize\":10," +
                 "\"pageIndex\":" + pageNo +
                 "}";
