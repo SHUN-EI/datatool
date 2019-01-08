@@ -119,6 +119,32 @@ public class MemberCardItem {
      */
     private String specialType = "计次项";
 
+    /**
+     * 会员卡ID
+     */
+    private String cardId;
+
+    /**
+     * 所属店ID
+     */
+    private String shopId;
+
+    public String getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
     public String getRemark() {
         return remark;
     }

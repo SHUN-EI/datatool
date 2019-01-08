@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.Bill;
 import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -24,6 +25,8 @@ import java.util.*;
 @Service
 public class JinBangService {
 
+    private String MEMBERCARDITEM_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCountDetail";
+
     private String MEMBERCARD_URL = "http://www.600vip.cn/Member/Member/GetMemberList";
 
     private String BILL_URL = "http://www.600vip.cn/Member/Member/OrderLogList";
@@ -36,7 +39,107 @@ public class JinBangService {
 
     private String companyName = "金邦会员管理系统";
 
-    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448; sid=6540e33a9880486e9419c091cae66390; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1546422614";
+    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448,1546934079; ASP.NET_SessionId=2jbcutmx1lgmgsbfcmipb1pi; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1546944161; luck_code_session=66C2B57205AF564D; sid=df2bf174ab634c1996d734520a689334";
+
+
+    /**
+     * 会员卡及卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+        List<MemberCardItem> cardItems = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getMemberCardParam(1), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 40);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getParam(i), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+
+                JsonNode node = result.get("rows");
+                if (node.size() > 0) {
+                    Iterator<JsonNode> it = node.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String shopID = element.get("ShopID").asText();
+                        String cardID = element.get("Id").asText();
+                        String cardCode = element.get("CardID").asText();
+                        String validTime = element.get("PassDate").asText();
+                        if ("0".equals(validTime))
+                            validTime = "";
+
+                        String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                        MemberCardItem memberCardItem = new MemberCardItem();
+                        memberCardItem.setCardCode(cardCode);
+                        memberCardItem.setValidTime(validTime);
+                        memberCardItem.setIsValidForever(isValidForever);
+                        memberCardItem.setCardId(cardID);
+                        memberCardItem.setShopId(shopID);
+                        cardItems.add(memberCardItem);
+                    }
+                }
+            }
+        }
+
+        if (cardItems.size() > 0) {
+            for (MemberCardItem memberCardItem : cardItems) {
+                String shopID = memberCardItem.getShopId();
+                String cardID = memberCardItem.getCardId();
+
+                String param=getMemberCardItemParam(1, cardID, shopID);
+                Response res = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, param, COOKIE);
+                int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 40);
+
+                if (total > 0) {
+                    for (int i = 1; i <= total; i++) {
+                        res = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
+                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                        JsonNode node = result.get("rows");
+                        if (node.size() > 0) {
+                            Iterator<JsonNode> it = node.iterator();
+
+                            while (it.hasNext()) {
+                                JsonNode element = it.next();
+
+                                String itemName = element.get("GoodsName").asText();
+                                String code = element.get("GoodsCode").asText();
+                                String num = element.get("Number").asText();
+                                String originalNum = element.get("TotalNum").asText();
+                                String cardCode = element.get("CardID").asText();
+                                String validTime = element.get("PassDate").asText();
+                                if ("0".equals(validTime))
+                                    validTime = "";
+
+                                String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                                MemberCardItem m = new MemberCardItem();
+                                m.setCompanyName(companyName);
+                                m.setCardCode(cardCode);
+                                m.setItemName(itemName);
+                                m.setNum(num);
+                                m.setOriginalNum(originalNum);
+                                m.setValidTime(validTime);
+                                m.setCode(code);
+                                m.setIsValidForever(isValidForever);
+                                memberCardItems.add(m);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\金邦会员管理系统卡内项目.xls";
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -153,6 +256,20 @@ public class JinBangService {
 
     private String getParam(int pageNo) {
         String param = "page=" + pageNo + "&rows=40";
+
+        return param;
+    }
+
+    private String getMemberCardItemParam(int pageNo, String memId, String shopId) {
+        String param = "rows=10&page=" + pageNo +
+                "&MemID=" + memId +
+                "ShopID=" + shopId;
+
+        return param;
+    }
+
+    private String getMemberCardParam(int pageNo) {
+        String param = "rows=40&CardID=&ShopID=&sort=Id&order=desc&page=" + pageNo;
 
         return param;
     }
