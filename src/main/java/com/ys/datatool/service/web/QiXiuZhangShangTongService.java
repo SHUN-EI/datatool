@@ -19,6 +19,10 @@ import java.util.*;
 @Service
 public class QiXiuZhangShangTongService {
 
+    private String MEMBERCARDITEM_URL = "http://xlc.qxgs.net/api/pc/def/sp/ownerVip/vip/";
+
+    private String MEMBERCARD_URL = "http://xlc.qxgs.net/api/pc/def/sp/ownerVip/owners?blVip=1&pageSize=10&pageIndex=";
+
     private String SERVICE_URL = "http://xlc.qxgs.net/api/pc/sp_service_item?pageSize=10&pageNo=";
 
     private String BILLDETAIL_URL = "http://xlc.qxgs.net/api/pc/def/carinfo/payhistory/detail/";
@@ -39,8 +43,104 @@ public class QiXiuZhangShangTongService {
 
     private String companyName = "汽修掌上通";
 
-    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546849724; sid=e7daae4c-5b5c-427e-aed0-7726df698a72; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22";
+    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546918900; sid=e7149abc-f613-4ea8-b865-aed8c9cc55af";
 
+
+    /**
+     * 会员卡及卡内项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + 1, COOKIE);
+        int totalPage = getTotalPage(response);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + i, COOKIE);
+                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+
+                JsonNode node = content.get("data").get(0).get("results");
+                if (node.size() > 0) {
+                    Iterator<JsonNode> it = node.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode element = it.next();
+
+                        String cardId = element.get("ownerId").asText();
+                        String memberCardName = element.get("vipLevelName").asText();
+                        String name = element.get("ownerName").asText();
+                        String phone = element.get("ownerMobile").asText();
+                        String balance = element.get("mealsBalance").asText();
+                        String dateCreated = element.get("vipCreateTime").asText();
+                        dateCreated = DateUtil.formatMillisecond2DateTime(dateCreated);
+
+                        //可能出现一个车主多辆车的情况
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setName(name);
+                        memberCard.setCardCode(phone);
+                        memberCard.setPhone(phone);
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setBalance(balance);
+                        memberCard.setDateCreated(dateCreated);
+
+                        Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
+                        JsonNode data = MAPPER.readTree(res.returnContent().asString());
+
+                        JsonNode body = data.get("data").get(0).get("mealItems");
+                        if (body != null) {
+                            Iterator<JsonNode> iterator = body.iterator();
+
+                            while (iterator.hasNext()) {
+                                JsonNode e = iterator.next();
+
+                                String itemName = e.get("itemName").asText();
+                                String carNumber = e.get("remark").asText();
+                                String num = e.get("freeTimes").asText();
+                                String code= e.get("itemNo").asText();
+                                String mealsName= e.get("mealsName").asText();//卡套餐名称
+                                String validTime = e.get("expire").asText();
+
+                                if ("0".equals(validTime))
+                                    validTime = "";
+
+                                if (!"0".equals(validTime) && !"".equals(validTime))
+                                    validTime = DateUtil.formatMillisecond2DateTime(validTime);
+
+                                String isValidForever=CommonUtil.getIsValidForever(validTime);
+
+                                MemberCardItem memberCardItem=new MemberCardItem();
+                                memberCardItem.setCompanyName(companyName);
+                                memberCardItem.setItemName(itemName);
+                                memberCardItem.setCardCode(phone);
+                                memberCardItem.setNum(num);
+                                memberCardItem.setOriginalNum(num);
+                                memberCardItem.setValidTime(validTime);
+                                memberCardItem.setIsValidForever(isValidForever);
+                                memberCardItem.setCode(code);
+                                memberCardItems.add(memberCardItem);
+
+                                memberCard.setCarNumber(CommonUtil.formatString(carNumber));
+                            }
+                        }
+
+                        memberCards.add(memberCard);
+
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\汽修掌上通会员卡.xls";
+        String pathname2 = "C:\\exportExcel\\汽修掌上通卡内项目.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
+    }
 
     /**
      * 服务项目
@@ -51,27 +151,27 @@ public class QiXiuZhangShangTongService {
     public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response=ConnectionUtil.doGetWithLeastParams(SERVICE_URL+1,COOKIE);
-        int totalPage =getTotalPage(response);
+        Response response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + 1, COOKIE);
+        int totalPage = getTotalPage(response);
 
-        if (totalPage>0){
-            for (int i=1;i<=totalPage;i++){
-                response=ConnectionUtil.doGetWithLeastParams(SERVICE_URL+i,COOKIE);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + i, COOKIE);
                 JsonNode content = MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
-                if (node.size()>0){
+                if (node.size() > 0) {
                     Iterator<JsonNode> it = node.iterator();
 
                     while (it.hasNext()) {
                         JsonNode element = it.next();
 
-                        String name=element.get("name").asText();
-                        String code=element.get("no").asText();
-                        String price=element.get("levelB").asText();
-                        String firstCategoryName=element.get("typeName").asText();
+                        String name = element.get("name").asText();
+                        String code = element.get("no").asText();
+                        String price = element.get("levelB").asText();
+                        String firstCategoryName = element.get("typeName").asText();
 
-                        Product product=new Product();
+                        Product product = new Product();
                         product.setCompanyName(companyName);
                         product.setProductName(name);
                         product.setCode(code);
