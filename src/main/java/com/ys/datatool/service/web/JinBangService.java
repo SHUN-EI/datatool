@@ -25,7 +25,9 @@ import java.util.*;
 @Service
 public class JinBangService {
 
-    private String MEMBERCARDITEM_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCountDetail";
+    private String MEMBERCARDITEMDETAIL_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCountDetail";
+
+    private String MEMBERCARDITEM_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCount/";
 
     private String MEMBERCARD_URL = "http://www.600vip.cn/Member/Member/GetMemberList";
 
@@ -39,7 +41,7 @@ public class JinBangService {
 
     private String companyName = "金邦会员管理系统";
 
-    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448,1546934079; ASP.NET_SessionId=2jbcutmx1lgmgsbfcmipb1pi; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1546944161; luck_code_session=66C2B57205AF564D; sid=df2bf174ab634c1996d734520a689334";
+    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448,1546934079; ASP.NET_SessionId=2jbcutmx1lgmgsbfcmipb1pi; luck_code_session=0E0A272898A51DA4; sid=8b107820e66b4de280cfd5c9df5b6e17; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1547007180";
 
 
     /**
@@ -94,12 +96,12 @@ public class JinBangService {
                 String cardID = memberCardItem.getCardId();
 
                 String param=getMemberCardItemParam(1, cardID, shopID);
-                Response res = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, param, COOKIE);
+                Response res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE);
                 int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 40);
 
                 if (total > 0) {
                     for (int i = 1; i <= total; i++) {
-                        res = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
+                        res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
                         JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = result.get("rows");
@@ -263,7 +265,7 @@ public class JinBangService {
     private String getMemberCardItemParam(int pageNo, String memId, String shopId) {
         String param = "rows=10&page=" + pageNo +
                 "&MemID=" + memId +
-                "ShopID=" + shopId;
+                "&ShopID=" + shopId;
 
         return param;
     }
