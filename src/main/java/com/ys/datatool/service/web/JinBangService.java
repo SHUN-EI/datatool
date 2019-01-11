@@ -195,7 +195,7 @@ public class JinBangService {
 
                                 String billNo = element.get("BillCode").asText();
                                 String carNumber = element.get("CardID").asText();
-                                String totalAmount = element.get("PayMoney").asText();
+                                String totalAmount = element.get("DiscountMoney").asText();
                                 String remark = element.get("Remark").asText();
                                 String dateEnd = element.get("CreateTime").asText();
                                 dateEnd = getCreateTime(dateEnd);
