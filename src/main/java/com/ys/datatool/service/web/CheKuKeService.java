@@ -89,15 +89,15 @@ public class CheKuKeService {
     private int billEnd = 120;
 
     //车主列表尾页取整数
-    private int memberEnd = 50;
+    private int memberEnd = 6;
 
     //总消费记录尾页取整数
     private int billDetailEnd = 430;
 
     //登录账号和密码
-    private String USERNAME = "qn900";
+    private String USERNAME = "S8121";
 
-    private String PASSWORD = "yyyyy123.";
+    private String PASSWORD = "a150500.";
 
     private String COOKIE = "ASP.NET_SessionId=go5qfgdu3vkfd22dtuik3x1x; LOGINNAME=qn900; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1540795914,1542020988,1542188759; LOGINKEY=3b4abe4aa9ea40b9a42dacc8c6d51e4f; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1542269501";
 
@@ -1005,7 +1005,14 @@ public class CheKuKeService {
         if (count == num)
             return;
 
-        String anchorXPath = "//*[@id=\"AspNetPager1\"]/a[13]";
+        String anchorXPath = "";
+
+        if (end >= 10) {
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[13]";
+        } else {
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[" + (end + 2) + "]";
+        }
+
         if (count > 10)
             anchorXPath = "//*[@id=\"AspNetPager1\"]/a[14]";
 
