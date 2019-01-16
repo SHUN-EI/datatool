@@ -79,21 +79,6 @@ public class CheKuKeService {
     //会员卡对应的行数
     private int sign = 0;
 
-    //会员卡片列表尾页取整数
-    private int memberCardEnd = 20;
-
-    //会员车辆列表尾页取整数
-    private int carEnd = 170;
-
-    //开单管理尾页取整数
-    private int billEnd = 120;
-
-    //车主列表尾页取整数
-    private int memberEnd = 6;
-
-    //总消费记录尾页取整数
-    private int billDetailEnd = 10;
-
     //登录账号和密码
     private String USERNAME = "S8121";
 
@@ -115,7 +100,7 @@ public class CheKuKeService {
         Set<String> billNoSet = new HashSet<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, CONSURECORD_URL, billDetailEnd);
+        getAllPages(webClient, CONSURECORD_URL);
 
         String tableBillRegEx = "#form1 > table";
         for (HtmlPage page : pages) {
@@ -255,7 +240,7 @@ public class CheKuKeService {
         Set<String> cardNoSet = new HashSet<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, MEMBER_URL, memberEnd);
+        getAllPages(webClient, MEMBER_URL);
 
         for (HtmlPage page : pages) {
             Document doc = Jsoup.parseBodyFragment(page.asXml());
@@ -448,7 +433,7 @@ public class CheKuKeService {
         Set<String> carNumberSet = new HashSet<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, BILL_URL, billEnd);
+        getAllPages(webClient, BILL_URL);
 
         for (int i = 0; i < pages.size(); i++) {
             Document doc = Jsoup.parseBodyFragment(pages.get(i).asXml());
@@ -565,7 +550,7 @@ public class CheKuKeService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         WebClient webClient = WebClientUtil.getWebClient();
-        getAllPages(webClient, CARINFO_URL, carEnd);
+        getAllPages(webClient, CARINFO_URL);
 
         for (int i = 0; i < pages.size(); i++) {
 
@@ -941,11 +926,12 @@ public class CheKuKeService {
             }
         }
 
+        System.out.println("会员卡分别为" + memberCards.toString());
         String pathname = "C:\\exportExcel\\会员卡信息.xls";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
-    private void getAllPages(WebClient webClient, String url, int end) throws IOException {
+    private void getAllPages(WebClient webClient, String url) throws IOException {
         login(webClient);
 
         HtmlPage page = webClient.getPage(url);
@@ -954,7 +940,7 @@ public class CheKuKeService {
         String total = WebClientUtil.getTotalPage(page);
 
         //根据总页数开始递归（Integer.parseInt(total)）
-        nextPage(page, Integer.parseInt(total), end);
+        nextPage(page, Integer.parseInt(total));
     }
 
     private void getAllMemberCardPages(WebClient webClient) throws IOException {
@@ -974,7 +960,7 @@ public class CheKuKeService {
 
         String total = WebClientUtil.getTotalPage(allMemberCardPage);
         pages.add(allMemberCardPage);
-        nextPage(allMemberCardPage, Integer.parseInt(total), memberCardEnd);//会员卡总页数
+        nextPage(allMemberCardPage, Integer.parseInt(total));//会员卡总页数
     }
 
     private void login(WebClient webClient) throws IOException {
@@ -1009,30 +995,41 @@ public class CheKuKeService {
         btnLogin.click();
     }
 
-    private void nextPage(HtmlPage page, int num, int end) throws IOException {
+    private void nextPage(HtmlPage page, int num) throws IOException {
         ++count;
         if (count == num)
             return;
 
-        String anchorXPath = "";
-
-        if (end >= 10) {
-            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[13]";
+        int value = 0;
+        int end = 0;
+        if (num < 10) {
+            end = num;
+            value = num - end;
         } else {
-            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[" + (end + 2) + "]";
+            end = num / 10 * 10;
+            value = num - end;
         }
 
-        if (count > 10)
+        String anchorXPath = "";
+        if (end < 10) {
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[" + (end + 2) + "]";
+        } else {
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[13]";
+        }
+
+        //超过10页
+        if (count > 10 && count <= end)
             anchorXPath = "//*[@id=\"AspNetPager1\"]/a[14]";
 
         //最后几页的下一页按钮
-        if (count > end)
-            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[6]";
+        if (count > end && count <= num)
+            anchorXPath = "//*[@id=\"AspNetPager1\"]/a[" + (value + 3) + "]";
 
         HtmlAnchor nextPage = page.getFirstByXPath(anchorXPath);
 
         HtmlPage htmlPage = nextPage.click();
         pages.add(htmlPage);
-        nextPage(htmlPage, num, end);//num为总页数
+        nextPage(htmlPage, num);//num为总页数
     }
+
 }
