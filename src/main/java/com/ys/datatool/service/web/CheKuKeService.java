@@ -92,14 +92,15 @@ public class CheKuKeService {
     private int memberEnd = 6;
 
     //总消费记录尾页取整数
-    private int billDetailEnd = 430;
+    private int billDetailEnd = 10;
 
     //登录账号和密码
     private String USERNAME = "S8121";
 
     private String PASSWORD = "a150500.";
 
-    private String COOKIE = "ASP.NET_SessionId=go5qfgdu3vkfd22dtuik3x1x; LOGINNAME=qn900; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1540795914,1542020988,1542188759; LOGINKEY=3b4abe4aa9ea40b9a42dacc8c6d51e4f; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1542269501";
+    private String COOKIE = "ASP.NET_SessionId=5vfsjcyug3lhywj2q1wvcn2e; LOGINKEY=3941dd19f97c4e75aae825648ce72f9e; LOGINNAME=S8121; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1547524379,1547617751; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1547617751";
+
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -133,7 +134,15 @@ public class CheKuKeService {
 
         if (billNoSet.size() > 0) {
             for (String billNo : billNoSet) {
-                Response response = ConnectionUtil.doGetWithLeastParams(CONSURECORDDETAIL_URL + billNo, COOKIE);
+                String bno = billNo;
+
+                System.out.println("正在获取的单号为" + bno);
+
+                if ("128078".equals(bno) || "133316".equals(bno))
+                    continue;
+
+                Response response = ConnectionUtil.doGetWithLeastParams(CONSURECORDDETAIL_URL + bno, COOKIE);
+
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
