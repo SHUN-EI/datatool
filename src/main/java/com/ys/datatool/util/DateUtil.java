@@ -22,6 +22,8 @@ public class DateUtil {
     public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH-mm-ss";//24小时
     public static final String SQL_DATE_FORMAT = "yyyy/MM/dd";
     public static final String SQL_DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    public static final String YYMMDD_DATE_FORMAT = "yyMMdd";
+    public static final String YYYYMMDD_DATE_FORMAT= "yyyyMMdd";
 
     //-------------------日期自动转化------------------------------------------------
 
@@ -153,6 +155,10 @@ public class DateUtil {
      */
     public static String formatCurrentDate() {
         return formatDate(new Date(), DATE_FORMAT);
+    }
+
+    public static String formatCurrentDate2() {
+        return formatDate(new Date(), YYMMDD_DATE_FORMAT);
     }
 
     /**
