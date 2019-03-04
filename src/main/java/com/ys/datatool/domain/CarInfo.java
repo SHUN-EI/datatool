@@ -147,6 +147,16 @@ public class CarInfo {
      */
     private String userCarId;
 
+    private String carCode;
+
+    public String getCarCode() {
+        return carCode;
+    }
+
+    public void setCarCode(String carCode) {
+        this.carCode = carCode;
+    }
+
     public String getUserCarId() {
         return userCarId;
     }
