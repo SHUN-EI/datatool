@@ -1,5 +1,8 @@
 package com.ys.datatool.util;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -89,6 +92,26 @@ public class CommonUtil {
 
     public static String formatString(String target) {
         return target == "null" ? "" : target;
+    }
+
+    public String getAutoRandomString() {
+        String filename = RandomStringUtils.randomAlphanumeric(20);
+        return filename;
+    }
+
+    public String getRandomString() {
+        String result = "";
+        int length = 20;
+        String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int number = random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+
+        result = sb.toString();
+        return result;
     }
 
 
