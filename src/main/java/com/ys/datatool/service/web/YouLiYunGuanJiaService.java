@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.MemberCard;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -27,6 +28,8 @@ import java.util.List;
 public class YouLiYunGuanJiaService {
 
 
+    private String MEMBERCARD_URL = "http://ls.4008778515.com/Report/dlmemberlist";
+
     private String CARINFODETAIL_URL = "http://ls.4008778515.com/Report/Carinfoedit?ShopID=undefined&ID=";
 
     private String CARINFO_URL = "http://ls.4008778515.com/Report/Carinfolist";
@@ -43,6 +46,58 @@ public class YouLiYunGuanJiaService {
 
     private String COOKIE = "shopsernum=undefined; username=18022578558; password=huang888; PHPSESSID=bo1n386ovt8gmdhegtr2jivu16; yunsuo_session_verify=265cc60d9ae598c069a34d12b859d4c2";
 
+
+    /**
+     * 会员信息
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(0), COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 10);
+
+        if (totalPage > 0) {
+            int start = 0;
+
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(start), COOKIE);
+                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+
+                start = start + num;
+
+                JsonNode dataNode = result.get("data");
+                if (dataNode.size() > 0) {
+                    Iterator<JsonNode> it = dataNode.elements();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String id = e.get("ID").asText();
+                        String phone = e.get("Phone").asText();
+                        String name = e.get("Name").asText();
+                        String cardCode = e.get("MemberCard").asText();
+                        String cardName = e.get("RankName").asText();
+                        String balance = e.get("Balance").asText();
+
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setCardCode(cardCode);
+                        memberCard.setName(name);
+                        memberCard.setPhone(phone);
+                        memberCard.setMemberCardName(cardName);
+                        memberCard.setBalance(balance);
+                        memberCards.add(memberCard);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\有礼云管家会员卡.xls";
+        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 车辆信息
@@ -77,6 +132,7 @@ public class YouLiYunGuanJiaService {
                         String code = e.get("Codes").asText();
 
                         CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
                         carInfo.setCarId(id);
                         carInfo.setCarNumber(carNumber);
                         carInfo.setPhone(phone);
