@@ -26,11 +26,13 @@ import java.util.List;
 public class MaoRiService {
 
 
-    private String fromDate = "2003-01-01";
+    private String BILLDETAIL_URL = "http://new.mrrjvip.com/MemberCard/ConsumeLogs";
 
     private String CARINFO_URL = "http://new.mrrjvip.com/MemberInfo/Query";
 
     private String BILL_URL = "http://new.mrrjvip.com/Consume/QueryBill";
+
+    private String fromDate = "2003-01-01";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -44,7 +46,8 @@ public class MaoRiService {
 
     private int num = 100;
 
-    private String COOKIE = "aliyungf_tc=AQAAAPNnQHnFaAEAmghDcfyQ0m4IPf/4; ASP.NET_SessionId=nc01fqyltq5oxlbsbkydpdk5; __RequestVerificationToken=vKdwHUys2H5hgGMEE627LOoyRYDc3b9DZfYaTdCaLbqKRibbuLPN-UbGQoXlCjJkPeqZ6hHqPfOTN-Fb5If4HhcpfEYJUVy3UDP6Dyn1bWM1; .ASPXAUTH=F8B7E12F764F2F14B0445A5D09E423F79338E79C7647E408648B2FA6B4914FDB8B7687C296F873190D359DBEB1EB099FA0F0E801CFAA82422BAB6DBBDD8DDFE4649D0E4A89B6A4BBC25197259144B1A91EFBC6D62EFCF982A6D43C2998ADA9D6; SERVERID=7ec4522f7498fadd6917fbc71337ba6d|1552026094|1552011440\n";
+    private String COOKIE = "aliyungf_tc=AQAAAPNnQHnFaAEAmghDcfyQ0m4IPf/4; ASP.NET_SessionId=nc01fqyltq5oxlbsbkydpdk5; __RequestVerificationToken=vKdwHUys2H5hgGMEE627LOoyRYDc3b9DZfYaTdCaLbqKRibbuLPN-UbGQoXlCjJkPeqZ6hHqPfOTN-Fb5If4HhcpfEYJUVy3UDP6Dyn1bWM1; .ASPXAUTH=6675E931CA2BE1005A55ADA7F4A2A306667B4B2207D77F26E3E5FBFCB8891E078D5EFE49DF5357695F70837208FF5496A5DF6019B68D9DDEC0870D7144C5D70FE02E4D3938AE004217885CA8CAB52F48F200BB44B3D0D7B4D41C8B2545B7C2C7; SERVERID=7ec4522f7498fadd6917fbc71337ba6d|1552034099|1552011440";
+
 
 
     /**
@@ -65,7 +68,7 @@ public class MaoRiService {
             int offset = 0;
 
             for (int i = 1; i <= carTotalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getBillParam(offset), COOKIE, CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(offset), COOKIE, CONTENT_TYPE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
 
                 offset += num;
@@ -78,13 +81,70 @@ public class MaoRiService {
                         JsonNode e = it.next();
 
                         String carId = e.get("Id").asText();
+                        String name = e.get("Name").asText();
+                        String phone = e.get("Phone").asText();
+                        String carNumber = e.get("CarNumber").asText();
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCarId(CommonUtil.formatString(carId));
+                        carInfo.setName(CommonUtil.formatString(name));
+                        carInfo.setPhone(CommonUtil.formatString(phone));
+                        carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                        carInfos.add(carInfo);
                     }
                 }
             }
         }
-        String aa = "";
+
+        if (carInfos.size() > 0) {
+            for (CarInfo carInfo : carInfos) {
+                String id = carInfo.getCarId();
+
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(0, id), COOKIE, CONTENT_TYPE);
+                int billDetailTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 100);
+
+                if (billDetailTotalPage > 0) {
+                    int offset = 0;
+                    for (int i = 1; i <= billDetailTotalPage; i++) {
+
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(offset, id), COOKIE, CONTENT_TYPE);
+                        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+
+                        offset += num;
+                        JsonNode dataNode = result.get("rows");
+                        if (dataNode.size() > 0) {
+                            Iterator<JsonNode> it = dataNode.elements();
+
+                            while (it.hasNext()) {
+                                JsonNode e = it.next();
 
 
+                                String billNo = e.get("BillCode").asText();
+                                String dateEnd = e.get("BillDate").asText();
+                                String cardCode = e.get("MemberCardCode").asText();
+                                String num = e.get("Amount").asText();
+                                String price = e.get("DiscountMoney").asText();
+                                String itemName = e.get("ItemName").asText();
+
+                                BillDetail billDetail = new BillDetail();
+                                billDetail.setCompanyName(companyName);
+                                billDetail.setBillNo(CommonUtil.formatString(billNo));
+                                billDetail.setDateEnd(CommonUtil.formatString(dateEnd));
+                                billDetail.setNum(CommonUtil.formatString(num));
+                                billDetail.setPrice(CommonUtil.formatString(price));
+                                billDetail.setItemName(CommonUtil.formatString(itemName));
+                                billDetails.add(billDetail);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\茂日单据明细.xls";
+        String pathname2 = "C:\\exportExcel\\茂日单据车辆信息.xls";
+        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, ExcelDatas.workbook, pathname);
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname2);
     }
 
 
@@ -120,7 +180,6 @@ public class MaoRiService {
 
 
                         String billNo = e.get("BillCode").asText();
-                        System.out.println("单号为" + billNo);
                         String dateEnd = e.get("BillDate").asText();
                         String clientName = e.get("CustomerName").asText();
                         String totalAmount = e.get("PaymentMoney").asText();
@@ -148,6 +207,20 @@ public class MaoRiService {
 
         String pathname = "C:\\exportExcel\\茂日单据.xls";
         ExportUtil.exportBillSomeFieldDataInLocal(bills, ExcelDatas.workbook, pathname);
+    }
+
+
+    private String getBillDetailParam(int offset, String id) {
+        String param = "{\"pageSize\":" +
+                num +
+                ",\"offset\":" +
+                offset +
+                ",\"startDate\":\"\",\"endDate\":\"\",\"memberId\":\"" +
+                id +
+                "\"}";
+
+
+        return param;
     }
 
 
