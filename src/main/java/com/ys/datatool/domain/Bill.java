@@ -150,6 +150,13 @@ public class Bill {
     private String accountType;
 
 
+    /**
+     * 单据项目
+     */
+    private String itemName;
+
+
+
     public String getStockOutNumber() {
         return stockOutNumber;
     }
@@ -375,5 +382,11 @@ public class Bill {
         this.carModel = carModel;
     }
 
+    public String getItemName() {
+        return itemName;
+    }
 
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
 }

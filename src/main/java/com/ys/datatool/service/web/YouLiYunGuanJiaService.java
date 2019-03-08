@@ -44,7 +44,8 @@ public class YouLiYunGuanJiaService {
 
     private int num = 10;
 
-    private String COOKIE = "shopsernum=undefined; username=18022578558; password=huang888; PHPSESSID=bo1n386ovt8gmdhegtr2jivu16; yunsuo_session_verify=265cc60d9ae598c069a34d12b859d4c2";
+    private String COOKIE = "shopsernum=undefined; username=18022578558; password=huang888; yunsuo_session_verify=f6f70c3d3d9475acd4f40fd0a1b480b4; PHPSESSID=ndh3d86uiaffscvj8ufa0858f1";
+
 
 
     /**
@@ -81,6 +82,7 @@ public class YouLiYunGuanJiaService {
                         String cardCode = e.get("MemberCard").asText();
                         String cardName = e.get("RankName").asText();
                         String balance = e.get("Balance").asText();
+                        String give = e.get("Give").asText();
 
                         MemberCard memberCard = new MemberCard();
                         memberCard.setCompanyName(companyName);
@@ -89,6 +91,7 @@ public class YouLiYunGuanJiaService {
                         memberCard.setPhone(phone);
                         memberCard.setMemberCardName(cardName);
                         memberCard.setBalance(balance);
+                        memberCard.setCardSort(give);
                         memberCards.add(memberCard);
                     }
                 }

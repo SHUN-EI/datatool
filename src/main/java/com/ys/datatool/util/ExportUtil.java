@@ -145,9 +145,9 @@ public class ExportUtil {
 
         List<Map<String, Object>> list = ExcelUtil.createBillList(bills);
         String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
-                "clientPhone", "clientName", "totalAmount", "discount",
+                "phone", "name", "totalAmount", "discount",
                 "actualAmount", "waitInStore", "dateExpect", "payType", "remark",
-                "dateAdded", "dateEnd"};
+                "dateAdded", "dateEnd","itemName","receptionistName","cardCode"};
 
         OutputStream outputStream = null;
         try {
