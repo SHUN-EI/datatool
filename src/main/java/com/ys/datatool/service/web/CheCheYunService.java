@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -43,8 +44,11 @@ public class CheCheYunService {
 
     private String CARINFO_URL = "https://www.checheweike.com/crm/index.php?route=member/car/gets&limit=50&order=DESC&sort=c.date_added&page=";
 
-
     private String beginDate = "2001-01-01";
+
+    private int num = 500;
+
+    private String type = "all";//all-不限，clear-已还清，unclear-未还清
 
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
@@ -54,6 +58,22 @@ public class CheCheYunService {
 
     private String BILLDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&id=";
 
+
+    private String ORDER_URL = "https://www.checheweike.com/erp/index.php?route=order/receipt/gets" +
+            "&date_checkout_end=" +
+            DateUtil.formatCurrentDate() +
+            "&date_checkout_start=" +
+            beginDate +
+            "&limit=" +
+            num +
+            "&order=DESC&sort=date_added&substore_id=2" +
+            "&receipt_status=" +
+            type +
+            "&page=";
+
+
+    private String ORDERDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&no=";
+
     private String fieldName = "count";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -62,7 +82,201 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; PHPSESSID=7mu76drc8sifr391padoptn1s4; ccwk_backend_tracking=7mu76drc8sifr391padoptn1s4-10638; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1539321273,1539573596,1539664069,1540960001; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1540960007; SERVERID=03485b53178f0de6cfb6b08218d57da6|1540960033|1540959986";
+    private String COOKIE = "PHPSESSID=3mg8929pt3lre82p0s010ladb7; ccwk_backend_tracking=3mg8929pt3lre82p0s010ladb7-10608; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1551944617,1552369607; _bl_uid=1gjvwtL15qFhmwzLL9XFthhkjIhq; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1552904829; SERVERID=ba8d33d7fbdf881c0f02ef10dce9e063|1552905233|1552884116";
+
+
+    /**
+     * 挂账单明细
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchOrderDetailData() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+        List<BillDetail> billDetails = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(ORDER_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 500);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doGetWithLeastParams(ORDER_URL + String.valueOf(i), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("orders").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("no").asText();
+                    String companyName = element.get("substore").asText();
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bills.add(bill);
+                }
+            }
+        }
+
+        if (bills.size() > 0) {
+            for (Bill bill : bills) {
+
+                String billNo = bill.getBillNo();
+                Response res = ConnectionUtil.doGetWithLeastParams(ORDERDETAIL_URL + billNo, COOKIE);
+
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode dataNode = result.get("data");
+
+                String no = dataNode.get("no").asText();
+                String companyName = dataNode.get("substore_name").asText();
+
+                JsonNode serviceNode = dataNode.get("services");
+                if (serviceNode.size() > 0) {
+                    Iterator<JsonNode> it = serviceNode.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String serviceItemNames = e.get("name").asText();
+                        String total = e.get("amount").asText();//总价
+                        String num = e.get("quantity").asText();
+                        String price = e.get("sale_price").asText();//单价
+                        String firstCategoryName = e.get("business_type_name").asText();
+                        String serviceCode = e.get("service_no").asText();
+
+                        BillDetail billDetail = new BillDetail();
+                        billDetail.setBillNo(billNo);
+                        billDetail.setItemName(serviceItemNames);
+                        billDetail.setNum(num);
+                        billDetail.setPrice(price);
+                        billDetail.setCompanyName(companyName);
+                        billDetail.setItemCode(serviceCode);
+                        billDetail.setItemType("服务项");
+                        billDetail.setFirstCategoryName(firstCategoryName);
+                        billDetails.add(billDetail);
+
+
+                        if (e.hasNonNull("products") == true) {
+                            Iterator<JsonNode> items = e.get("products").iterator();
+
+                            while (items.hasNext()) {
+                                JsonNode node = items.next();
+
+                                String totalPrice = node.get("amount").asText();//总价
+                                String goodsNames = node.get("name").asText();
+                                String unitPrice = node.get("sale_price").asText();//单价
+                                String quantity = node.get("quantity").asText();//数量
+                                String firstCategory = node.get("business_type_name").asText();
+                                String productCode = node.get("product_no").asText();
+
+                                BillDetail detail = new BillDetail();
+                                detail.setBillNo(billNo);
+                                detail.setItemType("配件");
+                                detail.setItemName(goodsNames);
+                                billDetail.setItemCode(productCode);
+                                detail.setNum(quantity);
+                                detail.setPrice(unitPrice);
+                                billDetail.setCompanyName(companyName);
+                                detail.setFirstCategoryName(firstCategory);
+                                billDetails.add(detail);
+                            }
+                        }
+                    }
+                }
+
+                JsonNode productNode = dataNode.get("products");
+                if (productNode.size() > 0) {
+                    Iterator<JsonNode> products = productNode.elements();
+
+                    while (products.hasNext()) {
+                        JsonNode e = products.next();
+
+                        String unitPrice = e.get("sale_price").asText();//单价
+                        String goodsNames = e.get("name").asText();
+                        String total = e.get("amount").asText();
+                        String num = e.get("quantity").asText();
+                        String firstCategoryName = e.get("business_type_name").asText();
+                        String productCode = e.get("product_no").asText();
+
+                        BillDetail billDetail = new BillDetail();
+                        billDetail.setBillNo(billNo);
+                        billDetail.setItemName(goodsNames);
+                        billDetail.setNum(num);
+                        billDetail.setItemCode(productCode);
+                        billDetail.setPrice(unitPrice);
+                        billDetail.setItemType("配件");
+                        billDetail.setCompanyName(companyName);
+                        billDetail.setFirstCategoryName(firstCategoryName);
+                        billDetails.add(billDetail);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\车车云挂账单明细.xls";
+        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, ExcelDatas.workbook, pathname);
+
+    }
+
+
+    /**
+     * 挂账单 -进销存-工单-其他
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchOrderData() throws IOException {
+
+        List<Bill> bills = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWithLeastParams(ORDER_URL + "1", COOKIE);
+        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 500);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doGetWithLeastParams(ORDER_URL + String.valueOf(i), COOKIE);
+                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+
+                Iterator<JsonNode> it = result.get("orders").iterator();
+                while (it.hasNext()) {
+                    JsonNode element = it.next();
+
+                    String billNo = element.get("no").asText();
+                    String carNumber = element.get("car_license").asText();
+                    String totalAmount = element.get("total_amount").asText();
+                    String remark = element.get("invoice_type_str").asText();
+                    String dateAdded = element.get("date_added").asText();
+                    String receptionistName = element.get("receiver_name").asText();
+                    String companyName = element.get("substore").asText();
+
+                    String debtAmountStr = element.get("arrears").asText();
+                    String receivedAmountStr = element.get("money_verified").asText();
+
+                    BigDecimal debtAmount = new BigDecimal(debtAmountStr);
+                    BigDecimal receivedAmount = new BigDecimal(receivedAmountStr);
+                    BigDecimal amount = debtAmount.subtract(receivedAmount);
+
+                    Bill bill = new Bill();
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setReceptionistName(receptionistName);
+                    bill.setCarNumber(carNumber);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setRemark(remark);
+                    bill.setDateAdded(dateAdded);
+                    bill.setDateEnd(dateAdded);
+                    bill.setDebtAmount(debtAmount.toString());
+                    bill.setReceivedAmount(receivedAmount.toString());
+                    bill.setAmount(amount.toString());
+                    bills.add(bill);
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\车车云挂账单.xls";
+        ExportUtil.exportBillSomeFieldDataInLocal(bills, ExcelDatas.workbook, pathname);
+
+    }
 
 
     /**

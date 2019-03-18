@@ -147,7 +147,8 @@ public class ExportUtil {
         String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
                 "phone", "name", "totalAmount", "discount",
                 "actualAmount", "waitInStore", "dateExpect", "payType", "remark",
-                "dateAdded", "dateEnd","itemName","receptionistName","cardCode"};
+                "dateAdded", "dateEnd","itemName","receptionistName","cardCode",
+                "totalAmount","debtAmount","receivedAmount","amount"};
 
         OutputStream outputStream = null;
         try {
@@ -171,7 +172,7 @@ public class ExportUtil {
     public static void exportBillDetailSomeFieldDataInLocal(List<BillDetail> billDetails, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createBillDetailList(billDetails);
-        String[] keys = new String[]{"companyName", "billNo", "itemName", "quantity",
+        String[] keys = new String[]{"companyName", "billNo", "itemName", "num",
                 "price", "discount", "itemType", "firstCategoryName",
                 "secondCategoryName", "itemCode", "salePrice", "carNumber", "dateAdded"};
 

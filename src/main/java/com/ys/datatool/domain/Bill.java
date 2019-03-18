@@ -156,6 +156,44 @@ public class Bill {
     private String itemName;
 
 
+    /**
+     * 记账金额
+     */
+    private String debtAmount;
+
+    /**
+     * 已收金额
+     */
+    private String receivedAmount;
+
+    /**
+     * 剩余金额
+     */
+    private String amount;
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    public String getDebtAmount() {
+        return debtAmount;
+    }
+
+    public void setDebtAmount(String debtAmount) {
+        this.debtAmount = debtAmount;
+    }
+
+    public String getReceivedAmount() {
+        return receivedAmount;
+    }
+
+    public void setReceivedAmount(String receivedAmount) {
+        this.receivedAmount = receivedAmount;
+    }
 
     public String getStockOutNumber() {
         return stockOutNumber;
