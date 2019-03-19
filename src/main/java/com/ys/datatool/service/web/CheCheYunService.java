@@ -248,6 +248,8 @@ public class CheCheYunService {
                     String dateAdded = element.get("date_added").asText();
                     String receptionistName = element.get("receiver_name").asText();
                     String companyName = element.get("substore").asText();
+                    String name = element.get("name").asText();
+                    String payer = element.get("payer").asText();
 
                     String debtAmountStr = element.get("arrears").asText();
                     String receivedAmountStr = element.get("money_verified").asText();
@@ -257,6 +259,8 @@ public class CheCheYunService {
                     BigDecimal amount = debtAmount.subtract(receivedAmount);
 
                     Bill bill = new Bill();
+                    bill.setName(name);
+                    bill.setPayer(payer);
                     bill.setBillNo(billNo);
                     bill.setCompanyName(companyName);
                     bill.setReceptionistName(receptionistName);

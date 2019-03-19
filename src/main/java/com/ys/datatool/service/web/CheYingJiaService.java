@@ -37,8 +37,6 @@ public class CheYingJiaService {
 
     String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
 
-    String QUERYSOAPAction = "http://tempuri.org/Query";
-
     String CONTENT_TYPE = "text/xml; charset=utf-8";
 
     private Charset charset = Charset.forName("UTF-8");
@@ -70,11 +68,15 @@ public class CheYingJiaService {
 
     private String userName = "297edeb35a231435015a31ebc5521551";
 
-    private String passWord = "A1946272ED8B113A393FF5DD804831DA";
+    private String passWord = "26632B3B9C921ED695E2DC7C6924C37A";
 
     private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
 
     private String companyId = "297edeb3569c18dc01569cf836cd1a22";
+
+    private String QUERYSOAPAction = "http://tempuri.org/Query";
+
+    private String BillURL = "http://61.186.130.102:803/BCSService.asmx";
 
 
     /**
@@ -109,51 +111,32 @@ public class CheYingJiaService {
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
 
-    /**
-     * 单据传参
-     */
-    private String billDetailParam ="<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<soap:Header>" +
-            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-            "<UserName>" +
-            userName +
-            "</UserName>" +
-            "<PassWord>" +
-            passWord +
-            "</PassWord>" +
-            "<CyjToken>" +
-            cyjToken +
-            "</CyjToken>" +
-            "<CompanyId>" +
-            companyId+
-            "</CompanyId>" +
+
+
+    String billDParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>26632B3B9C921ED695E2DC7C6924C37A</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo,case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID,ProjectID,PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName,minorName,shopName,royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID,costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice,TirePositCode,editPrice,TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount FROM bcs_ConSettlProject  where MentID='13bcbcfd2ed14fccbbf20da4e2d630a8' and ProjectType=0 order by showIndex</SQLString></Query></soap:Body></soap:Envelope>";
+
+
+    String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>297edeb35a231435015a31ebc5521551</UserName>" +
+            "<PassWord>26632B3B9C921ED695E2DC7C6924C37A</PassWord>" +
+            "<CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken>" +
+            "<CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId>" +
             "</MySoapHeader>" +
             "</soap:Header>" +
             "<soap:Body>" +
             "<Query xmlns=\"http://tempuri.org/\">" +
-            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo," +
-            "case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end " +
-            "ZJStatus,WorkStatus,ID,MentID,ProjectID,PROJECTNAME,minSalePrice," +
-            "costPrice,salePrice,workTime,workTypeId,workType,majorName," +
-            "minorName,shopName,royaltyRate,Discount,TotalPay,IsDelete," +
-            "IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax,TaxSalePrice," +
-            "TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode," +
-            "WorkTimePrice,1.0 as ISSELECT,costObjectID,costObjectName," +
-            "discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice," +
-            "TirePositCode,editPrice,TirePositCode,TirePositName,Tirekm," +
-            "Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount " +
-            "FROM bcs_ConSettlProject  " +
-            "where MentID=" +
-            "{no}" +
-            "  and ProjectType=0 order by showIndex" +
-            "</SQLString>" +
+            "<SQLString>select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText," +
+            "remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID," +
+            "Brand,ProjectID,AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num," +
+            "TotalPay,IsDelete,IsUpLoad,price,SaleTime,ProductTax,TaxSalePrice,TaxTotalSum," +
+            "axSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal,Ispromotion,inSotreType," +
+            "supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE,warehouseID,costObjectID," +
+            "costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId,IsConfirm," +
+            "(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText,sourcePrice,editPrice,'1' as ISSELECT  " +
+            "from bcs_ConSettlProjectAccess where MentID ='13bcbcfd2ed14fccbbf20da4e2d630a8' order by showIndex</SQLString>" +
             "</Query>" +
-            "</soap:Body>" +
-            "</soap:Envelope>";
-
-
-    String billDParam="<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>A1946272ED8B113A393FF5DD804831DA</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText,remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID,Brand,ProjectID,AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num,TotalPay,IsDelete,IsUpLoad,price,SaleTime,ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal,Ispromotion,inSotreType,supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE,warehouseID,costObjectID,costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId,IsConfirm,(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText,sourcePrice,editPrice,'1' as ISSELECT  from bcs_ConSettlProjectAccess where MentID ='e22e558d8977459d9bfa201a2dc39968' order by showIndex</SQLString></Query></soap:Body></soap:Envelope>";
+            "</soap:Body></soap:Envelope>";
 
     /**
      * 解析返回数据传参
@@ -167,16 +150,13 @@ public class CheYingJiaService {
      */
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException, DocumentException {
-
         List<Bill> bills = new ArrayList<>();
 
-
-        //String params = StringUtils.replace(billDetailParam, "{no}", "e22e558d8977459d9bfa201a2dc39968");
-        Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, billDParam);
+        Response response = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billServiceParam);
 
         String html = response.returnContent().asString(charset);
 
-        String aaa="";
+        String aaa = "";
 
 
     }

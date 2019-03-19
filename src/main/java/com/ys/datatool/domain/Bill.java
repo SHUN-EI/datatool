@@ -171,6 +171,19 @@ public class Bill {
      */
     private String amount;
 
+    /**
+     * 支付人
+     */
+    private String payer;
+
+    public String getPayer() {
+        return payer;
+    }
+
+    public void setPayer(String payer) {
+        this.payer = payer;
+    }
+
     public String getAmount() {
         return amount;
     }
