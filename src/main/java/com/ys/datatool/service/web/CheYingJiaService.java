@@ -28,18 +28,22 @@ import java.util.Map;
 @Service
 public class CheYingJiaService {
 
+    /**
+     * ------------------- 需要填写的参数-------------------------
+     */
 
-    String url = "http://61.186.130.102:803/YCKService.asmx";
+    private String userName = "297edeb35a231435015a31ebc5521551";
 
-    String billDetailUrl = "http://61.186.130.102:803/BCSService.asmx";
+    private String passWord = "26632B3B9C921ED695E2DC7C6924C37A";
 
-    String HOST = "61.186.130.102:803";
+    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
 
-    String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
+    private String companyId = "297edeb3569c18dc01569cf836cd1a22";
 
-    String CONTENT_TYPE = "text/xml; charset=utf-8";
-
-    private Charset charset = Charset.forName("UTF-8");
+    //订单开始时间
+    private String billStartDate = "2005/01/01";
+    //订单结束时间
+    private String billEndData = "2019/03/30 23:59:59";
 
     /**
      * 车辆页面总页数
@@ -66,17 +70,29 @@ public class CheYingJiaService {
      */
     private int memberCardNum = 11;//323
 
-    private String userName = "297edeb35a231435015a31ebc5521551";
+    /**
+     * 解析返回数据传参
+     */
+    private String element = "_x0032_06";
 
-    private String passWord = "26632B3B9C921ED695E2DC7C6924C37A";
 
-    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     */
 
-    private String companyId = "297edeb3569c18dc01569cf836cd1a22";
+    private String companyName = "车赢家";
+
+    private String url = "http://61.186.130.102:803/YCKService.asmx";
+
+    private String BillURL = "http://61.186.130.102:803/BCSService.asmx";
+
+    private String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
 
     private String QUERYSOAPAction = "http://tempuri.org/Query";
 
-    private String BillURL = "http://61.186.130.102:803/BCSService.asmx";
+    private Charset charset = Charset.forName("UTF-8");
+
+    private String mentID = "13bcbcfd2ed14fccbbf20da4e2d630a8";
 
 
     /**
@@ -111,37 +127,129 @@ public class CheYingJiaService {
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
 
-
-
-    String billDParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>26632B3B9C921ED695E2DC7C6924C37A</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo,case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID,ProjectID,PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName,minorName,shopName,royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID,costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice,TirePositCode,editPrice,TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount FROM bcs_ConSettlProject  where MentID='13bcbcfd2ed14fccbbf20da4e2d630a8' and ProjectType=0 order by showIndex</SQLString></Query></soap:Body></soap:Envelope>";
-
-
-    String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\">" +
-            "<UserName>297edeb35a231435015a31ebc5521551</UserName>" +
-            "<PassWord>26632B3B9C921ED695E2DC7C6924C37A</PassWord>" +
-            "<CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken>" +
-            "<CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId>" +
+    //单据服务参数
+    private String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
             "</MySoapHeader>" +
             "</soap:Header>" +
             "<soap:Body>" +
             "<Query xmlns=\"http://tempuri.org/\">" +
-            "<SQLString>select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText," +
-            "remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID," +
-            "Brand,ProjectID,AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num," +
-            "TotalPay,IsDelete,IsUpLoad,price,SaleTime,ProductTax,TaxSalePrice,TaxTotalSum," +
-            "axSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal,Ispromotion,inSotreType," +
-            "supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE,warehouseID,costObjectID," +
-            "costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId,IsConfirm," +
-            "(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText,sourcePrice,editPrice,'1' as ISSELECT  " +
-            "from bcs_ConSettlProjectAccess where MentID ='13bcbcfd2ed14fccbbf20da4e2d630a8' order by showIndex</SQLString>" +
+            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo,case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID,ProjectID," +
+            "PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName,minorName,shopName," +
+            "royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax," +
+            "TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID," +
+            "costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice,TirePositCode,editPrice," +
+            "TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount FROM bcs_ConSettlProject  " +
+            "where MentID='" +
+            "{mentID}" +
+            "' and ProjectType=0 order by showIndex" +
+            "</SQLString>" +
             "</Query>" +
-            "</soap:Body></soap:Envelope>";
+            "</soap:Body>" +
+            "</soap:Envelope>";
 
-    /**
-     * 解析返回数据传参
-     */
-    private String element = "_x0032_06";
+    //单据配件参数
+    private String billItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>" +
+            "select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText,remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID,Brand,ProjectID," +
+            "AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num,TotalPay,IsDelete,IsUpLoad,price,SaleTime," +
+            "ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal," +
+            "Ispromotion,inSotreType,supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE," +
+            "warehouseID,costObjectID,costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId," +
+            "IsConfirm,(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText," +
+            "sourcePrice,editPrice,'1' as ISSELECT  from bcs_ConSettlProjectAccess where " +
+            "MentID ='" +
+            "{mentID}" +
+            "' order by showIndex" +
+            "</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
+
+
+    //单据参数
+    private String billParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>select '0' as IsSelect,ID,MentNo,MemberID,MemberName,MemberCard,StoreID," +
+            "Reimbursement,cashier,FrameNum,MotoType,LicenNum,RoadHaul,ServiceConsultant," +
+            "ServiceConsultantID,cashierID,BillingDate,EntranceTime,StartTime,completeTime," +
+            "deliverTime,SettTime,InsDueDate,ServiceType,ProjectPrice,AccessPrice,TotalPay," +
+            "ReceivePrice,Discount,FreePrice,OtherPrice,ReducePrice,ReceivablePrice,ConsumPoints," +
+            "PresentPoints,case Status when 0 then '未结算' when 1 then '已结算' when 2 then '作废' end as Statu,Status,Remark,MemberCardID," +
+            "MemberCardMoney,IsDelete,IsUpLoad,[OrderName],[CarColor],[EngineModel],[EngineNum],[Transmissionmodel]," +
+            "[TelPerson],[TelNumber],[TrappedFuel],[CloseTime],[NmaintenanceTime],[RemainAmont]," +
+            "[AppointmentTime] ,StoreName,SERVICETAX ,TOTALMANHOUR ,NOTAXTOTALSUM ,TAXTOTALSUM ,TAXSUM " +
+            ",TOTALSUMCAPS,FACTTOTALSUM,COSTSUM ,PROFITSUM ,StatusName , ORDERSTYLE,ORDERSTATE , BALANCETYPE " +
+            ",ACCOUNTORDERID,KSERVICENOTAXTOTALSUM,KSERVICETAXTOTALSUM,Abstract,CarBrand,Invoiced,invoiceType," +
+            "invoiceTitle,invoiceNumber,taxRate,invoiceDate,case when Invoiced='0' then null else invoiceDate end as invoiceActualDate, " +
+            "case when Invoiced='1' then '待审核' when Invoiced='2' then '已审核' when Invoiced='3' then '已入账' else '未开发票' end as InvoicedStatus," +
+            "Source,(case Source when '1' then 'APP' when '2' then '快捷开单' else '' end) as SourceName,SettUserName " +
+            "from bcs_ConSettlement a  where  a.status!=-1 and  " +
+            "a.StoreID='" +
+            "297edeb35a231435015a25e1070d0b1b" +
+            "' and ordername&lt;&gt;'积分换购单' and a.ordername&lt;&gt;'返修单' and a.ordername&lt;&gt;'结算调整单'  " +
+            "and a.BillingDate &gt;= '" +
+            billStartDate +
+            "' and a.BillingDate &lt;= '" +
+            billEndData +
+            "'</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
+
+
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -151,14 +259,198 @@ public class CheYingJiaService {
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException, DocumentException {
         List<Bill> bills = new ArrayList<>();
-
-        Response response = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billServiceParam);
-
-        String html = response.returnContent().asString(charset);
-
-        String aaa = "";
+        List<BillDetail> billDetails = new ArrayList<>();
 
 
+        Response res = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billParam);
+        String billhtml = res.returnContent().asString(charset);
+
+        if (billhtml.contains("</NewDataSet>")) {
+            String target = "ds";
+
+            List<Element> dataList = getQueryDataList(billhtml, target);
+
+            if (dataList.size() > 0) {
+                for (Element node : dataList) {
+
+                    String billNo = "";
+                    Element billNoElement = node.element("MentNo");
+                    if (billNoElement != null)
+                        billNo = billNoElement.getText();
+
+                    String carNumber = "";
+                    Element carNumberElement = node.element("LicenNum");
+                    if (carNumberElement != null)
+                        carNumber = carNumberElement.getText();
+
+                    String mileage = "";
+                    Element mileageElement = node.element("RoadHaul");
+                    if (mileageElement != null)
+                        mileage = mileageElement.getText();
+
+                    String phone = "";
+                    Element phoneElement = node.element("TelNumber");
+                    if (phoneElement != null)
+                        phone = phoneElement.getText();
+
+
+                    String name = "";
+                    Element nameElement = node.element("TelPerson");
+                    if (nameElement != null)
+                        name = nameElement.getText();
+
+                    String totalAmount = "";
+                    Element totalAmountElement = node.element("TotalPay");
+                    if (totalAmountElement != null)
+                        totalAmount = totalAmountElement.getText();
+
+
+                    String dateEnd = "";
+                    Element dateEndElement = node.element("CloseTime");
+                    if (dateEndElement != null)
+                        dateEnd = dateEndElement.getText();
+
+                    String receptionistName = "";
+                    Element receptionistNameElement = node.element("cashier");
+                    if (receptionistNameElement != null)
+                        receptionistName = receptionistNameElement.getText();
+
+                    String id = "";
+                    Element idElement = node.element("ID");
+                    if (idElement != null)
+                        id = idElement.getText();
+
+
+                    Bill bill = new Bill();
+                    bill.setId(id);
+                    bill.setMileage(mileage);
+                    bill.setName(name);
+                    bill.setPhone(phone);
+                    bill.setBillNo(billNo);
+                    bill.setCompanyName(companyName);
+                    bill.setReceptionistName(receptionistName);
+                    bill.setCarNumber(carNumber);
+                    bill.setTotalAmount(totalAmount);
+                    bill.setDateAdded(dateEnd);
+                    bill.setDateEnd(dateEnd);
+                    bills.add(bill);
+
+                }
+            }
+        }
+
+        if (bills.size() > 0) {
+            for (Bill bill : bills) {
+                String id = bill.getId();
+
+                //商品
+                String itemParam = StringUtils.replace(billItemParam, "{mentID}", id);
+                Response res2 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, itemParam);
+                String itemhtml = res2.returnContent().asString(charset);
+
+                if (itemhtml.contains("</NewDataSet>")) {
+                    String target = "ds";
+
+                    List<Element> dataList = getQueryDataList(itemhtml, target);
+                    if (dataList.size() > 0) {
+                        for (Element node : dataList) {
+
+                            String itemName = "";
+                            Element itemNameElement = node.element("AccessName");
+                            if (itemNameElement != null)
+                                itemName = itemNameElement.getText();
+
+                            String itemCode = "";
+                            Element itemCodeElement = node.element("AccessCode");
+                            if (itemCodeElement != null)
+                                itemCode = itemCodeElement.getText();
+
+
+                            String num = "";
+                            Element numElement = node.element("Num");
+                            if (numElement != null)
+                                num = numElement.getText();
+
+                            String price = "";
+                            Element priceElement = node.element("TotalPay");
+                            if (priceElement != null)
+                                price = priceElement.getText();
+
+                            String firstCategoryName = "";
+                            Element firstCategoryNameElement = node.element("costObjectName");
+                            if (firstCategoryNameElement != null)
+                                firstCategoryName = firstCategoryNameElement.getText();
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setNum(num);
+                            billDetail.setItemCode(itemCode);
+                            billDetail.setPrice(price);
+                            billDetail.setFirstCategoryName(firstCategoryName);
+                            billDetail.setItemName(itemName);
+                            billDetail.setItemType("配件项");
+                            billDetails.add(billDetail);
+                        }
+                    }
+                }
+
+                //服务项目
+                String serviceParam = StringUtils.replace(billServiceParam, "{mentID}", id);
+                Response res3 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, serviceParam);
+                String servicehtml = res3.returnContent().asString(charset);
+
+                if (servicehtml.contains("</NewDataSet>")) {
+                    String target = "ds";
+                    List<Element> dataList = getQueryDataList(servicehtml, target);
+
+                    if (dataList.size() > 0) {
+                        for (Element node : dataList) {
+
+                            String itemName = "";
+                            Element itemNameElement = node.element("PROJECTNAME");
+                            if (itemNameElement != null)
+                                itemName = itemNameElement.getText();
+
+                            String itemCode = "";
+                            Element itemCodeElement = node.element("ProjectCode");
+                            if (itemCodeElement != null)
+                                itemCode = itemCodeElement.getText();
+
+                            String num = "";
+                            Element numElement = node.element("projectNum");
+                            if (numElement != null)
+                                num = numElement.getText();
+
+                            String price = "";
+                            Element priceElement = node.element("TotalPay");
+                            if (priceElement != null)
+                                price = priceElement.getText();
+
+                            String firstCategoryName = "";
+                            Element firstCategoryNameElement = node.element("costObjectName");
+                            if (firstCategoryNameElement != null)
+                                firstCategoryName = firstCategoryNameElement.getText();
+
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setNum(num);
+                            billDetail.setItemCode(itemCode);
+                            billDetail.setPrice(price);
+                            billDetail.setFirstCategoryName(firstCategoryName);
+                            billDetail.setItemName(itemName);
+                            billDetail.setItemType("服务");
+                            billDetails.add(billDetail);
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\车赢家单据.xls";
+        String pathname2 = "C:\\exportExcel\\车赢家单据明细.xls";
+        ExportUtil.exportBillSomeFieldDataInLocal(bills, ExcelDatas.workbook, pathname);
+        ExportUtil.exportBillDetailSomeFieldDataInLocal(billDetails, ExcelDatas.workbook, pathname2);
     }
 
 
