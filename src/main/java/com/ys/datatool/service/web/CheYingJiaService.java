@@ -333,6 +333,7 @@ public class CheYingJiaService {
                     bill.setTotalAmount(totalAmount);
                     bill.setDateAdded(dateEnd);
                     bill.setDateEnd(dateEnd);
+                    bill.setActualAmount(totalAmount);
                     bills.add(bill);
 
                 }
@@ -388,7 +389,7 @@ public class CheYingJiaService {
                             billDetail.setPrice(price);
                             billDetail.setFirstCategoryName(firstCategoryName);
                             billDetail.setItemName(itemName);
-                            billDetail.setItemType("配件项");
+                            billDetail.setItemType("配件");
                             billDetails.add(billDetail);
                         }
                     }
@@ -439,7 +440,7 @@ public class CheYingJiaService {
                             billDetail.setPrice(price);
                             billDetail.setFirstCategoryName(firstCategoryName);
                             billDetail.setItemName(itemName);
-                            billDetail.setItemType("服务");
+                            billDetail.setItemType("服务项");
                             billDetails.add(billDetail);
                         }
                     }
