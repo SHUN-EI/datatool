@@ -384,6 +384,7 @@ public class CheYingJiaService {
 
                             BillDetail billDetail = new BillDetail();
                             billDetail.setCompanyName(companyName);
+                            billDetail.setBillNo(bill.getBillNo());
                             billDetail.setNum(num);
                             billDetail.setItemCode(itemCode);
                             billDetail.setPrice(price);
@@ -436,6 +437,7 @@ public class CheYingJiaService {
                             BillDetail billDetail = new BillDetail();
                             billDetail.setCompanyName(companyName);
                             billDetail.setNum(num);
+                            billDetail.setBillNo(bill.getBillNo());
                             billDetail.setItemCode(itemCode);
                             billDetail.setPrice(price);
                             billDetail.setFirstCategoryName(firstCategoryName);
