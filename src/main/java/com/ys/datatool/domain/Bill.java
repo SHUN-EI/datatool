@@ -176,6 +176,20 @@ public class Bill {
      */
     private String payer;
 
+    /**
+     * 单据名称
+     */
+    private String billCode;
+
+
+    public String getBillCode() {
+        return billCode;
+    }
+
+    public void setBillCode(String billCode) {
+        this.billCode = billCode;
+    }
+
     public String getPayer() {
         return payer;
     }

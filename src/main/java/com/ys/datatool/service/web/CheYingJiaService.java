@@ -321,6 +321,17 @@ public class CheYingJiaService {
                         id = idElement.getText();
 
 
+                    String remark = "";
+                    Element remarkElement = node.element("Remark");
+                    if (remarkElement != null)
+                        remark = remarkElement.getText();
+
+                    String billCode = "";
+                    Element billCodeElement = node.element("OrderName");
+                    if (billCodeElement != null)
+                        billCode = billCodeElement.getText();
+
+
                     Bill bill = new Bill();
                     bill.setId(id);
                     bill.setMileage(mileage);
@@ -333,6 +344,8 @@ public class CheYingJiaService {
                     bill.setTotalAmount(totalAmount);
                     bill.setDateAdded(dateEnd);
                     bill.setDateEnd(dateEnd);
+                    bill.setRemark(remark);
+                    bill.setBillCode(billCode);
                     bill.setActualAmount(totalAmount);
                     bills.add(bill);
 

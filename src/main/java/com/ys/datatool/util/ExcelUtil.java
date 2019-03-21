@@ -386,6 +386,7 @@ public class ExcelUtil {
             mapValue.put("receivedAmount", bill.getReceivedAmount());
             mapValue.put("amount", bill.getAmount());
             mapValue.put("payer", bill.getPayer());
+            mapValue.put("billCode", bill.getBillCode());
             listMap.add(mapValue);
         }
         return listMap;
