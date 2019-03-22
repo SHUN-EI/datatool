@@ -125,6 +125,19 @@ public class MemberCard {
      */
     private String userId;
 
+    /**
+     * 车车云-会员卡Id
+     */
+    private String  vipUserId;
+
+    public String getVipUserId() {
+        return vipUserId;
+    }
+
+    public void setVipUserId(String vipUserId) {
+        this.vipUserId = vipUserId;
+    }
+
     public String getRemark() {
         return remark;
     }
