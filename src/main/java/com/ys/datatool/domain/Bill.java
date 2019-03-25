@@ -181,6 +181,18 @@ public class Bill {
      */
     private String billCode;
 
+    /**
+     * 车赢家-单据ID
+     */
+    private String billId;
+
+    public String getBillId() {
+        return billId;
+    }
+
+    public void setBillId(String billId) {
+        this.billId = billId;
+    }
 
     public String getBillCode() {
         return billCode;

@@ -95,9 +95,7 @@ public class CheYingJiaService {
     private String mentID = "13bcbcfd2ed14fccbbf20da4e2d630a8";
 
 
-    /**
-     * 会员卡传参
-     */
+    //会员卡参数
     private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>A1946272ED8B113A393FF5DD804831DA</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
@@ -248,6 +246,84 @@ public class CheYingJiaService {
             "</soap:Envelope>";
 
 
+    //卡结算单明细
+    private String billServiceTypeParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo," +
+            "case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID," +
+            "ProjectID,PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName," +
+            "minorName,shopName,royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM," +
+            "ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT," +
+            "costObjectID,costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice," +
+            "TirePositCode,editPrice,TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime," +
+            "brakepad,'1' as isprint,WorkTimePrice,RebatesAccount " +
+            "FROM bcs_ConSettlProject  where " +
+            "MentID='" +
+            "{mentID}" +
+            "' and ProjectType=" +
+            "2 " +
+            "</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
+
+
+    //商品零售单明细
+    private String billSaleParam="<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText," +
+            "row_number() over (order by showIndex) as rn,ID,SaleID,AccountSet,ProductID,StorageID," +
+            "ProductName,ProductSpecification,ProductPrice,Discount,Amount,TotalPay,IsConfirmed," +
+            "ModifyTime,Comment,Status,batchNumber,Reserved1,Reserved2,Reserved3,Reserved4,Reserved5," +
+            "Reserved6,Reserved7,Reserved8,Reserved9,Reserved10,Reserved11,Reserved12,Reserved13," +
+            "Reserved14,Reserved15,Reserved16,ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CostSum," +
+            "ProfitSum,ProuductNo,DiscountPrice,warehouseName,warehouseCODE,warehouseID,costObjectID," +
+            "costObjectName,discountRate,showIndex,unit,inStoreID," +
+            "(case IsConfirmed when '1' then '已确认' else '' end) as IsConfirmText,sourcePrice," +
+            "editPrice,'1' as ISGOODSELECT  FROM bcs_SaleItem  where  " +
+            "SaleID='" +
+            "{saleId}" +
+            "' order by showIndex" +
+            "</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
+
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -261,14 +337,13 @@ public class CheYingJiaService {
         List<Bill> bills = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
 
-
         Response res = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billParam);
-        String billhtml = res.returnContent().asString(charset);
+        String billHtml = res.returnContent().asString(charset);
 
-        if (billhtml.contains("</NewDataSet>")) {
+        if (billHtml.contains("</NewDataSet>")) {
             String target = "ds";
 
-            List<Element> dataList = getQueryDataList(billhtml, target);
+            List<Element> dataList = getQueryDataList(billHtml, target);
 
             if (dataList.size() > 0) {
                 for (Element node : dataList) {
@@ -331,8 +406,14 @@ public class CheYingJiaService {
                     if (billCodeElement != null)
                         billCode = billCodeElement.getText();
 
+                    String billId = "";
+                    Element billIdElement = node.element("ID");
+                    if (billIdElement != null)
+                        billId = billIdElement.getText();
+
 
                     Bill bill = new Bill();
+                    bill.setBillId(billId);
                     bill.setId(id);
                     bill.setMileage(mileage);
                     bill.setName(name);
@@ -356,16 +437,17 @@ public class CheYingJiaService {
         if (bills.size() > 0) {
             for (Bill bill : bills) {
                 String id = bill.getId();
+                String billId=bill.getBillId();
 
                 //商品
                 String itemParam = StringUtils.replace(billItemParam, "{mentID}", id);
                 Response res2 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, itemParam);
-                String itemhtml = res2.returnContent().asString(charset);
+                String itemHtml = res2.returnContent().asString(charset);
 
-                if (itemhtml.contains("</NewDataSet>")) {
+                if (itemHtml.contains("</NewDataSet>")) {
                     String target = "ds";
 
-                    List<Element> dataList = getQueryDataList(itemhtml, target);
+                    List<Element> dataList = getQueryDataList(itemHtml, target);
                     if (dataList.size() > 0) {
                         for (Element node : dataList) {
 
@@ -412,11 +494,11 @@ public class CheYingJiaService {
                 //服务项目
                 String serviceParam = StringUtils.replace(billServiceParam, "{mentID}", id);
                 Response res3 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, serviceParam);
-                String servicehtml = res3.returnContent().asString(charset);
+                String serviceHtml = res3.returnContent().asString(charset);
 
-                if (servicehtml.contains("</NewDataSet>")) {
+                if (serviceHtml.contains("</NewDataSet>")) {
                     String target = "ds";
-                    List<Element> dataList = getQueryDataList(servicehtml, target);
+                    List<Element> dataList = getQueryDataList(serviceHtml, target);
 
                     if (dataList.size() > 0) {
                         for (Element node : dataList) {
@@ -457,6 +539,132 @@ public class CheYingJiaService {
                             billDetail.setItemName(itemName);
                             billDetail.setItemType("服务项");
                             billDetails.add(billDetail);
+                        }
+                    }
+                }
+
+
+                //卡结算单明细
+                String serviceTypeParam = StringUtils.replace(billServiceTypeParam, "{mentID}", id);
+                Response res4 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, serviceTypeParam);
+                String serviceTypeHtml = res4.returnContent().asString(charset);
+
+                if (serviceTypeHtml.contains("</NewDataSet>")) {
+                    String target = "ds";
+
+                    List<Element> dataList = getQueryDataList(serviceTypeHtml, target);
+                    if (dataList.size() > 0) {
+                        for (Element node : dataList) {
+
+
+                            String itemName = "";
+                            Element itemNameElement = node.element("PROJECTNAME");
+                            if (itemNameElement != null)
+                                itemName = itemNameElement.getText();
+
+                            String itemCode = "";
+                            Element itemCodeElement = node.element("ProjectID");
+                            if (itemCodeElement != null)
+                                itemCode = itemCodeElement.getText();
+
+                            String thisUsedNum = "";
+                            Element thisUsedNumElement = node.element("THISNUM");
+                            if (thisUsedNumElement != null)
+                                thisUsedNum = thisUsedNumElement.getText();
+
+                            String originalNum = "";
+                            Element originalNumElement = node.element("NUM");
+                            if (originalNumElement != null)
+                                originalNum = originalNumElement.getText();
+
+                            String num = "";
+                            Element numElement = node.element("SURPLUSNUM");
+                            if (numElement != null)
+                                num = numElement.getText();
+
+                            String usedNum = "";
+                            Element usedNumElement = node.element("USENUM");
+                            if (usedNumElement != null)
+                                usedNum = usedNumElement.getText();
+
+
+                            String price = "";
+                            Element priceElement = node.element("salePrice");
+                            if (priceElement != null)
+                                price = priceElement.getText();
+
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setNum(num);
+                            billDetail.setThisUsedNum(thisUsedNum);
+                            billDetail.setUsedNum(usedNum);
+                            billDetail.setOriginalNum(originalNum);
+                            billDetail.setBillNo(bill.getBillNo());
+                            billDetail.setItemCode(itemCode);
+                            billDetail.setPrice(price);
+                            billDetail.setItemName(itemName);
+                            billDetail.setItemType("服务项");
+                            billDetails.add(billDetail);
+
+
+                        }
+                    }
+                }
+
+
+                //商品零售单
+                //String saleId="02e9c7ab02ce403f83226c2cf3a52eb6";
+                String billSaleItemParam = StringUtils.replace(billSaleParam, "{saleId}", billId);
+                Response res5 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction,billSaleItemParam);
+                String billSaleHtml = res5.returnContent().asString(charset);
+
+                if (billSaleHtml.contains("</NewDataSet>")) {
+                    String target = "ds";
+
+                    List<Element> dataList = getQueryDataList(billSaleHtml, target);
+                    if (dataList.size() > 0) {
+
+                        for (Element node : dataList) {
+
+                            String itemName = "";
+                            Element itemNameElement = node.element("ProductName");
+                            if (itemNameElement != null)
+                                itemName = itemNameElement.getText();
+
+
+                            String firstCategoryName = "";
+                            Element firstCategoryNameElement = node.element("costObjectName");
+                            if (firstCategoryNameElement != null)
+                                firstCategoryName = firstCategoryNameElement.getText();
+
+                            String price = "";
+                            Element priceElement = node.element("TotalPay");
+                            if (priceElement != null)
+                                price = priceElement.getText();
+
+                            String num = "";
+                            Element numElement = node.element("Amount");
+                            if (numElement != null)
+                                num = numElement.getText();
+
+                            String itemCode = "";
+                            Element itemCodeElement = node.element("ProductID");
+                            if (itemCodeElement != null)
+                                itemCode = itemCodeElement.getText();
+
+
+                            BillDetail billDetail = new BillDetail();
+                            billDetail.setCompanyName(companyName);
+                            billDetail.setBillNo(bill.getBillNo());
+                            billDetail.setNum(num);
+                            billDetail.setItemCode(itemCode);
+                            billDetail.setPrice(price);
+                            billDetail.setFirstCategoryName(firstCategoryName);
+                            billDetail.setItemName(itemName);
+                            billDetail.setItemType("配件");
+                            billDetails.add(billDetail);
+
                         }
                     }
                 }

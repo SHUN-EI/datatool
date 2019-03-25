@@ -50,6 +50,21 @@ public class BillDetail {
     private String num;
 
     /**
+     * 使用数量
+     */
+    private String usedNum;
+
+    /**
+     * 初始数量
+     */
+    private String originalNum;
+
+    /**
+     * 本次使用数量
+     */
+    private String thisUsedNum;
+
+    /**
      * 单价
      */
     private String price;
@@ -119,6 +134,29 @@ public class BillDetail {
      */
     private String discount = "0";
 
+    public String getThisUsedNum() {
+        return thisUsedNum;
+    }
+
+    public void setThisUsedNum(String thisUsedNum) {
+        this.thisUsedNum = thisUsedNum;
+    }
+
+    public String getUsedNum() {
+        return usedNum;
+    }
+
+    public void setUsedNum(String usedNum) {
+        this.usedNum = usedNum;
+    }
+
+    public String getOriginalNum() {
+        return originalNum;
+    }
+
+    public void setOriginalNum(String originalNum) {
+        this.originalNum = originalNum;
+    }
 
     public String getDetailId() {
         return detailId;

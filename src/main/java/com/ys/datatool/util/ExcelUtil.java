@@ -424,6 +424,9 @@ public class ExcelUtil {
             mapValue.put("firstCategoryName", billDetail.getFirstCategoryName());
             mapValue.put("secondCategoryName", billDetail.getSecondCategoryName());
             mapValue.put("discount", billDetail.getDiscount());
+            mapValue.put("originalNum", billDetail.getOriginalNum());
+            mapValue.put("usedNum", billDetail.getUsedNum());
+            mapValue.put("thisUsedNum", billDetail.getThisUsedNum());
             listMap.add(mapValue);
         }
         return listMap;

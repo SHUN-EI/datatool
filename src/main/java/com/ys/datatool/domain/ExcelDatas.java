@@ -105,7 +105,8 @@ public class ExcelDatas {
 
     public static String[] billDetailSomeFields = new String[]{"车店名称", "单据号",
             "商品名称", "数量", "售价(折扣价)", "折扣", "类别", "一级分类名称",
-            "二级分类名称", "商品编码", "原价", "车牌", "开单时间"};
+            "二级分类名称", "商品编码", "原价", "车牌", "开单时间",
+            "初始数量","已使用数量","剩余数量","本次使用数量"};
 
     public static String[] memberCardSomeFields = new String[]{"车店名称", "卡号",
             "会员卡名称", "车牌号", "卡类型", "卡品种名称", "开卡日期", "卡内余额",
