@@ -4,6 +4,7 @@ package com.ys.datatool.service.web;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
+import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -42,8 +43,6 @@ public class CheYingJiaService {
 
     //订单开始时间
     private String billStartDate = "2005/01/01";
-    //订单结束时间
-    private String billEndData = "2019/03/30 23:59:59";
 
     /**
      * 车辆页面总页数
@@ -239,7 +238,7 @@ public class CheYingJiaService {
             "and a.BillingDate &gt;= '" +
             billStartDate +
             "' and a.BillingDate &lt;= '" +
-            billEndData +
+            fetchEndDate() +
             "'</SQLString>" +
             "</Query>" +
             "</soap:Body>" +
@@ -286,7 +285,7 @@ public class CheYingJiaService {
 
 
     //商品零售单明细
-    private String billSaleParam="<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+    private String billSaleParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
             "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
@@ -437,7 +436,7 @@ public class CheYingJiaService {
         if (bills.size() > 0) {
             for (Bill bill : bills) {
                 String id = bill.getId();
-                String billId=bill.getBillId();
+                String billId = bill.getBillId();
 
                 //商品
                 String itemParam = StringUtils.replace(billItemParam, "{mentID}", id);
@@ -616,7 +615,7 @@ public class CheYingJiaService {
                 //商品零售单
                 //String saleId="02e9c7ab02ce403f83226c2cf3a52eb6";
                 String billSaleItemParam = StringUtils.replace(billSaleParam, "{saleId}", billId);
-                Response res5 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction,billSaleItemParam);
+                Response res5 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billSaleItemParam);
                 String billSaleHtml = res5.returnContent().asString(charset);
 
                 if (billSaleHtml.contains("</NewDataSet>")) {
@@ -1504,5 +1503,13 @@ public class CheYingJiaService {
         List<Element> dataList = dataSet.elements(target);
 
         return dataList;
+    }
+
+
+    private String fetchEndDate() {
+        String currentDate = DateUtil.formatCurrentDate();
+        String endDate = currentDate.replace("-", "/") + " 23:59:59";
+
+        return endDate;
     }
 }
