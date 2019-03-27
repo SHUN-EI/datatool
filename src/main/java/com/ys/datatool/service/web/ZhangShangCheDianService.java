@@ -64,7 +64,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=04131A409F595F795984F6C209552A0F; Hm_lvt_678c2a986264dd9650b6a59042718858=1543569473; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImI1MWQxZDNjLTk3NzQtNDQ5Zi05ZDhmLWVmYzY0ZDA1MTkxMCIsImV4cCI6MTU0MzY1NTg3MywibmJmIjoxNTQzNTY5NDczLCJzdG9yZUlkIjoiZmM0Y2FjY2EtMWJjMS00NjNlLWJkMDAtYTc5MDI3MmIwMTE4IiwidXNlclR5cGUiOiIwIn0.EdQx75XFhCkmGpMCyjifFKwP_11pNlsXwZW3f7WeRcrJ7KqHWsnORcJYT0IRZBLCTE8_jBWv97k5Eqcu-CQI9A; SERVERID=b810ac6d9315e3be005b170045c65755|1543569478|1543568248; Hm_lpvt_678c2a986264dd9650b6a59042718858=1543569478";
+    private String COOKIE = "JSESSIONID=6F90E390C08F03AE72E782AB3DA3C989; Hm_lvt_678c2a986264dd9650b6a59042718858=1553667516; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ4ZDVlMGE5LTc4YTQtNGMyYi1iNGI3LWJjMjNjZjNiMjMxMiIsImV4cCI6MTU1Mzc1MzkxNSwibmJmIjoxNTUzNjY3NTE1LCJzdG9yZUlkIjoiNDlmMjUzN2EtNTkyOC00OWFjLTg0YTAtYjA4ZWU4YWY5MWVlIiwidXNlclR5cGUiOiIwIn0.MDON_TOnV9E1ql_L-eOYSmm9jwMVCqgqPzeAwEAO_49bUFxqYCXf9yuCsewcQcJm7Nl-v1wl4NDxXjVZBr00Cw; Hm_lpvt_678c2a986264dd9650b6a59042718858=1553667549; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1553667550|1553667498";
 
 
     /**
@@ -302,7 +302,7 @@ public class ZhangShangCheDianService {
 
     /**
      * 会员卡，卡内项目，卡内项目商品-标准模版导出
-     *
+     * <p>
      * 会员管理-会员卡发放管理-会员卡详情
      *
      * @throws IOException
@@ -325,13 +325,13 @@ public class ZhangShangCheDianService {
                 if ("无项目".equals(itemIsExist))
                     continue;
 
-                String cardNameRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(2)";
+                String cardNameRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(2)";
                 String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(4)";
-                String nameRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(2)";
-                String phoneRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(6)";
-                String carNumberRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(4)";
-                String dateCreatedRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(3) > th:nth-child(2)";
-                String balanceRegEx="body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(4) > th:nth-child(2)";
+                String nameRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(2)";
+                String phoneRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(6)";
+                String carNumberRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(4)";
+                String dateCreatedRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(3) > th:nth-child(2)";
+                String balanceRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(4) > th:nth-child(2)";
                 String validTimeRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(3) > th:nth-child(4)";
 
                 //到期时间
@@ -345,13 +345,13 @@ public class ZhangShangCheDianService {
                 String isValidForever = CommonUtil.getIsValidForever(validTime);
 
                 String cardCode = doc.select(cardCodeRegEx).text();
-                String memberCardName=doc.select(cardNameRegEx).text();
-                String carNumber=doc.select(carNumberRegEx).text();
-                String name=doc.select(nameRegEx).text();
-                String phone=doc.select(phoneRegEx).text();
-                String balance=doc.select(balanceRegEx).text();
-                String dateCreated=doc.select(dateCreatedRegEx).text();
-                dateCreated=DateUtil.formatSQLDateTime(dateCreated);
+                String memberCardName = doc.select(cardNameRegEx).text();
+                String carNumber = doc.select(carNumberRegEx).text();
+                String name = doc.select(nameRegEx).text();
+                String phone = doc.select(phoneRegEx).text();
+                String balance = doc.select(balanceRegEx).text();
+                String dateCreated = doc.select(dateCreatedRegEx).text();
+                dateCreated = DateUtil.formatSQLDateTime(dateCreated);
 
                 MemberCard memberCard = new MemberCard();
                 memberCard.setCardCode(cardCode);
@@ -456,31 +456,34 @@ public class ZhangShangCheDianService {
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("data");
-                String name = data.get("supplierName") != null ? data.get("supplierName").asText() : "";
-                String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
-                String contactName = data.get("linkManName") != null ? data.get("linkManName").asText() : "";
-                String contactPhone = data.get("mobilePhone") != null ? data.get("mobilePhone").asText() : "";
-                String fax = data.get("officePhone") != null ? data.get("officePhone").asText() : "";//业务电话
-                String address = data.get("address") != null ? data.get("address").asText() : "";
-                String accountNumber = data.get("bankAccount") != null ? data.get("bankAccount").asText() : "";
-                String depositBank = data.get("bankName") != null ? data.get("bankName").asText() : "";
-                String accountName = data.get("receiveManName") != null ? data.get("receiveManName").asText() : "";
-                String remark = data.get("memoInfo") != null ? data.get("memoInfo").asText() : "";
-                String type = data.get("supplyType") != null ? data.get("supplyType").asText() : "";//供应商类别
+                if (data !=null) {
+
+                    String name = data.get("supplierName") != null ? data.get("supplierName").asText() : "";
+                    String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
+                    String contactName = data.get("linkManName") != null ? data.get("linkManName").asText() : "";
+                    String contactPhone = data.get("mobilePhone") != null ? data.get("mobilePhone").asText() : "";
+                    String fax = data.get("officePhone") != null ? data.get("officePhone").asText() : "";//业务电话
+                    String address = data.get("address") != null ? data.get("address").asText() : "";
+                    String accountNumber = data.get("bankAccount") != null ? data.get("bankAccount").asText() : "";
+                    String depositBank = data.get("bankName") != null ? data.get("bankName").asText() : "";
+                    String accountName = data.get("receiveManName") != null ? data.get("receiveManName").asText() : "";
+                    String remark = data.get("memoInfo") != null ? data.get("memoInfo").asText() : "";
+                    String type = data.get("supplyType") != null ? data.get("supplyType").asText() : "";//供应商类别
 
 
-                Supplier supplier = new Supplier();
-                supplier.setName(name);
-                supplier.setCompanyName(companyName);
-                supplier.setContactName(contactName);
-                supplier.setContactPhone(contactPhone);
-                supplier.setFax(fax);
-                supplier.setAddress(address);
-                supplier.setAccountNumber(accountNumber);
-                supplier.setDepositBank(depositBank);
-                supplier.setAccountName(accountName);
-                supplier.setRemark(remark + " " + type);
-                suppliers.add(supplier);
+                    Supplier supplier = new Supplier();
+                    supplier.setName(name);
+                    supplier.setCompanyName(companyName);
+                    supplier.setContactName(contactName);
+                    supplier.setContactPhone(contactPhone);
+                    supplier.setFax(fax);
+                    supplier.setAddress(address);
+                    supplier.setAccountNumber(accountNumber);
+                    supplier.setDepositBank(depositBank);
+                    supplier.setAccountName(accountName);
+                    supplier.setRemark(remark + " " + type);
+                    suppliers.add(supplier);
+                }
             }
         }
 
@@ -527,46 +530,49 @@ public class ZhangShangCheDianService {
                 JsonNode result = MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("data");
-                String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
-                String carNumber = data.get("carPlateNo") != null ? data.get("carPlateNo").asText() : "";
-                String name = data.get("userName") != null ? data.get("userName").asText() : "";
-                String phone = data.get("telephone") != null ? data.get("telephone").asText() : "";
+                if (data != null) {
 
-                JsonNode userCarInfos = data.get("userCarInfos");
-                if (userCarInfos != null) {
-                    Iterator<JsonNode> userCarInfo = userCarInfos.elements();
-                    while (userCarInfo.hasNext()) {
-                        JsonNode element = userCarInfo.next();
+                    String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
+                    String carNumber = data.get("carPlateNo") != null ? data.get("carPlateNo").asText() : "";
+                    String name = data.get("userName") != null ? data.get("userName").asText() : "";
+                    String phone = data.get("telephone") != null ? data.get("telephone").asText() : "";
 
-                        String contactName = element.get("contactName") != null ? element.get("contactName").asText() : "";
-                        if (StringUtils.isBlank(contactName))
-                            contactName = name;
+                    JsonNode userCarInfos = data.get("userCarInfos");
+                    if (userCarInfos != null) {
+                        Iterator<JsonNode> userCarInfo = userCarInfos.elements();
+                        while (userCarInfo.hasNext()) {
+                            JsonNode element = userCarInfo.next();
 
-                        String contactTelephone = element.get("contactTelephone") != null ? element.get("contactTelephone").asText() : "";
-                        if (StringUtils.isBlank(contactTelephone))
-                            contactTelephone = phone;
+                            String contactName = element.get("contactName") != null ? element.get("contactName").asText() : "";
+                            if (StringUtils.isBlank(contactName))
+                                contactName = name;
 
-                        String myCarPlateNo = element.get("myCarPlateNo") != null ? element.get("myCarPlateNo").asText() : "";
-                        if (StringUtils.isBlank(myCarPlateNo))
-                            myCarPlateNo = carNumber;
+                            String contactTelephone = element.get("contactTelephone") != null ? element.get("contactTelephone").asText() : "";
+                            if (StringUtils.isBlank(contactTelephone))
+                                contactTelephone = phone;
 
-                        String engineNumber = element.get("engineNumber") != null ? element.get("engineNumber").asText() : "";
-                        String carModel = element.get("carModelName") != null ? element.get("carModelName").asText() : "";
-                        String vcInsuranceCompany = element.get("companyName") != null ? element.get("companyName").asText() : "";
-                        String vcInsuranceValidDate = element.get("insuranceDate") != null ? element.get("insuranceDate").asText() : "";
-                        String VINCode = element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "";
+                            String myCarPlateNo = element.get("myCarPlateNo") != null ? element.get("myCarPlateNo").asText() : "";
+                            if (StringUtils.isBlank(myCarPlateNo))
+                                myCarPlateNo = carNumber;
 
-                        CarInfo carInfo = new CarInfo();
-                        carInfo.setCompanyName(companyName);
-                        carInfo.setCarNumber(myCarPlateNo);
-                        carInfo.setPhone(contactTelephone);
-                        carInfo.setName(contactName);
-                        carInfo.setEngineNumber(engineNumber);
-                        carInfo.setCarModel(carModel);
-                        carInfo.setVINcode(VINCode);
-                        carInfo.setVcInsuranceCompany(vcInsuranceCompany);
-                        carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
-                        carInfos.add(carInfo);
+                            String engineNumber = element.get("engineNumber") != null ? element.get("engineNumber").asText() : "";
+                            String carModel = element.get("carModelName") != null ? element.get("carModelName").asText() : "";
+                            String vcInsuranceCompany = element.get("companyName") != null ? element.get("companyName").asText() : "";
+                            String vcInsuranceValidDate = element.get("insuranceDate") != null ? element.get("insuranceDate").asText() : "";
+                            String VINCode = element.get("vehicleIdNumber") != null ? element.get("vehicleIdNumber").asText() : "";
+
+                            CarInfo carInfo = new CarInfo();
+                            carInfo.setCompanyName(companyName);
+                            carInfo.setCarNumber(myCarPlateNo);
+                            carInfo.setPhone(contactTelephone);
+                            carInfo.setName(contactName);
+                            carInfo.setEngineNumber(engineNumber);
+                            carInfo.setCarModel(carModel);
+                            carInfo.setVINcode(VINCode);
+                            carInfo.setVcInsuranceCompany(vcInsuranceCompany);
+                            carInfo.setVcInsuranceValidDate(vcInsuranceValidDate);
+                            carInfos.add(carInfo);
+                        }
                     }
                 }
             }
