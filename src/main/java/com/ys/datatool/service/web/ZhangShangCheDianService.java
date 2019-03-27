@@ -64,8 +64,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=6F90E390C08F03AE72E782AB3DA3C989; Hm_lvt_678c2a986264dd9650b6a59042718858=1553667516; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ4ZDVlMGE5LTc4YTQtNGMyYi1iNGI3LWJjMjNjZjNiMjMxMiIsImV4cCI6MTU1Mzc1MzkxNSwibmJmIjoxNTUzNjY3NTE1LCJzdG9yZUlkIjoiNDlmMjUzN2EtNTkyOC00OWFjLTg0YTAtYjA4ZWU4YWY5MWVlIiwidXNlclR5cGUiOiIwIn0.MDON_TOnV9E1ql_L-eOYSmm9jwMVCqgqPzeAwEAO_49bUFxqYCXf9yuCsewcQcJm7Nl-v1wl4NDxXjVZBr00Cw; Hm_lpvt_678c2a986264dd9650b6a59042718858=1553667549; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1553667550|1553667498";
-
+    private String COOKIE = "JSESSIONID=91E148A71BB554436BF4CC2F9DE1C519; Hm_lvt_678c2a986264dd9650b6a59042718858=1553667516; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ4ZDVlMGE5LTc4YTQtNGMyYi1iNGI3LWJjMjNjZjNiMjMxMiIsImV4cCI6MTU1Mzc2NTAyMiwibmJmIjoxNTUzNjc4NjIyLCJzdG9yZUlkIjoiNDlmMjUzN2EtNTkyOC00OWFjLTg0YTAtYjA4ZWU4YWY5MWVlIiwidXNlclR5cGUiOiIwIn0.9nfdl3BNJ3nfoJSklQdEZc-6saiI92vjvRQ9NbrWxA1npZOTuH0EP_8rGHggNsWxcUDMWo6BtotoUtxv3kHz5g; Hm_lpvt_678c2a986264dd9650b6a59042718858=1553678632; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1553678710|1553678598";
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -598,9 +597,8 @@ public class ZhangShangCheDianService {
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
-                String getMemberCardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child({no}) > td:nth-child(14) > p:nth-child(1) > a";
                 for (int j = 1; j <= 15; j++) {
-                    String cardIdRegEx = StringUtils.replace(getMemberCardIdRegEx, "{no}", j + "");
+                    String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(15) > p:nth-child(1) > a";
                     String cardId = document.select(cardIdRegEx).attr("data-id");
 
                     if (StringUtils.isNotBlank(cardId))
