@@ -128,7 +128,7 @@ public class MemberCard {
     /**
      * 车车云-会员卡Id
      */
-    private String  vipUserId;
+    private String vipUserId;
 
     public String getVipUserId() {
         return vipUserId;

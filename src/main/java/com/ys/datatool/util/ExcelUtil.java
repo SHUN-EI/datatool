@@ -557,6 +557,7 @@ public class ExcelUtil {
             mapValue.put("grade", memberCard.getGrade());
             mapValue.put("discount", memberCard.getDiscount());
             mapValue.put("cardSort", memberCard.getCardSort());
+            mapValue.put("ctId", memberCard.getCtId());
             listMap.add(mapValue);
         }
         return listMap;

@@ -202,7 +202,8 @@ public class ExportUtil {
         List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
         String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
                 "cardType", "cardSort", "dateCreated", "balance",
-                "name", "phone", "grade", "discount", "remark", "memberCardId", "validTime"};
+                "name", "phone", "grade", "discount", "remark",
+                "memberCardId", "validTime","ctId"};
 
         OutputStream outputStream = null;
         try {

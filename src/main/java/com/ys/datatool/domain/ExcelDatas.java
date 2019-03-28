@@ -110,7 +110,7 @@ public class ExcelDatas {
 
     public static String[] memberCardSomeFields = new String[]{"车店名称", "卡号",
             "会员卡名称", "车牌号", "卡类型", "卡品种名称", "开卡日期", "卡内余额",
-            "联系人姓名", "联系人手机", "会员等级", "会员折扣", "备注", "会员卡ID", "到期时间"};
+            "联系人姓名", "联系人手机", "会员等级", "会员折扣", "备注", "会员卡ID", "到期时间","原系统卡号"};
 
     public static String[] memberCardItemSomeFields = new String[]{"车店名称", "卡号",
             "商品名称", "单价", "折扣", "剩余数量", "初始数量", "商品类别", "项目类别",

@@ -82,7 +82,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; _bl_uid=1gjvwtL15qFhmwzLL9XFthhkjIhq; PHPSESSID=v14o1dgqr5d6uvev6i70qcn896; ccwk_backend_tracking=v14o1dgqr5d6uvev6i70qcn896-10608; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1551944617,1552369607,1553148536; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1553256013; SERVERID=44fa044763f68345a9d119d26c10de1c|1553256317|1553255891";
+    private String COOKIE = "_bl_uid=mXjphtOC50p6jjw1nlktcsh93F7p; PHPSESSID=kpms1iu0kn9fm4vvigtpe1lgf5; ccwk_backend_tracking=kpms1iu0kn9fm4vvigtpe1lgf5-10495; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1553258473,1553261798,1553492476,1553756717; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1553770149; SERVERID=44fa044763f68345a9d119d26c10de1c|1553770153|1553756698";
 
 
     /**
@@ -535,10 +535,12 @@ public class CheCheYunService {
                 String name = customer.get("name").asText();
                 String phone = customer.get("mobile").asText();
                 String balance = customer.get("balance").asText();
+                String ctId = customer.get("card_number").asText();
 
                 card.setName(name);
                 card.setPhone(phone);
                 card.setBalance(balance);
+                card.setCtId(ctId);
             }
         }
 
