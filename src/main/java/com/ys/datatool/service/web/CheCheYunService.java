@@ -365,6 +365,7 @@ public class CheCheYunService {
                             billDetail.setBillNo(billNo);
                             billDetail.setItemName(serviceItemNames);
                             billDetail.setNum(num);
+                            billDetail.setCompanyName(companyName);
                             billDetail.setPrice(price);
                             billDetail.setItemType("服务项");
                             billDetail.setFirstCategoryName(firstCategoryName);
@@ -394,6 +395,7 @@ public class CheCheYunService {
                                     String firstCategory = node.get("business_type_name") == null ? "" : node.get("business_type_name").asText();
 
                                     BillDetail detail = new BillDetail();
+                                    detail.setCompanyName(companyName);
                                     detail.setBillNo(billNo);
                                     detail.setItemName(goodsNames);
                                     detail.setNum(quantity);
@@ -433,6 +435,7 @@ public class CheCheYunService {
                             String firstCategoryName = e.get("business_type_name") == null ? "" : e.get("business_type_name").asText();
 
                             BillDetail billDetail = new BillDetail();
+                            billDetail.setCompanyName(companyName);
                             billDetail.setBillNo(billNo);
                             billDetail.setItemName(goodsNames);
                             billDetail.setNum(num);
