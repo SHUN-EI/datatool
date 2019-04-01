@@ -30,10 +30,6 @@ public class CheCheYunService {
 
     private String MEMBERCARDLEVEL_URL = "https://www.checheweike.com/web/index.php?route=member/vip_level/gets";
 
-    private String STOCKDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/get_warehouse_detail&substore_id=1&product_id=";
-
-    private String STOCK_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/gets&limit=50&order=DESC&query_type=product&sort=ps.date_added&substore_id=1&zero_stock_show_enabled=1&page=";
-
     private String ITEM_URL = "https://www.checheweike.com/web/index.php?route=catalog/product/gets&limit=50&order=DESC&sort=p.date_added&page=";
 
     private String SERVICE_URL = "https://www.checheweike.com/web/index.php?route=catalog/service/gets&limit=50&order=DESC&sort=s.date_added&page=";
@@ -50,11 +46,16 @@ public class CheCheYunService {
 
     private String type = "all";//all-不限，clear-已还清，unclear-未还清
 
+    //连锁店情况下各店Id都不一样,通常总店或者第一个店为1
+    private int substoreId = 4;
+
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
             "&date_end=" +
             DateUtil.formatCurrentDate() +
-            "&get_stat=1&limit=200&order=DESC&sort=date_added&substore_id=1&page=";
+            "&get_stat=1&limit=200&order=DESC&sort=date_added&substore_id=" +
+            substoreId +
+            "&page=";
 
     private String BILLDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&id=";
 
@@ -66,10 +67,19 @@ public class CheCheYunService {
             beginDate +
             "&limit=" +
             num +
-            "&order=DESC&sort=date_added&substore_id=2" +
+            "&order=DESC&sort=date_added&substore_id=" +
+            substoreId +
             "&receipt_status=" +
             type +
             "&page=";
+
+    private String STOCKDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/get_warehouse_detail&substore_id=" +
+            substoreId +
+            "&product_id=";
+
+    private String STOCK_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/gets&limit=50&order=DESC&query_type=product&sort=ps.date_added&substore_id=" +
+            substoreId +
+            "&zero_stock_show_enabled=1&page=";
 
 
     private String ORDERDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&no=";
@@ -82,7 +92,7 @@ public class CheCheYunService {
 
     private String companyName = "车车云";
 
-    private String COOKIE = "_bl_uid=mXjphtOC50p6jjw1nlktcsh93F7p; PHPSESSID=kpms1iu0kn9fm4vvigtpe1lgf5; ccwk_backend_tracking=kpms1iu0kn9fm4vvigtpe1lgf5-10495; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1553258473,1553261798,1553492476,1553756717; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1553770149; SERVERID=44fa044763f68345a9d119d26c10de1c|1553770153|1553756698";
+    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; _bl_uid=1gjvwtL15qFhmwzLL9XFthhkjIhq; PHPSESSID=1b26ek19mo6qkpl5vtbpq7j1i2; ccwk_backend_tracking=1b26ek19mo6qkpl5vtbpq7j1i2-10495; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1551944617,1552369607,1553148536,1554084881; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1554097398; SERVERID=44fa044763f68345a9d119d26c10de1c|1554097412|1554084838";
 
 
     /**
@@ -141,7 +151,7 @@ public class CheCheYunService {
                         String total = e.get("amount").asText();//总价
                         String num = e.get("quantity").asText();
                         String price = e.get("sale_price").asText();//单价
-                        String firstCategoryName = e.get("business_type_name").asText();
+                        String firstCategoryName = e.get("business_type_name") == null ? "" : e.get("business_type_name").asText();
                         String serviceCode = e.get("service_no").asText();
 
                         BillDetail billDetail = new BillDetail();
@@ -166,7 +176,7 @@ public class CheCheYunService {
                                 String goodsNames = node.get("name").asText();
                                 String unitPrice = node.get("sale_price").asText();//单价
                                 String quantity = node.get("quantity").asText();//数量
-                                String firstCategory = node.get("business_type_name").asText();
+                                String firstCategory = node.get("business_type_name") == null ? "" : node.get("business_type_name").asText();
                                 String productCode = node.get("product_no").asText();
 
                                 BillDetail detail = new BillDetail();
@@ -332,6 +342,7 @@ public class CheCheYunService {
                     bill.setDateEnd(dateEnd);
                     bill.setMileage("实收:" + actualAmount);
 
+                    System.out.println("正在处理的单号为" + billNo);
                     Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
                     JsonNode content = MAPPER.readTree(res2.returnContent().asString());
 
@@ -348,7 +359,7 @@ public class CheCheYunService {
                             String total = e.get("amount").asText();//总价
                             String num = e.get("quantity").asText();
                             String price = e.get("sale_price").asText();//单价
-                            String firstCategoryName = e.get("business_type_name").asText();
+                            String firstCategoryName = e.get("business_type_name") == null ? "" : e.get("business_type_name").asText();
 
                             BillDetail billDetail = new BillDetail();
                             billDetail.setBillNo(billNo);
@@ -380,7 +391,7 @@ public class CheCheYunService {
                                     String goodsNames = node.get("name").asText();
                                     String unitPrice = node.get("sale_price").asText();//单价
                                     String quantity = node.get("quantity").asText();//数量
-                                    String firstCategory = node.get("business_type_name").asText();
+                                    String firstCategory = node.get("business_type_name") == null ? "" : node.get("business_type_name").asText();
 
                                     BillDetail detail = new BillDetail();
                                     detail.setBillNo(billNo);
@@ -419,7 +430,7 @@ public class CheCheYunService {
                             String total = e.get("amount").asText();
                             String num = e.get("quantity").asText();
                             String unitPrice = e.get("sale_price").asText();//单价
-                            String firstCategoryName = e.get("business_type_name").asText();
+                            String firstCategoryName = e.get("business_type_name") == null ? "" : e.get("business_type_name").asText();
 
                             BillDetail billDetail = new BillDetail();
                             billDetail.setBillNo(billNo);
@@ -565,7 +576,7 @@ public class CheCheYunService {
         String pathname = "C:\\exportExcel\\车车云会员卡.xls";
         String pathname2 = "C:\\exportExcel\\车车云会员卡详细.xls";
         ExportUtil.exportMemberCardDataInLocal(cards, ExcelDatas.workbook, pathname);
-        ExportUtil.exportMemberCardSomeFieldDataInLocal(cards, ExcelDatas.workbook,pathname2);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(cards, ExcelDatas.workbook, pathname2);
     }
 
 
