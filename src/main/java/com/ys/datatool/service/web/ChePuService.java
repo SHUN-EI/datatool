@@ -40,7 +40,7 @@ public class ChePuService {
 
     private String fieldName = "result";
 
-    private String COOKIE = "JSESSIONID=996CADFA95360702442E213E3E3E5FC5-n1";
+    private String COOKIE = "JSESSIONID=C751D33E6785FCA0B47C2BD6C53B7E79-n1";
 
 
     /**
@@ -54,12 +54,12 @@ public class ChePuService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getCarInfoParam(0), COOKIE);
+        Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(CARINFO_URL, getCarInfoParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(i), COOKIE);
                 JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
 
                 JsonNode dataNode = result.get("result");
@@ -126,7 +126,9 @@ public class ChePuService {
                     String cardCode = memberNode.get("mcardNo").asText();
                     String memberCardName = memberNode.get("mcardMame").asText();
                     String dateCreated = memberNode.get("startDate").asText();
+                    String validTime = memberNode.get("stopDate").asText();
                     String balance = memberNode.get("mcardBalance").asText();
+                    String remark = memberNode.get("cardStateName").asText();
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setCompanyName(companyName);
@@ -136,7 +138,9 @@ public class ChePuService {
                     memberCard.setDateCreated(dateCreated);
                     memberCard.setName(carInfo.getName());
                     memberCard.setBalance(balance);
+                    memberCard.setValidTime(validTime);
                     memberCard.setPhone(carInfo.getPhone());
+                    memberCard.setRemark(remark);
                     memberCards.add(memberCard);
 
                     //卡内项目
@@ -168,7 +172,7 @@ public class ChePuService {
         String pathname2 = "C:\\exportExcel\\车仆会员.xls";
         String pathname3 = "C:\\exportExcel\\车仆卡内项目.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
-        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname2);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname2);
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname3);
 
     }
@@ -233,7 +237,7 @@ public class ChePuService {
         return param;
     }
 
-    private String getCarInfoParam(int pageNo) {
+    private String getParam(int pageNo) {
         String param = "pageSize=15&pageNo=" + pageNo;
 
         return param;
