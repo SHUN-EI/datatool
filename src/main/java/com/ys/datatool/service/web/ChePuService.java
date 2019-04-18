@@ -43,6 +43,7 @@ public class ChePuService {
     private String COOKIE = "JSESSIONID=C751D33E6785FCA0B47C2BD6C53B7E79-n1";
 
 
+
     /**
      * 车辆信息、会员卡、卡内项目
      *
@@ -121,47 +122,51 @@ public class ChePuService {
 
                 JsonNode dataNode = content.get("result");
                 if (dataNode != null && dataNode.size() > 0) {
-                    JsonNode memberNode = dataNode.get(0);
+                    Iterator<JsonNode> it = dataNode.iterator();
 
-                    String cardCode = memberNode.get("mcardNo").asText();
-                    String memberCardName = memberNode.get("mcardMame").asText();
-                    String dateCreated = memberNode.get("startDate").asText();
-                    String validTime = memberNode.get("stopDate").asText();
-                    String balance = memberNode.get("mcardBalance").asText();
-                    String remark = memberNode.get("cardStateName").asText();
+                    while (it.hasNext()) {
+                        JsonNode memberNode = it.next();
 
-                    MemberCard memberCard = new MemberCard();
-                    memberCard.setCompanyName(companyName);
-                    memberCard.setCardCode(cardCode);
-                    memberCard.setMemberCardName(memberCardName);
-                    memberCard.setCarNumber(carInfo.getCarNumber());
-                    memberCard.setDateCreated(dateCreated);
-                    memberCard.setName(carInfo.getName());
-                    memberCard.setBalance(balance);
-                    memberCard.setValidTime(validTime);
-                    memberCard.setPhone(carInfo.getPhone());
-                    memberCard.setRemark(remark);
-                    memberCards.add(memberCard);
+                        String cardCode = memberNode.get("mcardNo").asText();
+                        String memberCardName = memberNode.get("mcardMame").asText();
+                        String dateCreated = memberNode.get("startDate").asText();
+                        String validTime = memberNode.get("stopDate").asText();
+                        String balance = memberNode.get("mcardBalance").asText();
+                        String remark = memberNode.get("cardStateName").asText();
 
-                    //卡内项目
-                    JsonNode itemNode = memberNode.get("svcs");
-                    if (itemNode != null && itemNode.size() > 0) {
-                        Iterator<JsonNode> it = itemNode.iterator();
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setCardCode(cardCode);
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setCarNumber(carInfo.getCarNumber());
+                        memberCard.setDateCreated(dateCreated);
+                        memberCard.setName(carInfo.getName());
+                        memberCard.setBalance(balance);
+                        memberCard.setValidTime(validTime);
+                        memberCard.setPhone(carInfo.getPhone());
+                        memberCard.setRemark(remark);
+                        memberCards.add(memberCard);
 
-                        while (it.hasNext()) {
-                            JsonNode e = it.next();
+                        //卡内项目
+                        JsonNode itemNode = memberNode.get("svcs");
+                        if (itemNode != null && itemNode.size() > 0) {
+                            Iterator<JsonNode> iterator = itemNode.iterator();
 
-                            String itemName = e.get("svcName").asText();
-                            String num = e.get("svcNum").asText();
-                            String price = e.get("svcPrice").asText();
+                            while (iterator.hasNext()) {
+                                JsonNode e = iterator.next();
 
-                            MemberCardItem memberCardItem = new MemberCardItem();
-                            memberCardItem.setCompanyName(companyName);
-                            memberCardItem.setCardCode(cardCode);
-                            memberCardItem.setItemName(itemName);
-                            memberCardItem.setNum(num);
-                            memberCardItem.setPrice(price);
-                            memberCardItems.add(memberCardItem);
+                                String itemName = e.get("svcName").asText();
+                                String num = e.get("svcNum").asText();
+                                String price = e.get("svcPrice").asText();
+
+                                MemberCardItem memberCardItem = new MemberCardItem();
+                                memberCardItem.setCompanyName(companyName);
+                                memberCardItem.setCardCode(cardCode);
+                                memberCardItem.setItemName(itemName);
+                                memberCardItem.setNum(num);
+                                memberCardItem.setPrice(price);
+                                memberCardItems.add(memberCardItem);
+                            }
                         }
                     }
                 }
