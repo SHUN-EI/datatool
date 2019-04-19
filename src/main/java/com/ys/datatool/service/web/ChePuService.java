@@ -40,8 +40,7 @@ public class ChePuService {
 
     private String fieldName = "result";
 
-    private String COOKIE = "JSESSIONID=C751D33E6785FCA0B47C2BD6C53B7E79-n1";
-
+    private String COOKIE = "JSESSIONID=5E094B7C141BA52FD52B9EA38E0DEB1A-n1";
 
 
     /**
@@ -158,12 +157,18 @@ public class ChePuService {
                                 String itemName = e.get("svcName").asText();
                                 String num = e.get("svcNum").asText();
                                 String price = e.get("svcPrice").asText();
+                                String isValidForever = e.get("isInfinite").asText();
+
+                                if ("1".equals(isValidForever)) {
+                                    num = "无限次";
+                                }
 
                                 MemberCardItem memberCardItem = new MemberCardItem();
                                 memberCardItem.setCompanyName(companyName);
                                 memberCardItem.setCardCode(cardCode);
                                 memberCardItem.setItemName(itemName);
                                 memberCardItem.setNum(num);
+                                memberCardItem.setOriginalNum(num);
                                 memberCardItem.setPrice(price);
                                 memberCardItems.add(memberCardItem);
                             }
