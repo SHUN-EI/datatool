@@ -79,9 +79,11 @@ public class CheKuKeService {
     //会员卡对应的行数
     private int sign = 0;
 
-    //登录账号和密码
-    private String USERNAME = "S8121";
+    ////////////////////////工具使用前，请先填写用户名、密码、Cookie等数据/////////////////////////////////////////////////////////////////////
 
+    //用户名
+    private String USERNAME = "S8121";
+    //密码
     private String PASSWORD = "a150500.";
 
     private String COOKIE = "ASP.NET_SessionId=5vfsjcyug3lhywj2q1wvcn2e; LOGINKEY=3941dd19f97c4e75aae825648ce72f9e; LOGINNAME=S8121; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1547524379,1547617751; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1547617751";
@@ -229,8 +231,6 @@ public class CheKuKeService {
      * 网页-车主列表(首页-点击总车主)
      * 打开路径:首页-点击总车主-车主列表-车辆信息详情
      *
-     * <p>
-     * 使用前需要先修改memberEnd的值
      *
      * @throws IOException
      */
@@ -422,8 +422,6 @@ public class CheKuKeService {
      * 车辆信息
      * 网页-店铺管理-开单管理-车辆信息详情
      * 打开路径:店铺管理-开单管理-车辆信息详情
-     * <p>
-     * 使用前需要先修改billEnd的值
      *
      * @throws IOException
      */
@@ -719,8 +717,6 @@ public class CheKuKeService {
      * 网页-店铺管理-会员套餐列表
      * <p>
      * 打开路径:店铺管理-会员套餐列表
-     * <p>
-     * 使用前需要先修改memberCardEnd的值
      *
      * @throws IOException
      */
@@ -818,8 +814,6 @@ public class CheKuKeService {
      * 会员卡
      * 网页-店铺管理-会员卡片列表
      * 打开路径:店铺管理-会员卡片列表
-     * <p>
-     * 使用前需要先修改memberCardEnd的值
      *
      * @throws IOException
      */
