@@ -82,11 +82,11 @@ public class CheKuKeService {
     ////////////////////////工具使用前，请先填写用户名、密码、Cookie等数据/////////////////////////////////////////////////////////////////////
 
     //用户名
-    private String USERNAME = "S8121";
+    private String USERNAME = "JM1682";
     //密码
-    private String PASSWORD = "a150500.";
+    private String PASSWORD = "HY123456";
 
-    private String COOKIE = "ASP.NET_SessionId=5vfsjcyug3lhywj2q1wvcn2e; LOGINKEY=3941dd19f97c4e75aae825648ce72f9e; LOGINNAME=S8121; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1547524379,1547617751; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1547617751";
+    private String COOKIE = "ASP.NET_SessionId=u3yuoiaeiushgem2r03qpeqo; LOGINKEY=dc7a1b64025141028c3c46fad9fb3ca6; LOGINNAME=jm1682; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1556094146,1556173857,1556249844; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1556249844";
 
 
     /**
@@ -125,99 +125,170 @@ public class CheKuKeService {
 
                 System.out.println("正在获取的单号为" + bno);
 
-                if ("128078".equals(bno) || "133316".equals(bno))
-                    continue;
-
                 Response response = ConnectionUtil.doGetWithLeastParams(CONSURECORDDETAIL_URL + bno, COOKIE);
 
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
                 Elements elements = doc.select(tableBillRegEx).attr("class", "list_tb1");
-                Element e1 = elements.get(0);
-                Element e2 = elements.get(1);
 
-                String detail = e1.getElementsByTag("td").get(0).toString();
-                Elements tbodys = e2.getElementsByTag("tbody");
-                Elements trs = tbodys.get(0).children();
+                Element billDetail = elements.get(0);
+                String detailStr = billDetail.getElementsByTag("tr").get(0).toString();
+                if (detailStr.contains("消费详情")){
 
-                String totalAmount = trs.get(trs.size() - 1).getElementsByTag("td").get(7).text();
-                totalAmount = totalAmount.replace(" 元", "");
+                    Element billItems = elements.get(1);
+                    Elements tbodys = billItems.getElementsByTag("tbody");
+                    Elements trs = tbodys.get(0).children();
 
-                String getBillNoRegEx = "(?<=单号：)(.*)(?=<br> 消费会员)";
-                String no = CommonUtil.fetchString(detail, getBillNoRegEx);
+                    Elements tds = trs.get(trs.size() - 1).getElementsByTag("td");
+                    String totalAmount = tds.get(tds.size() - 1).text();
+                    totalAmount = totalAmount.replace(" 元", "");
 
-                String getCarNumberRegEx = "(?<=消费车辆：)(.*)(?=<br> 接单人)";
-                String carNumber = CommonUtil.fetchString(detail, getCarNumberRegEx);
+                    String detail = billDetail.getElementsByTag("td").get(0).toString();
+                    String getBillNoRegEx = "(?<=单号：)(.*)(?=<br> 消费会员)";
+                    String no = CommonUtil.fetchString(detail, getBillNoRegEx);
 
-                String getReceptionistNameRegEx = "(?<=接单人：)(.*)(?=<br> 进厂时间)";
-                String receptionistName = CommonUtil.fetchString(detail, getReceptionistNameRegEx);
+                    String getCarNumberRegEx = "(?<=消费车辆：)(.*)(?=<br> 接单人)";
+                    String carNumber = CommonUtil.fetchString(detail, getCarNumberRegEx);
 
-                String getDateEndRegEx = "(?<=进厂时间：)(.*)(?=<br> 进厂公里)";
-                String dateEnd = CommonUtil.fetchString(detail, getDateEndRegEx);
-                dateEnd = DateUtil.formatSQLDate(dateEnd);
+                    String getReceptionistNameRegEx = "(?<=接单人：)(.*)(?=<br> 进厂时间)";
+                    String receptionistName = CommonUtil.fetchString(detail, getReceptionistNameRegEx);
 
-                String getMileageRegEx = "(?<=进厂公里：)(.*)(?=<br> </td>)";
-                String mileage = CommonUtil.fetchString(detail, getMileageRegEx);
+                    String getDateEndRegEx = "(?<=进厂时间：)(.*)(?=<br> 进厂公里)";
+                    String dateEnd = CommonUtil.fetchString(detail, getDateEndRegEx);
+                    dateEnd = DateUtil.formatSQLDate(dateEnd);
 
-                String serviceNames = "";
-                String itemNames = "";
-                if (trs.size() > 0) {
-                    for (int i = 2; i < trs.size() - 2; i++) {
-                        Element e = trs.get(i);
+                    String getMileageRegEx = "(?<=进厂公里：)(.*)(?=<br> </td>)";
+                    String mileage = CommonUtil.fetchString(detail, getMileageRegEx);
 
-                        if (StringUtils.isBlank(e.text()))
-                            continue;
+                    String serviceNames = "";
+                    String itemNames = "";
 
-                        if (e.toString().contains("table")) {
+                    if (trs.size() > 0) {
+                        for (int i = 2; i < trs.size() - 2; i++) {
+                            Element e = trs.get(i);
 
-                            Elements itemTbodys = e.getElementsByTag("tbody");
-                            Elements itemTrs = itemTbodys.get(0).children();
-                            int itemTrsSize = itemTrs.size();
-                            if (itemTrsSize > 0) {
-                                for (int j = 3; j < itemTrsSize; j++) {
-                                    Element data = itemTrs.get(j);
-                                    String num = data.getElementsByTag("td").get(2).text();
-                                    String totalPrice = data.getElementsByTag("td").get(4).text();//总价
-                                    String price = data.getElementsByTag("td").get(1).text();//原价
+                            if (StringUtils.isBlank(e.text()))
+                                continue;
 
-                                    String goodsNames = data.getElementsByTag("td").get(0).text();
-                                    goodsNames = goodsNames + "*" + num + "(" + price + ")";
+                            if (e.toString().contains("table")) {
 
-                                    if (!"".equals(itemNames))
-                                        itemNames = itemNames + "," + goodsNames;
+                                Elements itemTbodys = e.getElementsByTag("tbody");
+                                Elements itemTrs = itemTbodys.get(0).children();
+                                int itemTrsSize = itemTrs.size();
+                                if (itemTrsSize > 0) {
+                                    for (int j = 3; j < itemTrsSize; j++) {
+                                        Element data = itemTrs.get(j);
+                                        String num = data.getElementsByTag("td").get(2).text();
+                                        String totalPrice = data.getElementsByTag("td").get(4).text();//总价
+                                        String price = data.getElementsByTag("td").get(1).text();//原价
 
-                                    if ("".equals(itemNames))
-                                        itemNames = goodsNames;
+                                        String goodsNames = data.getElementsByTag("td").get(0).text();
+                                        goodsNames = goodsNames + "*" + num + "(" + price + ")";
+
+                                        if (!"".equals(itemNames))
+                                            itemNames = itemNames + "," + goodsNames;
+
+                                        if ("".equals(itemNames))
+                                            itemNames = goodsNames;
+                                    }
                                 }
+                            } else {
+                                Elements body = e.getElementsByTag("td");
+                                String serviceItemNames = body.get(0).text();
+                                String price = body.get(body.size() - 1).text();
+                                price = price.replace(" 元", "");
+                                serviceItemNames = serviceItemNames + "(" + price + ")";
+
+                                if (!"".equals(serviceNames))
+                                    serviceNames = serviceNames + "," + serviceItemNames;
+
+                                if ("".equals(serviceNames))
+                                    serviceNames = serviceItemNames;
+
                             }
-                        } else {
-                            String serviceItemNames = e.getElementsByTag("td").get(0).text();
-                            String price = e.getElementsByTag("td").get(7).text();
-                            price = price.replace(" 元", "");
-                            serviceItemNames = serviceItemNames + "(" + price + ")";
-
-                            if (!"".equals(serviceNames))
-                                serviceNames = serviceNames + "," + serviceItemNames;
-
-                            if ("".equals(serviceNames))
-                                serviceNames = serviceItemNames;
-
                         }
                     }
-                }
 
-                Bill bill = new Bill();
-                bill.setCompanyName(companyName);
-                bill.setBillNo(no);
-                bill.setCarNumber(carNumber);
-                bill.setReceptionistName(receptionistName);
-                bill.setDateEnd(dateEnd);
-                bill.setMileage(mileage);
-                bill.setServiceItemNames(serviceNames);
-                bill.setGoodsNames(itemNames);
-                bill.setTotalAmount(totalAmount);
-                bills.add(bill);
+                    Bill bill = new Bill();
+                    bill.setCompanyName(companyName);
+                    bill.setBillNo(bno);
+                    bill.setCarNumber(carNumber);
+                    bill.setReceptionistName(receptionistName);
+                    bill.setDateEnd(dateEnd);
+                    bill.setMileage(mileage);
+                    bill.setServiceItemNames(serviceNames);
+                    bill.setGoodsNames(itemNames);
+                    bill.setTotalAmount(totalAmount);
+                    bills.add(bill);
+
+                }else if (detailStr.contains("消费项目")){
+
+                    Elements tbodys = billDetail.getElementsByTag("tbody");
+                    Elements trs = tbodys.get(0).children();
+
+                    Elements tds = trs.get(trs.size() - 1).getElementsByTag("td");
+                    String totalAmount = tds.get(tds.size() - 1).text();
+                    totalAmount = totalAmount.replace(" 元", "");
+
+                    String serviceNames = "";
+                    String itemNames = "";
+
+                    if (trs.size() > 0) {
+                        for (int i = 2; i < trs.size() - 2; i++) {
+                            Element e = trs.get(i);
+
+                            if (StringUtils.isBlank(e.text()))
+                                continue;
+
+                            if (e.toString().contains("table")) {
+
+                                Elements itemTbodys = e.getElementsByTag("tbody");
+                                Elements itemTrs = itemTbodys.get(0).children();
+                                int itemTrsSize = itemTrs.size();
+                                if (itemTrsSize > 0) {
+                                    for (int j = 3; j < itemTrsSize; j++) {
+                                        Element data = itemTrs.get(j);
+                                        String price = data.getElementsByTag("td").get(1).text();//原价
+                                        String num = data.getElementsByTag("td").get(2).text();
+                                        String totalPrice = data.getElementsByTag("td").get(4).text();//总价
+
+                                        String goodsNames = data.getElementsByTag("td").get(0).text();
+                                        goodsNames = goodsNames + "*" + num + "(" + price + ")";
+
+                                        if (!"".equals(itemNames))
+                                            itemNames = itemNames + "," + goodsNames;
+
+                                        if ("".equals(itemNames))
+                                            itemNames = goodsNames;
+                                    }
+                                }
+                            } else {
+                                Elements body = e.getElementsByTag("td");
+                                String price = body.get(body.size() - 1).text();
+                                price = price.replace(" 元", "");
+                                String serviceItemNames = body.get(0).text();
+                                serviceItemNames = serviceItemNames + "(" + price + ")";
+
+                                if (!"".equals(serviceNames))
+                                    serviceNames = serviceNames + "," + serviceItemNames;
+
+                                if ("".equals(serviceNames))
+                                    serviceNames = serviceItemNames;
+
+                            }
+                        }
+                    }
+
+                    Bill bill = new Bill();
+                    bill.setCompanyName(companyName);
+                    bill.setBillNo(bno);
+                    bill.setServiceItemNames(serviceNames);
+                    bill.setGoodsNames(itemNames);
+                    bill.setTotalAmount(totalAmount);
+                    bills.add(bill);
+
+                }
             }
         }
 
@@ -230,7 +301,6 @@ public class CheKuKeService {
      * 车辆信息
      * 网页-车主列表(首页-点击总车主)
      * 打开路径:首页-点击总车主-车主列表-车辆信息详情
-     *
      *
      * @throws IOException
      */
