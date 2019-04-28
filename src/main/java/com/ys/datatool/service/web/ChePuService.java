@@ -1,7 +1,6 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
@@ -32,8 +31,6 @@ public class ChePuService {
 
     private String SERVICE_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-service-findServiceList.do";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private Charset charset = Charset.forName("UTF-8");
 
     private String companyName = "车仆系统";
@@ -55,12 +52,12 @@ public class ChePuService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(0), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(i), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(charset));
 
                 JsonNode dataNode = result.get("result");
                 if (dataNode.size() > 0) {
@@ -92,7 +89,7 @@ public class ChePuService {
 
                 //车辆信息
                 Response res = ConnectionUtil.doPostWithJson(CARINFODETAIL_URL, "memberId=" + carId, COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(charset));
 
                 JsonNode resulNode = result.get("result");
                 JsonNode node = resulNode.get("autos");
@@ -117,7 +114,7 @@ public class ChePuService {
 
                 //会员卡信息
                 Response res2 = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, "memberId=" + carId, COOKIE);
-                JsonNode content = MAPPER.readTree(res2.returnContent().asString(charset));
+                JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString(charset));
 
                 JsonNode dataNode = content.get("result");
                 if (dataNode != null && dataNode.size() > 0) {
@@ -198,13 +195,13 @@ public class ChePuService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(SERVICE_URL, getServiceParam(0), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(SERVICE_URL, getServiceParam(i), COOKIE);
 
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(charset));
 
                 JsonNode dataNode = result.get("result");
                 if (dataNode.size() > 0) {

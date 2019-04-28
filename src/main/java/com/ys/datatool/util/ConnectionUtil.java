@@ -43,6 +43,16 @@ public class ConnectionUtil {
         return response;
     }
 
+    public static Response doPostWithoutParam(String url, String cookie) throws IOException {
+
+        Response response = Request.Post(url)
+                .setHeader("cookie", cookie)
+                .setHeader("content-type", "application/json;charset=UTF-8")
+                .execute();
+
+        return response;
+    }
+
     public static Response doPostWithJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Post(url)
