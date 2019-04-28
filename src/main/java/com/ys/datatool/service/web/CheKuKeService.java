@@ -196,8 +196,9 @@ public class CheKuKeService {
                             } else {
                                 Elements body = e.getElementsByTag("td");
                                 String serviceItemNames = body.get(0).text();
-                                String price = body.get(body.size() - 1).text();
+                                String price = body.get(body.size() - 3).text();//工时费
                                 price = price.replace(" 元", "");
+
                                 serviceItemNames = serviceItemNames + "(" + price + ")";
 
                                 if (!"".equals(serviceNames))
@@ -265,7 +266,7 @@ public class CheKuKeService {
                                 }
                             } else {
                                 Elements body = e.getElementsByTag("td");
-                                String price = body.get(body.size() - 1).text();
+                                String price = body.get(body.size() - 3).text();//工时费
                                 price = price.replace(" 元", "");
                                 String serviceItemNames = body.get(0).text();
                                 serviceItemNames = serviceItemNames + "(" + price + ")";
