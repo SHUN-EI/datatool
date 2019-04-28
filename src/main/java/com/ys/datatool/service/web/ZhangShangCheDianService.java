@@ -1,7 +1,6 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -34,8 +33,6 @@ public class ZhangShangCheDianService {
 
     private String SUPPLIER_URL = "http://czbbb.cn/mnt/czbbb/supplierMgmt/czbbbApi.action";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     //接车管理-订单列表页面方法传参
     private String billMethod = "20122";
 
@@ -64,7 +61,9 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=91E148A71BB554436BF4CC2F9DE1C519; Hm_lvt_678c2a986264dd9650b6a59042718858=1553667516; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjQ4ZDVlMGE5LTc4YTQtNGMyYi1iNGI3LWJjMjNjZjNiMjMxMiIsImV4cCI6MTU1Mzc2NTAyMiwibmJmIjoxNTUzNjc4NjIyLCJzdG9yZUlkIjoiNDlmMjUzN2EtNTkyOC00OWFjLTg0YTAtYjA4ZWU4YWY5MWVlIiwidXNlclR5cGUiOiIwIn0.9nfdl3BNJ3nfoJSklQdEZc-6saiI92vjvRQ9NbrWxA1npZOTuH0EP_8rGHggNsWxcUDMWo6BtotoUtxv3kHz5g; Hm_lpvt_678c2a986264dd9650b6a59042718858=1553678632; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1553678710|1553678598";
+    private String COOKIE = "JSESSIONID=3BBD52716EEDDE284059D30808E76121; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjUxOTI2NywibmJmIjoxNTU2NDMyODY3LCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.0Hn0q91eIC8EPCuyS6Z3Vk9GomlNq87QBhFUj4lAN55UplFbOzE0sPDBFjbB6xfezk543A9bgtQoI6v5C8dMlQ; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556436269; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1556436276|1556432859";
+
+
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -179,7 +178,7 @@ public class ZhangShangCheDianService {
     }
 
     private void analysisBillData(Response response, List<Bill> bills, String remark) throws IOException {
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
         Iterator<JsonNode> it = result.get("data").elements();
         while (it.hasNext()) {
@@ -206,7 +205,7 @@ public class ZhangShangCheDianService {
             bill.setRemark(remark);
 
             Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getParams(stockOutMethod, getStockOutParam(serviceId)), COOKIE);
-            JsonNode content = MAPPER.readTree(res.returnContent().asString());
+            JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
             Iterator<JsonNode> data = content.get("data").elements();
             while (data.hasNext()) {
@@ -245,7 +244,7 @@ public class ZhangShangCheDianService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(stockMethod, getPageValue(String.valueOf(i), "15")), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").elements();
                 while (it.hasNext()) {
@@ -435,7 +434,7 @@ public class ZhangShangCheDianService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierMethod, getPageValue(String.valueOf(i), "30")), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").elements();
                 while (it.hasNext()) {
@@ -452,10 +451,10 @@ public class ZhangShangCheDianService {
                 String value = "{" + "\"id\":" + "\"" + id + "\"" +
                         "," + "\"op\":" + "\"" + "get" + "\"" + "}";
                 Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(supplierDetailMethod, value), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("data");
-                if (data !=null) {
+                if (data != null) {
 
                     String name = data.get("supplierName") != null ? data.get("supplierName").asText() : "";
                     String companyName = data.get("storeName") != null ? data.get("storeName").asText() : "";
@@ -510,7 +509,7 @@ public class ZhangShangCheDianService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoMethod, getPageValue(String.valueOf(i), "15")), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").elements();
                 while (it.hasNext()) {
@@ -526,7 +525,7 @@ public class ZhangShangCheDianService {
             for (String carId : carInfoIds) {
                 String value = "{" + "\"dataId\":" + "\"" + carId + "\"" + "}";
                 Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(carInfoDetailMethod, value), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("data");
                 if (data != null) {
@@ -598,7 +597,7 @@ public class ZhangShangCheDianService {
                 Document document = Jsoup.parse(html);
 
                 for (int j = 1; j <= 15; j++) {
-                    String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(15) > p:nth-child(1) > a";
+                    String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(14) > p:nth-child(1) > a";
                     String cardId = document.select(cardIdRegEx).attr("data-id");
 
                     if (StringUtils.isNotBlank(cardId))
@@ -657,7 +656,7 @@ public class ZhangShangCheDianService {
         int totalPage = 0;
 
         if (response != null) {
-            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
             String countStr = result.get("data").get("count").asText();
             int count = Integer.parseInt(countStr);
 
@@ -673,7 +672,7 @@ public class ZhangShangCheDianService {
         int totalPage = 0;
 
         if (response != null) {
-            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
             String countStr = result.get("data").get(0).asText();
             int count = Integer.parseInt(countStr);
 
@@ -689,7 +688,7 @@ public class ZhangShangCheDianService {
         int totalPage = 0;
 
         if (response != null) {
-            JsonNode result = MAPPER.readTree(response.returnContent().asString());
+            JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
             String countStr = result.get("data").get(0).get("count").asText();
             int count = Integer.parseInt(countStr);
 
