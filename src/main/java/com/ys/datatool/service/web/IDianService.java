@@ -29,6 +29,8 @@ import java.util.*;
 @Service
 public class IDianService {
 
+    private String STOCK_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=timesinventory_list&rows=20&level1=1&level2=2&level3=0&level4=0&queryStr=&groupId=&source=1&type=0&sshopId=&page=";
+
     private String SUPPLIER_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=supplier_query_getsupplierlistbyoption&type=1&option=&pageSize=50&page=";
 
     private String CARINFO_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_customer_query&page=0&pageSize=50&option=";
@@ -51,7 +53,7 @@ public class IDianService {
 
     private String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
-    private String fieldName = "total";
+    private String fieldName = "records";
 
     private String companyName = "I店";
 
@@ -71,54 +73,75 @@ public class IDianService {
 
 
     /**
-     * 供应商
-     * 打开路径:辅助功能-供应商维护(新)
+     * 库存
+     * 打开路径：辅助功能-库存调整
      *
      * @throws IOException
      */
     @Test
-    public void fetchSupplierDataStandard() throws IOException {
-        List<Supplier> suppliers = new ArrayList<>();
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(SUPPLIER_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
-        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
+        Response res = ConnectionUtil.doGetEncode(STOCK_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 0; i < totalPage; i++) {
-                res = ConnectionUtil.doGetEncode(SUPPLIER_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
-                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+                res = ConnectionUtil.doGetEncode(STOCK_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
-                JsonNode rows = result.get("rows");
-                if (rows.size() > 0) {
-                    Iterator<JsonNode> it = rows.iterator();
+                Iterator<JsonNode> it = content.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode e = it.next();
 
-                    while (it.hasNext()) {
-                        JsonNode e = it.next();
+                    String goodsName = e.get("goodsName").asText();
+                    String price = e.get("lotPurPrice").asText();
+                    String salePrice = e.get("salePrice").asText();
+                    String inventoryNum = e.get("qty").asText();
+                    String storeRoomName = e.get("depotName").asText();
+                    String productCode = e.get("goodsNumber").asText();
+                    String firstCategoryName = e.get("goodsGroupName").asText();
+                    String barcode = e.get("barcode").asText();
+                    String unit = e.get("unit").asText();
+                    String manufactory = e.get("supplierName").asText();
 
-                        String name = e.get("name").asText();
-                        String contactName = e.get("linkMan").asText();
-                        String contactPhone = e.get("linkPhone").asText();
-                        String remark = e.get("address").asText();
+                    Stock stock = new Stock();
+                    stock.setCompanyName(companyName);
+                    stock.setStoreRoomName(storeRoomName);
+                    stock.setGoodsName(goodsName);
+                    stock.setInventoryNum(inventoryNum);
+                    stock.setPrice(price);
+                    stock.setProductCode(productCode);
+                    stocks.add(stock);
 
-                        Supplier supplier = new Supplier();
-                        supplier.setName(name);
-                        supplier.setContactName(contactName);
-                        supplier.setContactPhone(contactPhone);
-                        supplier.setRemark(remark);
-                        supplier.setCompanyName(companyName);
-                        suppliers.add(supplier);
-                    }
+                    Product product = new Product();
+                    product.setCompanyName(companyName);
+                    product.setProductName(goodsName);
+                    product.setItemType("商品");
+                    product.setBarCode(CommonUtil.formatString(barcode));
+                    product.setPrice(salePrice);
+                    product.setFirstCategoryName(firstCategoryName);
+                    product.setCode(productCode);
+                    product.setUnit(CommonUtil.formatString(unit));
+                    product.setManufactory(manufactory);
+                    products.add(product);
                 }
             }
         }
 
-        String pathname = "C:\\exportExcel\\i店供应商.xls";
-        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
+        String pathname = "C:\\exportExcel\\i店库存.xls";
+        String pathname2 = "C:\\exportExcel\\i店库存商品.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
 
     }
 
+
     /**
      * 历史消费记录和消费记录相关车辆
+     * <p>
+     * 打开路径:开单销售-订单查询-详情
      *
      * @throws IOException
      */
@@ -127,20 +150,17 @@ public class IDianService {
         List<Bill> bills = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING);
-        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
-        String totalStr = result.get("total").asText();
-        int total = Integer.parseInt(totalStr);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + 1, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         /**
          * 单据状态tpyes:全部状态-0,已开单-1,已结算-2,已提车-3,已取消-4
          * billStatus  已开单-10,已结算-20,已提车-30,已取消-40
          *
          */
-
-        if (total > 0) {
-            for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(BILL_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
                 JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
@@ -261,8 +281,10 @@ public class IDianService {
 
     }
 
+
     /**
      * 单据
+     * 打开路径:开单销售-订单查询
      *
      * @throws IOException
      */
@@ -270,14 +292,12 @@ public class IDianService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING);
-        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
-        String totalStr = result.get("total").asText();
-        int total = Integer.parseInt(totalStr);
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + 1, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
-        if (total > 0) {
-            for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(BILL_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
                 JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
@@ -310,11 +330,55 @@ public class IDianService {
             }
         }
 
-        System.out.println("结果为" + bills.toString());
-        System.out.println("结果为" + bills.size());
-
         String pathname = "C:\\exportExcel\\i店单据.xlsx";
         ExportUtil.exportBillDataInLocal(bills, ExcelDatas.workbook, pathname);
+
+    }
+
+    /**
+     * 供应商
+     * 打开路径:辅助功能-供应商维护(新)
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchSupplierDataStandard() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetEncode(SUPPLIER_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 0; i < totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(SUPPLIER_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode rows = result.get("rows");
+                if (rows.size() > 0) {
+                    Iterator<JsonNode> it = rows.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String name = e.get("name").asText();
+                        String contactName = e.get("linkMan").asText();
+                        String contactPhone = e.get("linkPhone").asText();
+                        String remark = e.get("address").asText();
+
+                        Supplier supplier = new Supplier();
+                        supplier.setName(name);
+                        supplier.setContactName(contactName);
+                        supplier.setContactPhone(contactPhone);
+                        supplier.setRemark(remark);
+                        supplier.setCompanyName(companyName);
+                        suppliers.add(supplier);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\i店供应商.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
 
     }
 
