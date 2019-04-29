@@ -64,7 +64,8 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=4C8E771A90B297FDF098233877D39E42; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjUyNzgwNSwibmJmIjoxNTU2NDQxNDA1LCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.Jdv6K2fQPTyfI-EKkhUyihZT69bw4ctiTmPoTEgvbssuTQiPWssXWhFv8bXq-6Svsukc05FfM9yinq2OCtZ5_A; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1556441701|1556441382; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556441697";
+    private String COOKIE = "JSESSIONID=C212D00E7DA587706B500D10C82F9D3C; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjU0MDQ1MCwibmJmIjoxNTU2NDU0MDUwLCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.SfIrEUIT1iHbd4kFxXJSyuVmUAuSEREEBwYmdRnCcr-fY4O-wd5_a5wu_TVbWv7n1gINijea9EleHrfAS5S1qQ; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1556508369|1556454038; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556508364";
+
 
 
 
@@ -321,11 +322,6 @@ public class ZhangShangCheDianService {
                 String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
-                String itemIsExistRegEX = "#listCon > tr > td > div";
-                String itemIsExist = doc.select(itemIsExistRegEX).text();
-                if ("无项目".equals(itemIsExist))
-                    continue;
-
                 String cardNameRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(2)";
                 String cardCodeRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(1) > th:nth-child(4)";
                 String nameRegEx = "body > div.wrapper > div.contents > div > div.main > section > div > div.jc-row.jc-col-space15.menu-item > div.jc-col-sm8 > table > thead > tr:nth-child(2) > th:nth-child(2)";
@@ -364,6 +360,12 @@ public class ZhangShangCheDianService {
                 memberCard.setDateCreated(dateCreated);
                 memberCard.setCompanyName(companyName);
                 memberCards.add(memberCard);
+
+                //没有卡内项目
+                String itemIsExistRegEX = "#listCon > tr > td > div";
+                String itemIsExist = doc.select(itemIsExistRegEX).text();
+                if ("无项目".equals(itemIsExist))
+                    continue;
 
                 String trRegEx = "#listCon > tr";
                 int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
