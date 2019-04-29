@@ -64,9 +64,7 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=C212D00E7DA587706B500D10C82F9D3C; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjU0MDQ1MCwibmJmIjoxNTU2NDU0MDUwLCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.SfIrEUIT1iHbd4kFxXJSyuVmUAuSEREEBwYmdRnCcr-fY4O-wd5_a5wu_TVbWv7n1gINijea9EleHrfAS5S1qQ; SERVERID=fcc0e5fe0ca1ba074f3fd4818c894192|1556508369|1556454038; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556508364";
-
-
+    private String COOKIE = "JSESSIONID=82E8114A8C61DED704CCCFA3F79C078E; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjYwMjUyNywibmJmIjoxNTU2NTE2MTI3LCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.pYI2brl739pUNqCamM7okCcK_F3KC-cy6iWdy2ou_qbDYy5zlZTYmiB9b46popfyGXNN4OvRsv5RhR1Uhru4bg; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1556516832|1556516112; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556516827";
 
 
     /**
@@ -315,10 +313,10 @@ public class ZhangShangCheDianService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<Product> products = new ArrayList<>();
 
-        Set<String> cardIds = getMemberCardId();
-        if (cardIds.size() > 0) {
-            for (String cardId : cardIds) {
-                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + cardId, COOKIE);
+        List<MemberCard> cards = getMemberCardId();
+        if (cards.size() > 0) {
+            for (MemberCard m : cards) {
+                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + m.getMemberCardId(), COOKIE);
                 String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 
@@ -359,9 +357,10 @@ public class ZhangShangCheDianService {
                 memberCard.setBalance(balance.replace("￥", ""));
                 memberCard.setDateCreated(dateCreated);
                 memberCard.setCompanyName(companyName);
+                memberCard.setRemark(m.getRemark());
                 memberCards.add(memberCard);
 
-                //没有卡内项目
+                //过滤没有卡内项目
                 String itemIsExistRegEX = "#listCon > tr > td > div";
                 String itemIsExist = doc.select(itemIsExistRegEX).text();
                 if ("无项目".equals(itemIsExist))
@@ -418,7 +417,7 @@ public class ZhangShangCheDianService {
         String pathname = "C:\\exportExcel\\掌上车店会员卡.xls";
         String pathname2 = "C:\\exportExcel\\掌上车店卡内项目.xls";
         String pathname3 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
-        ExportUtil.exportMemberCardDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname3);
     }
@@ -589,8 +588,8 @@ public class ZhangShangCheDianService {
 
     }
 
-    private Set<String> getMemberCardId() throws IOException {
-        Set<String> cardIds = new HashSet<>();
+    private List<MemberCard> getMemberCardId() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getTotalParams("1"), COOKIE);
         int totalPage = getMemberCardTotalPage(response, 15);
@@ -605,13 +604,21 @@ public class ZhangShangCheDianService {
                     String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(14) > p:nth-child(1) > a";
                     String cardId = document.select(cardIdRegEx).attr("data-id");
 
-                    if (StringUtils.isNotBlank(cardId))
-                        cardIds.add(cardId);
+                    String stateRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(13) ";
+                    String remark = document.select(stateRegEx).text();
+
+                    if (StringUtils.isBlank(cardId))
+                        continue;
+
+                    MemberCard memberCard = new MemberCard();
+                    memberCard.setRemark(remark);
+                    memberCard.setMemberCardId(cardId);
+                    memberCards.add(memberCard);
                 }
             }
         }
 
-        return cardIds;
+        return memberCards;
     }
 
     private List<BasicNameValuePair> getTotalParams(String pageNo) {

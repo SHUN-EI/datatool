@@ -1,12 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.config.ExcelDatas;
-import com.ys.datatool.domain.entity.Bill;
-import com.ys.datatool.domain.entity.CarInfo;
-import com.ys.datatool.domain.entity.MemberCard;
-import com.ys.datatool.domain.entity.MemberCardItem;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -21,7 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -31,6 +28,8 @@ import java.util.*;
 
 @Service
 public class IDianService {
+
+    private String SUPPLIER_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=supplier_query_getsupplierlistbyoption&type=1&option=&pageSize=50&page=";
 
     private String CARINFO_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_customer_query&page=0&pageSize=50&option=";
 
@@ -52,11 +51,7 @@ public class IDianService {
 
     private String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
-    private String ACCEPT = "application/json, text/javascript, */*; q=0.01";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private Charset charset = Charset.forName("utf-8");
+    private String fieldName = "total";
 
     private String companyName = "I店";
 
@@ -68,10 +63,59 @@ public class IDianService {
 
     private String userPhone = "18924800202";
 
+    //手机APPCookie
     private String COOKIE_PHONE = "JSESSIONID=04A303A0842F861C1FF2DFD8A34E88D9";
 
-    private String COOKIE_WEB = "JSESSIONID=BC3E0D40689DA06F713895BBF26C5D3B";
+    //客户端及网页Cookie
+    private String COOKIE_WEB = "JSESSIONID=50BE7B87D7F6B6A1F6320AE6813DF93E";
 
+
+    /**
+     * 供应商
+     * 打开路径:辅助功能-供应商维护(新)
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchSupplierDataStandard() throws IOException {
+        List<Supplier> suppliers = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetEncode(SUPPLIER_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 0; i < totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(SUPPLIER_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode rows = result.get("rows");
+                if (rows.size() > 0) {
+                    Iterator<JsonNode> it = rows.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String name = e.get("name").asText();
+                        String contactName = e.get("linkMan").asText();
+                        String contactPhone = e.get("linkPhone").asText();
+                        String remark = e.get("address").asText();
+
+                        Supplier supplier = new Supplier();
+                        supplier.setName(name);
+                        supplier.setContactName(contactName);
+                        supplier.setContactPhone(contactPhone);
+                        supplier.setRemark(remark);
+                        supplier.setCompanyName(companyName);
+                        suppliers.add(supplier);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\i店供应商.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
+
+    }
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -83,8 +127,8 @@ public class IDianService {
         List<Bill> bills = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING);
+        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
@@ -96,8 +140,8 @@ public class IDianService {
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-                JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
                 while (it.hasNext()) {
@@ -151,8 +195,8 @@ public class IDianService {
                 List<BasicNameValuePair> params = new ArrayList<>();
                 params.add(new BasicNameValuePair("fid", billNo));
 
-                Response response = ConnectionUtil.doPostEncode(CONSUMPTIONRECORD_URL, params, COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString(charset));
+                Response response = ConnectionUtil.doPostEncode(CONSUMPTIONRECORD_URL, params, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 String receptionistName = content.get("receptionName").asText();
                 String billNumber = content.get("saleNumber").asText();
@@ -226,15 +270,15 @@ public class IDianService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+        Response res = ConnectionUtil.doGetEncode(BILL_URL + "1", COOKIE_WEB, ACCEPT_ENCODING);
+        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
         String totalStr = result.get("total").asText();
         int total = Integer.parseInt(totalStr);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-                JsonNode content = MAPPER.readTree(res.returnContent().asString(charset));
+                res = ConnectionUtil.doGetEncode(BILL_URL + String.valueOf(i), COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 Iterator<JsonNode> it = content.get("rows").iterator();
                 while (it.hasNext()) {
@@ -311,7 +355,7 @@ public class IDianService {
             for (int i = 0; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
 
-                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(charset));
                 JsonNode userObject = result.get("userObject");
                 JsonNode memberList = userObject.get("memberList");
 
@@ -331,8 +375,8 @@ public class IDianService {
         if (carNumbers.size() > 0) {
             for (String carNumber : carNumbers) {
                 String sss = CARINFO_URL + URLEncoder.encode(carNumber, "utf-8");
-                Response res = ConnectionUtil.doGetEncode(CARINFO_URL + URLEncoder.encode(carNumber, "utf-8"), COOKIE_WEB, ACCEPT_ENCODING, ACCEPT);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                Response res = ConnectionUtil.doGetEncode(CARINFO_URL + URLEncoder.encode(carNumber, "utf-8"), COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode userObject = result.get("userObject");
                 if (userObject != null) {
@@ -377,7 +421,7 @@ public class IDianService {
             for (int i = 0; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
 
-                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
                 JsonNode userObject = result.get("userObject");
                 JsonNode memberList = userObject.get("memberList");
 
@@ -396,7 +440,7 @@ public class IDianService {
                 for (String id : ids) {
                     Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARDITEM_URL, getMemberCardItemParams(id), COOKIE_PHONE);
 
-                    JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                    JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
                     JsonNode userObject = result.get("userObject");
 
                     Iterator<JsonNode> it = userObject.get("timesDetailList").iterator();
@@ -457,7 +501,7 @@ public class IDianService {
             for (int i = 0; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i)), COOKIE_PHONE);
 
-                JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
                 JsonNode userObject = result.get("userObject");
 
                 Iterator<JsonNode> it = userObject.get("memberList").iterator();
@@ -489,7 +533,7 @@ public class IDianService {
 
     private int getMemberCardTotalPage() throws IOException {
         Response response = ConnectionUtil.doPostWithLeastParamJsonInPhone(MEMBERCARD_URL, getMemberCardParams("0"), COOKIE_PHONE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
         JsonNode userObject = result.get("userObject");
         JsonNode totalCount = userObject.get("totalCount");
 

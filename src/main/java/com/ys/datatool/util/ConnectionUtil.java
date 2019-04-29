@@ -96,23 +96,23 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetEncode(String url, String cookie, String accept_encoding, String accept) throws IOException {
+    public static Response doGetEncode(String url, String cookie, String accept_encoding) throws IOException {
 
         Response response = Request.Get(url)
                 .setHeader("Cookie", cookie)
                 .setHeader("accept-encoding", accept_encoding)
-                .setHeader("accept", accept)
+                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
                 .execute();
 
         return response;
     }
 
-    public static Response doPostEncode(String url, List params, String cookie, String accept_encoding, String accept) throws IOException {
+    public static Response doPostEncode(String url, List params, String cookie, String accept_encoding) throws IOException {
 
         Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)
                 .setHeader("accept-encoding", accept_encoding)
-                .setHeader("accept", accept)
+                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
                 .bodyForm(params, Charset.forName("utf-8"))
                 .execute();
 
