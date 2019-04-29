@@ -1,9 +1,9 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.HtmlTag;
+import com.ys.datatool.domain.entity.MemberCard;
+import com.ys.datatool.domain.entity.MemberCardItem;
 import com.ys.datatool.util.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

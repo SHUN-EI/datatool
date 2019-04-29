@@ -1,8 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -37,10 +39,6 @@ public class QiXiuZhangShangTongService {
 
     private String SUPPLIER_URL = "http://xlc.qxgs.net/api/pc/def/sp/spsuppliers/find";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private String CONTENT_TYPE = "application/json;charset=UTF-8";
-
     private String companyName = "汽修掌上通";
 
     private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546918900; sid=e7149abc-f613-4ea8-b865-aed8c9cc55af";
@@ -62,7 +60,7 @@ public class QiXiuZhangShangTongService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + i, COOKIE);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -79,14 +77,14 @@ public class QiXiuZhangShangTongService {
                         String dateCreated = element.get("vipCreateTime").asText();
                         dateCreated = DateUtil.formatMillisecond2DateTime(dateCreated);
 
-                        Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, 1), COOKIE, CONTENT_TYPE);
-                        int carTotalPage=getTotalPage(res);
+                        Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, 1), COOKIE, WebConfig.CONTENT_TYPE);
+                        int carTotalPage = getTotalPage(res);
 
-                        if (carTotalPage>0){
-                            for (int j=1;j<=carTotalPage;j++){
-                                res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, j), COOKIE, CONTENT_TYPE);
+                        if (carTotalPage > 0) {
+                            for (int j = 1; j <= carTotalPage; j++) {
+                                res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, j), COOKIE, WebConfig.CONTENT_TYPE);
 
-                                JsonNode carInfoData = MAPPER.readTree(res.returnContent().asString());
+                                JsonNode carInfoData = JsonObject.MAPPER.readTree(res.returnContent().asString());
                                 JsonNode carInfos = carInfoData.get("data").get(0).get("results");
 
                                 if (carInfos.size() > 0) {
@@ -114,7 +112,7 @@ public class QiXiuZhangShangTongService {
 
                         //卡内项目
                         Response res2 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
-                        JsonNode data = MAPPER.readTree(res2.returnContent().asString());
+                        JsonNode data = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                         JsonNode body = data.get("data").get(0).get("mealItems");
                         if (body != null) {
@@ -176,7 +174,7 @@ public class QiXiuZhangShangTongService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + i, COOKIE);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -218,12 +216,12 @@ public class QiXiuZhangShangTongService {
         Map<String, String> carMap = new HashMap<>();
 
         //获取所有客户车辆的Uuid
-        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, CONTENT_TYPE);
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, WebConfig.CONTENT_TYPE);
         int totalPage = getTotalPage(response);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, CONTENT_TYPE);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -246,13 +244,13 @@ public class QiXiuZhangShangTongService {
 
                 String carNumber = carMap.get(uuid);
 
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, 1), COOKIE, CONTENT_TYPE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, 1), COOKIE, WebConfig.CONTENT_TYPE);
                 int billTotalPage = getTotalPage(res);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
-                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, i), COOKIE, CONTENT_TYPE);
-                        JsonNode content = MAPPER.readTree(res.returnContent().asString());
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, i), COOKIE, WebConfig.CONTENT_TYPE);
+                        JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = content.get("data").get(0).get("results");
                         if (node.size() > 0) {
@@ -279,7 +277,7 @@ public class QiXiuZhangShangTongService {
                                 bill.setCarNumber(carNumber);
 
                                 Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + orderUuid, COOKIE);
-                                JsonNode body = MAPPER.readTree(res2.returnContent().asString());
+                                JsonNode body = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                                 JsonNode data = body.get("data").get(0).get("hyOrderItemResults");
                                 if (data.size() > 0) {
@@ -356,13 +354,13 @@ public class QiXiuZhangShangTongService {
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, CONTENT_TYPE);
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, WebConfig.CONTENT_TYPE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, CONTENT_TYPE);
-                JsonNode content = MAPPER.readTree(res.returnContent().asString());
+                Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -406,7 +404,7 @@ public class QiXiuZhangShangTongService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{num}", "0") + 1, COOKIE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get(0).get("len");
         int totalPage = WebClientUtil.getTotalPage(totalNode, 10);
         String countNum = totalNode.asText();
@@ -414,7 +412,7 @@ public class QiXiuZhangShangTongService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{num}", countNum) + i, COOKIE);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -440,7 +438,7 @@ public class QiXiuZhangShangTongService {
 
                         String partId = element.get("partId").asText();
                         Response res = ConnectionUtil.doGetWithLeastParams(STOCKDETAIL_URL + partId + "/stockDetl", COOKIE);
-                        JsonNode body = MAPPER.readTree(res.returnContent().asString());
+                        JsonNode body = JsonObject.MAPPER.readTree(res.returnContent().asString());
                         JsonNode data = body.get("data");
                         if (data.size() > 0) {
                             JsonNode stockNode = data.get(0);
@@ -483,12 +481,12 @@ public class QiXiuZhangShangTongService {
     public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(1), COOKIE, CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(1), COOKIE, WebConfig.CONTENT_TYPE);
         int totalPage = getTotalPage(response);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(i), COOKIE, CONTENT_TYPE);
-                JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
                 if (node.size() > 0) {
@@ -527,7 +525,7 @@ public class QiXiuZhangShangTongService {
     }
 
     private int getTotalPage(Response response) throws IOException {
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get(0).get("len");
         int totalPage = WebClientUtil.getTotalPage(totalNode, 10);
 

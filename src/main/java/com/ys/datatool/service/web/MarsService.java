@@ -2,7 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.entity.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
 import org.apache.http.client.fluent.Response;
 import org.apache.poi.ss.usermodel.Workbook;

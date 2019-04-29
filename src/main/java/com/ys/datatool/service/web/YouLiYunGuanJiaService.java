@@ -1,10 +1,11 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
+import com.ys.datatool.domain.entity.CarInfo;
+import com.ys.datatool.domain.entity.MemberCard;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -15,7 +16,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,10 +33,6 @@ public class YouLiYunGuanJiaService {
     private String CARINFODETAIL_URL = "http://ls.4008778515.com/Report/Carinfoedit?ShopID=undefined&ID=";
 
     private String CARINFO_URL = "http://ls.4008778515.com/Report/Carinfolist";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private Charset charset = Charset.forName("UTF-8");
 
     private String companyName = "有礼云管家";
 
@@ -58,14 +54,14 @@ public class YouLiYunGuanJiaService {
         List<MemberCard> memberCards = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(0), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 10);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 10);
 
         if (totalPage > 0) {
             int start = 0;
 
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(start), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 start = start + num;
 
@@ -112,13 +108,13 @@ public class YouLiYunGuanJiaService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(0), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 10);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 10);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(start), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 start = start + num;
                 JsonNode dataNode = result.get("data");
@@ -152,7 +148,7 @@ public class YouLiYunGuanJiaService {
                 String carId = carInfo.getCarId();
 
                 Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, COOKIE);
-                String content = res.returnContent().asString(charset);
+                String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
 
                 Document doc = Jsoup.parseBodyFragment(content);
 

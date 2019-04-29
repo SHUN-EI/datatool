@@ -1,9 +1,9 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.entity.CarInfo;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.HtmlTag;
+import com.ys.datatool.domain.entity.Product;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;

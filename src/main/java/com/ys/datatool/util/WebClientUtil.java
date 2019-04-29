@@ -8,7 +8,7 @@ import com.gargoylesoftware.htmlunit.ThreadedRefreshHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;

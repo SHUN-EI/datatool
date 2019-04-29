@@ -1,8 +1,8 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.Supplier;
 import com.ys.datatool.util.ConnectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -29,25 +29,10 @@ public class TaoQiYunXiuService {
 
     private static final String SUPPLIERLIST_URL = "http://www.yunqixiu.com/legend/shop/setting/supplier/supplier-list/data?page={page}";
 
+    private String fileName = "淘汽云修";
+
     private static final String COOKIE = "JSESSIONID=86E8954B7FCF51834B091C36A51E5524; VC_UUID=e3be3702-f1b3-4bec-b307-5cb0cb0e0e8aVC; SESSION_USER_NAME=%E6%9D%8E%E5%86%9B%E9%94%8B; UUID=5cef3fe3-7931-4654-a278-65d4c03ce060; Hm_lvt_177aadfd52500674827db74ca8f51989=1503281502,1503541165; Hm_lpvt_177aadfd52500674827db74ca8f51989=1503557466";
 
-    private static final String ACCEPT = "application/json, text/javascript, */*; q=0.01";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String HOST = "www.yunqixiu.com";
-
-    private static final String REFERER = "http://www.yunqixiu.com/legend/shop/setting/serviceInfo/serviceInfo-list?refer=header";
-
-    private static final String UPGRADE_INSECURE_REQUESTS = "1";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private String fileName = "淘汽云修";
 
 
     @Test
@@ -56,7 +41,7 @@ public class TaoQiYunXiuService {
         List<String> supplierIds = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERLIST_URL, "{page}", "1"), COOKIE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
         JsonNode node = result.get("data");
         int totalPage = Integer.parseInt(node.get("totalPages").asText());
@@ -64,7 +49,7 @@ public class TaoQiYunXiuService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERLIST_URL, "{page}", i + ""), COOKIE);
-                result = MAPPER.readTree(response.returnContent().asString());
+                result = JsonObject.MAPPER.readTree(response.returnContent().asString());
                 node = result.get("data");
 
                 Iterator<JsonNode> it = node.get("content").elements();

@@ -1,4 +1,4 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonView;

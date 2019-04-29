@@ -1,10 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.entity.Bill;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.MemberCardItem;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -35,8 +35,6 @@ public class JinBangService {
 
     private String BILLDETAIL_URL = "http://www.600vip.cn/Member/Member/OrderDetailList";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String fieldName = "total";
 
     private String companyName = "金邦会员管理系统";
@@ -55,12 +53,12 @@ public class JinBangService {
         List<MemberCardItem> cardItems = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getMemberCardParam(1), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 40);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 40);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getParam(i), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = result.get("rows");
                 if (node.size() > 0) {
@@ -95,14 +93,14 @@ public class JinBangService {
                 String shopID = memberCardItem.getShopId();
                 String cardID = memberCardItem.getCardId();
 
-                String param=getMemberCardItemParam(1, cardID, shopID);
+                String param = getMemberCardItemParam(1, cardID, shopID);
                 Response res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE);
-                int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 40);
+                int total = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 40);
 
                 if (total > 0) {
                     for (int i = 1; i <= total; i++) {
                         res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
-                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = result.get("rows");
                         if (node.size() > 0) {
@@ -155,12 +153,12 @@ public class JinBangService {
         Set<String> ids = new HashSet<>();
 
         Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 40);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 40);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = result.get("rows");
                 if (node.size() > 0) {
@@ -179,12 +177,12 @@ public class JinBangService {
         if (ids.size() > 0) {
             for (String id : ids) {
                 Response res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(id, 1), COOKIE);
-                int billTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 40);
+                int billTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 40);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
                         res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(id, i), COOKIE);
-                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = result.get("rows");
                         if (node.size() > 0) {
@@ -210,7 +208,7 @@ public class JinBangService {
 
                                 //汇总配件
                                 Response res2 = ConnectionUtil.doPostWithJson(BILLDETAIL_URL, getBillDetailParam(billNo), COOKIE);
-                                JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+                                JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
                                 JsonNode data = content.get("rows");
                                 if (data.size() > 0) {
                                     Iterator<JsonNode> iterator = data.iterator();

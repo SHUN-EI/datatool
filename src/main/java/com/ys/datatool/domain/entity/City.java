@@ -1,4 +1,4 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.entity;
 
 import java.util.List;
 

@@ -1,18 +1,18 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.BillDetail;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
+import com.ys.datatool.domain.entity.Bill;
+import com.ys.datatool.domain.entity.BillDetail;
+import com.ys.datatool.domain.entity.CarInfo;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,12 +34,6 @@ public class MaoRiService {
 
     private String fromDate = "2003-01-01";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private Charset charset = Charset.forName("utf-8");
-
-    private String CONTENT_TYPE = "application/json;charset=UTF-8";
-
     private String fieldName = "total";
 
     private String companyName = "茂日软件";
@@ -47,7 +41,6 @@ public class MaoRiService {
     private int num = 100;
 
     private String COOKIE = "aliyungf_tc=AQAAAPNnQHnFaAEAmghDcfyQ0m4IPf/4; ASP.NET_SessionId=nc01fqyltq5oxlbsbkydpdk5; __RequestVerificationToken=vKdwHUys2H5hgGMEE627LOoyRYDc3b9DZfYaTdCaLbqKRibbuLPN-UbGQoXlCjJkPeqZ6hHqPfOTN-Fb5If4HhcpfEYJUVy3UDP6Dyn1bWM1; .ASPXAUTH=6675E931CA2BE1005A55ADA7F4A2A306667B4B2207D77F26E3E5FBFCB8891E078D5EFE49DF5357695F70837208FF5496A5DF6019B68D9DDEC0870D7144C5D70FE02E4D3938AE004217885CA8CAB52F48F200BB44B3D0D7B4D41C8B2545B7C2C7; SERVERID=7ec4522f7498fadd6917fbc71337ba6d|1552034099|1552011440";
-
 
 
     /**
@@ -60,16 +53,16 @@ public class MaoRiService {
         List<BillDetail> billDetails = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(0), COOKIE, CONTENT_TYPE);
-        int carTotalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(0), COOKIE, WebConfig.CONTENT_TYPE);
+        int carTotalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
 
         if (carTotalPage > 0) {
             int offset = 0;
 
             for (int i = 1; i <= carTotalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(offset), COOKIE, CONTENT_TYPE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(offset), COOKIE, WebConfig.CONTENT_TYPE);
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 offset += num;
                 JsonNode dataNode = result.get("rows");
@@ -100,15 +93,15 @@ public class MaoRiService {
             for (CarInfo carInfo : carInfos) {
                 String id = carInfo.getCarId();
 
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(0, id), COOKIE, CONTENT_TYPE);
-                int billDetailTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 100);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(0, id), COOKIE, WebConfig.CONTENT_TYPE);
+                int billDetailTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 100);
 
                 if (billDetailTotalPage > 0) {
                     int offset = 0;
                     for (int i = 1; i <= billDetailTotalPage; i++) {
 
-                        res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(offset, id), COOKIE, CONTENT_TYPE);
-                        JsonNode result = MAPPER.readTree(res.returnContent().asString(charset));
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(offset, id), COOKIE, WebConfig.CONTENT_TYPE);
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                         offset += num;
                         JsonNode dataNode = result.get("rows");
@@ -157,8 +150,8 @@ public class MaoRiService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE, CONTENT_TYPE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE, WebConfig.CONTENT_TYPE);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
 
         if (totalPage > 0) {
@@ -166,8 +159,8 @@ public class MaoRiService {
 
             for (int i = 1; i <= totalPage; i++) {
 
-                response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(offset), COOKIE, CONTENT_TYPE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString(charset));
+                response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(offset), COOKIE, WebConfig.CONTENT_TYPE);
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 offset += num;
 

@@ -1,4 +1,6 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.entity;
+
+import com.ys.datatool.domain.entity.City;
 
 import java.util.List;
 

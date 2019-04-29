@@ -1,8 +1,9 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -40,8 +41,6 @@ public class WuYiCheGuanJiaService {
 
     private String STOCK_URL = "http://www.51chegj.com:8089/scm/stroeInventory/inventoryStatistics/qryInventoryPage?store_id=100675&tenantId=10675&keys=&prod_cata_id=&limit=20";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String fieldName = "totalRows";
 
     private String startDate = "2005-01-01";
@@ -71,13 +70,13 @@ public class WuYiCheGuanJiaService {
         List<Product> products = new ArrayList<>();
 
         Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getItemParams("1", "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 13);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 13);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getItemParams(String.valueOf(i), String.valueOf(start)), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 start = start + Integer.parseInt(limit);
 
@@ -120,13 +119,13 @@ public class WuYiCheGuanJiaService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(SERVICE_URL, 1, 15), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
 
                 response = ConnectionUtil.doGetWithLeastParams(getURL(SERVICE_URL, i, 15), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -168,12 +167,12 @@ public class WuYiCheGuanJiaService {
 
                 //encode
                 Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, 1, 20, startDate, DateUtil.formatCurrentDate(), memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
-                int billDetailTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+                int billDetailTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
                 if (billDetailTotalPage > 0) {
                     for (int i = 1; i <= billDetailTotalPage; i++) {
                         res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILLDETAIL_URL, i, 20, startDate, DateUtil.formatCurrentDate(), memberIdStr, memberCard.getMemberCardId()).replace(" ", "%20"), COOKIE);
-                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();
                         while (it.hasNext()) {
@@ -224,12 +223,12 @@ public class WuYiCheGuanJiaService {
 
                 //encode
                 Response res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, 1, 20, startDate,  DateUtil.formatCurrentDate(), cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
-                int billTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+                int billTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
                         res = ConnectionUtil.doGetWithLeastParams(getURLInDifferentConditions(BILL_URL, i, 20, startDate,  DateUtil.formatCurrentDate(), cardNoStr, memberCard.getCardCode()).replace(" ", "%20"), COOKIE);
-                        JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         Iterator<JsonNode> it = result.get("result").iterator();
                         while (it.hasNext()) {
@@ -274,12 +273,12 @@ public class WuYiCheGuanJiaService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARDITEM_URL, 1, 20), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 20);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARDITEM_URL, i, 20), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -325,12 +324,12 @@ public class WuYiCheGuanJiaService {
         List<MemberCard> memberCards = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, 1, 25), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 25);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 25);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -376,12 +375,12 @@ public class WuYiCheGuanJiaService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(CARINFO_URL, 1, 23), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 23);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 23);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(CARINFO_URL, i, 23), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -430,12 +429,12 @@ public class WuYiCheGuanJiaService {
         List<Supplier> suppliers = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(SUPPLIER_URL, 1, 15), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 15);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(SUPPLIER_URL, i, 15), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -475,12 +474,12 @@ public class WuYiCheGuanJiaService {
         List<Stock> stocks = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(STOCK_URL, 1, 20), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 20);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(STOCK_URL, i, 20), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {
@@ -516,12 +515,12 @@ public class WuYiCheGuanJiaService {
     private List<MemberCard> getMemberCards() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
         Response response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, 1, 25), COOKIE);
-        int memberCardTotalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 25);
+        int memberCardTotalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 25);
 
         if (memberCardTotalPage > 0) {
             for (int i = 1; i <= memberCardTotalPage; i++) {
                 response = ConnectionUtil.doGetWithLeastParams(getURL(MEMBERCARD_URL, i, 25), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("result").iterator();
                 while (it.hasNext()) {

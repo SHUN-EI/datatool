@@ -1,12 +1,14 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.HtmlTag;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -51,8 +53,6 @@ public class ZhongTuService {
     private String SUPPLIERDETAIL_URL = "http://crm.xmheigu.com/Boss/Stock/SupplierEdit.aspx?action=edit&id=";
 
     private String ITEM_URL = "http://crm.xmheigu.com/Boss/Stock/Stockservice/StockShop.ashx";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String USERID = "txtUserId";
 
@@ -99,12 +99,12 @@ public class ZhongTuService {
 
         String act = "GetData";
         Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, getBillParams("1", "100", act), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(BILL_URL, getBillParams(String.valueOf(i), "100", act), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -187,12 +187,12 @@ public class ZhongTuService {
 
         String act = "GetData";
         Response response = ConnectionUtil.doPostWithLeastParams(BILLITEM_URL, getBillItemParams("1", "100", act), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, 100);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(BILLITEM_URL, getBillItemParams(String.valueOf(i), "100", act), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -303,12 +303,12 @@ public class ZhongTuService {
         List<MemberCard> memberCards = new ArrayList<>();
 
         Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + "1", COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + i + "", COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -361,12 +361,12 @@ public class ZhongTuService {
 
         String act = "GetStockList";
         Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1", "20", act), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i), "20", act), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode companyNode = result.get("columns0").get(0);
                 String company = companyNode.get("title").asText();
@@ -438,12 +438,12 @@ public class ZhongTuService {
 
         String act = "";
         Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams("1", "20", act), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 20);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(i), "20", act), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -471,7 +471,7 @@ public class ZhongTuService {
                     params.add(new BasicNameValuePair("ID", carId));
 
                     Response response = ConnectionUtil.doPostWithLeastParams(CARINFODETAIL_URL, params, COOKIE);
-                    JsonNode content = MAPPER.readTree(response.returnContent().asString());
+                    JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                     JsonNode data = content.get(0);
                     String VINCode = data.get("CarFrame").asText();
@@ -610,12 +610,12 @@ public class ZhongTuService {
 
         String act = "GetShopList";
         Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1", "15", act), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 15);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i), "15", act), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {

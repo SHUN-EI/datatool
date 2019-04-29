@@ -1,4 +1,4 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.config;
 
 /**
  * Created by mo on @date  2018/7/17.

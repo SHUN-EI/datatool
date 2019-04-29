@@ -1,7 +1,7 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.entity.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;

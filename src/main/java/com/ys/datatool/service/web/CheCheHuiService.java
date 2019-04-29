@@ -1,6 +1,6 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.Bill;
+import com.ys.datatool.domain.entity.Bill;
 import com.ys.datatool.util.DateUtil;
 import org.junit.Test;
 import org.springframework.stereotype.Service;

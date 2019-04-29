@@ -1,4 +1,4 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.entity;
 
 /**
  * Created by mo on @date  2017/6/19.

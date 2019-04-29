@@ -1,7 +1,7 @@
 package com.ys.datatool.service.local;
 
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.entity.MemberCard;
+import com.ys.datatool.domain.entity.MemberCardItem;
 import com.ys.datatool.util.ExportUtil;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;

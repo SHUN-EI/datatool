@@ -1,7 +1,7 @@
 package com.ys.datatool.service.tool;
 
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.entity.Bill;
+import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;

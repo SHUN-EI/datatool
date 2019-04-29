@@ -1,4 +1,4 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.config;
 
 import java.nio.charset.Charset;
 

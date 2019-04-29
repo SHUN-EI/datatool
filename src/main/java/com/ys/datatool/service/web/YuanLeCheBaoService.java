@@ -1,8 +1,11 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.HtmlTag;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -15,7 +18,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -77,10 +79,6 @@ public class YuanLeCheBaoService {
     private String divName = "div";
 
     private String optionName = "option";
-
-    private Charset charset = Charset.forName("UTF-8");
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private int num = 10;
 
@@ -587,7 +585,7 @@ public class YuanLeCheBaoService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString(charset);
+                String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parse(html);
 
                 for (int j = 1; j <= 10; j++) {
@@ -657,7 +655,7 @@ public class YuanLeCheBaoService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response response = ConnectionUtil.doPostWithLeastParams(CARINFOPAGE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                String html = response.returnContent().asString(charset);
+                String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parse(html);
 
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
@@ -953,12 +951,12 @@ public class YuanLeCheBaoService {
         List<Bill> bills = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").iterator();
                 while (it.hasNext()) {
@@ -1021,12 +1019,12 @@ public class YuanLeCheBaoService {
         List<BillDetail> billDetails = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(BILLINSERVICE_URL, getPageInfoParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").iterator();
                 while (it.hasNext()) {
@@ -1096,7 +1094,7 @@ public class YuanLeCheBaoService {
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDOVERVIEW_URL + companyId, COOKIE);
-        String html = response.returnContent().asString(charset);
+        String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parse(html);
 
         int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
@@ -1125,7 +1123,7 @@ public class YuanLeCheBaoService {
             MemberCard memberCard = memberCardMap.get(gradeId);
 
             Response r = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams("1", gradeId), COOKIE);
-            String content = r.returnContent().asString(charset);
+            String content = r.returnContent().asString(WebConfig.CHARSET_UTF_8);
             doc = Jsoup.parse(content);
 
             String regEx = "[\\s\\S]*var pageNo[\\s\\S]*var totalPage = (\\d+)[\\s\\S]*";
@@ -1135,7 +1133,7 @@ public class YuanLeCheBaoService {
             if (total > 0) {
                 for (int i = 1; i <= total; i++) {
                     Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getMemberCardParams(String.valueOf(i), gradeId), COOKIE);
-                    String page = res.returnContent().asString(charset);
+                    String page = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                     doc = Jsoup.parse(page);
 
                     trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
@@ -1270,7 +1268,7 @@ public class YuanLeCheBaoService {
     private int getTotalPage(String url, List<BasicNameValuePair> params, String regEx, String replaceRegEx) throws
             IOException {
         Response response = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
-        String html = response.returnContent().asString(charset);
+        String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parse(html);
 
         String totalPageStr = CommonUtil.fetchString(doc.toString(), regEx).replace(replaceRegEx, "");
@@ -1343,7 +1341,7 @@ public class YuanLeCheBaoService {
 
         String dataStr = docString.substring(start, end);
         String data = "{" + dataStr + "}";
-        JsonNode node = MAPPER.readTree(data);
+        JsonNode node = JsonObject.MAPPER.readTree(data);
 
         return node;
     }

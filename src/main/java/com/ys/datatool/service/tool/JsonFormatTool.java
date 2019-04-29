@@ -2,9 +2,9 @@ package com.ys.datatool.service.tool;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.City;
-import com.ys.datatool.domain.Country;
-import com.ys.datatool.domain.Province;
+import com.ys.datatool.domain.entity.City;
+import com.ys.datatool.domain.entity.Country;
+import com.ys.datatool.domain.entity.Province;
 import org.junit.Test;
 
 import java.io.File;

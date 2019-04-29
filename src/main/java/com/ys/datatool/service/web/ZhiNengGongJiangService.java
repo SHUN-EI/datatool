@@ -1,10 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.Bill;
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.entity.Bill;
+import com.ys.datatool.domain.entity.CarInfo;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -36,8 +36,6 @@ public class ZhiNengGongJiangService {
             dc +
             "&page={no}&limit=500&start=";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private int num = 200;
 
     private String fieldName = "totalCount";
@@ -57,13 +55,13 @@ public class ZhiNengGongJiangService {
         Map<String, Bill> billMap = new HashMap<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", "1") + 0, COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
                 Iterator<JsonNode> it = result.get("orderList").iterator();
@@ -161,13 +159,13 @@ public class ZhiNengGongJiangService {
         Map<String, CarInfo> carInfoMap = new HashMap<>();
 
         Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", "1") + 0, COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", String.valueOf(i)) + start, COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
                 Iterator<JsonNode> it = result.get("memberList").iterator();
@@ -213,7 +211,7 @@ public class ZhiNengGongJiangService {
                             carInfoMap.put(carId, carInfo);
 
                             Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
-                            JsonNode data = MAPPER.readTree(res2.returnContent().asString());
+                            JsonNode data = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                             Iterator<JsonNode> iterator = data.get("carList").iterator();
                             while (iterator.hasNext()) {

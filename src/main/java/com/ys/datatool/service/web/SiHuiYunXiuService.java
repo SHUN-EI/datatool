@@ -1,10 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.MemberCard;
-import com.ys.datatool.domain.MemberCardItem;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.MemberCard;
+import com.ys.datatool.domain.entity.MemberCardItem;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
@@ -28,8 +28,6 @@ public class SiHuiYunXiuService {
 
     private String carInfoAction = "JC16003";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String companyName = "驷惠云修";
 
     private String sessionid = "20180521-1819-5395-d5d7-a49d-72d69290";
@@ -52,13 +50,13 @@ public class SiHuiYunXiuService {
 
         //获取所有车牌
         Response resp = ConnectionUtil.doPostWithToken(URL + carInfoAction, getParam(carInfoAction, 1), COOKIE, TOKEN);
-        JsonNode data = MAPPER.readTree(resp.returnContent().asString());
+        JsonNode data = JsonObject.MAPPER.readTree(resp.returnContent().asString());
         JsonNode total = data.get("data").get("total");
         int carTotalPage = WebClientUtil.getTotalPage(total, 50);
         if (carTotalPage > 0) {
             for (int i = 1; i <= carTotalPage; i++) {
                 resp = ConnectionUtil.doPostWithToken(URL + carInfoAction, getParam(carInfoAction, i), COOKIE, TOKEN);
-                data = MAPPER.readTree(resp.returnContent().asString());
+                data = JsonObject.MAPPER.readTree(resp.returnContent().asString());
                 JsonNode node = data.get("data").get("rows");
 
                 if (node.size() > 0) {
@@ -75,14 +73,14 @@ public class SiHuiYunXiuService {
         }
 
         Response response = ConnectionUtil.doPostWithToken(URL + memberCardAction, getParam(memberCardAction, 1), COOKIE, TOKEN);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get("total");
         int totalPage = WebClientUtil.getTotalPage(totalNode, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithToken(URL + memberCardAction, getParam(memberCardAction, i), COOKIE, TOKEN);
-                result = MAPPER.readTree(res.returnContent().asString());
+                result = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode node = result.get("data").get("rows");
 
                 if (node.size() > 0) {
@@ -142,7 +140,7 @@ public class SiHuiYunXiuService {
                 String cardId = memberCard.getMemberCardId();
 
                 Response res = ConnectionUtil.doPostWithToken(URL + memberCardItemAction, getMemberCardItemParam(cardId), COOKIE, TOKEN);
-                result = MAPPER.readTree(res.returnContent().asString());
+                result = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode node = result.get("data").get("cardItems");
 
                 if (node.size() > 0) {

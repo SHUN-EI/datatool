@@ -1,4 +1,6 @@
-package com.ys.datatool.domain;
+package com.ys.datatool.domain.entity;
+
+import com.ys.datatool.domain.entity.FirstCategory;
 
 /**
  * Created by mo on 2019/4/28

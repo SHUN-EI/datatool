@@ -1,8 +1,9 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -31,8 +32,6 @@ public class ZhiHuiCheDianService {
 
     private String CARINFO_URL = "http://39.108.223.171/cs/user/info/carList";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String fieldName = "total";
 
     private String companyName = "智慧车店";
@@ -52,14 +51,14 @@ public class ZhiHuiCheDianService {
         List<Stock> stocks = new ArrayList<>();
 
         Response res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);
@@ -104,14 +103,14 @@ public class ZhiHuiCheDianService {
         List<Supplier> suppliers = new ArrayList<>();
 
         Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);
@@ -159,7 +158,7 @@ public class ZhiHuiCheDianService {
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
@@ -167,7 +166,7 @@ public class ZhiHuiCheDianService {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
 
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -192,7 +191,7 @@ public class ZhiHuiCheDianService {
                 MemberCard memberCard = memberCardMap.get(id);
 
                 Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("list").iterator();
                 while (it.hasNext()) {
@@ -245,14 +244,14 @@ public class ZhiHuiCheDianService {
         int totalPage = 0;
 
         Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);
@@ -281,13 +280,13 @@ public class ZhiHuiCheDianService {
         }
 
         response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(MEMBERCARD_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);
@@ -335,7 +334,7 @@ public class ZhiHuiCheDianService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
@@ -343,7 +342,7 @@ public class ZhiHuiCheDianService {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
 
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);
@@ -393,14 +392,14 @@ public class ZhiHuiCheDianService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), "0"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getParams(String.valueOf(num), String.valueOf(offSet)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
                 System.out.println("offSet大小为" + offSet);

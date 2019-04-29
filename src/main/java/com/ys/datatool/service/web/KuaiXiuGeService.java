@@ -2,7 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
-import com.ys.datatool.domain.Product;
+import com.ys.datatool.domain.entity.Product;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;

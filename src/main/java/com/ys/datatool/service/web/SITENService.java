@@ -1,8 +1,8 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ys.datatool.domain.*;
+import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -37,10 +37,6 @@ public class SITENService {
 
     private static final String BILLCSRF_URL = "http://erp.51sten.com/sheet/careSheetIn";
 
-    private static final String COOKIE = "JSESSIONID=CBDC1C32A12A951FB68E8466767A0927; nav1=102; nav2=102023001; SERVERID=47727ad8b9e9dbfa9c94ad11c15091d8|1500097266|1500097119";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String fileName = "笛威偲腾";
 
     private String fieldName = "total";
@@ -48,6 +44,9 @@ public class SITENService {
     private BasicNameValuePair row = new BasicNameValuePair("rows", "50");
 
     private BasicNameValuePair firstPage = new BasicNameValuePair("page", "1");
+
+    private static final String COOKIE = "JSESSIONID=CBDC1C32A12A951FB68E8466767A0927; nav1=102; nav2=102023001; SERVERID=47727ad8b9e9dbfa9c94ad11c15091d8|1500097266|1500097119";
+
 
 
     @Test
@@ -97,7 +96,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -123,7 +122,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(GOOD_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -162,7 +161,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -178,7 +177,7 @@ public class SITENService {
         if (billMap.size() > 0) {
             for (String careId : billMap.keySet()) {
                 Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLITEM_URL, "{careId}", careId), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> careItems = result.get("careItems").iterator();
                 while (careItems.hasNext()) {
@@ -226,7 +225,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(BILL_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -267,7 +266,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, params, COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -302,7 +301,7 @@ public class SITENService {
                 params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
                 Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, params,COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -328,7 +327,7 @@ public class SITENService {
         params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
         Response res = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
-        int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
+        int total = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         return total;
     }
@@ -364,7 +363,7 @@ public class SITENService {
         params.add(new BasicNameValuePair("_csrf", getCSRF()));
 
         Response res = ConnectionUtil.doPostWithLeastParams(url, params, COOKIE);
-        int total = WebClientUtil.getTotalPage(res, MAPPER, fieldName, 50);
+        int total = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         return total;
     }
