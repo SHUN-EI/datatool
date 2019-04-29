@@ -4,10 +4,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.HtmlTag;
-import com.ys.datatool.domain.entity.Bill;
-import com.ys.datatool.domain.entity.CarInfo;
-import com.ys.datatool.domain.entity.MemberCard;
-import com.ys.datatool.domain.entity.MemberCardItem;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
@@ -30,6 +27,8 @@ import java.util.*;
  */
 @Service
 public class CheKuKeService {
+
+    private String SERVICE_URL = "http://sa.chekuke.com/Handler/ShopConfigHandler.ashx";
 
     private String CONSURECORDDETAIL_URL = "http://sa.chekuke.com/Shop/ShopProjectConsuRecordList.aspx?No=";
 
@@ -91,8 +90,51 @@ public class CheKuKeService {
     //密码
     private String PASSWORD = "HY123456";
 
-    private String COOKIE = "ASP.NET_SessionId=u3yuoiaeiushgem2r03qpeqo; LOGINKEY=dc7a1b64025141028c3c46fad9fb3ca6; LOGINNAME=jm1682; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1556094146,1556173857,1556249844; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1556249844";
+    private String COOKIE = "ASP.NET_SessionId=u3yuoiaeiushgem2r03qpeqo; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1556094146,1556173857,1556249844; LOGINKEY=dc7a1b64025141028c3c46fad9fb3ca6; LOGINNAME=jm1682; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1556540310";
 
+
+    /**
+     * 服务项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        String param = "action=LoadConfig&id=2616";
+        Response res = ConnectionUtil.doPostWithJson(SERVICE_URL, param, COOKIE);
+
+        String html = res.returnContent().asString();
+        Document doc = Jsoup.parseBodyFragment(html);
+
+        Elements elements = doc.getElementsByTag("div");
+        for (Element element : elements) {
+
+            String tbodyRegEx = "table > tbody > tr";
+            Elements trElements = element.select(tbodyRegEx);
+
+            String firstCategoryName = trElements.get(0).text();
+            for (int i = 2; i < trElements.size(); i++) {
+
+                Elements tdElements = trElements.get(i).getElementsByTag("td");
+
+                String productName = tdElements.get(0).select("input").attr("value");
+                String price = tdElements.get(2).select("input").get(0).attr("value");
+
+                Product product = new Product();
+                product.setCompanyName(companyName);
+                product.setPrice(price);
+                product.setProductName(productName);
+                product.setFirstCategoryName(firstCategoryName);
+                product.setItemType("服务项");
+                products.add(product);
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\车酷客服务.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
     /**
      * 历史消费记录和消费记录相关车辆
@@ -139,7 +181,7 @@ public class CheKuKeService {
 
                 Element billDetail = elements.get(0);
                 String detailStr = billDetail.getElementsByTag("tr").get(0).toString();
-                if (detailStr.contains("消费详情")){
+                if (detailStr.contains("消费详情")) {
 
                     Element billItems = elements.get(1);
                     Elements tbodys = billItems.getElementsByTag("tbody");
@@ -228,7 +270,7 @@ public class CheKuKeService {
                     bill.setTotalAmount(totalAmount);
                     bills.add(bill);
 
-                }else if (detailStr.contains("消费项目")){
+                } else if (detailStr.contains("消费项目")) {
 
                     Elements tbodys = billDetail.getElementsByTag("tbody");
                     Elements trs = tbodys.get(0).children();
