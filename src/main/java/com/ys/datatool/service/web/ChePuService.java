@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,8 +29,6 @@ public class ChePuService {
     private String CARINFO_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-members-findStoreMembers.do";
 
     private String SERVICE_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-service-findServiceList.do";
-
-    private Charset charset = Charset.forName("UTF-8");
 
     private String companyName = "车仆系统";
 
@@ -57,7 +54,7 @@ public class ChePuService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(i), COOKIE);
-                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = result.get("result");
                 if (dataNode.size() > 0) {
@@ -89,7 +86,7 @@ public class ChePuService {
 
                 //车辆信息
                 Response res = ConnectionUtil.doPostWithJson(CARINFODETAIL_URL, "memberId=" + carId, COOKIE);
-                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode resulNode = result.get("result");
                 JsonNode node = resulNode.get("autos");
@@ -114,7 +111,7 @@ public class ChePuService {
 
                 //会员卡信息
                 Response res2 = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, "memberId=" + carId, COOKIE);
-                JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString(charset));
+                JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = content.get("result");
                 if (dataNode != null && dataNode.size() > 0) {
@@ -201,7 +198,7 @@ public class ChePuService {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(SERVICE_URL, getServiceParam(i), COOKIE);
 
-                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(charset));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = result.get("result");
                 if (dataNode.size() > 0) {

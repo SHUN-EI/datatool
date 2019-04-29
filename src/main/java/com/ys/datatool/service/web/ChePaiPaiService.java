@@ -2,6 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.CarInfo;
 import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.WebConfig;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -14,7 +15,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +27,6 @@ public class ChePaiPaiService {
 
     private String TEMPCLIENT_URL = "http://vip.chepaipai.com.cn/index.php?m=client&a=temporary&pno=";
  
-    private Charset charset = Charset.forName("UTF-8");
-
     private String totalRegEx = "totalPage = .*";
 
     private String trName = "tr";
@@ -43,7 +41,7 @@ public class ChePaiPaiService {
     public void fetchTempClientData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
         Response res = ConnectionUtil.doGetWithLeastParams(TEMPCLIENT_URL + "1", COOKIE);
-        String html = res.returnContent().asString(charset);
+        String html = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parse(html);
 
         String totalPageStr = CommonUtil.fetchString(doc.toString(), totalRegEx).replace("totalPage = ", "");

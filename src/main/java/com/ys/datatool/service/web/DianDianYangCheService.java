@@ -1,7 +1,6 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
@@ -34,8 +33,6 @@ public class DianDianYangCheService {
 
     private String MEMBERCARD_URL = "https://ndsm.ddyc.com/ndsm/member/list";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private Workbook workbook;
 
     private String companyName = "典典养车";
@@ -61,7 +58,7 @@ public class DianDianYangCheService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithJson(STOCK_URL, getBillParam(i), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").elements();
                 while (it.hasNext()) {
@@ -114,7 +111,7 @@ public class DianDianYangCheService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(i), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").elements();
                 while (it.hasNext()) {
@@ -142,7 +139,7 @@ public class DianDianYangCheService {
 
                     if (!"null".equals(id)) {
                         Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
-                        JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+                        JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                         if (content.hasNonNull("carServicePackageList") == true) {
                             JsonNode data = content.get("carServicePackageList");
@@ -193,7 +190,7 @@ public class DianDianYangCheService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getTotalParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").elements();
                 while (it.hasNext()) {
@@ -211,7 +208,7 @@ public class DianDianYangCheService {
                     carInfo.setPhone(CommonUtil.formatString(phone));
 
                     Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, COOKIE);
-                    JsonNode content = MAPPER.readTree(res2.returnContent().asString());
+                    JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                     if (content.hasNonNull("data") == true) {
                         JsonNode data = content.get("data");
@@ -246,14 +243,14 @@ public class DianDianYangCheService {
         List<MemberCard> memberCards = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), COOKIE);
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get("total");
         int totalPage = WebClientUtil.getTotalPage(totalNode, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), COOKIE);
-                result = MAPPER.readTree(response.returnContent().asString());
+                result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").iterator();
                 while (it.hasNext()) {
@@ -332,7 +329,7 @@ public class DianDianYangCheService {
     }
 
     private int getTotalPage(Response response) throws IOException {
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         String totalStr = result.get("data").get("totalPage").asText();
         int total = Integer.parseInt(totalStr);
 
@@ -341,7 +338,7 @@ public class DianDianYangCheService {
     }
 
     private int getTotalPageNo(Response response) throws IOException {
-        JsonNode result = MAPPER.readTree(response.returnContent().asString());
+        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get("total");
         int totalPage = WebClientUtil.getTotalPage(totalNode, num);
         return totalPage;

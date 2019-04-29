@@ -2,14 +2,13 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.*;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +20,12 @@ import java.util.stream.Collectors;
 @Service
 public class ChengChangOnlineService {
 
+    private String MEMBERCARDITEMDETAIL_URL = "http://guanjia.cz888.com/Api/User/GetBatchEntity";
+
+    private String MEMBERCARDITEM_URL = "http://guanjia.cz888.com/Api/User/BatchSearch";
+
+    private String MEMBERCARD_URL = "http://guanjia.cz888.com/Api/Shop/UserInfoSearch";
+
     private String CATEGORY_URL = "http://guanjia.cz888.com/Api/Common/GetProductCate";
 
     private String SERVICE_URL = "http://guanjia.cz888.com/Api/Product/ProductSearch?Pcid=0&cid=0&Type=2";
@@ -31,6 +36,176 @@ public class ChengChangOnlineService {
 
     private String COOKIE = "ASP.NET_SessionId=jpg5agnfnmqxiqshltvbnhdg; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/4/28 14:01:58&uLoginIp=61.144.100.160&uLoginCount=749&uLoginNowTime=1556453987096&uIp=ED6B9AA7C71BFC6482003D463DF51B5A&Expires=1556885987096";
 
+
+    /**
+     * 套餐卡及卡内项目
+     * 打开路径:会员管理-会员套餐
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardItemDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode dataNode = result.get("List");
+                if (dataNode.size() > 0) {
+                    Iterator<JsonNode> it = dataNode.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String carNumber = e.get("CarNo").asText();
+                        String userId = e.get("UserBatchId").asText();
+                        String memberCardName = e.get("Name").asText();
+                        String cardCode = e.get("Id").asText();
+
+                        String effectEndDate = e.get("EffectEndDate").asText();
+                        String regEx = "(?<=\\()[^\\)]+";
+                        String validTimeStr = CommonUtil.fetchString(effectEndDate, regEx);
+                        String validTime = DateUtil.formatMillisecond2DateTime(validTimeStr);
+
+                        System.out.println("结果为" + carNumber);
+                        String userName = e.get("UserName").asText();
+                        int index = userName.indexOf("-");
+                        String name = userName.substring(0, index);
+                        String phone = userName.substring(index + 1, userName.length());
+
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setCardCode(cardCode);
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setPhone(phone);
+                        memberCard.setName(name);
+                        memberCard.setCarNumber(carNumber);
+                        memberCard.setMemberCardName(memberCardName);
+                        memberCard.setValidTime(validTime);
+                        memberCard.setMemberCardId(userId);
+                        memberCards.add(memberCard);
+                    }
+                }
+            }
+        }
+
+        if (memberCards.size() > 0) {
+            for (MemberCard memberCard : memberCards) {
+
+                String param = "{" + "ubid:" + memberCard.getMemberCardId() + "}";
+                Response res = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE, WebConfig.CONTENT_TYPE);
+
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+                JsonNode dataNode = result.get("data");
+
+                if (dataNode != null) {
+
+                    String effectBeginDate = dataNode.get("EffectBeginDate").asText();
+                    String regEx = "(?<=\\()[^\\)]+";
+                    String startTimeStr = CommonUtil.fetchString(effectBeginDate, regEx);
+                    String dateCreated = DateUtil.formatMillisecond2DateTime(startTimeStr);
+                    memberCard.setDateCreated(dateCreated);
+
+
+                    JsonNode details = dataNode.get("Details");
+                    if (details.size() > 0) {
+                        Iterator<JsonNode> it = details.iterator();
+
+                        while (it.hasNext()) {
+                            JsonNode e = it.next();
+
+                            String itemName = e.get("ProductName").asText();
+                            String price = e.get("ServicePrice").asText();
+                            String originalNumStr = e.get("Qty").asText();
+                            String userNumStr = e.get("HasUsedQty").asText();
+
+                            String isValidForever = CommonUtil.getIsValidForever(memberCard.getValidTime());
+
+                            BigDecimal originalNum = new BigDecimal(originalNumStr);
+                            BigDecimal userNum = new BigDecimal(userNumStr);
+                            BigDecimal num = originalNum.subtract(userNum);
+
+                            MemberCardItem memberCardItem = new MemberCardItem();
+                            memberCardItem.setCardCode(memberCard.getCardCode());
+                            memberCardItem.setItemName(itemName);
+                            memberCardItem.setCompanyName(companyName);
+                            memberCardItem.setPrice(price);
+                            memberCardItem.setOriginalNum(originalNumStr);
+                            memberCardItem.setNum(num.toString());
+                            memberCardItem.setValidTime(memberCard.getValidTime());
+                            memberCardItem.setIsValidForever(isValidForever);
+                            memberCardItems.add(memberCardItem);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        String pathname = "C:\\exportExcel\\橙长在线套餐卡.xls";
+        String pathname2 = "C:\\exportExcel\\橙长在线卡内项目.xls";
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
+
+    }
+
+
+    /**
+     * 会员卡
+     * 打开路径:会员管理-会员列表
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchMemberCardDataStandard() throws IOException {
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode dataNode = result.get("List");
+                if (dataNode.size() > 0) {
+                    Iterator<JsonNode> it = dataNode.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String id = e.get("Id").asText();
+                        String name = e.get("ZhName").asText();
+                        String phone = e.get("Phone").asText();
+                        String carNumber = e.get("CarNos").asText();
+                        String balance = e.get("Balance").asText();
+                        String remark = e.get("CashCardInfoJson").asText();
+
+                        MemberCard memberCard = new MemberCard();
+                        memberCard.setName(name);
+                        memberCard.setPhone(phone);
+                        memberCard.setCarNumber(CommonUtil.formatString(carNumber));
+                        memberCard.setBalance(balance);
+                        memberCard.setCompanyName(companyName);
+                        memberCard.setCardCode(id);
+                        memberCard.setRemark(CommonUtil.formatString(remark));
+                        memberCards.add(memberCard);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\橙长在线会员卡.xls";
+        ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+
+    }
 
     /**
      * 服务项目
@@ -54,7 +229,7 @@ public class ChengChangOnlineService {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
 
-                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = result.get("List");
                 if (dataNode.size() > 0) {
@@ -116,7 +291,7 @@ public class ChengChangOnlineService {
 
         Response res = ConnectionUtil.doPostWithoutParam(CATEGORY_URL, COOKIE);
 
-        JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET));
+        JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
         if (content.size() > 0) {
             Iterator<JsonNode> it = content.iterator();
 
@@ -149,7 +324,7 @@ public class ChengChangOnlineService {
 
                 String param = "{" + "id:" + firstCategory.getFid() + "}";
                 Response response = ConnectionUtil.doPostWithLeastParamJson(CATEGORY_URL, param, COOKIE, WebConfig.CONTENT_TYPE);
-                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 if (result.size() > 0) {
                     Iterator<JsonNode> it = result.iterator();
@@ -170,6 +345,25 @@ public class ChengChangOnlineService {
             }
         }
         return secondCategories;
+    }
+
+
+    private String getMemberCardItemParam(int pageNo) {
+        String param = "{pn:" +
+                pageNo +
+                ", Id:0, PageSize: 20 }";
+
+        return param;
+    }
+
+    private String getMemberCardParam(int pageNo) {
+        String param = "{pn:" +
+                pageNo +
+                ", PageSize: 20" +
+                ", SearchShopId:12" +
+                ", Type:0 }";
+
+        return param;
     }
 
     private String getParam(int pageNo) {

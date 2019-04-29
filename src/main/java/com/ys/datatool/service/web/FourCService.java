@@ -1,7 +1,6 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
@@ -49,8 +48,6 @@ public class FourCService {
 
     private int num = 200;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String COOKIE = "UM_distinctid=1658e1e37d6d6-009474bfab936c-37664109-144000-1658e1e37d85b; CNZZDATA1263794507=1764275064-1535683701-%7C1535683701; ASP.NET_SessionId=rccbi5lv25gu2r44an1a3kpd; .ASPXAUTH=E8344216FECEE0AA295355B1F1B99FFC241F58979BF5262390E9F2562C399898CB27963C92BBEFA88AA0662B46FA89F90E35E51B8694B5775518CD4750BE00607C3C5A473F837E6002372181BB8B6587BDB32884FAE3B8CFF7842A7C9E317F21AE7496953AE95853AA89B81AFE28F4BED4C352FF1183A6DBBEE8DBBD0F1E080D798596C74F79FE1249C72AC23AF20DA4D19243A5C9228AE3AE9371A934AFE9A4D50BB4743ACD257321FD27C9AAA397F25F2972F705254BE9783B22600C94674AD945A92EA64E3512E8AFB871C14CB0CC81041C9DD62EC875A71F353CD32269A24673BA8B4D46108520C389D230625D5CE025D62F0C5FB328ABC211E9B023E9EB448C434BBE02BF5E64CEDD85EDFFC46AEE8DA5967A853300E55EEE12141A7F5741D4957D95B1E03AA57FB8B2B489453339A7A3D6751A167C5B73B3433707DEBBA8FC631D8F3CAEA0D20EB7044B79FEA18C3FB571317045AF8CFE41B003672123F6B99B47333AD1BF2065E03418B866ED6A49DF6B227F7A8AB8860F569EF4E8DD7F9C42EC545E0293A2CDC11B85F01BA78A34B2BDDBF1E15C3D1C7051C5A7D8A49CE23070033A6ADE78544540EA93DFD9FB2B932A99E6FF80D64FF4E202DA4F74A7F02A9ECB06C9B888959376D18F30BEB436597C0136CF47E33645EB4C8F68C8BAEB5B12C231CE1DF23066DE774F41A5C597973C776E53C4016D2DF5DCFF8EF286EED6B2148B93631D799E9DA9841885AB8A957D379DE7481F7FCA355E9792EFA61E8E1940D5E6776F1D4A23D8AA4E7020FBBAF4C8866DBE3ECA8F739A2E4441F106F1A1EF5D19FEA2CBC89A38520BCCB94AD824B839EE98DACF2C68BA6715FE7CD9912BDC2C7FD7082E3D1CA215181A22888525D1D905BDDEE8B8CBFC670420C66487FEF55EDA8CFE55E9B8C410E1F68E70D516EBE20A650E323D5C49C092A632E729BAA8EACF278EB38CF16AA887D0";
 
 
@@ -64,12 +61,12 @@ public class FourCService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CLIENT_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -93,7 +90,7 @@ public class FourCService {
             for (CarInfo carInfo : carInfos) {
 
                 response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams("CarNum", carInfo.getCarNumber()), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 System.out.println("车牌为" + carInfo.getCarNumber());
 
@@ -136,12 +133,12 @@ public class FourCService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(SERVICE_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -178,12 +175,12 @@ public class FourCService {
         List<MemberCard> memberCards = new ArrayList<>();
         Map<String, String> memberCardMap = new HashMap<>();
         Response response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -219,7 +216,7 @@ public class FourCService {
 
         for (MemberCard m : memberCards) {
             Response res = ConnectionUtil.doPostWithLeastParams(BUYPACKAGES_URL, getDetailParams("CarOwnerID", m.getMemberCardId()), COOKIE);
-            JsonNode result = MAPPER.readTree(res.returnContent().asString());
+            JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
             int size = result.get("rows").size();
             if (size > 0) {
@@ -233,7 +230,7 @@ public class FourCService {
                 }
             } else {
                 Response respon = ConnectionUtil.doPostWithLeastParams(RECHARGERECORD_URL, getDetailParams("CarOwnerID", m.getMemberCardId()), COOKIE);
-                JsonNode resultNode = MAPPER.readTree(respon.returnContent().asString());
+                JsonNode resultNode = JsonObject.MAPPER.readTree(respon.returnContent().asString());
 
                 int resultSize = resultNode.get("rows").size();
                 if (resultSize > 0) {
@@ -272,12 +269,12 @@ public class FourCService {
         Map<String, MemberCardItem> memberCardItemMap = new HashMap<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CAR_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -305,7 +302,7 @@ public class FourCService {
 
         for (String id : memberCardItemMap.keySet()) {
             Response res = ConnectionUtil.doPostWithLeastParams(MEMBERCARDITEM_URL, getDetailParams("CarOwnerID", id), COOKIE);
-            JsonNode result = MAPPER.readTree(res.returnContent().asString());
+            JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
             int size = result.get("rows").size();
             if (size > 0) {
@@ -349,12 +346,12 @@ public class FourCService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -402,12 +399,12 @@ public class FourCService {
         Map<String, Stock> itemMap = new HashMap<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(STOCK_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -426,12 +423,12 @@ public class FourCService {
         }
 
         Response res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams("1"), COOKIE);
-        int itemTotalPage = WebClientUtil.getTotalPage(res, MAPPER, fieldName, num);
+        int itemTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, num);
 
         if (itemTotalPage > 0) {
             for (int i = 1; i <= itemTotalPage; i++) {
                 res = ConnectionUtil.doPostWithLeastParams(ITEM_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -483,12 +480,12 @@ public class FourCService {
         List<Supplier> suppliers = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams("1"), COOKIE);
-        int totalPage = WebClientUtil.getTotalPage(response, MAPPER, fieldName, num);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {

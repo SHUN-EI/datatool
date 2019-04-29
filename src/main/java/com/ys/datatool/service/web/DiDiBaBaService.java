@@ -1,9 +1,6 @@
 package com.ys.datatool.service.web;
 
-import com.ys.datatool.domain.CarInfo;
-import com.ys.datatool.domain.ExcelDatas;
-import com.ys.datatool.domain.HtmlTag;
-import com.ys.datatool.domain.Supplier;
+import com.ys.datatool.domain.*;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -19,7 +16,6 @@ import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,8 +35,6 @@ public class DiDiBaBaService {
     private String SUPPLIER_URL = "http://www.didibabachina.com/ctm/supplier";
 
     private String SUPPLIERDETAIL_URL = "http://www.didibabachina.com/ctm/supplier/detail?___t0.7667218411026064&supplierId=";
-
-    private Charset charset = Charset.forName("UTF-8");
 
     private String companyName = "DiDiBaBa系统";
 
@@ -66,7 +60,7 @@ public class DiDiBaBaService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams(String.valueOf(i)), COOKIE);
-                String content = res.returnContent().asString(charset);
+                String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parseBodyFragment(content);
 
                 String trRegEx = "#tableID > tbody > tr";
@@ -117,7 +111,7 @@ public class DiDiBaBaService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getDetailParams(String.valueOf(i)), COOKIE);
-                String content = res.returnContent().asString(charset);
+                String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parseBodyFragment(content);
 
                 String trRegEx = "#tableID > tbody > tr";
@@ -162,7 +156,7 @@ public class DiDiBaBaService {
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParams(SUPPLIER_URL, getDetailParams(String.valueOf(i)), COOKIE);
-                String content = res.returnContent().asString(charset);
+                String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parseBodyFragment(content);
 
                 String trRegEx = "body > div > div:nth-child(2) > table > tbody > tr";
@@ -182,7 +176,7 @@ public class DiDiBaBaService {
         if (ids.size() > 0) {
             for (String id : ids) {
                 Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIERDETAIL_URL + id, COOKIE);
-                String html = response.returnContent().asString(charset);
+                String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document document = Jsoup.parseBodyFragment(html);
 
                 String nameRegEx = "body > div > form > ul > li:nth-child(1) > span";
@@ -231,7 +225,7 @@ public class DiDiBaBaService {
         if (ids.size() > 0) {
             for (String id : ids) {
                 Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
-                String html = res.returnContent().asString(charset);
+                String html = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parseBodyFragment(html);
 
                 String preRegEx = "div[class='section']  > ul[class='popup_form threeColumn clearfix'] ";
@@ -286,7 +280,7 @@ public class DiDiBaBaService {
 
     private int getTotalPage(String url) throws IOException {
         Response res = ConnectionUtil.doPostWithLeastParams(url, getDetailParams("1"), COOKIE);
-        String content = res.returnContent().asString(charset);
+        String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parseBodyFragment(content);
 
         String getTotalRegEx = "(?<=共).*(?=页)";

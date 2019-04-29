@@ -1,8 +1,8 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.CarInfo;
+import com.ys.datatool.domain.JsonObject;
 import com.ys.datatool.domain.Product;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -26,22 +26,6 @@ public class DuDuCheWangService {
 
     private static final String CARINFO_URL = "http://new.duduchewang.com/dataManage/customer/custInfoAjax.jsp?action=queryCustList&state=1";
 
-    private static final String ACCEPT = "application/json, text/javascript, */*; q=0.01";
-
-    private static final String CONNECTION = "keep-alive";
-
-    private static final String HOST = "new.duduchewang.com";
-
-    private static final String ORIGIN = "http://new.duduchewang.com";
-
-    private static final String REFERER = "http://new.duduchewang.com/dataManage/customer/CustomerList.jsp?moduleid=44";
-
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36";
-
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String fileName = "嘟嘟车网";
 
     private String pageName = "total";
@@ -50,19 +34,20 @@ public class DuDuCheWangService {
 
 
     /**
-     *商品
+     * 商品
+     *
      * @throws IOException
      */
     public void fetchItemData() throws IOException {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(GOOD_URL, getGoodParams(String.valueOf(1)), COOKIE);
-        int total = WebClientUtil.getTotalPage(response,MAPPER,pageName);
+        int total = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, pageName);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(GOOD_URL, getGoodParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {
@@ -88,18 +73,19 @@ public class DuDuCheWangService {
 
     /**
      * 车辆信息
+     *
      * @throws IOException
      */
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(1)), COOKIE);
-        int total = WebClientUtil.getTotalPage(response,MAPPER,pageName);
+        int total = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, pageName);
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
                 response = ConnectionUtil.doPostWithLeastParams(CARINFO_URL, getCarInfoParams(String.valueOf(i)), COOKIE);
-                JsonNode result = MAPPER.readTree(response.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {

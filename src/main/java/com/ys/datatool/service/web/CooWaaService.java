@@ -1,9 +1,10 @@
 package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ys.datatool.domain.Bill;
 import com.ys.datatool.domain.ExcelDatas;
+import com.ys.datatool.domain.JsonObject;
+import com.ys.datatool.domain.WebConfig;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.DateUtil;
 import com.ys.datatool.util.ExportUtil;
@@ -29,10 +30,6 @@ public class CooWaaService {
 
     private String BILL_URL = "https://shops.coowaa.cn/Modules/SalesOrder/SalesOrderMethods.aspx/SearchWorkOrderList";
 
-    private String CONTENT_TYPE = "application/json;charset=UTF-8";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private String companyName = "酷蛙快修";
 
     private String COOKIE = "rememberServicePad=userid=18218754669; ASP.NET_SessionId=y5gujmd3hpokmqbrvf4ciwjs; userid=10423; .democoowaashops=56EF0B422C3BC61902E4BC6E574486E17757B6C0BB5AB9CDA2E069838B8CB5921DF274BD5346040775FD30547DEBC5BE5667351CABD9D641BFF72C8F55E93DC584FA8C23BD81ADF0EEE7B11BA9232BC9C5D5C6A44AEDB48FB7A514FBCE918A1E4B28B538E85D4E1CF51A22305C605661BAB0A03A21622B08AF1DD0BCE70621968E32D73F230E1F774B00569909F483D1";
@@ -48,12 +45,12 @@ public class CooWaaService {
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE, CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE, WebConfig.CONTENT_TYPE);
         int totalPage = getTotalPage(response, 50);
 
         if (totalPage > 0) {
             for (int i = 0; i < totalPage; i++) {
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(i), COOKIE, CONTENT_TYPE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(i), COOKIE, WebConfig.CONTENT_TYPE);
 
                 JsonNode result = formatDataToJson(res);
                 Iterator<JsonNode> it = result.get("rows").iterator();
@@ -81,7 +78,7 @@ public class CooWaaService {
                     bill.setRemark(remark);
                     bill.setDateEnd(dateEnd);
 
-                    Response res2 = ConnectionUtil.doPostWithLeastParamJson(BILLSERVICE_URL, getBillDetailParam(billNo), COOKIE, CONTENT_TYPE);
+                    Response res2 = ConnectionUtil.doPostWithLeastParamJson(BILLSERVICE_URL, getBillDetailParam(billNo), COOKIE, WebConfig.CONTENT_TYPE);
                     JsonNode serviceContent = formatDataToJson(res2);
 
                     JsonNode serviceData = serviceContent.get("rows");
@@ -104,7 +101,7 @@ public class CooWaaService {
                         }
                     }
 
-                    Response res3 = ConnectionUtil.doPostWithLeastParamJson(BILLITEM_URL, getBillDetailParam(billNo), COOKIE, CONTENT_TYPE);
+                    Response res3 = ConnectionUtil.doPostWithLeastParamJson(BILLITEM_URL, getBillDetailParam(billNo), COOKIE, WebConfig.CONTENT_TYPE);
                     JsonNode itemContent = formatDataToJson(res3);
 
                     JsonNode itemData = itemContent.get("rows");
@@ -149,7 +146,7 @@ public class CooWaaService {
 
         String content = returnContent.substring(start - 1, returnContent.length() - 2);
         String formatJson = "{" + content;
-        JsonNode result = MAPPER.readTree(formatJson);
+        JsonNode result = JsonObject.MAPPER.readTree(formatJson);
 
         return result;
     }
