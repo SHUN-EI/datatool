@@ -57,6 +57,7 @@ public class ConnectionUtil {
 
         Response response = Request.Post(url)
                 .setHeader("cookie", cookie)
+                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
                 .bodyString(param, ContentType.APPLICATION_FORM_URLENCODED)
                 .execute();
 

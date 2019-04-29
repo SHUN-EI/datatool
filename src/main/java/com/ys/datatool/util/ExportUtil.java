@@ -148,9 +148,9 @@ public class ExportUtil {
         String[] keys = new String[]{"companyName", "billNo", "carNumber", "mileage",
                 "phone", "name", "totalAmount", "discount",
                 "actualAmount", "waitInStore", "dateExpect", "payType", "remark",
-                "dateAdded", "dateEnd","itemName","receptionistName","cardCode",
-                "totalAmount","debtAmount","receivedAmount","amount","payer",
-                "remark","billCode"};
+                "dateAdded", "dateEnd", "itemName", "receptionistName", "cardCode",
+                "totalAmount", "debtAmount", "receivedAmount", "amount", "payer",
+                "remark", "billCode"};
 
         OutputStream outputStream = null;
         try {
@@ -177,7 +177,7 @@ public class ExportUtil {
         String[] keys = new String[]{"companyName", "billNo", "itemName", "num",
                 "price", "discount", "itemType", "firstCategoryName",
                 "secondCategoryName", "itemCode", "salePrice", "carNumber", "dateAdded",
-                "originalNum","usedNum","num","thisUsedNum"};
+                "originalNum", "usedNum", "num", "thisUsedNum"};
 
         OutputStream outputStream = null;
         try {
@@ -198,13 +198,21 @@ public class ExportUtil {
         }
     }
 
+    /**
+     * 会员卡数据导出
+     *
+     * @param memberCards
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
     public static void exportMemberCardSomeFieldDataInLocal(List<MemberCard> memberCards, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createMemberCardList(memberCards);
         String[] keys = new String[]{"companyName", "cardCode", "memberCardName", "carNumber",
                 "cardType", "cardSort", "dateCreated", "balance",
                 "name", "phone", "grade", "discount", "remark",
-                "memberCardId", "validTime","ctId"};
+                "memberCardId", "validTime", "ctId"};
 
         OutputStream outputStream = null;
         try {
