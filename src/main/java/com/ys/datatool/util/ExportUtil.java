@@ -234,6 +234,13 @@ public class ExportUtil {
     }
 
 
+    /**
+     * 卡内项目
+     * @param memberCardItems
+     * @param workbook
+     * @param pathname
+     * @throws IOException
+     */
     public static void exportMemberCardItemSomeFieldDataInLocal(List<MemberCardItem> memberCardItems, Workbook workbook, String pathname) throws IOException {
 
         List<Map<String, Object>> list = ExcelUtil.createMemberCardItemList(memberCardItems);

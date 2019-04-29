@@ -25,13 +25,39 @@ public class IDianService {
 
     private String fromDate = "2003-01-01";
 
+    private String CAR_MEM_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=kpi_customerDetailQuery_new" +
+            "&detailtype=4&" +
+            "startTime=" +
+            fromDate +
+            "&endTime=" +
+            DateUtil.formatCurrentDate() +
+            "&key=mem&sshopId=&option=&pageSize=50&page=";
+
+    private String CAR_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=kpi_customerDetailQuery_new" +
+            "&detailtype=4&" +
+            "startTime=" +
+            fromDate +
+            "&endTime=" +
+            DateUtil.formatCurrentDate() +
+            "&key=cus&sshopId=&option=&pageSize=50&page=";
+
+    private String MEMBERPACKAGE_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=kpi_memberVerifiAndSurplusQuery" +
+            "&detailtype=4&" +
+            "startTime=" +
+            fromDate +
+            "&endTime=" +
+            DateUtil.formatCurrentDate() +
+            "&key=totalCount" +
+            "&sshopId=&timesCardId=&option=&pageSize=50&page=";
+
     private String MEMBER_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=kpi_memberVerifiAndSurplusQuery" +
             "&detailtype=4&" +
             "startTime=" +
             fromDate +
             "&endTime=" +
             DateUtil.formatCurrentDate() +
-            "&key=totalBalance&sshopId=&timesCardId=&option=&pageSize=50&page=";
+            "&key=totalBalance" +
+            "&sshopId=&timesCardId=&option=&pageSize=50&page=";
 
     private String STOCK_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=timesinventory_list&rows=20&level1=1&level2=2&level3=0&level4=0&queryStr=&groupId=&source=1&type=0&sshopId=&page=";
 
@@ -78,9 +104,93 @@ public class IDianService {
 
 
     /**
+     * 车辆信息
+     * <p>
+     * 打开路径：辅助功能-报表-客户统计
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetEncode(CAR_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, totalName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 0; i < totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(CAR_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                Iterator<JsonNode> it = content.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode e = it.next();
+
+                    String name = e.get("name").asText();
+                    String mobile = e.get("mobilePhone").asText();
+                    String carNumber = e.get("carNo").asText();
+                    String carModel = e.get("carModel").asText();
+                    String engineNumber = e.get("engineNumber").asText();
+                    String vin = e.get("vin").asText();
+                    String brand = e.get("carBrand").asText();
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(mobile));
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+                    carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                    carInfo.setVINcode(CommonUtil.formatString(vin));
+                    carInfo.setBrand(CommonUtil.formatString(brand));
+                    carInfos.add(carInfo);
+                }
+            }
+        }
+
+
+        Response response = ConnectionUtil.doGetEncode(CAR_MEM_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int total = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, totalName, 50);
+
+        if (total > 0) {
+            for (int i = 0; i < total; i++) {
+                response = ConnectionUtil.doGetEncode(CAR_MEM_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode result = JsonObject.MAPPER.readTree(response .returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                Iterator<JsonNode> it = result.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode e = it.next();
+
+                    String mobile = e.get("mobilePhone").asText();
+                    String name = e.get("name").asText();
+                    String carNumber = e.get("carNo").asText();
+                    String carModel = e.get("carModel").asText();
+                    String engineNumber = e.get("engineNumber").asText();
+                    String vin = e.get("vin").asText();
+                    String brand = e.get("carBrand").asText();
+
+                    CarInfo carInfo = new CarInfo();
+                    carInfo.setCompanyName(companyName);
+                    carInfo.setName(CommonUtil.formatString(name));
+                    carInfo.setPhone(CommonUtil.formatString(mobile));
+                    carInfo.setCarNumber(CommonUtil.formatString(carNumber));
+                    carInfo.setCarModel(CommonUtil.formatString(carModel));
+                    carInfo.setEngineNumber(CommonUtil.formatString(engineNumber));
+                    carInfo.setVINcode(CommonUtil.formatString(vin));
+                    carInfo.setBrand(CommonUtil.formatString(brand));
+                    carInfos.add(carInfo);
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\i店车辆信息.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
+
+    /**
      * 会员卡及卡内项目-web端
      * <p>
-     * 打开路径：辅助功能-报表-会员报表
+     * 打开路径：辅助功能-报表-会员报表-会员储值详情
      *
      * @throws IOException
      */
@@ -205,6 +315,38 @@ public class IDianService {
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname3);
+    }
+
+    /**
+     * 套餐卡及卡内项目
+     *
+     * @throws IOException
+     */
+    public void fetchMemberCardPackageInWebStandard() throws IOException {
+        List<MemberCardItem> memberCardItems = new ArrayList<>();
+
+        Response res = ConnectionUtil.doGetEncode(MEMBERPACKAGE_URL + 0, COOKIE_WEB, ACCEPT_ENCODING);
+        int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, totalName, 50);
+
+        if (totalPage > 0) {
+            for (int i = 0; i < totalPage; i++) {
+                res = ConnectionUtil.doGetEncode(MEMBERPACKAGE_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
+                JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                Iterator<JsonNode> it = content.get("rows").iterator();
+                while (it.hasNext()) {
+                    JsonNode e = it.next();
+
+                    String cardCode = e.get("fid").asText();
+                    String itemName = e.get("goodsName").asText();
+                    String validTime = e.get("endTime").asText();
+                    String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                    MemberCardItem memberCardItem = new MemberCardItem();
+                    memberCardItem.setCardCode(cardCode);
+                }
+            }
+        }
     }
 
     /**
