@@ -37,7 +37,7 @@ public class ChengChangOnlineService {
 
     private String companyName = "橙长在线";
 
-    private String COOKIE = "ASP.NET_SessionId=jpg5agnfnmqxiqshltvbnhdg; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/4/28 14:01:58&uLoginIp=61.144.100.160&uLoginCount=749&uLoginNowTime=1556453987096&uIp=ED6B9AA7C71BFC6482003D463DF51B5A&Expires=1556885987096";
+    private String COOKIE = "ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/4/28 14:01:58&uLoginIp=61.144.100.160&uLoginCount=749&uLoginNowTime=1556453987096&uIp=ED6B9AA7C71BFC6482003D463DF51B5A&Expires=1556885987096";
 
 
     /**
@@ -134,7 +134,7 @@ public class ChengChangOnlineService {
                             BigDecimal num = originalNum.subtract(userNum);
 
                             MemberCardItem memberCardItem = new MemberCardItem();
-                            memberCardItem.setCardCode(memberCard.getUserId());
+                            memberCardItem.setCardCode(memberCard.getMemberCardId());
                             memberCardItem.setItemName(itemName);
                             memberCardItem.setCompanyName(companyName);
                             memberCardItem.setPrice(price);
