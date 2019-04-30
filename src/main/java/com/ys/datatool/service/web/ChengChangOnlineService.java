@@ -134,7 +134,7 @@ public class ChengChangOnlineService {
                             BigDecimal num = originalNum.subtract(userNum);
 
                             MemberCardItem memberCardItem = new MemberCardItem();
-                            memberCardItem.setCardCode(memberCard.getCardCode());
+                            memberCardItem.setCardCode(memberCard.getUserId());
                             memberCardItem.setItemName(itemName);
                             memberCardItem.setCompanyName(companyName);
                             memberCardItem.setPrice(price);
@@ -207,6 +207,22 @@ public class ChengChangOnlineService {
 
         String pathname = "C:\\exportExcel\\橙长在线会员卡.xls";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
+
+    }
+
+
+    /**
+     * 商品
+     * 打开路径:店铺管理-产品列表
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchItemData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+
+
 
     }
 
