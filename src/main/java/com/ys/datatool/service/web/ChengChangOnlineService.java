@@ -33,11 +33,15 @@ public class ChengChangOnlineService {
 
     private String SERVICE_URL = "http://guanjia.cz888.com/Api/Product/ProductSearch?Pcid=0&cid=0&Type=2";
 
+    private String ITEM_URL = "http://guanjia.cz888.com/Api/Product/ProductSearch?Pcid=0&cid=0&Type=1";
+
     private String fieldName = "Count";
 
     private String companyName = "橙长在线";
 
-    private String COOKIE = "ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/4/28 14:01:58&uLoginIp=61.144.100.160&uLoginCount=749&uLoginNowTime=1556453987096&uIp=ED6B9AA7C71BFC6482003D463DF51B5A&Expires=1556885987096";
+    private String COOKIE = "ASP.NET_SessionId=vfqt0aneni0ubnkfec0ztpnv; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/4/30 14:03:39&uLoginIp=116.22.162.20&uLoginCount=754&uLoginNowTime=1556627571386&uIp=ED6B9AA7C71BFC64DEB992B9E15AD4DD&Expires=1557059571386";
+
+
 
 
     /**
@@ -83,7 +87,7 @@ public class ChengChangOnlineService {
                         String phone = userName.substring(index + 1, userName.length());
 
                         MemberCard memberCard = new MemberCard();
-                        memberCard.setCardCode(cardCode);
+                        memberCard.setCardCode(userId);
                         memberCard.setCompanyName(companyName);
                         memberCard.setPhone(phone);
                         memberCard.setName(name);
@@ -221,8 +225,64 @@ public class ChengChangOnlineService {
     public void fetchItemData() throws IOException {
         List<Product> products = new ArrayList<>();
 
+        List<FirstCategory> firstCategories = fetchFirstCategoryData();
+        List<SecondCategory> secondCategories = fetchSecondCategoryData();
+
+        Response response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode dataNode = result.get("List");
+                if (dataNode.size() > 0) {
+                    Iterator<JsonNode> it = dataNode.iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode e = it.next();
+
+                        String productName = e.get("Name").asText();
+                        String barCode = e.get("VenderSku").asText();
+                        String price = e.get("Price").asText();
+                        String categoryName = e.get("CatName").asText();
+                        String unit = e.get("Unit").asText();
+
+                        String cid = e.get("Cid").asText();
+
+                        String firstCategoryName = "";
+                        List<SecondCategory> secondCategoryList = secondCategories.stream()
+                                .filter(secondCategory -> cid.equals(secondCategory.getSid()))
+                                .collect(Collectors.toList());
+
+                        if (secondCategoryList.size() > 0) {
+                            firstCategoryName = secondCategoryList.get(0).getFirstCategory().getName();
+                        } else {
+                            FirstCategory fCategory = firstCategories.stream().filter(firstCategory -> cid.equals(firstCategory.getFid())).collect(Collectors.toList()).get(0);
+                            firstCategoryName = fCategory.getName();
+                        }
+
+                        Product product = new Product();
+                        product.setCompanyName(companyName);
+                        product.setProductName(productName);
+                        product.setItemType("服务项");
+                        product.setBarCode(barCode);
+                        product.setCode(barCode);
+                        product.setFirstCategoryName(firstCategoryName);
+                        product.setSecondCategoryName(categoryName);
+                        product.setPrice(price);
+                        product.setUnit(unit);
+                        products.add(product);
+                    }
+                }
+            }
+        }
 
 
+        String pathname = "C:\\exportExcel\\橙长在线商品.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 
