@@ -86,6 +86,10 @@ public class YuanLeCheBaoService {
 
     private Random random = new Random();
 
+
+    ////////////////////////////工具使用前，请先填写companyId、shopBranchId、COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
     /**
      * 车店编号-shopId:
      * 215(冠军养护)、183(迅驰)、208(稳中快)、
@@ -103,26 +107,6 @@ public class YuanLeCheBaoService {
     private String shopBranchId = "132";
 
     private String COOKIE = "JSESSIONID=EA8E0E718D7B0AF711C511AD14AE6CA2; usfl=R4rtlTGQtKVjr7F03LW; lk=30b10d2672ca57d7637b9892f0653c67";
-
-
-    @Test
-    public void test() throws Exception {
-
-        String partsGuid = "b52ebc1a-fad2-45d2-be16-ce80d600f93a";
-        String specificationGuid = "9e72532f-3ff1-4609-92d9-c09d01c258e8";
-
-        Response response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
-        String html = response.returnContent().asString();
-        Document doc = Jsoup.parse(html);
-        String a = "";
-
-        //取第一条入库记录中的成本价
-        String priceRegEx = "#content-tbody > tr:nth-child(1) > td:nth-child(7)";
-        String price = doc.select(priceRegEx).text().replace("￥", "");
-
-        System.out.println("结果为" + price);
-
-    }
 
 
     /**
@@ -497,20 +481,20 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
-                        String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
-                        String brandNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
+                        String productNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(4) > span";
+                        String brandNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(2)";
+                        String priceRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(5)";
 
-                        String partsGuidRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > div > span.common-font.edit-act";
-                        String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String partsGuidRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(9) > div > span.common-font.edit-act";
+                        String partsGuid = doc.select(partsGuidRegEx).attr("onclick");
                         String getGUIDRegEx = "(?<=').*(?=')";
                         String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
 
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text();
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
-                        String brandName = doc.select(StringUtils.replace(brandNameRegEx, "{no}", String.valueOf(j))).text();
-                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
+                        String price = doc.select(priceRegEx).text();
+                        String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+                        String brandName = doc.select(brandNameRegEx).text();
+                        String productName = doc.select(productNameRegEx).text();
 
                         Product product = new Product();
                         product.setPrice(price);
@@ -536,11 +520,11 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, HtmlTag.trName);
                 for (int i = 1; i <= trSize; i++) {
                     //规格作为商品编码
-                    String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                    String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                    String specRegEx = "#set-tbody > tr:nth-child(" + i + ") > td:nth-child(1)";
+                    String salePriceRegEx = "#set-tbody > tr:nth-child(" + i + ") > td:nth-child(2)";
 
-                    String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).text();
-                    String salePrice = doc.select(StringUtils.replace(salePriceRegEx, "{no}", String.valueOf(i))).text();
+                    String spec = doc.select(specRegEx).text();
+                    String salePrice = doc.select(salePriceRegEx).text();
 
                     Product p = productMap.get(guid);
                     Product product = new Product();
@@ -556,8 +540,6 @@ public class YuanLeCheBaoService {
                 }
             }
         }
-        System.out.println("结果为" + products.toString());
-        System.out.println("结果为" + products.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝商品.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
@@ -582,15 +564,15 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
-                        String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                        String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
+                        String codeRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(1)";
+                        String productNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(2)";
+                        String priceRegEx = "#content-tbody > tr:nth-child(" + j + ")> td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(4)";
 
-                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(j))).text();
-                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text().replace("￥", "");
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
+                        String code = doc.select(codeRegEx).text();
+                        String productName = doc.select(productNameRegEx).text();
+                        String price = doc.select(priceRegEx).text().replace("￥", "");
+                        String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
 
                         Product product = new Product();
                         product.setCode(code);
@@ -604,10 +586,6 @@ public class YuanLeCheBaoService {
                 }
             }
         }
-
-        System.out.println("结果为" + products.toString());
-        System.out.println("大小为" + products.size());
-
 
         String pathname = "C:\\exportExcel\\元乐车宝服务项目.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
@@ -631,8 +609,8 @@ public class YuanLeCheBaoService {
                 Document doc = Jsoup.parse(html);
 
                 for (int j = 1; j <= 10; j++) {
-                    String supplierDetailRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5) > a.supplierDetail";
-                    String detailUrl = doc.select(StringUtils.replace(supplierDetailRegEx, "{no}", String.valueOf(j))).attr("content-url");
+                    String supplierDetailRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(5) > a.supplierDetail";
+                    String detailUrl = doc.select(supplierDetailRegEx).attr("content-url");
 
                     if (StringUtils.isNotBlank(detailUrl))
                         supplierDetails.add(detailUrl);
@@ -676,8 +654,6 @@ public class YuanLeCheBaoService {
                 suppliers.add(supplier);
             }
         }
-        System.out.println("结果为" + suppliers.toString());
-        System.out.println("大小为" + suppliers.size());
 
         String pathname = "C:\\exportExcel\\元乐车宝供应商.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
@@ -703,13 +679,13 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
-                        String clientRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > a:nth-child(1)";
+                        String clientRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(9) > a:nth-child(1)";
 
-                        String carId = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("userid");
-                        String phone = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("mobile");
-                        String name = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("username");
-                        String carnum = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("carnum");
-                        String cararea = doc.select(StringUtils.replace(clientRegEx, "{no}", String.valueOf(j))).attr("cararea");
+                        String carId = doc.select(clientRegEx).attr("userid");
+                        String phone = doc.select(clientRegEx).attr("mobile");
+                        String name = doc.select(clientRegEx).attr("username");
+                        String carnum = doc.select(clientRegEx).attr("carnum");
+                        String cararea = doc.select(clientRegEx).attr("cararea");
                         String carNumber = cararea + carnum;
 
                         CarInfo carInfo = new CarInfo();
@@ -782,10 +758,6 @@ public class YuanLeCheBaoService {
             }
         }
 
-        System.out.println("车辆分别为" + carInfos.toString());
-        System.out.println("车辆大小为" + carInfos.size());
-
-
         String pathname = "C:\\exportExcel\\元乐车宝车辆信息.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
@@ -812,8 +784,8 @@ public class YuanLeCheBaoService {
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
 
-                        String packageIdRegEx = "#staleDated-content-tbody > tr:nth-child({no}) > td:nth-child(9) > a";
-                        String packageId = doc.select(StringUtils.replace(packageIdRegEx, "{no}", String.valueOf(i))).attr("packageId");
+                        String packageIdRegEx = "#staleDated-content-tbody > tr:nth-child(" + i + ") > td:nth-child(9) > a";
+                        String packageId = doc.select(packageIdRegEx).attr("packageId");
 
                         MemberCard memberCard = memberCardMap.get(userId);
                         packageMap.put(packageId, memberCard);
@@ -840,15 +812,15 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
-                        String itemNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String originalNumRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String numRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
-                        String remarkRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(6)";
+                        String itemNameRegEx = "#content-tbody > tr:nth-child(" + i + ") > td:nth-child(2)";
+                        String originalNumRegEx = "#content-tbody > tr:nth-child(" + i + ") > td:nth-child(3)";
+                        String numRegEx = "#content-tbody > tr:nth-child(" + i + ") > td:nth-child(5)";
+                        String remarkRegEx = "#content-tbody > tr:nth-child(" + i + ") > td:nth-child(6)";
 
-                        String itemName = doc.select(StringUtils.replace(itemNameRegEx, "{no}", String.valueOf(i))).text();
-                        String originalNum = doc.select(StringUtils.replace(originalNumRegEx, "{no}", String.valueOf(i))).text();
-                        String num = doc.select(StringUtils.replace(numRegEx, "{no}", String.valueOf(i))).text();
-                        String remark = doc.select(StringUtils.replace(remarkRegEx, "{no}", String.valueOf(i))).text();
+                        String itemName = doc.select(itemNameRegEx).text();
+                        String originalNum = doc.select(originalNumRegEx).text();
+                        String num = doc.select(numRegEx).text();
+                        String remark = doc.select(remarkRegEx).text();
 
                         MemberCardItem memberCardItem = new MemberCardItem();
                         memberCardItem.setCompanyName(companyName);
@@ -877,15 +849,15 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
-                        String codeRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4)";
-                        String itemRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                        String codeRegEx = "#content-tbody > tr:nth-child("+i+") > td:nth-child(1)";
+                        String priceRegEx = "#content-tbody > tr:nth-child("+i+") > td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child("+i+") > td:nth-child(4)";
+                        String itemRegEx = "#content-tbody > tr:nth-child("+i+") > td:nth-child(2)";
 
-                        String name = doc.select(StringUtils.replace(itemRegEx, "{no}", String.valueOf(i))).text();
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(i))).text();
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(i))).text();
-                        String code = doc.select(StringUtils.replace(codeRegEx, "{no}", String.valueOf(i))).text();
+                        String name = doc.select(itemRegEx).text();
+                        String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
+                        String price = doc.select(priceRegEx).text();
+                        String code = doc.select(codeRegEx).text();
 
                         if (!name.equals(itemName))
                             continue;
