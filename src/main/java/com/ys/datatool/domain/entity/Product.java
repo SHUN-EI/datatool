@@ -130,6 +130,32 @@ public class Product {
      */
     private String cloudGoodsCode;
 
+    /**
+     * 元乐车宝-规格
+     */
+    private String specification;
+
+    /**
+     * 元乐车宝-规格Id
+     */
+    private String specificationValue;
+
+    public String getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
+
+    public String getSpecificationValue() {
+        return specificationValue;
+    }
+
+    public void setSpecificationValue(String specificationValue) {
+        this.specificationValue = specificationValue;
+    }
+
     public String getManufactory() {
         return manufactory;
     }

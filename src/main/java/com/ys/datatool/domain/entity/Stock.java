@@ -85,6 +85,16 @@ public class Stock {
     private String partsGuid;
 
     /**
+     * 元乐车宝-规格
+     */
+    private String specification;
+
+    /**
+     * 元乐车宝-规格Id
+     */
+    private String specificationValue;
+
+    /**
      * 条形码
      */
     private String barCode;
@@ -96,6 +106,22 @@ public class Stock {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
+
+    public String getSpecificationValue() {
+        return specificationValue;
+    }
+
+    public void setSpecificationValue(String specificationValue) {
+        this.specificationValue = specificationValue;
     }
 
     public String getBarCode() {

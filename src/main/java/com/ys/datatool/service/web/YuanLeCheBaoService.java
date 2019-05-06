@@ -92,16 +92,18 @@ public class YuanLeCheBaoService {
      * 77(石家庄丽雷行)、140(天骐汽车)、132(路胜通汽车)、
      * 288(良匠汽车)、70(黑妞汽车)、82(国瑞汽修厂)、284(车来车旺美车会所)
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)、86(宜章财君)
+     * 118(T-9养车汇)
      */
-    private String companyId = "287";
+    private String companyId = "118";
 
     /**
      * 分店编号-shopBranchId：
-     * 146(路胜通汽车)、298(摩范汽车)、100(宜章财君)
+     * 146(路胜通汽车)、298(摩范汽车)、100(宜章财君)、132(T-9养车汇)
      */
-    private String shopBranchId = "303";
+    private String shopBranchId = "132";
 
-    private String COOKIE = "JSESSIONID=1CAC58D28C4E3A74B3EB9B5DB5B5D996; usfl=R4rtlTGQtKVjr7F03LW; lk=307400b9b86881b61bd61ecce4a5ae60";
+    private String COOKIE = "JSESSIONID=EA8E0E718D7B0AF711C511AD14AE6CA2; usfl=R4rtlTGQtKVjr7F03LW; lk=30b10d2672ca57d7637b9892f0653c67";
+
 
     @Test
     public void test() throws Exception {
@@ -304,6 +306,8 @@ public class YuanLeCheBaoService {
 
     /**
      * 库存-标准模版导出
+     * <p>
+     * 打开路径:商品管理-配件编辑-配件信息和配件设置-入库记录
      *
      * @throws IOException
      */
@@ -311,8 +315,10 @@ public class YuanLeCheBaoService {
     public void fetchStockDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
         Map<String, Product> productMap = new HashMap<>();
-        Map<String, String> specificationGuids = new HashMap<>();
+        Map<String, Product> productWithSpec = new HashMap<>();
+        Map<String, Stock> stockMap = new HashMap<>();
 
+        //商品管理
         int totalPage = getTotalPage(STOCK_URL, getPageInfoParams("1"), totalRegEx, totalReplaceRegEx);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -323,20 +329,20 @@ public class YuanLeCheBaoService {
                 int trSize = WebClientUtil.getTagSize(doc, trItemRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
-                        String priceRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(5)";
-                        String productNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(4) > span";
-                        String brandNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                        String priceRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(5)";
+                        String productNameRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(4) > span";
+                        String brandNameRegEx = "#content-tbody > tr:nth-child(" + j + ")  > td:nth-child(3)";
+                        String firstCategoryNameRegEx = "#content-tbody > tr:nth-child(" + j + ")  > td:nth-child(2)";
 
-                        String price = doc.select(StringUtils.replace(priceRegEx, "{no}", String.valueOf(j))).text();
-                        String productName = doc.select(StringUtils.replace(productNameRegEx, "{no}", String.valueOf(j))).text();
+                        String price = doc.select(priceRegEx).text();
+                        String productName = doc.select(productNameRegEx).text();
+                        String brandName = doc.select(brandNameRegEx).text();
+                        String firstCategoryName = doc.select(firstCategoryNameRegEx).text();
 
-                        String partsGuidRegEx = "#content-tbody > tr:nth-child({no}) > td:nth-child(9) > div > span.common-font.edit-act";
-                        String partsGuid = doc.select(StringUtils.replace(partsGuidRegEx, "{no}", String.valueOf(j))).attr("onclick");
+                        String partsGuidRegEx = "#content-tbody > tr:nth-child(" + j + ") > td:nth-child(9) > div > span.common-font.edit-act";
+                        String partsGuid = doc.select(partsGuidRegEx).attr("onclick");
                         String getGUIDRegEx = "(?<=').*(?=')";
                         String guid = CommonUtil.fetchString(partsGuid, getGUIDRegEx);
-                        String brandName = doc.select(StringUtils.replace(brandNameRegEx, "{no}", String.valueOf(j))).text();
-                        String firstCategoryName = doc.select(StringUtils.replace(firstCategoryNameRegEx, "{no}", String.valueOf(j))).text();
 
                         Product product = new Product();
                         product.setPrice(price);
@@ -349,65 +355,87 @@ public class YuanLeCheBaoService {
             }
         }
 
+        //入库记录-请选择规格
         if (productMap.size() > 0) {
             for (String guid : productMap.keySet()) {
+                Product p = productMap.get(guid);
                 Response response = ConnectionUtil.doPostWithLeastParams(STOCKINDIV_URL, getDetailParams("partsGuid", guid), COOKIE);
                 String content = response.returnContent().asString();
                 Document doc = Jsoup.parse(content);
 
-
                 int optionSize = WebClientUtil.getTagSize(doc, optionRegEx, optionName);
                 if (optionSize > 0) {
                     for (int i = 2; i <= optionSize; i++) {
-                        String specRegEx = "#specification_search_in > option:nth-child({no})";
-                        String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).text();
-                        String specValue = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(i))).attr("value");
+                        String specRegEx = "#specification_search_in > option:nth-child(" + i + ")";
+                        String spec = doc.select(specRegEx).text();
+                        String specValue = doc.select(specRegEx).attr("value");
 
-                        specificationGuids.put(spec, specValue);
+                        Product product = new Product();
+                        product.setSpecification(spec);
+                        product.setSpecificationValue(specValue);
+                        product.setPrice(p.getPrice());
+                        product.setBrandName(p.getBrandName());
+                        product.setProductName(p.getProductName());
+                        product.setFirstCategoryName(p.getFirstCategoryName());
+                        product.setId(guid);
+                        productWithSpec.put(guid + spec, product);
                     }
                 }
             }
         }
 
-        if (productMap.size() > 0) {
-            for (String guid : productMap.keySet()) {
-                Response response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getDetailParams("partsGuid", guid), COOKIE);
+        //配件信息和配件设置
+        if (productWithSpec.size() > 0) {
+            for (Map.Entry<String, Product> entry : productWithSpec.entrySet()) {
+                Product p = entry.getValue();
+                Response response = ConnectionUtil.doPostWithLeastParams(STOCKDETAIL_URL, getDetailParams("partsGuid", p.getId()), COOKIE);
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
                 int trSize = WebClientUtil.getTagSize(doc, trStockRegEx, HtmlTag.trName);
-                for (int j = 1; j <= trSize; j++) {
+                for (int i = 1; i <= trSize; i++) {
 
-                    String specRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(1)";
-                    String inventoryNumRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(5)";
-                    String salePriceRegEx = "#set-tbody > tr:nth-child({no}) > td:nth-child(2)";
+                    String specRegEx = "#set-tbody > tr:nth-child(" + i + ") > td:nth-child(1)";//规格
+                    String inventoryNumRegEx = "#set-tbody > tr:nth-child(" + i + ") > td:nth-child(5)";//库存
+                    String salePriceRegEx = "#set-tbody > tr:nth-child(" + i + ") > td:nth-child(2)";//价格
 
-                    String spec = doc.select(StringUtils.replace(specRegEx, "{no}", String.valueOf(j))).text();
-                    String inventoryNum = doc.select(StringUtils.replace(inventoryNumRegEx, "{no}", String.valueOf(j))).text();
-                    String salePrice = doc.select(StringUtils.replace(salePriceRegEx, "{no}", String.valueOf(j))).text();
+                    String spec = doc.select(specRegEx).text();
+                    String inventoryNum = doc.select(inventoryNumRegEx).text();
+                    String salePrice = doc.select(salePriceRegEx).text();
 
-                    Product p = productMap.get(guid);
                     Stock stock = new Stock();
                     stock.setCompanyName(companyName);
                     stock.setStoreRoomName("仓库");
-                    stock.setSpec(spec);
                     stock.setProductCode(spec);
-                    stock.setPartsGuid(guid);
+                    stock.setPartsGuid(p.getId());
                     stock.setGoodsName(p.getProductName());
                     stock.setInventoryNum(inventoryNum);
                     stock.setSalePrice(salePrice.replace("￥", ""));
                     stock.setBrand(p.getBrandName());
                     stock.setFirstCategoryName(p.getFirstCategoryName());
-                    stocks.add(stock);
+
+                    stock.setSpec(spec);//规格
+                    stock.setSpecification(spec);
+
+                    if (spec.equals(p.getSpecification())) {
+                        stock.setSpecificationValue(p.getSpecificationValue());
+                    } else {
+                        String specValue = productWithSpec.get(p.getId() + spec).getSpecificationValue();
+                        stock.setSpecificationValue(specValue);
+                    }
+
+                    stockMap.put(stock.getSpecificationValue(), stock);
+
                 }
             }
         }
 
-        if (stocks.size() > 0) {
-            for (Stock stock : stocks) {
-                String spec = stock.getSpec();
+        //入库记录-根据规格筛选
+        if (stockMap.size() > 0) {
+            for (String value : stockMap.keySet()) {
+                Stock stock = stockMap.get(value);
                 String partsGuid = stock.getPartsGuid();
-                String specificationGuid = specificationGuids.get(spec);
+                String specificationGuid = stock.getSpecificationValue();
 
                 if (specificationGuid != null) {
                     Response response = ConnectionUtil.doPostWithLeastParams(STOCKINSEARCH_URL, getStockInPriceParams(partsGuid, specificationGuid), COOKIE);
@@ -421,7 +449,21 @@ public class YuanLeCheBaoService {
                     if (StringUtils.isBlank(price))
                         price = "0";
 
-                    stock.setPrice(price);
+                    Stock s = new Stock();
+                    s.setCompanyName(companyName);
+                    s.setStoreRoomName("仓库");
+                    s.setProductCode(stock.getProductCode());
+                    s.setPartsGuid(stock.getPartsGuid());
+                    s.setGoodsName(stock.getGoodsName());
+                    s.setInventoryNum(stock.getInventoryNum());
+                    s.setSalePrice(stock.getSalePrice());
+                    s.setBrand(stock.getBrand());
+                    s.setFirstCategoryName(stock.getFirstCategoryName());
+                    s.setSpec(stock.getSpec());//规格
+                    s.setSpecification(stock.getSpecification());
+                    s.setSpecificationValue(stock.getSpecificationValue());
+                    s.setPrice(price);
+                    stocks.add(s);
                 }
             }
         }
