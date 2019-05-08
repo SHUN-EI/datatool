@@ -54,12 +54,12 @@ public class ChePuService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(0), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = result.get("result");
@@ -91,7 +91,7 @@ public class ChePuService {
                 String carId = carInfo.getCarId();
 
                 //车辆信息
-                Response res = ConnectionUtil.doPostWithJson(CARINFODETAIL_URL, "memberId=" + carId, COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(CARINFODETAIL_URL, "memberId=" + carId, COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode resulNode = result.get("result");
@@ -116,7 +116,7 @@ public class ChePuService {
                 }
 
                 //会员卡信息
-                Response res2 = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, "memberId=" + carId, COOKIE);
+                Response res2 = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, "memberId=" + carId, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode dataNode = content.get("result");
@@ -197,12 +197,12 @@ public class ChePuService {
     public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(SERVICE_URL, getServiceParam(0), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getServiceParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 15);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(SERVICE_URL, getServiceParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getServiceParam(i), COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 

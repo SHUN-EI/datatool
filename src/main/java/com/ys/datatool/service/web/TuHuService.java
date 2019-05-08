@@ -1,5 +1,6 @@
 package com.ys.datatool.service.web;
 
+import com.ys.datatool.domain.config.HtmlTag;
 import com.ys.datatool.domain.entity.CarInfo;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.WebClientUtil;
@@ -26,13 +27,9 @@ public class TuHuService {
 
     private static final String CARINFO_URL = "https://s.tuhu.cn/Customer/CustomerList/?UserName=&UserTel=&PageIndex={page}";
 
-    private static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
     private String fileName = "途虎养车";
 
     private String trCarInfoRegEx = " table > tbody > tr";
-
-    private String trName = "tr";
 
     private String trCarInfoDetailRegEx = "#customer-dat-info > table > tbody > tr";
 
@@ -48,7 +45,7 @@ public class TuHuService {
         List<CarInfo> carInfos = new ArrayList<>();
         Set<String> indexSet = new HashSet<>();
 
-        Response response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{page}", "1"), COOKIE, X_REQUESTED_WITH);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{page}", "1"), COOKIE);
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);
 
@@ -57,15 +54,15 @@ public class TuHuService {
 
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
-                response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{page}", String.valueOf(i)), COOKIE, X_REQUESTED_WITH);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{page}", String.valueOf(i)), COOKIE);
                 html = response.returnContent().asString();
                 document = Jsoup.parse(html);
 
-                int trSize = WebClientUtil.getTagSize(document, trCarInfoRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(document, trCarInfoRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int j = 1; j <= trSize; j++) {
-                        String carInfoNoRegEx = "table > tbody > tr:nth-child({no}) > td:nth-child(8) > a";
-                        String index = document.select(StringUtils.replace(carInfoNoRegEx, "{no}", String.valueOf(j))).attr("href");
+                        String carInfoNoRegEx = "table > tbody > tr:nth-child(" + j + ") > td:nth-child(8) > a";
+                        String index = document.select(carInfoNoRegEx).attr("href");
                         indexSet.add(index);
                     }
                 }
@@ -77,7 +74,7 @@ public class TuHuService {
                 //String index = "/Customer/CustomerDetails?userGuid={2416559e-1191-4abf-bcc7-3a286bcd4cba}";
                 //String a = StringUtils.replace(CARINFODETAIL_URL, "{index}", index);
 
-                Response r = ConnectionUtil.doGetWith(enCodeURL(StringUtils.replace(CARINFODETAIL_URL, "{index}", index)), COOKIE, X_REQUESTED_WITH);
+                Response r = ConnectionUtil.doGetWith(enCodeURL(StringUtils.replace(CARINFODETAIL_URL, "{index}", index)), COOKIE);
                 html = r.returnContent().asString();
                 document = Jsoup.parse(html);
 
@@ -87,28 +84,23 @@ public class TuHuService {
                 String phoneRegEx = "#customer-info-table > tbody > tr:nth-child(2) > td:nth-child(2)";
                 String phone = document.select(phoneRegEx).text();
 
-                int trSize = WebClientUtil.getTagSize(document, trCarInfoDetailRegEx, trName);
+                int trSize = WebClientUtil.getTagSize(document, trCarInfoDetailRegEx, HtmlTag.trName);
                 if (trSize > 0) {
                     for (int i = 1; i <= trSize; i++) {
 
-                        String carNumberRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(1)";
-                        String carNumber = document.select(StringUtils.replace(carNumberRegEx, "{no}", i + "")).text();
+                        String carNumberRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(1)";
+                        String brandRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(2)";
+                        String carModelRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(3)";
+                        String VINcodeRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(8)";
+                        String engineNumberRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(10)";
+                        String mileageRegEx = "#customer-dat-info > table > tbody > tr:nth-child(" + i + ") > td:nth-child(9)";   //网页车架号
 
-                        String brandRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(2)";
-                        String brand = document.select(StringUtils.replace(brandRegEx, "{no}", i + "")).text();
-
-                        String carModelRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(3)";
-                        String carModel = document.select(StringUtils.replace(carModelRegEx, "{no}", i + "")).text();
-
-                        String VINcodeRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(8)";
-                        String VINcode = document.select(StringUtils.replace(VINcodeRegEx, "{no}", i + "")).text();
-
-                        String engineNumberRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(10)";
-                        String engineNumber = document.select(StringUtils.replace(engineNumberRegEx, "{no}", i + "")).text();
-
-                        //网页车架号
-                        String mileageRegEx = "#customer-dat-info > table > tbody > tr:nth-child({no}) > td:nth-child(9)";
-                        String mileage = document.select(StringUtils.replace(mileageRegEx, "{no}", i + "")).text();
+                        String carNumber = document.select(carNumberRegEx).text();
+                        String brand = document.select(brandRegEx).text();
+                        String carModel = document.select(carModelRegEx).text();
+                        String VINcode = document.select(VINcodeRegEx).text();
+                        String engineNumber = document.select(engineNumberRegEx).text();
+                        String mileage = document.select(mileageRegEx).text();
 
                         CarInfo carInfo = new CarInfo();
                         carInfo.setCarNumber(carNumber);

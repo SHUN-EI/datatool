@@ -103,7 +103,7 @@ public class CheKuKeService {
         List<Product> products = new ArrayList<>();
 
         String param = "action=LoadConfig&id=2616";
-        Response res = ConnectionUtil.doPostWithJson(SERVICE_URL, param, COOKIE);
+        Response res = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, param, COOKIE);
 
         String html = res.returnContent().asString();
         Document doc = Jsoup.parseBodyFragment(html);

@@ -39,7 +39,7 @@ public class MarsService {
 
         String param = "{\"jsonrpc\":\"2.0\",\"method\":\"Invoke\",\"params\":[{\"openFormIds\":[\"318C79\",\"318AEC\",\"3180F4\"],\"interactionsToInvoke\":[{\"namedParameters\":\"{\\\"Delta\\\":1}\",\"interactionName\":\"ScrollRepeater\",\"controlId\":\"318C7D\",\"formId\":\"318C79\",\"callbackId\":\"7\"}],\"sessionId\":\"le4utoy4igkcx2puwk3q3y1eR5DEALER135812Tyreplus 135812User\",\"requestToken\":\"dab0rnzjciprm02twthlgocg\",\"sequenceNo\":\"jibeye9i#7\",\"navigationContext\":{\"location\":\"https://mars.tyreplus.com.cn/Mars/WebClient/?company=Tyreplus%20135812&bookmark=41%3bFwAAAAJ7%2f1YARAAxADMANQA4ADEAMgAvADEAMAAwADAAOAA3&node=e34ce138-75b7-4118-9255-92b02ca59213&mode=Edit&page=27&filter=Vendor.%27Service%20Center%27%20IS%20%27135812%27&spa=1&dc=0&inapp=false&i=318C79&tenant=r5dealer135812&IsDlg=1\",\"isDialog\":true,\"isSpa\":true,\"spaInstanceId\":\"jibeye17\",\"isInApp\":false,\"deviceCategory\":0,\"nativePageType\":\"ListApplicationPage\"}}],\"id\":1}";
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(URL, param, COOKIE,CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(URL, param, COOKIE);
         JsonNode result = MAPPER.readTree(response.returnContent().asString());
 
         JsonNode res = result.get("result").get("parameters");

@@ -52,12 +52,12 @@ public class JinBangService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         List<MemberCardItem> cardItems = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getMemberCardParam(1), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardParam(1), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 40);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(MEMBERCARDITEM_URL, getParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = result.get("rows");
@@ -94,12 +94,12 @@ public class JinBangService {
                 String cardID = memberCardItem.getCardId();
 
                 String param = getMemberCardItemParam(1, cardID, shopID);
-                Response res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE);
                 int total = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 40);
 
                 if (total > 0) {
                     for (int i = 1; i <= total; i++) {
-                        res = ConnectionUtil.doPostWithJson(MEMBERCARDITEMDETAIL_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
+                        res = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEMDETAIL_URL, getMemberCardItemParam(i, cardID, shopID), COOKIE);
                         JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = result.get("rows");
@@ -152,12 +152,12 @@ public class JinBangService {
         List<Bill> bills = new ArrayList<>();
         Set<String> ids = new HashSet<>();
 
-        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(1), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 40);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = result.get("rows");
@@ -176,12 +176,12 @@ public class JinBangService {
 
         if (ids.size() > 0) {
             for (String id : ids) {
-                Response res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(id, 1), COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(id, 1), COOKIE);
                 int billTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 40);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
-                        res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(id, i), COOKIE);
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(id, i), COOKIE);
                         JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = result.get("rows");
@@ -207,7 +207,7 @@ public class JinBangService {
                                 bill.setServiceItemNames(CommonUtil.formatString(remark));
 
                                 //汇总配件
-                                Response res2 = ConnectionUtil.doPostWithJson(BILLDETAIL_URL, getBillDetailParam(billNo), COOKIE);
+                                Response res2 = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(billNo), COOKIE);
                                 JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
                                 JsonNode data = content.get("rows");
                                 if (data.size() > 0) {

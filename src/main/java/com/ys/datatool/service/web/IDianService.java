@@ -235,7 +235,7 @@ public class IDianService {
             for (MemberCard memberCard : memberCards) {
                 String param = "licensePlate=&id=" + memberCard.getCardCode();
 
-                Response response = ConnectionUtil.doPostWithJson(MEMBERDETAIL_URL, param, COOKIE_WEB);
+                Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERDETAIL_URL, param, COOKIE_WEB);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 JsonNode userObject = content.get("userObject");

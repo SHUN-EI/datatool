@@ -3,7 +3,6 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.JsonObject;
-import com.ys.datatool.domain.config.WebConfig;
 import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -77,12 +76,12 @@ public class QiXiuZhangShangTongService {
                         String dateCreated = element.get("vipCreateTime").asText();
                         dateCreated = DateUtil.formatMillisecond2DateTime(dateCreated);
 
-                        Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, 1), COOKIE, WebConfig.CONTENT_TYPE);
+                        Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, 1), COOKIE);
                         int carTotalPage = getTotalPage(res);
 
                         if (carTotalPage > 0) {
                             for (int j = 1; j <= carTotalPage; j++) {
-                                res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, j), COOKIE, WebConfig.CONTENT_TYPE);
+                                res = ConnectionUtil.doPutWithJson(CARINFO_URL, getCarInfoParam(phone, j), COOKIE);
 
                                 JsonNode carInfoData = JsonObject.MAPPER.readTree(res.returnContent().asString());
                                 JsonNode carInfos = carInfoData.get("data").get(0).get("results");
@@ -216,11 +215,11 @@ public class QiXiuZhangShangTongService {
         Map<String, String> carMap = new HashMap<>();
 
         //获取所有客户车辆的Uuid
-        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE);
         int totalPage = getTotalPage(response);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
@@ -244,12 +243,12 @@ public class QiXiuZhangShangTongService {
 
                 String carNumber = carMap.get(uuid);
 
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, 1), COOKIE, WebConfig.CONTENT_TYPE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, 1), COOKIE);
                 int billTotalPage = getTotalPage(res);
 
                 if (billTotalPage > 0) {
                     for (int i = 1; i <= billTotalPage; i++) {
-                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, i), COOKIE, WebConfig.CONTENT_TYPE);
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(uuid, i), COOKIE);
                         JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                         JsonNode node = content.get("data").get(0).get("results");
@@ -354,12 +353,12 @@ public class QiXiuZhangShangTongService {
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(1), COOKIE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                Response res = ConnectionUtil.doPutWithJson(CARINFO_URL, getPageParam(i), COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
@@ -481,11 +480,11 @@ public class QiXiuZhangShangTongService {
     public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(1), COOKIE);
         int totalPage = getTotalPage(response);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(SUPPLIER_URL, getParam(i), COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");

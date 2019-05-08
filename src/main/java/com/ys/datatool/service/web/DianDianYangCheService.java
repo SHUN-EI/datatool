@@ -7,7 +7,6 @@ import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -35,17 +34,33 @@ public class DianDianYangCheService {
 
     private String MEMBERCARD_URL = "https://ndsm.ddyc.com/ndsm/member/list";
 
-    private Workbook workbook;
+    private String SERVICE_URL = "https://ndsm.ddyc.com/ndsm/commodity/service/list";
 
     private String companyName = "典典养车";
 
     private int num = 10;
 
-    private static final String COOKIE = "JSESSIONID=DE5229B3A6017A4A44326542941B12D8; gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; gr_session_id_e2f213a5f5164248817464925de8c1af=a086f553-ba53-4085-8760-e277c3a4d38f; gr_session_id_e2f213a5f5164248817464925de8c1af_a086f553-ba53-4085-8760-e277c3a4d38f=true";
+    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=42C83174AF15462D55A9FC13126088EE; gr_session_id_e2f213a5f5164248817464925de8c1af=db353cbe-24a7-4504-ba0f-8628f53b0093; gr_session_id_e2f213a5f5164248817464925de8c1af_db353cbe-24a7-4504-ba0f-8628f53b0093=true";
 
 
     /**
+     * 服务
+     * <p>
+     * 打开路径：更多-设置-服务项目管理
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+
+    }
+
+    /**
      * 库存
+     * <p>
+     * 打开路径:仓库-库存
      *
      * @throws IOException
      */
@@ -54,12 +69,12 @@ public class DianDianYangCheService {
         List<Stock> stocks = new ArrayList<>();
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(STOCK_URL, getStockParam(1), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(STOCK_URL, getStockParam(1), COOKIE);
         int totalPage = getTotalPageNo(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doPostWithJson(STOCK_URL, getBillParam(i), COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(STOCK_URL, getStockParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").elements();
@@ -68,10 +83,17 @@ public class DianDianYangCheService {
 
                     String goodsName = element.get("commodityName").asText();
                     String productCode = element.get("commodityCode").asText();
-                    String inventoryNum = element.get("count").asText();
-                    String price = element.get("costPrice").asText();
+                    String inventoryNum = element.get("count").asText();//库存数量
+                    String price = element.get("costPrice").asText();//成本价
+                    String salePrice = element.get("price").asText();//销售价
                     String firstCategoryName = element.get("lv1CategoryName").asText();
                     String secondCategoryName = element.get("lv2CategoryName").asText();
+
+                    if ("null".equals(price))
+                        price = "0";
+
+                    if ("null".equals(salePrice))
+                       salePrice = "0";
 
                     Stock stock = new Stock();
                     stock.setCompanyName(companyName);
@@ -79,11 +101,12 @@ public class DianDianYangCheService {
                     stock.setProductCode(productCode);
                     stock.setInventoryNum(inventoryNum);
                     stock.setPrice(price);
+                    stocks.add(stock);
 
                     Product product = new Product();
                     product.setCompanyName(companyName);
                     product.setProductName(goodsName);
-                    product.setPrice(price);
+                    product.setPrice(salePrice);
                     product.setFirstCategoryName(firstCategoryName);
                     product.setSecondCategoryName(secondCategoryName);
                     products.add(product);
@@ -100,6 +123,8 @@ public class DianDianYangCheService {
 
     /**
      * 历史消费记录和消费记录相关车辆
+     * <p>
+     * 打开路径:工单-工单列表
      *
      * @throws IOException
      */
@@ -107,12 +132,12 @@ public class DianDianYangCheService {
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(1), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(1), COOKIE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doPostWithJson(BILL_URL, getBillParam(i), COOKIE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").elements();
@@ -180,6 +205,8 @@ public class DianDianYangCheService {
 
     /**
      * 车辆信息
+     * <p>
+     * 打开路径:客户-车辆列表
      *
      * @throws IOException
      */
@@ -236,7 +263,9 @@ public class DianDianYangCheService {
     }
 
     /**
-     * 会员卡
+     * 会员卡及卡内项目
+     * <p>
+     * 打开路径:客户-会员充值
      *
      * @throws IOException
      */
@@ -244,14 +273,14 @@ public class DianDianYangCheService {
     public void fetchMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(1), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(1), COOKIE);
         JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get("total");
         int totalPage = WebClientUtil.getTotalPage(totalNode, num);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(i), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(i), COOKIE);
                 result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("data").get("data").iterator();

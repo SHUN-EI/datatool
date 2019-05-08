@@ -53,7 +53,7 @@ public class MaoRiService {
         List<BillDetail> billDetails = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(0), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(0), COOKIE);
         int carTotalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
 
@@ -61,7 +61,7 @@ public class MaoRiService {
             int offset = 0;
 
             for (int i = 1; i <= carTotalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(offset), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getCarInfoParam(offset), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 offset += num;
@@ -93,14 +93,14 @@ public class MaoRiService {
             for (CarInfo carInfo : carInfos) {
                 String id = carInfo.getCarId();
 
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(0, id), COOKIE, WebConfig.CONTENT_TYPE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(0, id), COOKIE);
                 int billDetailTotalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 100);
 
                 if (billDetailTotalPage > 0) {
                     int offset = 0;
                     for (int i = 1; i <= billDetailTotalPage; i++) {
 
-                        res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(offset, id), COOKIE, WebConfig.CONTENT_TYPE);
+                        res = ConnectionUtil.doPostWithLeastParamJson(BILLDETAIL_URL, getBillDetailParam(offset, id), COOKIE);
                         JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                         offset += num;
@@ -150,7 +150,7 @@ public class MaoRiService {
     public void fetchBillDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 100);
 
 
@@ -159,7 +159,7 @@ public class MaoRiService {
 
             for (int i = 1; i <= totalPage; i++) {
 
-                response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(offset), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(offset), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 offset += num;

@@ -42,7 +42,6 @@ public class ChengChangOnlineService {
     private String COOKIE = "ASP.NET_SessionId=1nwarb1cukj0yevhowdygzhl; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/5/4 15:29:19&uLoginIp=61.140.95.110&uLoginCount=761&uLoginNowTime=1557025017074&uIp=ED6B9AA7C71BFC642EBCC9025DBD7136&Expires=1557457017074";
 
 
-
     /**
      * 套餐卡及卡内项目
      * 打开路径:会员管理-会员套餐
@@ -54,11 +53,11 @@ public class ChengChangOnlineService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(1), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEM_URL, getMemberCardItemParam(i), COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
@@ -104,7 +103,7 @@ public class ChengChangOnlineService {
             for (MemberCard memberCard : memberCards) {
 
                 String param = "{" + "ubid:" + memberCard.getMemberCardId() + "}";
-                Response res = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE, WebConfig.CONTENT_TYPE);
+                Response res = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARDITEMDETAIL_URL, param, COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
                 JsonNode dataNode = result.get("data");
@@ -171,12 +170,12 @@ public class ChengChangOnlineService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(1), COOKIE);
 
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getMemberCardParam(i), COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
@@ -227,12 +226,12 @@ public class ChengChangOnlineService {
         List<FirstCategory> firstCategories = fetchFirstCategoryData();
         List<SecondCategory> secondCategories = fetchSecondCategoryData();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(1), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(ITEM_URL, getParam(i), COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
@@ -299,13 +298,13 @@ public class ChengChangOnlineService {
         List<FirstCategory> firstCategories = fetchFirstCategoryData();
         List<SecondCategory> secondCategories = fetchSecondCategoryData();
 
-        Response response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getParam(1), COOKIE, WebConfig.CONTENT_TYPE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getParam(1), COOKIE);
 
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getParam(i), COOKIE, WebConfig.CONTENT_TYPE);
+                response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getParam(i), COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
@@ -401,7 +400,7 @@ public class ChengChangOnlineService {
             for (FirstCategory firstCategory : firstCategories) {
 
                 String param = "{" + "id:" + firstCategory.getFid() + "}";
-                Response response = ConnectionUtil.doPostWithLeastParamJson(CATEGORY_URL, param, COOKIE, WebConfig.CONTENT_TYPE);
+                Response response = ConnectionUtil.doPostWithLeastParamJson(CATEGORY_URL, param, COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 if (result.size() > 0) {

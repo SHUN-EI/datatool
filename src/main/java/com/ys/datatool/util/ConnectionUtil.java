@@ -1,5 +1,6 @@
 package com.ys.datatool.util;
 
+import com.ys.datatool.domain.config.WebConfig;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.entity.ContentType;
@@ -22,21 +23,21 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWith(String url, String cookie, String x_Requested_With) throws IOException {
+    public static Response doGetWith(String url, String cookie) throws IOException {
 
         Response response = Request.Get(url)
                 .setHeader("Cookie", cookie)
-                .setHeader("X-Requested-With", x_Requested_With)
+                .setHeader("X-Requested-With", WebConfig.X_REQUESTED_WITH)
                 .execute();
 
         return response;
     }
 
-    public static Response doPutWithJson(String url, String param, String cookie, String content_type) throws IOException {
+    public static Response doPutWithJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Put(url)
                 .setHeader("Cookie", cookie)
-                .setHeader("content-type", content_type)
+                .setHeader("content-type", WebConfig.CONTENT_TYPE)
                 .bodyString(param, ContentType.APPLICATION_JSON)
                 .execute();
 
@@ -47,18 +48,7 @@ public class ConnectionUtil {
 
         Response response = Request.Post(url)
                 .setHeader("cookie", cookie)
-                .setHeader("content-type", "application/json;charset=UTF-8")
-                .execute();
-
-        return response;
-    }
-
-    public static Response doPostWithJson(String url, String param, String cookie) throws IOException {
-
-        Response response = Request.Post(url)
-                .setHeader("cookie", cookie)
-                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
-                .bodyString(param, ContentType.APPLICATION_FORM_URLENCODED)
+                .setHeader("content-type", WebConfig.CONTENT_TYPE)
                 .execute();
 
         return response;
@@ -76,11 +66,12 @@ public class ConnectionUtil {
     }
 
 
-    public static Response doPostWithLeastParamJson(String url, String param, String cookie, String content_type) throws IOException {
+    public static Response doPostWithLeastParamJson(String url, String param, String cookie) throws IOException {
 
         Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)
-                .setHeader("content-type", content_type)
+                .setHeader("content-type", WebConfig.CONTENT_TYPE)
+                .setHeader("accept", WebConfig.ACCEPT)
                 .bodyString(param, ContentType.APPLICATION_JSON)
                 .execute();
 
@@ -102,7 +93,7 @@ public class ConnectionUtil {
         Response response = Request.Get(url)
                 .setHeader("Cookie", cookie)
                 .setHeader("accept-encoding", accept_encoding)
-                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
+                .setHeader("accept", WebConfig.ACCEPT)
                 .execute();
 
         return response;
@@ -113,7 +104,7 @@ public class ConnectionUtil {
         Response response = Request.Post(url)
                 .setHeader("Cookie", cookie)
                 .setHeader("accept-encoding", accept_encoding)
-                .setHeader("accept", "application/json, text/javascript, */*; q=0.01")
+                .setHeader("accept", WebConfig.ACCEPT)
                 .bodyForm(params, Charset.forName("utf-8"))
                 .execute();
 

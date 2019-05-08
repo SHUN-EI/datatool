@@ -27,7 +27,6 @@ import java.util.Map;
  * <p>
  * 云店易系统2.2
  */
-
 @Service
 public class YunDianYiService {
 
@@ -46,8 +45,6 @@ public class YunDianYiService {
     private String PACKAGECARPAGE_URL = "https://vip.yundianyi.com/promotion/ajaxpackageshow/id/";
 
     private String PACKAGEPAGE_URL = "https://vip.yundianyi.com/promotion/getpackagepage/type/enable/classid/1/page/";
-
-    private String X_REQUESTED_WITH = "XMLHttpRequest";
 
     private String companyName = "云店易";
 
@@ -77,7 +74,7 @@ public class YunDianYiService {
         if (total > 0) {
             for (int i = 1; i <= total; i++) {
                 String url = COUPONLIST_URL + i;
-                Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                Response res = ConnectionUtil.doGetWith(url, COOKIE);
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
@@ -122,7 +119,7 @@ public class YunDianYiService {
                 String cardId = memberCard.getMemberCardId();
 
                 String url = COUPONCAR_URL + cardId;
-                Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                Response res = ConnectionUtil.doGetWith(url, COOKIE);
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
@@ -137,7 +134,7 @@ public class YunDianYiService {
                     for (int i = 1; i <= totalPage; i++) {
 
                         url = COUPONCARDETAIL_URL + cardId + "/page/" + i;
-                        Response res2 = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                        Response res2 = ConnectionUtil.doGetWith(url, COOKIE);
                         String body = res2.returnContent().asString();
                         Document docu = Jsoup.parseBodyFragment(body);
 
@@ -239,7 +236,7 @@ public class YunDianYiService {
                 String cardName = card.getMemberCardName();
                 String cardId = card.getMemberCardId();
                 String pageUrl = PACKAGECARPAGE_URL + cardId + "/";
-                Response res = ConnectionUtil.doGetWith(pageUrl, COOKIE, X_REQUESTED_WITH);
+                Response res = ConnectionUtil.doGetWith(pageUrl, COOKIE);
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
@@ -255,7 +252,7 @@ public class YunDianYiService {
                 if (totalPage > 0) {
                     for (int i = 1; i <= totalPage; i++) {
                         String url = PACKAGECAR_URL + cardId + "/page/" + i;
-                        Response res2 = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                        Response res2 = ConnectionUtil.doGetWith(url, COOKIE);
 
                         String body = res2.returnContent().asString();
                         Document docu = Jsoup.parseBodyFragment(body);
@@ -309,7 +306,7 @@ public class YunDianYiService {
                 MemberCard memberCard = memberCardMap.get(clientId);
 
                 String url = CARINFO_URL + clientId + "/";
-                Response res = ConnectionUtil.doGetWith(url, COOKIE, X_REQUESTED_WITH);
+                Response res = ConnectionUtil.doGetWith(url, COOKIE);
                 String body = res.returnContent().asString();
                 Document docu = Jsoup.parse(body);
 

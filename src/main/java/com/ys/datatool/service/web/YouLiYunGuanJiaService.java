@@ -53,14 +53,14 @@ public class YouLiYunGuanJiaService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(0), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 10);
 
         if (totalPage > 0) {
             int start = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(MEMBERCARD_URL, getParam(start), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(start), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 start = start + num;
@@ -107,13 +107,13 @@ public class YouLiYunGuanJiaService {
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(0), COOKIE);
+        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getParam(0), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 10);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doPostWithJson(CARINFO_URL, getParam(start), COOKIE);
+                response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getParam(start), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 start = start + num;
