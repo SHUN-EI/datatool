@@ -28,7 +28,7 @@ public class MemberCard {
     /**
      * 会员卡名称
      */
-    private String memberCardName;
+    private String memberCardName="会员卡";
 
     /**
      * 车牌号
