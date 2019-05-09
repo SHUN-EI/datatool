@@ -111,15 +111,6 @@ public class ConnectionUtil {
         return response;
     }
 
-    public static Response doGetWithLeastParams(String url, String cookie) throws IOException {
-
-        Response response = Request.Get(url)
-                .setHeader("Cookie", cookie)
-                .execute();
-
-        return response;
-    }
-
     public static Response doPostWithLeastParamJsonInPhone(String url, List params, String cookie) throws IOException {
 
         Response response = Request.Post(url)

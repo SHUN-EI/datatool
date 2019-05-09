@@ -302,12 +302,12 @@ public class ZhongTuService {
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 20);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{no}", groupId) + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
 
@@ -550,7 +550,7 @@ public class ZhongTuService {
         if (ids.size() > 0) {
             for (String id : ids) {
 
-                Response res = ConnectionUtil.doGetWithLeastParams(SUPPLIERDETAIL_URL + id, COOKIE);
+                Response res = ConnectionUtil.doGetWith(SUPPLIERDETAIL_URL + id, COOKIE);
                 String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 

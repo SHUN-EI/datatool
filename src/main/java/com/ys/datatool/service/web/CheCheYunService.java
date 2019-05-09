@@ -103,12 +103,12 @@ public class CheCheYunService {
         List<Bill> bills = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(ORDER_URL + "1", COOKIE);
+        Response response = ConnectionUtil.doGetWith(ORDER_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 500);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doGetWithLeastParams(ORDER_URL + String.valueOf(i), COOKIE);
+                Response res = ConnectionUtil.doGetWith(ORDER_URL + String.valueOf(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("orders").iterator();
@@ -130,7 +130,7 @@ public class CheCheYunService {
             for (Bill bill : bills) {
 
                 String billNo = bill.getBillNo();
-                Response res = ConnectionUtil.doGetWithLeastParams(ORDERDETAIL_URL + billNo, COOKIE);
+                Response res = ConnectionUtil.doGetWith(ORDERDETAIL_URL + billNo, COOKIE);
 
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode dataNode = result.get("data");
@@ -237,12 +237,12 @@ public class CheCheYunService {
 
         List<Bill> bills = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(ORDER_URL + "1", COOKIE);
+        Response response = ConnectionUtil.doGetWith(ORDER_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 500);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doGetWithLeastParams(ORDER_URL + String.valueOf(i), COOKIE);
+                Response res = ConnectionUtil.doGetWith(ORDER_URL + String.valueOf(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("orders").iterator();
@@ -302,12 +302,12 @@ public class CheCheYunService {
         List<Bill> bills = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + "1", COOKIE);
+        Response response = ConnectionUtil.doGetWith(BILL_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, 200);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                Response res = ConnectionUtil.doGetWith(BILL_URL + String.valueOf(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("orders").iterator();
@@ -341,7 +341,7 @@ public class CheCheYunService {
                     bill.setMileage("实收:" + actualAmount);
 
                     System.out.println("正在处理的单号为" + billNo);
-                    Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
+                    Response res2 = ConnectionUtil.doGetWith(BILLDETAIL_URL + id, COOKIE);
                     JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                     JsonNode data = content.get("data");
@@ -483,7 +483,7 @@ public class CheCheYunService {
             for (MemberCard card : cards) {
                 String id = card.getVipUserId();
 
-                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + id, COOKIE);
+                Response res = ConnectionUtil.doGetWith(MEMBERCARDITEM_URL + id, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode combo = content.get("combo");
 
@@ -540,7 +540,7 @@ public class CheCheYunService {
             for (MemberCard card : cards) {
                 String id = card.getVipUserId();
 
-                Response res3 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDCLIENT_URL + id, COOKIE);
+                Response res3 = ConnectionUtil.doGetWith(MEMBERCARDCLIENT_URL + id, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(res3.returnContent().asString());
 
                 JsonNode customer = content.get("customer");
@@ -561,7 +561,7 @@ public class CheCheYunService {
             for (MemberCard card : cards) {
 
                 String id = card.getVipUserId();
-                Response res4 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDCAR_URL + id, COOKIE);
+                Response res4 = ConnectionUtil.doGetWith(MEMBERCARDCAR_URL + id, COOKIE);
                 JsonNode carData = JsonObject.MAPPER.readTree(res4.returnContent().asString());
 
                 Iterator<JsonNode> cars = carData.get("cars").iterator();
@@ -591,12 +591,12 @@ public class CheCheYunService {
         List<Stock> stocks = new ArrayList<>();
         Map<String, Stock> stockMap = new HashMap<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(STOCK_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(STOCK_URL + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(STOCK_URL + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("products").iterator();
@@ -623,7 +623,7 @@ public class CheCheYunService {
 
         if (stockMap.size() > 0) {
             for (String id : stockMap.keySet()) {
-                res = ConnectionUtil.doGetWithLeastParams(STOCKDETAIL_URL + id + "", COOKIE);
+                res = ConnectionUtil.doGetWith(STOCKDETAIL_URL + id + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 String storeRoomName = "";
@@ -657,12 +657,12 @@ public class CheCheYunService {
     public void fetchItemDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(ITEM_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(ITEM_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(ITEM_URL + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(ITEM_URL + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("products").iterator();
@@ -716,12 +716,12 @@ public class CheCheYunService {
     public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(SERVICE_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(SERVICE_URL + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("services").iterator();
@@ -771,12 +771,12 @@ public class CheCheYunService {
     public void fetchSupplierDataStandard() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(SUPPLIER_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(SUPPLIER_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(SUPPLIER_URL + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(SUPPLIER_URL + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("suppliers").iterator();
@@ -826,12 +826,12 @@ public class CheCheYunService {
     public void fetchCarInfoDataStandard() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(CARINFO_URL + "1", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + i + "", COOKIE);
+                res = ConnectionUtil.doGetWith(CARINFO_URL + i + "", COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 Iterator<JsonNode> it = result.get("cars").iterator();
@@ -862,7 +862,7 @@ public class CheCheYunService {
 
         if (carInfos.size() > 0) {
             for (CarInfo carInfo : carInfos) {
-                res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carInfo.getCarId(), COOKIE);
+                res = ConnectionUtil.doGetWith(CARINFODETAIL_URL + carInfo.getCarId(), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 JsonNode data = result.get("car");
@@ -896,7 +896,7 @@ public class CheCheYunService {
         List<MemberCard> memberCards = new ArrayList<>();
 
         //会员卡等级 设置-客户-会员等级
-        Response res1 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDLEVEL_URL, COOKIE);
+        Response res1 = ConnectionUtil.doGetWith(MEMBERCARDLEVEL_URL, COOKIE);
         JsonNode result = JsonObject.MAPPER.readTree(res1.returnContent().asString());
 
         Iterator<JsonNode> it = result.get("vip_levels").iterator();
@@ -917,12 +917,12 @@ public class CheCheYunService {
                 String id = memberCardSort.getMemberCardSortId();
                 String name = memberCardSort.getName();
 
-                Response res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", "1") + id, COOKIE);
+                Response res2 = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{no}", "1") + id, COOKIE);
                 int totalPage = WebClientUtil.getTotalPage(res2, JsonObject.MAPPER, fieldName, 100);
 
                 if (totalPage > 0) {
                     for (int i = 1; i <= totalPage; i++) {
-                        res2 = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{no}", String.valueOf(i)) + id, COOKIE);
+                        res2 = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{no}", String.valueOf(i)) + id, COOKIE);
                         JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                         Iterator<JsonNode> customers = content.get("customers").iterator();

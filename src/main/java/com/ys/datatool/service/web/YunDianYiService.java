@@ -62,7 +62,7 @@ public class YunDianYiService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCard> memberCardList = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(COUPONPAGE_URL, COOKIE);
+        Response response = ConnectionUtil.doGetWith(COUPONPAGE_URL, COOKIE);
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);
 
@@ -180,7 +180,7 @@ public class YunDianYiService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(PACKAGEPAGE_URL + 1, COOKIE);
+        Response response = ConnectionUtil.doGetWith(PACKAGEPAGE_URL + 1, COOKIE);
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);
 
@@ -193,7 +193,7 @@ public class YunDianYiService {
             for (int i = 1; i <= total; i++) {
 
                 String url = PACKAGEPAGE_URL + i;
-                Response res = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
+                Response res = ConnectionUtil.doGetWith(url, COOKIE);
 
                 HttpResponse httpResponse = res.returnResponse();
                 //String cookie = httpResponse.getFirstHeader("Set-Cookie").getValue();

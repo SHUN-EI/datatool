@@ -52,7 +52,7 @@ public class WuYiCheBaoCheQiShiService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + String.valueOf(i), COOKIE);
+                Response response = ConnectionUtil.doGetWith(MEMBERCARD_URL + String.valueOf(i), COOKIE);
                 String html = response.returnContent().asString();
                 document = Jsoup.parse(html);
 
@@ -66,7 +66,7 @@ public class WuYiCheBaoCheQiShiService {
         }
 
         for (int i = 0; i < memberCardNos.size(); i++) {
-            Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + memberCardNos.get(i), COOKIE);
+            Response response = ConnectionUtil.doGetWith(MEMBERCARDITEM_URL + memberCardNos.get(i), COOKIE);
             String html = response.returnContent().asString();
             document = Jsoup.parse(html);
 
@@ -104,7 +104,7 @@ public class WuYiCheBaoCheQiShiService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + i + "", COOKIE);
+                Response response = ConnectionUtil.doGetWith(CARINFO_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -134,7 +134,7 @@ public class WuYiCheBaoCheQiShiService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIER_URL + i + "", COOKIE);
+                Response response = ConnectionUtil.doGetWith(SUPPLIER_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -170,7 +170,7 @@ public class WuYiCheBaoCheQiShiService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + i + "", COOKIE);
+                Response response = ConnectionUtil.doGetWith(BILL_URL + i + "", COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 
@@ -184,7 +184,7 @@ public class WuYiCheBaoCheQiShiService {
         }
 
         for (int i = 0; i < billNos.size(); i++) {
-            Response response = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + billNos.get(i), COOKIE);
+            Response response = ConnectionUtil.doGetWith(BILLDETAIL_URL + billNos.get(i), COOKIE);
             String html = response.returnContent().asString();
             Document document = Jsoup.parse(html);
 
@@ -265,7 +265,7 @@ public class WuYiCheBaoCheQiShiService {
         int totalPage = WebClientUtil.getHtmlTotalPage(BILL_URL, COOKIE);
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                Response response = ConnectionUtil.doGetWithLeastParams(BILL_URL + String.valueOf(i), COOKIE);
+                Response response = ConnectionUtil.doGetWith(BILL_URL + String.valueOf(i), COOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 

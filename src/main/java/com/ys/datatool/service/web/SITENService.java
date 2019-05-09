@@ -176,7 +176,7 @@ public class SITENService {
 
         if (billMap.size() > 0) {
             for (String careId : billMap.keySet()) {
-                Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLITEM_URL, "{careId}", careId), COOKIE);
+                Response response = ConnectionUtil.doGetWith(StringUtils.replace(BILLITEM_URL, "{careId}", careId), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 Iterator<JsonNode> careItems = result.get("careItems").iterator();
@@ -370,7 +370,7 @@ public class SITENService {
 
     private String getCSRF() throws IOException {
 
-        Response response = ConnectionUtil.doGetWithLeastParams(BILLCSRF_URL, COOKIE);
+        Response response = ConnectionUtil.doGetWith(BILLCSRF_URL, COOKIE);
 
         String html = response.returnContent().asString();
         Document document = Jsoup.parse(html);

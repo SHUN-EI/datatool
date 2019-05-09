@@ -46,7 +46,8 @@ public class DianDianYangCheService {
 
     ////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
 
-    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=6b642cee-1b96-4832-ba2c-4c8af48c32a0; gr_session_id_e2f213a5f5164248817464925de8c1af_6b642cee-1b96-4832-ba2c-4c8af48c32a0=true";
+    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=326fed25-3b7f-43f9-ade0-1236186fb712; gr_session_id_e2f213a5f5164248817464925de8c1af_326fed25-3b7f-43f9-ade0-1236186fb712=true";
+
 
 
     /**
@@ -231,7 +232,7 @@ public class DianDianYangCheService {
                         System.out.println("网址为" + BILLDETAIL_URL + id);
 
                         if (!"null".equals(id)) {
-                            Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + id, COOKIE);
+                            Response res2 = ConnectionUtil.doGetWith(BILLDETAIL_URL + id, COOKIE);
                             JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                             if (content.hasNonNull("carServicePackageList") == true) {
@@ -305,7 +306,7 @@ public class DianDianYangCheService {
                         carInfo.setName(CommonUtil.formatString(name));
                         carInfo.setPhone(CommonUtil.formatString(phone));
 
-                        Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, COOKIE);
+                        Response res2 = ConnectionUtil.doGetWith(CARINFODETAIL_URL + carId, COOKIE);
                         JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                         if (content.hasNonNull("data") == true) {

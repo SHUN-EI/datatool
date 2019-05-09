@@ -49,7 +49,7 @@ public class DianFengService {
         List<Product> products = new ArrayList<>();
         Set<String> ids = new HashSet<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(REPAIRITEM_URL + "1", COOKIE);
+        Response response = ConnectionUtil.doGetWith(REPAIRITEM_URL + "1", COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
@@ -59,7 +59,7 @@ public class DianFengService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(REPAIRITEM_URL + String.valueOf(i), COOKIE);
+                response = ConnectionUtil.doGetWith(REPAIRITEM_URL + String.valueOf(i), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -77,7 +77,7 @@ public class DianFengService {
         if (ids.size() > 0) {
             for (String id : ids) {
 
-                response = ConnectionUtil.doGetWithLeastParams(preUrl + id, COOKIE);
+                response = ConnectionUtil.doGetWith(preUrl + id, COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -119,7 +119,7 @@ public class DianFengService {
         List<CarInfo> carInfos = new ArrayList<>();
         Set<String> carIds = new HashSet<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + "1", COOKIE);
+        Response response = ConnectionUtil.doGetWith(CARINFO_URL + "1", COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
@@ -129,7 +129,7 @@ public class DianFengService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(CARINFO_URL + String.valueOf(i), COOKIE);
+                response = ConnectionUtil.doGetWith(CARINFO_URL + String.valueOf(i), COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 
@@ -146,7 +146,7 @@ public class DianFengService {
 
         if (carIds.size() > 0) {
             for (String carId : carIds) {
-                response = ConnectionUtil.doGetWithLeastParams(preUrl + carId, COOKIE);
+                response = ConnectionUtil.doGetWith(preUrl + carId, COOKIE);
                 html = response.returnContent().asString();
                 doc = Jsoup.parse(html);
 

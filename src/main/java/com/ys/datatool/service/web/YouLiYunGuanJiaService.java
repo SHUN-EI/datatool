@@ -147,7 +147,7 @@ public class YouLiYunGuanJiaService {
             for (CarInfo carInfo : carInfos) {
                 String carId = carInfo.getCarId();
 
-                Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, COOKIE);
+                Response res = ConnectionUtil.doGetWith(CARINFODETAIL_URL + carId, COOKIE);
                 String content = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
 
                 Document doc = Jsoup.parseBodyFragment(content);

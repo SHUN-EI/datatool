@@ -172,7 +172,7 @@ public class CheKuKeService {
 
                 System.out.println("正在获取的单号为" + bno);
 
-                Response response = ConnectionUtil.doGetWithLeastParams(CONSURECORDDETAIL_URL + bno, COOKIE);
+                Response response = ConnectionUtil.doGetWith(CONSURECORDDETAIL_URL + bno, COOKIE);
 
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);

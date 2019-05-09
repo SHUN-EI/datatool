@@ -45,11 +45,6 @@ public class DiDiBaBaService {
     private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; pageNo=1; listPageUrl=/ctm/cardmanage";
 
 
-    @Test
-    public void test() throws IOException {
-
-    }
-
     /**
      * 获取同一客户多辆车的数据
      *
@@ -179,7 +174,7 @@ public class DiDiBaBaService {
 
         if (ids.size() > 0) {
             for (String id : ids) {
-                Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIERDETAIL_URL + id, COOKIE);
+                Response response = ConnectionUtil.doGetWith(SUPPLIERDETAIL_URL + id, COOKIE);
                 String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document document = Jsoup.parseBodyFragment(html);
 
@@ -228,7 +223,7 @@ public class DiDiBaBaService {
     private void fetchCarInfo(List<CarInfo> carInfos, Set<String> ids) throws IOException {
         if (ids.size() > 0) {
             for (String id : ids) {
-                Response res = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
+                Response res = ConnectionUtil.doGetWith(CARINFODETAIL_URL + id, COOKIE);
                 String html = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
                 Document doc = Jsoup.parseBodyFragment(html);
 

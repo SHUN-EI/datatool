@@ -316,7 +316,7 @@ public class ZhangShangCheDianService {
         List<MemberCard> cards = getMemberCardId();
         if (cards.size() > 0) {
             for (MemberCard m : cards) {
-                Response res = ConnectionUtil.doGetWithLeastParams(MEMBERCARDDETAIL_URL + m.getMemberCardId(), COOKIE);
+                Response res = ConnectionUtil.doGetWith(MEMBERCARDDETAIL_URL + m.getMemberCardId(), COOKIE);
                 String html = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(html);
 

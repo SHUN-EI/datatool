@@ -132,7 +132,7 @@ public class CheDianTongService {
             for (Bill bill : bills) {
                 String billId = bill.getBillId();
 
-                Response res = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + billId, COOKIE);
+                Response res = ConnectionUtil.doGetWith(BILLDETAIL_URL + billId, COOKIE);
                 String html = res.returnContent().asString();
                 Document body = Jsoup.parseBodyFragment(html);
 

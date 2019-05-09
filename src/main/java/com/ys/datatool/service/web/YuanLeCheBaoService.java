@@ -632,7 +632,7 @@ public class YuanLeCheBaoService {
         if (supplierDetails.size() > 0) {
             for (String supplierDetail : supplierDetails) {
                 String preUrl = "http://wh.youchepi.cn";
-                Response response = ConnectionUtil.doGetWithLeastParams(preUrl + supplierDetail, COOKIE);
+                Response response = ConnectionUtil.doGetWith(preUrl + supplierDetail, COOKIE);
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
@@ -965,7 +965,7 @@ public class YuanLeCheBaoService {
                 MemberCard memberCard = packageMap.get(packageId);
 
                 String url = getMemberCardItemURL(memberCard.getUserId(), packageId);
-                Response res = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
+                Response res = ConnectionUtil.doGetWith(url, COOKIE);
                 String content = res.returnContent().asString();
                 Document doc = Jsoup.parseBodyFragment(content);
 
@@ -1138,7 +1138,7 @@ public class YuanLeCheBaoService {
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
         String url = MEMBERCARDOVERVIEW_URL + "shopBranchId=" + shopBranchId + "&shopId=" + companyId + "&staffId=" + staffId;
-        Response response = ConnectionUtil.doGetWithLeastParams(url, COOKIE);
+        Response response = ConnectionUtil.doGetWith(url, COOKIE);
         String html = response.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parse(html);
 

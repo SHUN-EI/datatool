@@ -545,7 +545,7 @@ public class WebClientUtil {
     public static int getHtmlTotalPage(String url, String cookie) throws IOException {
         int totalPage = 0;
 
-        Response response = ConnectionUtil.doGetWithLeastParams(url + "1", cookie);
+        Response response = ConnectionUtil.doGetWith(url + "1", cookie);
         String html = response.returnContent().asString();
         Document document = null;
         if (StringUtils.isNotBlank(html)) {

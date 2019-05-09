@@ -40,7 +40,7 @@ public class TaoQiYunXiuService {
         List<Supplier> suppliers = new ArrayList<>();
         List<String> supplierIds = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERLIST_URL, "{page}", "1"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(SUPPLIERLIST_URL, "{page}", "1"), COOKIE);
         JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
         JsonNode node = result.get("data");
@@ -48,7 +48,7 @@ public class TaoQiYunXiuService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERLIST_URL, "{page}", i + ""), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(SUPPLIERLIST_URL, "{page}", i + ""), COOKIE);
                 result = JsonObject.MAPPER.readTree(response.returnContent().asString());
                 node = result.get("data");
 
@@ -63,7 +63,7 @@ public class TaoQiYunXiuService {
         }
 
         for (int i = 0; i < supplierIds.size(); i++) {
-            response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIER_URL, "{id}", supplierIds.get(i)), COOKIE);
+            response = ConnectionUtil.doGetWith(StringUtils.replace(SUPPLIER_URL, "{id}", supplierIds.get(i)), COOKIE);
             String html = response.returnContent().asString();
             Document document = Jsoup.parse(html);
 

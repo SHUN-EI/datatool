@@ -86,12 +86,12 @@ public class ZhongYiZhiLianService {
         Response response = null;
         int totalPage = 0;
         //服务项目
-        response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
+        response = ConnectionUtil.doGetWith(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -116,13 +116,13 @@ public class ZhongYiZhiLianService {
         }
 
         //商品
-        response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
+        response = ConnectionUtil.doGetWith(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
         totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -200,14 +200,14 @@ public class ZhongYiZhiLianService {
     @Test
     public void batchUpdateCardValidTime() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -266,7 +266,7 @@ public class ZhongYiZhiLianService {
     @Test
     public void fetchExpireMemberCardData() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         // 2018/5/22 过期会员卡卡内项目详情页面的cookies会变，需要获取上次访问的cookie
@@ -274,7 +274,7 @@ public class ZhongYiZhiLianService {
             int offSet = 0;
 
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARDEXPIRE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -333,7 +333,7 @@ public class ZhongYiZhiLianService {
     @Test
     public void fetchMemberCardDataStandard() throws IOException {
         List<MemberCard> memberCards = new ArrayList<>();
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{offset}", "0") + shopId, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
@@ -341,7 +341,7 @@ public class ZhongYiZhiLianService {
 
             //因为家喻总店会员卡数据太多，要分状态抓取，修改地址MEMBERCARD_URL中TYPE=0为正常，1为挂失，3为过期
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(MEMBERCARD_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(MEMBERCARD_URL, "{offset}", String.valueOf(offSet)) + shopId, COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -395,13 +395,13 @@ public class ZhongYiZhiLianService {
     public void fetchStockInShopDataStandard() throws IOException {
         List<Stock> stocks = new ArrayList<>();
 
-        Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + "0", COOKIE);
+        Response res = ConnectionUtil.doGetWith(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + "0", COOKIE);
         int totalPage = WebClientUtil.getTotalPage(res, JsonObject.MAPPER, fieldName, 50);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + String.valueOf(offSet), COOKIE);
+                res = ConnectionUtil.doGetWith(StringUtils.replace(STOCKINSHOP_URL, "{no}", shopId) + String.valueOf(offSet), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 offSet = offSet + 50;
@@ -459,13 +459,13 @@ public class ZhongYiZhiLianService {
     public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(SERVICE_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(SERVICE_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -509,13 +509,13 @@ public class ZhongYiZhiLianService {
     public void fetchItemDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(ITEM_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(ITEM_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 offSet = offSet + num;
@@ -600,7 +600,7 @@ public class ZhongYiZhiLianService {
 
         if (supplierMap.size() > 0) {
             for (String id : supplierMap.keySet()) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SUPPLIERDETAIL_URL, "{id}", id), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(SUPPLIERDETAIL_URL, "{id}", id), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
                 Iterator<JsonNode> it = result.iterator();
                 while (it.hasNext()) {
@@ -645,13 +645,13 @@ public class ZhongYiZhiLianService {
         List<CarInfo> carInfos = new ArrayList<>();
         Map<String, CarInfo> carInfoMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{offset}", "0"), COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{offset}", "0"), COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int offSet = 0;
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{offset}", String.valueOf(offSet)), COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{offset}", String.valueOf(offSet)), COOKIE);
                 System.out.println("页数为" + i);
                 JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
 

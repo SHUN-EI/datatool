@@ -52,7 +52,7 @@ public class CheMoShiService {
         Set<String> secondCategorySet = new HashSet<>();
 
         for (int i = 1; i <= 2; i++) {
-            Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(SERVICE_URL, "{no}", String.valueOf(i)), COOKIE);
+            Response res = ConnectionUtil.doGetWith(StringUtils.replace(SERVICE_URL, "{no}", String.valueOf(i)), COOKIE);
             String content = res.returnContent().asString(charset);
             Document doc = Jsoup.parseBodyFragment(content);
 
@@ -74,7 +74,7 @@ public class CheMoShiService {
         if (secondCategorySet.size() > 0) {
             for (String secondCategory : secondCategorySet) {
 
-                Response res = ConnectionUtil.doGetWithLeastParams(SERVICEDETAIL_URL + secondCategory, COOKIE);
+                Response res = ConnectionUtil.doGetWith(SERVICEDETAIL_URL + secondCategory, COOKIE);
                 String content = res.returnContent().asString(charset);
                 Document doc = Jsoup.parseBodyFragment(content);
 

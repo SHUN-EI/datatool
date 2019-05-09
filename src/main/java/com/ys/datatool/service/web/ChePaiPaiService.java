@@ -40,7 +40,7 @@ public class ChePaiPaiService {
     @Test
     public void fetchTempClientData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
-        Response res = ConnectionUtil.doGetWithLeastParams(TEMPCLIENT_URL + "1", COOKIE);
+        Response res = ConnectionUtil.doGetWith(TEMPCLIENT_URL + "1", COOKIE);
         String html = res.returnContent().asString(WebConfig.CHARSET_UTF_8);
         Document doc = Jsoup.parse(html);
 
@@ -49,7 +49,7 @@ public class ChePaiPaiService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                res = ConnectionUtil.doGetWithLeastParams(TEMPCLIENT_URL + String.valueOf(i), COOKIE);
+                res = ConnectionUtil.doGetWith(TEMPCLIENT_URL + String.valueOf(i), COOKIE);
                 html = res.returnContent().asString();
                 doc = Jsoup.parse(html);
 

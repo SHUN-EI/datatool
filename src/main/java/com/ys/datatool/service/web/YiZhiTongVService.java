@@ -118,7 +118,7 @@ public class YiZhiTongVService {
 
         if (carInfoMap.size() > 0) {
             for (String carId : carInfoMap.keySet()) {
-                Response response = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + carId, PRECOOKIE + AFTCOOKIE);
+                Response response = ConnectionUtil.doGetWith(CARINFODETAIL_URL + carId, PRECOOKIE + AFTCOOKIE);
                 String html = response.returnContent().asString();
                 Document document = Jsoup.parse(html);
 

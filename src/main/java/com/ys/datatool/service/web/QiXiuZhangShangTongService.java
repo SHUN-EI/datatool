@@ -53,12 +53,12 @@ public class QiXiuZhangShangTongService {
         List<MemberCard> memberCards = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + 1, COOKIE);
+        Response response = ConnectionUtil.doGetWith(MEMBERCARD_URL + 1, COOKIE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(MEMBERCARD_URL + i, COOKIE);
+                response = ConnectionUtil.doGetWith(MEMBERCARD_URL + i, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
@@ -110,7 +110,7 @@ public class QiXiuZhangShangTongService {
                         }
 
                         //卡内项目
-                        Response res2 = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
+                        Response res2 = ConnectionUtil.doGetWith(MEMBERCARDITEM_URL + cardId + "/meals?spVipLevelId=10", COOKIE);
                         JsonNode data = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                         JsonNode body = data.get("data").get(0).get("mealItems");
@@ -167,12 +167,12 @@ public class QiXiuZhangShangTongService {
     public void fetchServiceDataStandard() throws IOException {
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + 1, COOKIE);
+        Response response = ConnectionUtil.doGetWith(SERVICE_URL + 1, COOKIE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(SERVICE_URL + i, COOKIE);
+                response = ConnectionUtil.doGetWith(SERVICE_URL + i, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
@@ -275,7 +275,7 @@ public class QiXiuZhangShangTongService {
                                 bill.setDateEnd(dateEnd);
                                 bill.setCarNumber(carNumber);
 
-                                Response res2 = ConnectionUtil.doGetWithLeastParams(BILLDETAIL_URL + orderUuid, COOKIE);
+                                Response res2 = ConnectionUtil.doGetWith(BILLDETAIL_URL + orderUuid, COOKIE);
                                 JsonNode body = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                                 JsonNode data = body.get("data").get(0).get("hyOrderItemResults");
@@ -402,7 +402,7 @@ public class QiXiuZhangShangTongService {
         List<Stock> stocks = new ArrayList<>();
         List<Product> products = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{num}", "0") + 1, COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(STOCK_URL, "{num}", "0") + 1, COOKIE);
         JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
         JsonNode totalNode = result.get("data").get(0).get("len");
         int totalPage = WebClientUtil.getTotalPage(totalNode, 10);
@@ -410,7 +410,7 @@ public class QiXiuZhangShangTongService {
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
-                response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(STOCK_URL, "{num}", countNum) + i, COOKIE);
+                response = ConnectionUtil.doGetWith(StringUtils.replace(STOCK_URL, "{num}", countNum) + i, COOKIE);
                 JsonNode content = JsonObject.MAPPER.readTree(response.returnContent().asString());
 
                 JsonNode node = content.get("data").get(0).get("results");
@@ -436,7 +436,7 @@ public class QiXiuZhangShangTongService {
                         stock.setInventoryNum(inventoryNum);
 
                         String partId = element.get("partId").asText();
-                        Response res = ConnectionUtil.doGetWithLeastParams(STOCKDETAIL_URL + partId + "/stockDetl", COOKIE);
+                        Response res = ConnectionUtil.doGetWith(STOCKDETAIL_URL + partId + "/stockDetl", COOKIE);
                         JsonNode body = JsonObject.MAPPER.readTree(res.returnContent().asString());
                         JsonNode data = body.get("data");
                         if (data.size() > 0) {

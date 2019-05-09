@@ -138,7 +138,7 @@ public class CheDianEJiaService {
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(SUPPLIER_URL, COOKIE);
+        Response response = ConnectionUtil.doGetWith(SUPPLIER_URL, COOKIE);
         String html = response.returnContent().asString();
         Document doc = Jsoup.parse(html);
 
@@ -220,7 +220,7 @@ public class CheDianEJiaService {
 
         if (carInfoMap.size() > 0) {
             for (String id : carInfoMap.keySet()) {
-                Response response = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + id, COOKIE);
+                Response response = ConnectionUtil.doGetWith(CARINFODETAIL_URL + id, COOKIE);
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 
@@ -352,7 +352,7 @@ public class CheDianEJiaService {
 
         if (memberCardItemMap.size() > 0) {
             for (String id : memberCardItemMap.keySet()) {
-                Response response = ConnectionUtil.doGetWithLeastParams(MEMBERCARDITEMDETAIL_URL + id, COOKIE);
+                Response response = ConnectionUtil.doGetWith(MEMBERCARDITEMDETAIL_URL + id, COOKIE);
                 String html = response.returnContent().asString();
                 Document doc = Jsoup.parse(html);
 

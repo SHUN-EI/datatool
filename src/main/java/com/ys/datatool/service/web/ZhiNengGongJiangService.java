@@ -54,13 +54,13 @@ public class ZhiNengGongJiangService {
         List<Bill> bills = new ArrayList<>();
         Map<String, Bill> billMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", "1") + 0, COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(BILLDETAIL_URL, "{no}", "1") + 0, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
+                Response res = ConnectionUtil.doGetWith(StringUtils.replace(BILLDETAIL_URL, "{no}", String.valueOf(i)) + start, COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
@@ -158,13 +158,13 @@ public class ZhiNengGongJiangService {
         List<CarInfo> carInfos = new ArrayList<>();
         Map<String, CarInfo> carInfoMap = new HashMap<>();
 
-        Response response = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", "1") + 0, COOKIE);
+        Response response = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{no}", "1") + 0, COOKIE);
         int totalPage = WebClientUtil.getTotalPage(response, JsonObject.MAPPER, fieldName, num);
 
         if (totalPage > 0) {
             int start = 0;
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doGetWithLeastParams(StringUtils.replace(CARINFO_URL, "{no}", String.valueOf(i)) + start, COOKIE);
+                Response res = ConnectionUtil.doGetWith(StringUtils.replace(CARINFO_URL, "{no}", String.valueOf(i)) + start, COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
                 start = start + num;
@@ -210,7 +210,7 @@ public class ZhiNengGongJiangService {
                             carInfos.add(carInfo);
                             carInfoMap.put(carId, carInfo);
 
-                            Response res2 = ConnectionUtil.doGetWithLeastParams(CARINFODETAIL_URL + memberId, COOKIE);
+                            Response res2 = ConnectionUtil.doGetWith(CARINFODETAIL_URL + memberId, COOKIE);
                             JsonNode data = JsonObject.MAPPER.readTree(res2.returnContent().asString());
 
                             Iterator<JsonNode> iterator = data.get("carList").iterator();
