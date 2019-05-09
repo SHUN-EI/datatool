@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by mo on @date  2018/6/30.
@@ -34,6 +36,8 @@ public class DianDianYangCheService {
 
     private String MEMBERCARD_URL = "https://ndsm.ddyc.com/ndsm/member/list";
 
+    private String MEMBERCARDITEM_URL = "https://ndsm.ddyc.com/ndsm/member/info?memberId=";
+
     private String SERVICE_URL = "https://ndsm.ddyc.com/ndsm/commodity/service/list";
 
     private String companyName = "典典养车";
@@ -42,7 +46,7 @@ public class DianDianYangCheService {
 
     ////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
 
-    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=42C83174AF15462D55A9FC13126088EE; gr_session_id_e2f213a5f5164248817464925de8c1af=7ab2c828-648b-4a69-8192-748ceb51720e; gr_session_id_e2f213a5f5164248817464925de8c1af_7ab2c828-648b-4a69-8192-748ceb51720e=true";
+    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=6b642cee-1b96-4832-ba2c-4c8af48c32a0; gr_session_id_e2f213a5f5164248817464925de8c1af_6b642cee-1b96-4832-ba2c-4c8af48c32a0=true";
 
 
     /**
@@ -331,7 +335,7 @@ public class DianDianYangCheService {
      * 会员卡及卡内项目
      * 支持一卡多车
      * <p>
-     * 打开路径:客户-会员充值
+     * 打开路径:客户-会员充值-点击会员详情
      *
      * @throws IOException
      */
@@ -381,45 +385,57 @@ public class DianDianYangCheService {
                             }
                         }
 
-                        //卡内项目
-                        JsonNode serviceNode = e.get("asset").get("serviceList");
-                        if (serviceNode.size() > 0) {
 
-                            Iterator<JsonNode> iterator = serviceNode.elements();
-                            while (iterator.hasNext()) {
-                                JsonNode element = iterator.next();
-
-                                String itemName = element.get("name").asText();
-                                String num = element.get("quantity").asText();
-                                String price = element.get("price").asText();
-                                String validTime = element.get("endTime").asText();
-                                String code = element.get("commodityCode").asText();
-
-                                if ("null".equals(price))
-                                    price = "0";
-
-
-                                String isValidForever = CommonUtil.getIsValidForever(validTime);
-
-                                MemberCardItem memberCardItem = new MemberCardItem();
-                                memberCardItem.setCompanyName(companyName);
-                                memberCardItem.setItemName(itemName);
-                                memberCardItem.setPrice(price);
-                                memberCardItem.setNum(num);
-                                memberCardItem.setOriginalNum(num);
-                                memberCardItem.setCardCode(memberCardName);
-                                memberCardItem.setValidTime(validTime);
-                                memberCardItem.setCode(CommonUtil.formatString(code));
-                                memberCardItem.setIsValidForever(isValidForever);
-                                memberCardItems.add(memberCardItem);
-                            }
-                        }
                     }
                 }
 
             }
         }
 
+        if (memberCards.size() > 0) {
+
+            Set<String> ids = memberCards.stream().map(MemberCard::getCardCode).collect(Collectors.toSet());
+            if (ids.size() > 0) {
+                for (String id : ids) {
+                    Response res = ConnectionUtil.doGetWith(MEMBERCARDITEM_URL + id, COOKIE);
+                    JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+
+                    JsonNode serviceNode = result.get("data").get("asset").get("serviceList");
+                    if (serviceNode.size() > 0) {
+
+                        Iterator<JsonNode> iterator = serviceNode.elements();
+                        while (iterator.hasNext()) {
+                            JsonNode element = iterator.next();
+
+                            String itemName = element.get("name").asText();
+                            String num = element.get("quantity").asText();
+                            String price = element.get("price").asText();
+                            String validTime = element.get("endTime").asText();
+                            String code = element.get("commodityCode").asText();
+
+                            if ("null".equals(price))
+                                price = "0";
+
+
+                            String isValidForever = CommonUtil.getIsValidForever(validTime);
+
+                            MemberCardItem memberCardItem = new MemberCardItem();
+                            memberCardItem.setCompanyName(companyName);
+                            memberCardItem.setItemName(itemName);
+                            memberCardItem.setPrice(price);
+                            memberCardItem.setNum(num);
+                            memberCardItem.setOriginalNum(num);
+                            memberCardItem.setCardCode(id);
+                            memberCardItem.setValidTime(validTime);
+                            memberCardItem.setCode(CommonUtil.formatString(code));
+                            memberCardItem.setIsValidForever(isValidForever);
+                            memberCardItems.add(memberCardItem);
+                        }
+                    }
+                }
+            }
+
+        }
 
         String pathname = "C:\\exportExcel\\典典养车会员卡.xls";
         String pathname2 = "C:\\exportExcel\\典典养车卡内项目.xls";
@@ -481,10 +497,10 @@ public class DianDianYangCheService {
 
 
     private String getParam(int index) {
-        String page = String.valueOf(index);
         String param = "{" +
-                "\"page\":" + page + "," +
-                "\"pageSize\":" + "10" +
+                "\"page\":" + index +
+                ",\"pageSize\":10" +
+                ",\"phone\":\"\"" +
                 "}";
 
         return param;
