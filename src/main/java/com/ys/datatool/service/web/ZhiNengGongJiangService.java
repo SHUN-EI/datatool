@@ -22,6 +22,15 @@ import java.util.*;
 @Service
 public class ZhiNengGongJiangService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "login.userName=%u97E9%u5609%u7EA2; JSESSIONID=09A62AB25A4CBB27ABF98FEAC5D1140F; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699,1542172931,1542689152; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542689159";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String dc = "1542003069386";
 
     private String CARINFO_URL = "http://z1001.cn/member/queryMemberPage.atc?_dc=" +
@@ -42,7 +51,7 @@ public class ZhiNengGongJiangService {
 
     private String companyName = "智能工匠系统";
 
-    private String COOKIE = "login.userName=%u97E9%u5609%u7EA2; JSESSIONID=09A62AB25A4CBB27ABF98FEAC5D1140F; Hm_lvt_1342037efbd12977a0de3d64429d52ed=1541998699,1542172931,1542689152; Hm_lpvt_1342037efbd12977a0de3d64429d52ed=1542689159";
+
 
     /**
      * 历史消费记录和消费记录相关车辆

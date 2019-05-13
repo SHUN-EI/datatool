@@ -26,6 +26,17 @@ import java.util.List;
 public class MaoRiService {
 
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "aliyungf_tc=AQAAAPNnQHnFaAEAmghDcfyQ0m4IPf/4; ASP.NET_SessionId=nc01fqyltq5oxlbsbkydpdk5; __RequestVerificationToken=vKdwHUys2H5hgGMEE627LOoyRYDc3b9DZfYaTdCaLbqKRibbuLPN-UbGQoXlCjJkPeqZ6hHqPfOTN-Fb5If4HhcpfEYJUVy3UDP6Dyn1bWM1; .ASPXAUTH=6675E931CA2BE1005A55ADA7F4A2A306667B4B2207D77F26E3E5FBFCB8891E078D5EFE49DF5357695F70837208FF5496A5DF6019B68D9DDEC0870D7144C5D70FE02E4D3938AE004217885CA8CAB52F48F200BB44B3D0D7B4D41C8B2545B7C2C7; SERVERID=7ec4522f7498fadd6917fbc71337ba6d|1552034099|1552011440";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String BILLDETAIL_URL = "http://new.mrrjvip.com/MemberCard/ConsumeLogs";
 
     private String CARINFO_URL = "http://new.mrrjvip.com/MemberInfo/Query";
@@ -40,7 +51,6 @@ public class MaoRiService {
 
     private int num = 100;
 
-    private String COOKIE = "aliyungf_tc=AQAAAPNnQHnFaAEAmghDcfyQ0m4IPf/4; ASP.NET_SessionId=nc01fqyltq5oxlbsbkydpdk5; __RequestVerificationToken=vKdwHUys2H5hgGMEE627LOoyRYDc3b9DZfYaTdCaLbqKRibbuLPN-UbGQoXlCjJkPeqZ6hHqPfOTN-Fb5If4HhcpfEYJUVy3UDP6Dyn1bWM1; .ASPXAUTH=6675E931CA2BE1005A55ADA7F4A2A306667B4B2207D77F26E3E5FBFCB8891E078D5EFE49DF5357695F70837208FF5496A5DF6019B68D9DDEC0870D7144C5D70FE02E4D3938AE004217885CA8CAB52F48F200BB44B3D0D7B4D41C8B2545B7C2C7; SERVERID=7ec4522f7498fadd6917fbc71337ba6d|1552034099|1552011440";
 
 
     /**

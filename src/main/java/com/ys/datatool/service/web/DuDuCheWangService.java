@@ -22,6 +22,13 @@ import java.util.List;
 @Service
 public class DuDuCheWangService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+    private static final String COOKIE = "JSESSIONID=233E43D672AC2AB27F884935AD5DE655";
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private static final String GOOD_URL = "http://new.duduchewang.com/servlet/getProductAjax?&shopcode=0010035";
 
     private static final String CARINFO_URL = "http://new.duduchewang.com/dataManage/customer/custInfoAjax.jsp?action=queryCustList&state=1";
@@ -30,7 +37,6 @@ public class DuDuCheWangService {
 
     private String pageName = "total";
 
-    private static final String COOKIE = "JSESSIONID=233E43D672AC2AB27F884935AD5DE655";
 
 
     /**

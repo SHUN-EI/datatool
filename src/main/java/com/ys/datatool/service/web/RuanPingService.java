@@ -23,6 +23,17 @@ import java.util.*;
 public class RuanPingService {
 
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private static final String COOKIE = "xclvkjl+dkjs=uGNfjKhXPkM=; SysPlatform-SAS2016=kLxZok/RVVBbl1J+Rrcaz5yoAVDiI2odfSYjTBG8L+AuXJhSKsrV9xpyMhX3PZohJ8jaRoe5EqsTM+i3v8RQWx5JSLrCsnP3swfpCGSam5vQQUC8ihz9OK8fcymncMMUnMzIAzT+0Qe8zLcGp5svFwWdKesI/SvLRRaBJyAT+c0nxpcT8ODEdhVdqQDLdmd7SqktN/wJfWdWwPzk1vb//IOlaDICQRNn5oPgafo0616amK2tCu2N05Jw0bXdQUIOuPK7GQz4A2CSr7RE8ti0gNr6DLvVr+H5r3rP48bZHdLGbLyhTcAmbYOHYZOB/a+4Lq1ODEi7V8qQp3yC9AYz4kzl7WoNSNWCK8NfMmh5LW6vH3Mpp3DDFPQTsja0eho0p81GheBQ3OyAZdD6IP/BjbR2yODUAfeEpg+Nbz4YrElWtlVpgD/XjMj3yjMbVYAiw2nTrNeBaCs=";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private static final String MEMBERCARDITEM_URL = "http://rp.shruanping.com/cusManager/CusMember/GetDetailList";
 
     private static final String MEMBERCARD_URL = "http://rp.shruanping.com/cusManager/CusMember/GetList?dt=0.9859314750248469&Fileds=";
@@ -33,7 +44,6 @@ public class RuanPingService {
 
     private String pageName = "records";
 
-    private static final String COOKIE = "xclvkjl+dkjs=uGNfjKhXPkM=; SysPlatform-SAS2016=kLxZok/RVVBbl1J+Rrcaz5yoAVDiI2odfSYjTBG8L+AuXJhSKsrV9xpyMhX3PZohJ8jaRoe5EqsTM+i3v8RQWx5JSLrCsnP3swfpCGSam5vQQUC8ihz9OK8fcymncMMUnMzIAzT+0Qe8zLcGp5svFwWdKesI/SvLRRaBJyAT+c0nxpcT8ODEdhVdqQDLdmd7SqktN/wJfWdWwPzk1vb//IOlaDICQRNn5oPgafo0616amK2tCu2N05Jw0bXdQUIOuPK7GQz4A2CSr7RE8ti0gNr6DLvVr+H5r3rP48bZHdLGbLyhTcAmbYOHYZOB/a+4Lq1ODEi7V8qQp3yC9AYz4kzl7WoNSNWCK8NfMmh5LW6vH3Mpp3DDFPQTsja0eho0p81GheBQ3OyAZdD6IP/BjbR2yODUAfeEpg+Nbz4YrElWtlVpgD/XjMj3yjMbVYAiw2nTrNeBaCs=";
 
 
     /**

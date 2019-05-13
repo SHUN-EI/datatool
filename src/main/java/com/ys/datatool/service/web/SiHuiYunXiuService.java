@@ -20,6 +20,21 @@ import java.util.*;
 @Service
 public class SiHuiYunXiuService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String sessionid = "20180521-1819-5395-d5d7-a49d-72d69290";
+
+    private String TOKEN = "18120333fa302e0bb044da820cc8499678fb7a";
+
+    private String COOKIE = "loginName=zyn; ASP.NET_SessionId=lh2cxai411nxni4vp5jqmuq2; platform=%E4%BA%91%E4%BF%AE%E4%BC%81%E4%B8%9A%E7%89%88; HasLyData=1; Hm_lvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543822180; SsoToken=5F7655D323D64AA4B22334A3D18D1CBD9215DEE74AD91E79B432AD1C508D342AA1DBD813F1511BB500304A3E0B1838EE2517FBC289469BED176E16502A47B56EA0C2D8EBDF3C39BC4B0F991C85E900B51BE1DDE9B206C3A05526A521195E915DE17CE5CB3F92F791C0E4761BF528650DACFB183DBB3224857978F1D61B0B60B9; YxToken=18120333fa302e0bb044da820cc8499678fb7a; Hm_lpvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543826396";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String URL = "http://www.sihuiyun.com/api/web?action=";
 
     private String memberCardAction = "HY02001";
@@ -30,11 +45,7 @@ public class SiHuiYunXiuService {
 
     private String companyName = "驷惠云修";
 
-    private String sessionid = "20180521-1819-5395-d5d7-a49d-72d69290";
 
-    private String TOKEN = "18120333fa302e0bb044da820cc8499678fb7a";
-
-    private String COOKIE = "loginName=zyn; ASP.NET_SessionId=lh2cxai411nxni4vp5jqmuq2; platform=%E4%BA%91%E4%BF%AE%E4%BC%81%E4%B8%9A%E7%89%88; HasLyData=1; Hm_lvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543822180; SsoToken=5F7655D323D64AA4B22334A3D18D1CBD9215DEE74AD91E79B432AD1C508D342AA1DBD813F1511BB500304A3E0B1838EE2517FBC289469BED176E16502A47B56EA0C2D8EBDF3C39BC4B0F991C85E900B51BE1DDE9B206C3A05526A521195E915DE17CE5CB3F92F791C0E4761BF528650DACFB183DBB3224857978F1D61B0B60B9; YxToken=18120333fa302e0bb044da820cc8499678fb7a; Hm_lpvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543826396";
 
     /**
      * 卡内项目

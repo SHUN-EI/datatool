@@ -20,6 +20,17 @@ import java.util.*;
 @Service
 public class QiXiuZhangShangTongService {
 
+
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546918900; sid=e7149abc-f613-4ea8-b865-aed8c9cc55af";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String MEMBERCARDITEM_URL = "http://xlc.qxgs.net/api/pc/def/sp/ownerVip/vip/";
 
     private String MEMBERCARD_URL = "http://xlc.qxgs.net/api/pc/def/sp/ownerVip/owners?blVip=1&pageSize=10&pageIndex=";
@@ -40,7 +51,6 @@ public class QiXiuZhangShangTongService {
 
     private String companyName = "汽修掌上通";
 
-    private String COOKIE = "Hm_lvt_c86a6dea8a77cec426302f12c57466e0=1546399091,1546849724; shop=%22%E5%AE%89%E7%B4%A2%E6%B1%BD%E8%BD%A6%E5%85%BB%E6%8A%A4%E6%80%BB%E5%BA%97%22; Hm_lpvt_c86a6dea8a77cec426302f12c57466e0=1546918900; sid=e7149abc-f613-4ea8-b865-aed8c9cc55af";
 
 
     /**

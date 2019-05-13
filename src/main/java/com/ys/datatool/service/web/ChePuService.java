@@ -28,6 +28,17 @@ import java.util.List;
 @Service
 public class ChePuService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "JSESSIONID=5E094B7C141BA52FD52B9EA38E0DEB1A-n1";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String MEMBERCARD_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-mcard-findmemberCard.do";
 
     private String CARINFODETAIL_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-member-findMember.do";
@@ -40,7 +51,6 @@ public class ChePuService {
 
     private String fieldName = "result";
 
-    private String COOKIE = "JSESSIONID=5E094B7C141BA52FD52B9EA38E0DEB1A-n1";
 
 
     /**

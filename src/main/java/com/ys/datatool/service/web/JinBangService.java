@@ -25,6 +25,17 @@ import java.util.*;
 @Service
 public class JinBangService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448,1546934079; ASP.NET_SessionId=2jbcutmx1lgmgsbfcmipb1pi; luck_code_session=0E0A272898A51DA4; sid=8b107820e66b4de280cfd5c9df5b6e17; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1547007180";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String MEMBERCARDITEMDETAIL_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCountDetail";
 
     private String MEMBERCARDITEM_URL = "http://www.600vip.cn/Report/RechargeCount/MemberRemainingCount/";
@@ -39,7 +50,7 @@ public class JinBangService {
 
     private String companyName = "金邦会员管理系统";
 
-    private String COOKIE = "luckcode=158143; luckchain=uid=10312; rememberPassword=1; ucompcode=AuPGKdid1NM=; uaccount=qZZOA1XVj9A=; upwd=grxW9Nj3JK7IIx62nh+UlQ==; Hm_lvt_eb92647b72da97bebb9f81b44b7581a2=1545722861,1546398448,1546934079; ASP.NET_SessionId=2jbcutmx1lgmgsbfcmipb1pi; luck_code_session=0E0A272898A51DA4; sid=8b107820e66b4de280cfd5c9df5b6e17; Hm_lpvt_eb92647b72da97bebb9f81b44b7581a2=1547007180";
+
 
 
     /**

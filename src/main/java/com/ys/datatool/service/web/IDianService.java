@@ -21,6 +21,29 @@ import java.util.*;
 @Service
 public class IDianService {
 
+
+    /////////////////////////////////工具使用前，请先填写meid、sign、token、userPhone、COOKIE_PHONE(用户手机端抓取)数据/////////////////////////
+    /////////////////////////////////工具使用前，请先填写 COOKIE_WEB (用户网页端抓取)数据/////////////////////////
+
+
+    private String meid = "688FFA7A-C3C9-48A5-AD1C-EE41EE2FB1CF";
+
+    private String sign = "4D21974FAA5F9DF5AC74DB230D10F9CB";
+
+    private String token = "089EAEF21EE02A0DB978A9D4C37BE513";
+
+    private String userPhone = "18924800202";
+
+    //手机APPCookie
+    private String COOKIE_PHONE = "JSESSIONID=04A303A0842F861C1FF2DFD8A34E88D9";
+
+    //客户端及网页Cookie
+    private String COOKIE_WEB = "JSESSIONID=50BE7B87D7F6B6A1F6320AE6813DF93E";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String MEMBERDETAIL_URL = "http://www.idsz.xin:7070/posapi_invoke?apiname=member_person_query_by_id";
 
     private String fromDate = "2003-01-01";
@@ -88,20 +111,6 @@ public class IDianService {
 
     private String companyName = "I店";
 
-    private String meid = "688FFA7A-C3C9-48A5-AD1C-EE41EE2FB1CF";
-
-    private String sign = "4D21974FAA5F9DF5AC74DB230D10F9CB";
-
-    private String token = "089EAEF21EE02A0DB978A9D4C37BE513";
-
-    private String userPhone = "18924800202";
-
-    //手机APPCookie
-    private String COOKIE_PHONE = "JSESSIONID=04A303A0842F861C1FF2DFD8A34E88D9";
-
-    //客户端及网页Cookie
-    private String COOKIE_WEB = "JSESSIONID=50BE7B87D7F6B6A1F6320AE6813DF93E";
-
 
     /**
      * 车辆信息
@@ -155,7 +164,7 @@ public class IDianService {
         if (total > 0) {
             for (int i = 0; i < total; i++) {
                 response = ConnectionUtil.doGetEncode(CAR_MEM_URL + i, COOKIE_WEB, ACCEPT_ENCODING);
-                JsonNode result = JsonObject.MAPPER.readTree(response .returnContent().asString(WebConfig.CHARSET_UTF_8));
+                JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString(WebConfig.CHARSET_UTF_8));
 
                 Iterator<JsonNode> it = result.get("rows").iterator();
                 while (it.hasNext()) {

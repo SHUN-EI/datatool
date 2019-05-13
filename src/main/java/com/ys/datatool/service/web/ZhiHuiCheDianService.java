@@ -20,6 +20,17 @@ import java.util.*;
 @Service
 public class ZhiHuiCheDianService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "JSESSIONID=C7352A6412CB4A6EC01E1AB314396D90; user=zhongqi125; pwd=147258";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String MEMBERCARDITEM_URL = "http://39.108.223.171/cs/membershipCard/info/listBy";
 
     private String SUPPLIER_URL = "http://39.108.223.171/cs/supplier/info/list";
@@ -38,7 +49,6 @@ public class ZhiHuiCheDianService {
 
     private int num = 100;//分页参数为10、25、50、100
 
-    private String COOKIE = "JSESSIONID=C7352A6412CB4A6EC01E1AB314396D90; user=zhongqi125; pwd=147258";
 
 
     /**

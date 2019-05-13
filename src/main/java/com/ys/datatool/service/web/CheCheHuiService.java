@@ -18,6 +18,19 @@ import java.util.List;
 public class CheCheHuiService {
 
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private String COOKIE = "JSESSIONID=358501228F582C7BFF1D39E915D2E263-n1; UM_distinctid=1671ba0b5f64f0-06f6a0bf115af9-4313362-144000-1671ba0b5f793";
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String startTime="2013-01-01";
 
     private String BILL_URL = "http://shanghu.che01.cn/cch/cCHBusinessConnector?ac=orderMain&type=processed" +
@@ -26,8 +39,6 @@ public class CheCheHuiService {
             "&endTime=" +
             DateUtil.formatCurrentDate() +
             "&searchSid=&connector=true&dhx_no_header=1&count=100&posStart=";
-
-    private String COOKIE = "JSESSIONID=358501228F582C7BFF1D39E915D2E263-n1; UM_distinctid=1671ba0b5f64f0-06f6a0bf115af9-4313362-144000-1671ba0b5f793";
 
 
     /**

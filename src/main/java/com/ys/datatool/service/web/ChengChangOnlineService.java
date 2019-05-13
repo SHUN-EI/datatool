@@ -23,6 +23,19 @@ import java.util.stream.Collectors;
 @Service
 public class ChengChangOnlineService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private String COOKIE = "ASP.NET_SessionId=1nwarb1cukj0yevhowdygzhl; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/5/4 15:29:19&uLoginIp=61.140.95.110&uLoginCount=761&uLoginNowTime=1557025017074&uIp=ED6B9AA7C71BFC642EBCC9025DBD7136&Expires=1557457017074";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String MEMBERCARDITEMDETAIL_URL = "http://guanjia.cz888.com/Api/User/GetBatchEntity";
 
     private String MEMBERCARDITEM_URL = "http://guanjia.cz888.com/Api/User/BatchSearch";
@@ -39,7 +52,6 @@ public class ChengChangOnlineService {
 
     private String companyName = "橙长在线";
 
-    private String COOKIE = "ASP.NET_SessionId=1nwarb1cukj0yevhowdygzhl; ShopAdminUser=uId=4713DC16B7C0D7E3&uType=&uName=B95EA3713D5D4337D61C03D0B14A72F0&uPhone=B63E7262FDF19C2B3079616824B1C652&uStag=A1050A9334DD35BC34C6D80EBF37313750062C62D2A4DDB565B869777C6E6AB39A4CE2530BA354E0&uLastLogin=2019/5/4 15:29:19&uLoginIp=61.140.95.110&uLoginCount=761&uLoginNowTime=1557025017074&uIp=ED6B9AA7C71BFC642EBCC9025DBD7136&Expires=1557457017074";
 
 
     /**

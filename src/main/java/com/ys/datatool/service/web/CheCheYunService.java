@@ -21,6 +21,24 @@ import java.util.*;
 @Service
 public class CheCheYunService {
 
+
+    /////////////////////////////////工具使用前，请先填写substoreId、COOKIE等数据////////////////////////////////////////////////////////////
+
+
+    //连锁店情况下各店Id都不一样,通常总店或者第一个店为1
+    private int substoreId = 4;
+
+
+    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; _bl_uid=1gjvwtL15qFhmwzLL9XFthhkjIhq; PHPSESSID=1b26ek19mo6qkpl5vtbpq7j1i2; ccwk_backend_tracking=1b26ek19mo6qkpl5vtbpq7j1i2-10495; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1551944617,1552369607,1553148536,1554084881; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1554097398; SERVERID=44fa044763f68345a9d119d26c10de1c|1554097412|1554084838";
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String MEMBERCARDITEM_URL = "https://www.checheweike.com/erp/index.php?route=member/api/ext_info&exdata=combo,balance&vip_user_id=";
 
     private String MEMBERCARDCAR_URL = "https://www.checheweike.com/erp/index.php?route=member/api/ext_info&exdata=car&vip_user_id=";
@@ -47,8 +65,15 @@ public class CheCheYunService {
 
     private String type = "all";//all-不限，clear-已还清，unclear-未还清
 
-    //连锁店情况下各店Id都不一样,通常总店或者第一个店为1
-    private int substoreId = 4;
+
+    private String ORDERDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&no=";
+
+    private String fieldName = "count";
+
+    private Random random = new Random();
+
+    private String companyName = "车车云";
+
 
     private String BILL_URL = "https://www.checheweike.com/erp/index.php?route=order/order/gets&date_start=" +
             beginDate +
@@ -81,16 +106,6 @@ public class CheCheYunService {
     private String STOCK_URL = "https://www.checheweike.com/erp/index.php?route=stock/balance/gets&limit=50&order=DESC&query_type=product&sort=ps.date_added&substore_id=" +
             substoreId +
             "&zero_stock_show_enabled=1&page=";
-
-    private String ORDERDETAIL_URL = "https://www.checheweike.com/erp/index.php?route=order/detail/get&no=";
-
-    private String fieldName = "count";
-
-    private Random random = new Random();
-
-    private String companyName = "车车云";
-
-    private String COOKIE = "_bl_uid=dLjF5nRI5pOkIz6aemCzwz39IvFt; _bl_uid=1gjvwtL15qFhmwzLL9XFthhkjIhq; PHPSESSID=1b26ek19mo6qkpl5vtbpq7j1i2; ccwk_backend_tracking=1b26ek19mo6qkpl5vtbpq7j1i2-10495; Hm_lvt_42a5df5a489c79568202aaf0b6c21801=1551944617,1552369607,1553148536,1554084881; Hm_lpvt_42a5df5a489c79568202aaf0b6c21801=1554097398; SERVERID=44fa044763f68345a9d119d26c10de1c|1554097412|1554084838";
 
 
     /**

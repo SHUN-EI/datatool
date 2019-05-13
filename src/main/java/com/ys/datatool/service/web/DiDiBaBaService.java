@@ -32,6 +32,17 @@ import java.util.Set;
 @Service
 public class DiDiBaBaService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; pageNo=1; listPageUrl=/ctm/cardmanage";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
     private String CARINFODETAIL_URL = "http://www.didibabachina.com/ctm/manage/perComDist?id=";
 
     private String CARINFO_URL = "http://www.didibabachina.com/ctm/manage";
@@ -41,8 +52,6 @@ public class DiDiBaBaService {
     private String SUPPLIERDETAIL_URL = "http://www.didibabachina.com/ctm/supplier/detail?___t0.7667218411026064&supplierId=";
 
     private String companyName = "DiDiBaBa系统";
-
-    private String COOKIE = "JSESSIONID=4760cd38-8b10-4168-bd78-6d4223533b14; pageSize=10; pageNo=1; listPageUrl=/ctm/cardmanage";
 
 
     /**

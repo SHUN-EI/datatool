@@ -27,6 +27,15 @@ import java.util.List;
 @Service
 public class YouLiYunGuanJiaService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "shopsernum=undefined; username=18022578558; password=huang888; yunsuo_session_verify=f6f70c3d3d9475acd4f40fd0a1b480b4; PHPSESSID=ndh3d86uiaffscvj8ufa0858f1";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
     private String MEMBERCARD_URL = "http://ls.4008778515.com/Report/dlmemberlist";
 
@@ -39,8 +48,6 @@ public class YouLiYunGuanJiaService {
     private String fieldName = "recordsTotal";
 
     private int num = 10;
-
-    private String COOKIE = "shopsernum=undefined; username=18022578558; password=huang888; yunsuo_session_verify=f6f70c3d3d9475acd4f40fd0a1b480b4; PHPSESSID=ndh3d86uiaffscvj8ufa0858f1";
 
 
 

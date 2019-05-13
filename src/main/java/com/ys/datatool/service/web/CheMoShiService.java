@@ -26,6 +26,16 @@ import java.util.Set;
 @Service
 public class CheMoShiService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "CUSGRID_CvtList_SortCol=; CUSGRID_CvtList_SortColName=; CUSGRID_CvtList_SortWay=; CUSGRID_CvtList_PageIndex=1; JSESSIONID=abcikm3byYXha7q7HAdsw; ROUTEID=.traf94; username=13531100432; ET=WEB";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String SERVICEDETAIL_URL = "http://119.29.52.108/chemos/ct/viewCvtlist.nx?&cvtid=10226&pgsize=25&showStyle=GRID&selectedMode=MULTI&canSelect=true&canClick=false&openWindow=parent&addparam=PAR_A:&addparam=PAR_C:&pd=2&pm=2&viewName=/jsp/pages/cvtPages/cvt_0&param_tm=1531215266508&addparam=PAR_B:";
 
     private String SERVICE_URL = "http://119.29.52.108/chemos/ct/viewCvtlist.nx?&cvtid=10226&showStyle=GRID&selectedMode=MULTI&canSelect=true&canClick=false&openWindow=parent&pd=2&pm=2&viewName=/jsp/pages/cvtPages/cvt_0&CvtListCacheKey=CUSGRID&param_tm=1531213663209&id=10226:10206&pid=0&rid=0&isRefresh=0&isSort=0&page={no}";
@@ -38,8 +48,7 @@ public class CheMoShiService {
 
     private String companyName = "车魔师";
 
-    //获取数据的令牌
-    private String COOKIE = "CUSGRID_CvtList_SortCol=; CUSGRID_CvtList_SortColName=; CUSGRID_CvtList_SortWay=; CUSGRID_CvtList_PageIndex=1; JSESSIONID=abcikm3byYXha7q7HAdsw; ROUTEID=.traf94; username=13531100432; ET=WEB";
+
 
 
     /**

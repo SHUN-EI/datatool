@@ -24,6 +24,17 @@ import java.util.stream.Collectors;
 @Service
 public class DianDianYangCheService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=326fed25-3b7f-43f9-ade0-1236186fb712; gr_session_id_e2f213a5f5164248817464925de8c1af_326fed25-3b7f-43f9-ade0-1236186fb712=true";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String STOCK_URL = "https://ndsm.ddyc.com/ndsm/stock/getList";
 
     private String BILLDETAIL_URL = "https://ndsm.ddyc.com/ndsm/order/getOrderInfo?orderId=";
@@ -43,10 +54,6 @@ public class DianDianYangCheService {
     private String companyName = "典典养车";
 
     private int num = 10;
-
-    ////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
-
-    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=326fed25-3b7f-43f9-ade0-1236186fb712; gr_session_id_e2f213a5f5164248817464925de8c1af_326fed25-3b7f-43f9-ade0-1236186fb712=true";
 
 
 

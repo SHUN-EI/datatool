@@ -27,6 +27,16 @@ import java.util.List;
 @Service
 public class WuYiCheBaoDingXinService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%5D; PHPSESSID=ffc1933qqd626j55vchfaf1sl2; language=cn";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String BILLDETAIL_URL = "http://saas.51chebao.com/store/dingxinqixiu/order/view?order_number=";
 
     private String BILL_URL = "http://saas.51chebao.com/store/dingxinqixiu/order?store_id=870&page=";
@@ -37,7 +47,6 @@ public class WuYiCheBaoDingXinService {
 
     private String companyName = "鼎鑫名车";
 
-    private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%5D; PHPSESSID=ffc1933qqd626j55vchfaf1sl2; language=cn";
 
 
     /**

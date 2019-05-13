@@ -30,6 +30,16 @@ import java.util.Map;
 @Service
 public class YunDianYiService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "PHPSESSID=8g2fp407ctdqg9mh0r9sc2ntk4;";
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String COUPONCARDETAIL_URL = "https://vip.yundianyi.com/promotion/ajaxgetcode/type/enable/cardid/";
 
     private String COUPONCAR_URL = "https://vip.yundianyi.com/promotion/ajaxcarduser/id/";
@@ -48,7 +58,6 @@ public class YunDianYiService {
 
     private String companyName = "云店易";
 
-    private String COOKIE = "PHPSESSID=8g2fp407ctdqg9mh0r9sc2ntk4;";
 
 
     /**

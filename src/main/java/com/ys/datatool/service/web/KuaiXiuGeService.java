@@ -54,19 +54,10 @@ public class KuaiXiuGeService {
 
     private int partEnd = 10;//配件维护最后几页
 
-    @Test
-    public void testRegEx() throws IOException {
-
-        WebClient webClient = WebClientUtil.getWebClient();
-        getAllItemPages(webClient);
-
-        Document doc = Jsoup.parseBodyFragment(pages.get(0).asXml());
-        String a = doc.html();
-        String b = "";
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        System.out.println("结果为" + pages.size());
-    }
+
 
     @Test
     public void fetchItemData() throws IOException {

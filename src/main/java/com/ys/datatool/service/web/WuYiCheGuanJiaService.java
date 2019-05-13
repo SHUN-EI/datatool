@@ -23,6 +23,17 @@ import java.util.List;
 @Service
 public class WuYiCheGuanJiaService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private String COOKIE = "JSESSIONID=4C31AD9FF047B785815F4F66F7D448EB; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String ITEM_URL = "http://www.51chegj.com:8089/scm/store/purchase/findChooseProdSkus?_dc=1536042818090";
 
     private String SERVICE_URL = "http://www.51chegj.com:8089/scm/store/service/qryserviceById?_dc=1535975204356&storeId=100675&tenantId=10675&limit=15";
@@ -57,7 +68,6 @@ public class WuYiCheGuanJiaService {
 
     private String memberIdStr = "&member_id=";
 
-    private String COOKIE = "JSESSIONID=4C31AD9FF047B785815F4F66F7D448EB; 49BAC005-7D5B-4231-8CEA-16939BEACD67=gongwenxiang";
 
 
     /**

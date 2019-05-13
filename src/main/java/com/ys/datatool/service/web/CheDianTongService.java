@@ -28,6 +28,17 @@ import java.util.List;
 public class CheDianTongService {
 
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "__RequestVerificationToken=tpqg8Or-W_2jqrTtDQWmEi7SyRD5Q2tVWFkbWlj8_BjFInqk210Z8vL3HuHFOdLx96jyZv1WCzFpipHn9Dkl5eFQQevnbq7KmnGM4SA1RZg1; Hm_lvt_b13246fd95aec7bfc57d9c415dfefe18=1553504899; LoginInfo=4dd8661c6fda4c3da0005c3f7bb3cb10; SERVERID=9ca4382df214465ec42a2ada7c3d713d|1553568654|1553504898; Hm_lpvt_b13246fd95aec7bfc57d9c415dfefe18=1553568653";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String BIll_URL = "https://auto.51autoshop.com/Order/OrderList";
 
     private String BILLDETAIL_URL = "https://auto.51autoshop.com/Order/RepairOrderRead?orderId=";
@@ -38,7 +49,6 @@ public class CheDianTongService {
 
     private String trRegEx = "#ListTB > tbody > tr";
 
-    private String COOKIE = "__RequestVerificationToken=tpqg8Or-W_2jqrTtDQWmEi7SyRD5Q2tVWFkbWlj8_BjFInqk210Z8vL3HuHFOdLx96jyZv1WCzFpipHn9Dkl5eFQQevnbq7KmnGM4SA1RZg1; Hm_lvt_b13246fd95aec7bfc57d9c415dfefe18=1553504899; LoginInfo=4dd8661c6fda4c3da0005c3f7bb3cb10; SERVERID=9ca4382df214465ec42a2ada7c3d713d|1553568654|1553504898; Hm_lpvt_b13246fd95aec7bfc57d9c415dfefe18=1553568653";
 
 
     /**

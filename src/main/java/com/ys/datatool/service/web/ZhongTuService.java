@@ -30,6 +30,15 @@ import java.util.*;
 @Service
 public class ZhongTuService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "ASP.NET_SessionId=qqlpvkda02kf5owagjknxc1e; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=YJWelm6Yb9U=&CSID=YJWelm6Yb9U=&UserName=3uLp7ZTjgZW6OssgsPootw==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String BILLITEM_URL = "http://crm.xmheigu.com/Boss/Finance/Service/GetPartsDetailed.ashx";
 
     private String BILL_URL = "http://crm.xmheigu.com/Boss/Finance/Service/GetBillsTable.ashx";
@@ -83,7 +92,7 @@ public class ZhongTuService {
 
     private String companyName = "众途";
 
-    private String COOKIE = "ASP.NET_SessionId=qqlpvkda02kf5owagjknxc1e; ztrjnew@4db97b96-12af-45b0-b232-fd1e9b7a672e=UserId=YJWelm6Yb9U=&CSID=YJWelm6Yb9U=&UserName=3uLp7ZTjgZW6OssgsPootw==&SID=TVo+7r+xtys=&RoleId=VBdEVOSspJM=&GroupId=VBdEVOSspJM=";
+
 
 
     /**

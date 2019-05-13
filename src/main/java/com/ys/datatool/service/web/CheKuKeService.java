@@ -28,6 +28,24 @@ import java.util.*;
 @Service
 public class CheKuKeService {
 
+    ////////////////////////工具使用前，请先填写用户名、密码、Cookie等数据/////////////////////////////////////////////////////////////////////
+
+
+
+    //用户名
+    private String USERNAME = "JM1682";
+    //密码
+    private String PASSWORD = "HY123456";
+
+    private String COOKIE = "ASP.NET_SessionId=u3yuoiaeiushgem2r03qpeqo; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1556094146,1556173857,1556249844; LOGINKEY=dc7a1b64025141028c3c46fad9fb3ca6; LOGINNAME=jm1682; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1556540310";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
     private String SERVICE_URL = "http://sa.chekuke.com/Handler/ShopConfigHandler.ashx";
 
     private String CONSURECORDDETAIL_URL = "http://sa.chekuke.com/Shop/ShopProjectConsuRecordList.aspx?No=";
@@ -83,14 +101,6 @@ public class CheKuKeService {
     //会员卡对应的行数
     private int sign = 0;
 
-    ////////////////////////工具使用前，请先填写用户名、密码、Cookie等数据/////////////////////////////////////////////////////////////////////
-
-    //用户名
-    private String USERNAME = "JM1682";
-    //密码
-    private String PASSWORD = "HY123456";
-
-    private String COOKIE = "ASP.NET_SessionId=u3yuoiaeiushgem2r03qpeqo; Hm_lvt_104dd4c34f58725547e88d600d6c28ed=1556094146,1556173857,1556249844; LOGINKEY=dc7a1b64025141028c3c46fad9fb3ca6; LOGINNAME=jm1682; Hm_lpvt_104dd4c34f58725547e88d600d6c28ed=1556540310";
 
 
     /**

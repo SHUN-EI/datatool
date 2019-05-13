@@ -21,6 +21,36 @@ import java.util.*;
 @Service
 public class ZhongYiZhiLianService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * 家喻汽车集团各店(12间)
+     * 兴隆店 07a21bd0061747418418cb54299402fajl
+     * 碧海店 1548c2f4d8854c4f9e1abffd0fc0a175
+     * 中铁逸都店 206819be63c240e69cdd49cbd08c76c1
+     * 世纪城店 30a5a584ba7c46248c8c5276b3731b82
+     * 广场店  32d97ecd5c2c4e569e05cb15b00fff66
+     * 蟠桃宫店 708ae79e2bdd48a591ad2af6c91d0a32
+     * 平桥店  cb780f5eb03a48f7ba93c0c9e3ad54d4
+     * 贵州家喻集团汽车服务有限公司 c4554d26854f47ab8d089aed29fd0c1f
+     * 北衙路店 6956a41acd464d81aee8f9f2e534beba
+     * 朝阳店  8f2a276046b74ee29bc5001988a757a2
+     * 都匀店  aa2d1ea43fbf4b47ad4dc8e6a7cd95cb
+     * 北新区店 d50149edd5b742a1adf9dfaf1ad1e94a
+     */
+    private String shopId = "07a21bd0061747418418cb54299402fajl";//车店编号
+
+    private String companyName = "中易智联";
+
+    private String COOKIE = "_uab_collina=154096157034755864867124; acw_tc=781bad0915403517135157114e27c8c975d2896a196d44e60b8dba8ca355f9; spellName=; ASP.NET_SessionId=f2jd2q0za34xl4zmophdsvza; SysType=0; u_asec=099%23KAFE%2BYEKEcSEhGTLEEEEEpEQz0yFD6zhZcsFD6gEDXiIW6zHZXL4Z60HD67TEEiStEE7WEFE5YTl2EThQL4Wqifq1nZW2h5YqqsM2e04IwFQLzArUBjayC1oiZWc6NGd062qm%2FPP0ht8JjUSVL7ncieqawvYRJfr2T4IcWgdphQbJobWsJSGpi%2FbE7EUt3illuZdt3iStTEfsyaZO3iSH3lP%2F3XBt375luZdtdlStTilsyanaDGTEELStE1mKorR%2BcQTEEyZtY7EZUahE7TiETXCuOaIcLYfNnDprd%2BVHaCZ5T1rGgXAPs0tYeJxcOXZb4VtNupVcOXZ1SssbLoCbLaqaWw7J0XBqMZczQ4dPLZd5qnW8yXZNWMpwRemzwoCbPThE7Eht3alluZdlYFETKxqAjHXE7EFEE1CbY%3D%3D";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String UPDATECARDVALIDTIME_URL = "http://boss.xmzyzl.com/Customer/MemberManage/SaveDate?";
 
     private String MEMBERCARDEXPIRE_URL = "http://boss.xmzyzl.com/Customer/MemberManage/GetSearchResult?limit=20&offset={offset}&StartTime=&EndTime=&CARDTYPEID=&EMPLOYEEID=&shop=&SHOPID=&keyword=&TYPE=3";
@@ -52,26 +82,6 @@ public class ZhongYiZhiLianService {
     private String begintime = "2001-01-01";
 
 
-    /**
-     * 家喻汽车集团各店(12间)
-     * 兴隆店 07a21bd0061747418418cb54299402fajl
-     * 碧海店 1548c2f4d8854c4f9e1abffd0fc0a175
-     * 中铁逸都店 206819be63c240e69cdd49cbd08c76c1
-     * 世纪城店 30a5a584ba7c46248c8c5276b3731b82
-     * 广场店  32d97ecd5c2c4e569e05cb15b00fff66
-     * 蟠桃宫店 708ae79e2bdd48a591ad2af6c91d0a32
-     * 平桥店  cb780f5eb03a48f7ba93c0c9e3ad54d4
-     * 贵州家喻集团汽车服务有限公司 c4554d26854f47ab8d089aed29fd0c1f
-     * 北衙路店 6956a41acd464d81aee8f9f2e534beba
-     * 朝阳店  8f2a276046b74ee29bc5001988a757a2
-     * 都匀店  aa2d1ea43fbf4b47ad4dc8e6a7cd95cb
-     * 北新区店 d50149edd5b742a1adf9dfaf1ad1e94a
-     */
-    private String shopId = "07a21bd0061747418418cb54299402fajl";//车店编号
-
-    private String companyName = "中易智联";
-
-    private String COOKIE = "_uab_collina=154096157034755864867124; acw_tc=781bad0915403517135157114e27c8c975d2896a196d44e60b8dba8ca355f9; spellName=; ASP.NET_SessionId=f2jd2q0za34xl4zmophdsvza; SysType=0; u_asec=099%23KAFE%2BYEKEcSEhGTLEEEEEpEQz0yFD6zhZcsFD6gEDXiIW6zHZXL4Z60HD67TEEiStEE7WEFE5YTl2EThQL4Wqifq1nZW2h5YqqsM2e04IwFQLzArUBjayC1oiZWc6NGd062qm%2FPP0ht8JjUSVL7ncieqawvYRJfr2T4IcWgdphQbJobWsJSGpi%2FbE7EUt3illuZdt3iStTEfsyaZO3iSH3lP%2F3XBt375luZdtdlStTilsyanaDGTEELStE1mKorR%2BcQTEEyZtY7EZUahE7TiETXCuOaIcLYfNnDprd%2BVHaCZ5T1rGgXAPs0tYeJxcOXZb4VtNupVcOXZ1SssbLoCbLaqaWw7J0XBqMZczQ4dPLZd5qnW8yXZNWMpwRemzwoCbPThE7Eht3alluZdlYFETKxqAjHXE7EFEE1CbY%3D%3D";
 
     /**
      * 卡内项目

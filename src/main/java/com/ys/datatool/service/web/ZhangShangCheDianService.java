@@ -24,6 +24,16 @@ import java.util.*;
 @Service
 public class ZhangShangCheDianService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "JSESSIONID=82E8114A8C61DED704CCCFA3F79C078E; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjYwMjUyNywibmJmIjoxNTU2NTE2MTI3LCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.pYI2brl739pUNqCamM7okCcK_F3KC-cy6iWdy2ou_qbDYy5zlZTYmiB9b46popfyGXNN4OvRsv5RhR1Uhru4bg; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1556516832|1556516112; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556516827";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private String BILL_URL = "http://czbbb.cn/mnt/czbbb/order/czbbbApi.action";
 
     private String STOCK_URL = "http://czbbb.cn/mnt/czbbb/stock/czbbbApi.action";
@@ -64,7 +74,6 @@ public class ZhangShangCheDianService {
 
     private String companyName = "掌上车店";
 
-    private String COOKIE = "JSESSIONID=82E8114A8C61DED704CCCFA3F79C078E; Hm_lvt_678c2a986264dd9650b6a59042718858=1556432864; Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjY3NGRhNzNhLTY1YTAtNDZjMy05OWQwLTM3ODFmZTBkZTdjYiIsImV4cCI6MTU1NjYwMjUyNywibmJmIjoxNTU2NTE2MTI3LCJzdG9yZUlkIjoiOTk5NGU4ZjItM2RiYi00NzQxLWI5NWQtMDk4MjQ4NTYzMzM0IiwidXNlclR5cGUiOiIwIn0.pYI2brl739pUNqCamM7okCcK_F3KC-cy6iWdy2ou_qbDYy5zlZTYmiB9b46popfyGXNN4OvRsv5RhR1Uhru4bg; SERVERID=9a4b1cc263e64137f343a05cba9021f1|1556516832|1556516112; Hm_lpvt_678c2a986264dd9650b6a59042718858=1556516827";
 
 
     /**

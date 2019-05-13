@@ -23,6 +23,16 @@ import java.util.*;
 @Service
 public class SITENService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private static final String COOKIE = "JSESSIONID=CBDC1C32A12A951FB68E8466767A0927; nav1=102; nav2=102023001; SERVERID=47727ad8b9e9dbfa9c94ad11c15091d8|1500097266|1500097119";
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private static final String STOCK_URL = "http://erp.51sten.com/partInfo/findInputPartStock";
 
     private static final String GOOD_URL = "http://erp.51sten.com/partInfo/findPartListPage";
@@ -45,7 +55,6 @@ public class SITENService {
 
     private BasicNameValuePair firstPage = new BasicNameValuePair("page", "1");
 
-    private static final String COOKIE = "JSESSIONID=CBDC1C32A12A951FB68E8466767A0927; nav1=102; nav2=102023001; SERVERID=47727ad8b9e9dbfa9c94ad11c15091d8|1500097266|1500097119";
 
 
 

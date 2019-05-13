@@ -32,6 +32,19 @@ import java.util.Map;
 @Service
 public class YiZhiTongVService {
 
+    /////////////////////////////////工具使用前，请先填写PRECOOKIE、AFTCOOKIE等数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private String PRECOOKIE = "danwei=id=2016030901&name=81; ASP.NET_SessionId=hh04q1pfymcgf0dlcck0cfh4;";
+
+    private String AFTCOOKIE = " userinfo1=id=2016030901&acountid=81&sid=张坤&name=张坤; main=height=607&width=1336";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String SERVICE_URL = "http://121.41.7.113:200/main/task/task_config/task_config_ration.aspx";
 
     private String CARINFODETAIL_URL = "http://121.41.7.113:200/main/khda/";
@@ -46,9 +59,6 @@ public class YiZhiTongVService {
 
     private int count = 0;
 
-    private String PRECOOKIE = "danwei=id=2016030901&name=81; ASP.NET_SessionId=hh04q1pfymcgf0dlcck0cfh4;";
-
-    private String AFTCOOKIE = " userinfo1=id=2016030901&acountid=81&sid=张坤&name=张坤; main=height=607&width=1336";
 
 
     /**

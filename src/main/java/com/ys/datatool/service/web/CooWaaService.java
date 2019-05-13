@@ -23,6 +23,18 @@ import java.util.List;
 @Service
 public class CooWaaService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "rememberServicePad=userid=18218754669; ASP.NET_SessionId=y5gujmd3hpokmqbrvf4ciwjs; userid=10423; .democoowaashops=56EF0B422C3BC61902E4BC6E574486E17757B6C0BB5AB9CDA2E069838B8CB5921DF274BD5346040775FD30547DEBC5BE5667351CABD9D641BFF72C8F55E93DC584FA8C23BD81ADF0EEE7B11BA9232BC9C5D5C6A44AEDB48FB7A514FBCE918A1E4B28B538E85D4E1CF51A22305C605661BAB0A03A21622B08AF1DD0BCE70621968E32D73F230E1F774B00569909F483D1";
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String BILLITEM_URL = "https://shops.coowaa.cn/Modules/SalesOrder/SalesOrderMethods.aspx/SearchWorkOrderPartsList";
 
     private String BILLSERVICE_URL = "https://shops.coowaa.cn/Modules/SalesOrder/SalesOrderMethods.aspx/SearchWorkOrderRepairList";
@@ -31,7 +43,6 @@ public class CooWaaService {
 
     private String companyName = "酷蛙快修";
 
-    private String COOKIE = "rememberServicePad=userid=18218754669; ASP.NET_SessionId=y5gujmd3hpokmqbrvf4ciwjs; userid=10423; .democoowaashops=56EF0B422C3BC61902E4BC6E574486E17757B6C0BB5AB9CDA2E069838B8CB5921DF274BD5346040775FD30547DEBC5BE5667351CABD9D641BFF72C8F55E93DC584FA8C23BD81ADF0EEE7B11BA9232BC9C5D5C6A44AEDB48FB7A514FBCE918A1E4B28B538E85D4E1CF51A22305C605661BAB0A03A21622B08AF1DD0BCE70621968E32D73F230E1F774B00569909F483D1";
 
 
     /**

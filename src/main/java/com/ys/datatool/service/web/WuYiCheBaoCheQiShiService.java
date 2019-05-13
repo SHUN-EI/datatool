@@ -22,6 +22,17 @@ import java.util.List;
 @Service
 public class WuYiCheBaoCheQiShiService {
 
+
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+
+    private static final String COOKIE = "language=cn; PHPSESSID=p2igo423087kp4uvmu37uqmrs6; store-cheqishi=%5B%7B%22account%22%3A%2218530186018%22%2C%22pwd%22%3A%221234%22%2C%22cur%22%3Atrue%7D%5D";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     private static final String MEMBERCARDITEM_URL = "http://cheqishi.51chebao.com/card/edit?card_number=";
 
     private static final String MEMBERCARD_URL = "http://cheqishi.51chebao.com/card?store_id=599&page=";
@@ -36,7 +47,6 @@ public class WuYiCheBaoCheQiShiService {
 
     private String fileName = "车保无忧-河南车奇士";
 
-    private static final String COOKIE = "language=cn; PHPSESSID=p2igo423087kp4uvmu37uqmrs6; store-cheqishi=%5B%7B%22account%22%3A%2218530186018%22%2C%22pwd%22%3A%221234%22%2C%22cur%22%3Atrue%7D%5D";
 
 
     /**

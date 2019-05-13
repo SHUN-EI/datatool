@@ -29,6 +29,16 @@ import java.util.Set;
 @Service
 public class DianFengService {
 
+    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+
+
+    private String COOKIE = "PHPSESSID=r3tuga77uj20tukn5mvqkji895; admin_username=lijun; refersh_time=0";
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     private String REPAIRITEM_URL = "http://www.jmlijun.com/index.php?g=portal&m=adminrepair&a=orders&menuid=203&p=";
 
     private String CARINFO_URL = "http://www.jmlijun.com/index.php?g=portal&m=admincars&a=index&menuid=199&p=";
@@ -37,7 +47,6 @@ public class DianFengService {
 
     private String trItemRegEx = "body > div.wrap > table > tbody > tr";
 
-    private String COOKIE = "PHPSESSID=r3tuga77uj20tukn5mvqkji895; admin_username=lijun; refersh_time=0";
 
 
     /**
