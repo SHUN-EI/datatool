@@ -2,8 +2,10 @@ package com.ys.datatool.service.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.config.ExecutorConfig;
 import com.ys.datatool.domain.config.JsonObject;
 import com.ys.datatool.domain.entity.*;
+import com.ys.datatool.service.batch.BatchDianDianYangCheConsumptionRecordService;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.message.BasicNameValuePair;
@@ -27,12 +29,10 @@ public class DianDianYangCheService {
 
     /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
 
-    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=586D3730781C2000EE80CF36D2F40B6B; gr_session_id_e2f213a5f5164248817464925de8c1af=326fed25-3b7f-43f9-ade0-1236186fb712; gr_session_id_e2f213a5f5164248817464925de8c1af_326fed25-3b7f-43f9-ade0-1236186fb712=true";
-
+    private static final String COOKIE = "gr_user_id=5b4ec60a-f3cd-4586-a294-73c73b41a61b; JSESSIONID=ACAF9E19161A1D795154B060E2FEE17C; gr_session_id_e2f213a5f5164248817464925de8c1af=c32c0b13-c431-4671-97c8-3468825edc3b; gr_session_id_e2f213a5f5164248817464925de8c1af_c32c0b13-c431-4671-97c8-3468825edc3b=true";
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
     private String STOCK_URL = "https://ndsm.ddyc.com/ndsm/stock/getList";
@@ -56,7 +56,6 @@ public class DianDianYangCheService {
     private int num = 10;
 
 
-
     /**
      * 服务
      * <p>
@@ -70,6 +69,7 @@ public class DianDianYangCheService {
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(SERVICE_URL, getServiceParam(1), COOKIE);
         int totalPage = getTotalPage(response);
+
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -201,79 +201,42 @@ public class DianDianYangCheService {
      * @throws IOException
      */
     @Test
-    public void fetchConsumptionRecordDataStandard() throws IOException {
+    public void fetchConsumptionRecordDataStandard() throws IOException, InterruptedException {
         List<Bill> bills = new ArrayList<>();
+
+
+        long startTime = System.currentTimeMillis();
+        System.out.println("START =========================================抓取开启啦================================================");
+
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(1), COOKIE);
         int totalPage = getTotalPage(response);
 
         if (totalPage > 0) {
+
+            List<String> totals = new ArrayList<>();
             for (int i = 1; i <= totalPage; i++) {
-                Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(i), COOKIE);
-                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+                String index = String.valueOf(i);
+                totals.add(index);
+            }
 
-                JsonNode dataNode = result.get("data").get("data");
-                if (dataNode.size() > 0) {
-                    Iterator<JsonNode> it = dataNode.elements();
-                    while (it.hasNext()) {
-                        JsonNode element = it.next();
+            List<List<String>> totalList = DataUtil.split(totals, totals.size() / ExecutorConfig.threads);
 
-                        String billNo = element.get("workId").asText();
-                        String carNumber = element.get("carNumber").asText();
-                        String dateEnd = element.get("businessStarDate").asText();
-                        dateEnd = DateUtil.formatSQLDate(dateEnd);
+            for (int i = 0; i < ExecutorConfig.threads; i++) {
 
-                        String id = element.get("orderId").asText();
-                        String totalAmount = element.get("receivableAccount").asText();//应收
-                        String actualAmount = element.get("shopGetMoney").asText();//实收
-
-                        Bill bill = new Bill();
-                        bill.setCompanyName(companyName);
-                        bill.setBillNo(billNo);
-                        bill.setCarNumber(carNumber);
-                        bill.setDateEnd(dateEnd);
-                        bill.setTotalAmount(totalAmount);
-
-
-                        System.out.println("车牌号为" + carNumber);
-                        System.out.println("网址为" + BILLDETAIL_URL + id);
-
-                        if (!"null".equals(id)) {
-                            Response res2 = ConnectionUtil.doGetWith(BILLDETAIL_URL + id, COOKIE);
-                            JsonNode content = JsonObject.MAPPER.readTree(res2.returnContent().asString());
-
-                            if (content.hasNonNull("carServicePackageList") == true) {
-                                JsonNode data = content.get("carServicePackageList");
-                                if (data.size() > 0) {
-
-                                    String num = data.get("amount").asText();
-                                    String serviceItemNames = data.get("packageName").asText();
-                                    String price = data.get("unitPrice").asText();
-
-                                    if (null != bill.getServiceItemNames() && !"".equals(serviceItemNames)) {
-                                        serviceItemNames = serviceItemNames + "*" + price;
-                                        String s = bill.getServiceItemNames() + "," + serviceItemNames;
-                                        bill.setServiceItemNames(s);
-                                    }
-
-                                    if (null == bill.getServiceItemNames()) {
-                                        bill.setServiceItemNames(serviceItemNames + "*" + price);
-                                    }
-
-                                    String receptionistName = data.get("workerList").get(0).get("workerName").asText();
-                                    bill.setReceptionistName(receptionistName);
-
-                                }
-                            }
-                        }
-
-                        bills.add(bill);
-                    }
-                }
+                List<String> total = totalList.get(i);
+                ExecutorConfig.executorService.execute(new BatchDianDianYangCheConsumptionRecordService(bills, total,
+                        COOKIE, BILL_URL, BILLDETAIL_URL, companyName, ExecutorConfig.countDownLatch));
             }
         }
 
-        System.out.println("结果为" + bills.toString());
+        ExecutorConfig.countDownLatch.await();
+
+        long endTime = System.currentTimeMillis();
+        long usedTime = endTime - startTime;
+        System.out.println("====================程序持续运行时间：" + usedTime + "ms==============================================================");
+        System.out.println("====================程序持续运行时间：" + DateUtil.formatTime(usedTime) + "ms=========================================");
+
         String pathname = "C:\\exportExcel\\典典养车消费记录.xls";
         ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
     }

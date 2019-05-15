@@ -52,6 +52,7 @@ dependencies {
 	compile group: 'junit', name: 'junit', version: '4.12'
 	//compile group: 'org.firebirdsql.jdbc', name: 'jaybird-jdk18', version: '2.2.14'
 	compile group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '3.0.5'
+	compile 'org.slf4j:log4j-over-slf4j:1.7.13'
 	compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
 	compile group: 'org.springframework.data', name: 'spring-data-mongodb', version: '1.10.7.RELEASE'
 	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.46'
