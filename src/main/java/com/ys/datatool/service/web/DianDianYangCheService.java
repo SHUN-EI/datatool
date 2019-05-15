@@ -225,8 +225,7 @@ public class DianDianYangCheService {
             for (int i = 0; i < ExecutorConfig.threads; i++) {
 
                 List<String> total = totalList.get(i);
-                ExecutorConfig.executorService.execute(new BatchDianDianYangCheConsumptionRecordService(bills, total,
-                        COOKIE, BILL_URL, BILLDETAIL_URL, companyName, ExecutorConfig.countDownLatch));
+                ExecutorConfig.executorService.execute(new BatchDianDianYangCheConsumptionRecordService(bills, total, COOKIE, BILL_URL, BILLDETAIL_URL, companyName));
             }
         }
 

@@ -1,6 +1,7 @@
 package com.ys.datatool.service.batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.ys.datatool.domain.config.ExecutorConfig;
 import com.ys.datatool.domain.config.JsonObject;
 import com.ys.datatool.domain.entity.Bill;
 import com.ys.datatool.util.ConnectionUtil;
@@ -37,8 +38,7 @@ public class BatchDianDianYangCheConsumptionRecordService implements Runnable {
 
     public BatchDianDianYangCheConsumptionRecordService(List<Bill> bills, List<String> list,
                                                         String cookie, String url,
-                                                        String detailUrl, String companyName,
-                                                        CountDownLatch countDownLatch) {
+                                                        String detailUrl, String companyName) {
 
         this.bills = bills;
         this.list = list;
@@ -46,7 +46,7 @@ public class BatchDianDianYangCheConsumptionRecordService implements Runnable {
         this.BILL_URL = url;
         this.BILLDETAIL_URL = detailUrl;
         this.companyName = companyName;
-        this.countDownLatch = countDownLatch;
+        this.countDownLatch = ExecutorConfig.countDownLatch;
 
     }
 
