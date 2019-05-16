@@ -14,4 +14,9 @@ public class WebConfig {
     public static String ACCEPT = "application/json, text/javascript, */*; q=0.01";
 
     public static Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
+
+    public static String TOTALFIELDNAME = "total";
+
+    public static String DATAFIELDNAME = "data";
+
 }

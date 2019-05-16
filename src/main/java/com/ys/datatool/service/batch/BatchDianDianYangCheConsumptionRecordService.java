@@ -7,7 +7,6 @@ import com.ys.datatool.domain.entity.Bill;
 import com.ys.datatool.util.ConnectionUtil;
 import com.ys.datatool.util.DateUtil;
 import org.apache.http.client.fluent.Response;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -19,8 +18,6 @@ import java.util.concurrent.CountDownLatch;
  */
 public class BatchDianDianYangCheConsumptionRecordService implements Runnable {
 
-
-    private static final Logger log = Logger.getLogger(BatchDianDianYangCheConsumptionRecordService.class);
 
     private List<Bill> bills;
 
@@ -156,7 +153,7 @@ public class BatchDianDianYangCheConsumptionRecordService implements Runnable {
                     System.out.println("--------------------------------正在处理第" + b + "页的数据-------------------------------------------------------");
                     fetchConsumptionRecordDatas(b);
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    e.printStackTrace();
                 }
             });
         }

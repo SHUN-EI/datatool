@@ -3,6 +3,7 @@ package com.ys.datatool.service.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
 import com.ys.datatool.domain.entity.MemberCard;
 import com.ys.datatool.domain.entity.MemberCardItem;
 import com.ys.datatool.util.*;
@@ -14,7 +15,7 @@ import java.util.*;
 
 /**
  * Created by mo on @date  2018/12/3.
- *
+ * <p>
  * 驷惠云修系统
  */
 @Service
@@ -30,9 +31,7 @@ public class SiHuiYunXiuService {
     private String COOKIE = "loginName=zyn; ASP.NET_SessionId=lh2cxai411nxni4vp5jqmuq2; platform=%E4%BA%91%E4%BF%AE%E4%BC%81%E4%B8%9A%E7%89%88; HasLyData=1; Hm_lvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543822180; SsoToken=5F7655D323D64AA4B22334A3D18D1CBD9215DEE74AD91E79B432AD1C508D342AA1DBD813F1511BB500304A3E0B1838EE2517FBC289469BED176E16502A47B56EA0C2D8EBDF3C39BC4B0F991C85E900B51BE1DDE9B206C3A05526A521195E915DE17CE5CB3F92F791C0E4761BF528650DACFB183DBB3224857978F1D61B0B60B9; YxToken=18120333fa302e0bb044da820cc8499678fb7a; Hm_lpvt_05ad9204c97ed3f86ffa6aa6d0e0cdf0=1543826396";
 
 
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
     private String URL = "http://www.sihuiyun.com/api/web?action=";
@@ -44,7 +43,6 @@ public class SiHuiYunXiuService {
     private String carInfoAction = "JC16003";
 
     private String companyName = "驷惠云修";
-
 
 
     /**
@@ -61,13 +59,11 @@ public class SiHuiYunXiuService {
 
         //获取所有车牌
         Response resp = ConnectionUtil.doPostWithToken(URL + carInfoAction, getParam(carInfoAction, 1), COOKIE, TOKEN);
-        JsonNode data = JsonObject.MAPPER.readTree(resp.returnContent().asString());
-        JsonNode total = data.get("data").get("total");
-        int carTotalPage = WebClientUtil.getTotalPage(total, 50);
+        int carTotalPage = WebClientUtil.getTotalPageNo(resp, WebConfig.TOTALFIELDNAME, 50);
         if (carTotalPage > 0) {
             for (int i = 1; i <= carTotalPage; i++) {
                 resp = ConnectionUtil.doPostWithToken(URL + carInfoAction, getParam(carInfoAction, i), COOKIE, TOKEN);
-                data = JsonObject.MAPPER.readTree(resp.returnContent().asString());
+                JsonNode data = JsonObject.MAPPER.readTree(resp.returnContent().asString());
                 JsonNode node = data.get("data").get("rows");
 
                 if (node.size() > 0) {
@@ -84,14 +80,12 @@ public class SiHuiYunXiuService {
         }
 
         Response response = ConnectionUtil.doPostWithToken(URL + memberCardAction, getParam(memberCardAction, 1), COOKIE, TOKEN);
-        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
-        JsonNode totalNode = result.get("data").get("total");
-        int totalPage = WebClientUtil.getTotalPage(totalNode, 50);
+        int totalPage = WebClientUtil.getTotalPageNo(response, WebConfig.TOTALFIELDNAME, 50);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithToken(URL + memberCardAction, getParam(memberCardAction, i), COOKIE, TOKEN);
-                result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode node = result.get("data").get("rows");
 
                 if (node.size() > 0) {
@@ -111,7 +105,7 @@ public class SiHuiYunXiuService {
                         dateCreated = DateUtil.formatSQLDateTime(dateCreated);
 
                         String clientId = element.get("ClientID").asText();
-                        String carNumber=carNumberMap.get(clientId);
+                        String carNumber = carNumberMap.get(clientId);
 
                         String state = element.get("FlagState").asText();
                         switch (state) {
@@ -151,7 +145,7 @@ public class SiHuiYunXiuService {
                 String cardId = memberCard.getMemberCardId();
 
                 Response res = ConnectionUtil.doPostWithToken(URL + memberCardItemAction, getMemberCardItemParam(cardId), COOKIE, TOKEN);
-                result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
                 JsonNode node = result.get("data").get("cardItems");
 
                 if (node.size() > 0) {

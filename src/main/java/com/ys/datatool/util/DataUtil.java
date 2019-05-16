@@ -8,6 +8,17 @@ import java.util.List;
  */
 public class DataUtil {
 
+    public static List<String> totalList(int totalPage) {
+        List<String> totals = new ArrayList<>();
+
+        for (int i = 1; i <= totalPage; i++) {
+            String index = String.valueOf(i);
+            totals.add(index);
+        }
+
+        return totals;
+    }
+
     public static <T> List<List<T>> split(List<T> resList, int count) {
 
         if (resList == null || count < 1)

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.ExecutorConfig;
 import com.ys.datatool.domain.config.JsonObject;
+import com.ys.datatool.domain.config.WebConfig;
 import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.service.batch.BatchDianDianYangCheConsumptionRecordService;
 import com.ys.datatool.util.*;
@@ -52,8 +53,6 @@ public class DianDianYangCheService {
     private String SERVICE_URL = "https://ndsm.ddyc.com/ndsm/commodity/service/list";
 
     private String companyName = "典典养车";
-
-    private int num = 10;
 
 
     /**
@@ -139,7 +138,7 @@ public class DianDianYangCheService {
         List<Product> products = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(STOCK_URL, getStockParam(1), COOKIE);
-        int totalPage = getTotalPageNo(response);
+        int totalPage = WebClientUtil.getTotalPageNo(response, WebConfig.TOTALFIELDNAME, 10);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -214,12 +213,7 @@ public class DianDianYangCheService {
 
         if (totalPage > 0) {
 
-            List<String> totals = new ArrayList<>();
-            for (int i = 1; i <= totalPage; i++) {
-                String index = String.valueOf(i);
-                totals.add(index);
-            }
-
+            List<String> totals = DataUtil.totalList(totalPage);
             List<List<String>> totalList = DataUtil.split(totals, totals.size() / ExecutorConfig.threads);
 
             for (int i = 0; i < ExecutorConfig.threads; i++) {
@@ -315,7 +309,7 @@ public class DianDianYangCheService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(MEMBERCARD_URL, getParam(1), COOKIE);
-        int totalPage = getTotalPageNo(response);
+        int totalPage = WebClientUtil.getTotalPageNo(response, WebConfig.TOTALFIELDNAME, 10);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -494,10 +488,5 @@ public class DianDianYangCheService {
 
     }
 
-    private int getTotalPageNo(Response response) throws IOException {
-        JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
-        JsonNode totalNode = result.get("data").get("total");
-        int totalPage = WebClientUtil.getTotalPage(totalNode, num);
-        return totalPage;
-    }
+
 }

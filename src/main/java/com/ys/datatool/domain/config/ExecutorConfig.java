@@ -13,5 +13,5 @@ public class ExecutorConfig {
 
     public static ExecutorService executorService = Executors.newFixedThreadPool(threads);
 
-    public static CountDownLatch countDownLatch = new CountDownLatch(threads - 1);
+    public static CountDownLatch countDownLatch = new CountDownLatch(threads-1);
 }
