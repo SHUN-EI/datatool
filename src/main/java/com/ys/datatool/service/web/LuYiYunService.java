@@ -31,7 +31,7 @@ public class LuYiYunService {
     /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
 
 
-    private String COOKIE = "laravel_session=eyJpdiI6ImdcL3dieitmdXYyc1RxSU1YUjZmU0R3PT0iLCJ2YWx1ZSI6IjlSZ091WmxvcEtYQUlyZk9RQXhpRVFFNUIwUnVFd0g2K3YzQjA0UlUwcnRjNGVCTkloaTNpNWU1dFhQU3RmMHJVRWhXbm01YU45M0t1bHhGTEp1dkpRPT0iLCJtYWMiOiIyNzEzMzMzYTg3MGFkMjA1NjgxMGE2MDg1ODU5MzJmMzNjNGE2YmIzNGM2NGFjZTk0Mzk4MDUzM2U1ZTYyMmEwIn0%3D";
+    private String COOKIE = "laravel_session=eyJpdiI6InR5RFprMENXMENlVFhPdEZKM3psMmc9PSIsInZhbHVlIjoiZ2FrQ2RLcDVcL0hrT2xQN3VSdmdKUHJhdDh5RndYUmpwYnpGN3lVK010NWsybzYzaVJ4K0I5SjBsRWFzY2NKSDllYUdsSzJmUXhQa3hyU0pjXC93R1JlZz09IiwibWFjIjoiNmJiYjY0ODIzYzQ5MmRmZjRkMTY5MTI4ZDVkY2Q3ZmFlYzRmOGI2OGQ1YmQwMTMyZWRhM2U0ZDJiYjczOTQ1MCJ9; expires=Thu, 16-May-2019 11:42:09 GMT; Max-Age=7200; path=/; HttpOnly";
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +41,94 @@ public class LuYiYunService {
 
     private String BILLDETAIL_URL = "http://mendian.luyiyun.cn/worklist/";
 
+    private String CARINFO_URL = "http://mendian.luyiyun.cn/customer?customer_type=&label_id=0&perpage=60&page=";
+
+    private String CARINFODETAIL_URL = "http://mendian.luyiyun.cn/customer/";
+
     private String companyName = "路易云店系统";
 
     private String fieldName = "total_num";
+
+
+    /**
+     * 车辆信息
+     * 打开路径:客户信息-详情
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+
+        Response response = ConnectionUtil.doGetWith(CARINFO_URL + 1, COOKIE);
+        int totalPage = WebClientUtil.getTotalPageNo(response, fieldName, 60);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+
+                Response res = ConnectionUtil.doGetWith(CARINFO_URL + i, COOKIE);
+                JsonNode body = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                JsonNode data = body.get("data").get("data");
+                if (data.size() > 0) {
+                    Iterator<JsonNode> iterator = data.elements();
+
+                    while (iterator.hasNext()) {
+                        JsonNode element = iterator.next();
+                        String customerId = element.get("customer_id").asText();
+
+                        res = ConnectionUtil.doGetWith(CARINFODETAIL_URL + customerId, COOKIE);
+                        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString(WebConfig.CHARSET_UTF_8));
+
+                        String name = "";
+                        String phone = "";
+
+                        JsonNode dataNode = result.get("data");
+
+                        JsonNode customer = dataNode.get("customer_info");
+                        if (customer != null) {
+                            name = customer.get("name").asText();
+                            phone = customer.get("phone").asText();
+                        }
+
+                        JsonNode carNode = dataNode.get("car_info");
+                        if (carNode.size() > 0) {
+                            Iterator<JsonNode> it = carNode.elements();
+
+                            while (it.hasNext()) {
+                                JsonNode e = it.next();
+
+                                String carNumber = e.get("car_number").asText();
+                                String brand = e.get("model_name").asText();
+                                String vin = e.get("frame_number").asText();
+                                String engineNumber = e.get("engine_model").asText();
+                                String tcInsuranceCompany = e.get("insurance_company").asText();
+                                String tcInsuranceValidDate = e.get("insurance_out").asText();
+
+
+                                CarInfo carInfo = new CarInfo();
+                                carInfo.setName(name);
+                                carInfo.setPhone(phone);
+                                carInfo.setCompanyName(companyName);
+                                carInfo.setCarNumber(carNumber);
+                                carInfo.setBrand(brand);
+                                carInfo.setVINcode(vin);
+                                carInfo.setEngineNumber(engineNumber);
+                                carInfo.setTcInsuranceCompany(tcInsuranceCompany);
+                                carInfo.setTcInsuranceValidDate(tcInsuranceValidDate);
+                                carInfos.add(carInfo);
+                            }
+                        }
+
+
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\路易云店系统车辆信息.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -194,7 +279,7 @@ public class LuYiYunService {
                                     String totalPrice = e.get("total_price").asText();//单项总价
 
                                     if (null != bill.getServiceItemNames() && !"".equals(itemName)) {
-                                        itemName = itemName + "*" + originalPrice;
+                                        itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                         String s = bill.getServiceItemNames() + "," + itemName;
                                         bill.setServiceItemNames(s);
                                     }
@@ -233,7 +318,7 @@ public class LuYiYunService {
 
 
                                     if (null != bill.getGoodsNames() && !"".equals(itemName)) {
-                                        itemName = itemName + "*" + originalPrice;
+                                        itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                         String s = bill.getGoodsNames() + "," + itemName;
                                         bill.setGoodsNames(s);
                                     }

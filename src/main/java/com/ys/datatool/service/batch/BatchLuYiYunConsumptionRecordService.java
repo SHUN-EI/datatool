@@ -192,7 +192,7 @@ public class BatchLuYiYunConsumptionRecordService implements Runnable {
                             String totalPrice = e.get("total_price").asText();//单项总价
 
                             if (null != bill.getServiceItemNames() && !"".equals(itemName)) {
-                                itemName = itemName + "*" + originalPrice;
+                                itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                 String s = bill.getServiceItemNames() + "," + itemName;
                                 bill.setServiceItemNames(s);
                             }
@@ -231,7 +231,7 @@ public class BatchLuYiYunConsumptionRecordService implements Runnable {
 
 
                             if (null != bill.getGoodsNames() && !"".equals(itemName)) {
-                                itemName = itemName + "*" + originalPrice;
+                               itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                 String s = bill.getGoodsNames() + "," + itemName;
                                 bill.setGoodsNames(s);
                             }
