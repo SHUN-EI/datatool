@@ -34,12 +34,12 @@ public class Bill {
     private String carNumber;
 
     /**
-     * 报价项目
+     * 报价项目 （名称X数量（价格））
      */
     private String serviceItemNames;
 
     /**
-     * 报价商品
+     * 报价商品 （名称X数量（价格））
      */
     private String goodsNames;
 
@@ -185,6 +185,13 @@ public class Bill {
      * 车赢家-单据ID
      */
     private String billId;
+
+
+    /**
+     * 单据内容
+     */
+    private String content;
+
 
     public String getBillId() {
         return billId;
@@ -465,5 +472,13 @@ public class Bill {
 
     public void setItemName(String itemName) {
         this.itemName = itemName;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

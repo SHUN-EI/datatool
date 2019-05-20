@@ -149,8 +149,7 @@ public class ExportUtil {
                 "phone", "name", "totalAmount", "discount",
                 "actualAmount", "waitInStore", "dateExpect", "payType", "remark",
                 "dateAdded", "dateEnd", "itemName", "receptionistName", "cardCode",
-                "totalAmount", "debtAmount", "receivedAmount", "amount", "payer",
-                "remark", "billCode"};
+                "totalAmount", "debtAmount", "receivedAmount", "amount", "payer", "billCode","content"};
 
         OutputStream outputStream = null;
         try {

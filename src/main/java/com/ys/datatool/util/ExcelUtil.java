@@ -381,12 +381,12 @@ public class ExcelUtil {
             mapValue.put("stockOutNumber", bill.getStockOutNumber());
             mapValue.put("accountType", bill.getAccountType());
             mapValue.put("itemName", bill.getItemName());
-            mapValue.put("receptionistName", bill.getReceptionistName());
             mapValue.put("debtAmount", bill.getDebtAmount());
             mapValue.put("receivedAmount", bill.getReceivedAmount());
             mapValue.put("amount", bill.getAmount());
             mapValue.put("payer", bill.getPayer());
             mapValue.put("billCode", bill.getBillCode());
+            mapValue.put("content", bill.getContent());
             listMap.add(mapValue);
         }
         return listMap;

@@ -28,7 +28,7 @@ import java.util.List;
 public class LuYiYunService {
 
 
-    /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////工具使用前，请先填写COOKIE数据（注意：这里的COOKIE需要取Response Headers->Set-Cookie的值）/////////////////////////////////////
 
 
     private String COOKIE = "laravel_session=eyJpdiI6InR5RFprMENXMENlVFhPdEZKM3psMmc9PSIsInZhbHVlIjoiZ2FrQ2RLcDVcL0hrT2xQN3VSdmdKUHJhdDh5RndYUmpwYnpGN3lVK010NWsybzYzaVJ4K0I5SjBsRWFzY2NKSDllYUdsSzJmUXhQa3hyU0pjXC93R1JlZz09IiwibWFjIjoiNmJiYjY0ODIzYzQ5MmRmZjRkMTY5MTI4ZDVkY2Q3ZmFlYzRmOGI2OGQ1YmQwMTMyZWRhM2U0ZDJiYjczOTQ1MCJ9; expires=Thu, 16-May-2019 11:42:09 GMT; Max-Age=7200; path=/; HttpOnly";
@@ -278,14 +278,14 @@ public class LuYiYunService {
                                     String actualPrice = e.get("actual_price").asText();//实际支付价格
                                     String totalPrice = e.get("total_price").asText();//单项总价
 
+                                    itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                     if (null != bill.getServiceItemNames() && !"".equals(itemName)) {
-                                        itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                         String s = bill.getServiceItemNames() + "," + itemName;
                                         bill.setServiceItemNames(s);
                                     }
 
                                     if (null == bill.getServiceItemNames()) {
-                                        bill.setServiceItemNames(itemName + "*" + originalPrice);
+                                        bill.setServiceItemNames(itemName);
                                     }
 
 
@@ -316,15 +316,14 @@ public class LuYiYunService {
                                     String actualPrice = e.get("actual_price").asText();//实际支付价格
                                     String totalPrice = e.get("total_price").asText();//单项总价
 
-
+                                    itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                     if (null != bill.getGoodsNames() && !"".equals(itemName)) {
-                                        itemName = itemName + "*" + num + "(" + originalPrice + ")";
                                         String s = bill.getGoodsNames() + "," + itemName;
                                         bill.setGoodsNames(s);
                                     }
 
                                     if (null == bill.getGoodsNames()) {
-                                        bill.setGoodsNames(itemName + "*" + originalPrice);
+                                        bill.setGoodsNames(itemName);
                                     }
 
                                     BillDetail billDetail = new BillDetail();
