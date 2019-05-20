@@ -28,7 +28,7 @@ public class YiFaSoftwareService {
     /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
 
 
-    private String COOKIE = "username=13305722816; JSESSIONID=0A21FA3598C610DABB3930B75AB47270.s1";
+    private String COOKIE = "username=13305722816; JSESSIONID=1F68A1B5966AAB83ACA4F03F11A33464.s1";
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public class YiFaSoftwareService {
         int totalPage = getBillTotalPage(response);
 
         if (totalPage > 0) {
-            for (int i = 1; i <= 3; i++) {
+            for (int i = 1; i <= totalPage; i++) {
                 Response res = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(i), COOKIE);
                 JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
 
@@ -77,19 +77,22 @@ public class YiFaSoftwareService {
                             String type = e.get("orderTypeValue").asText();
                             String carNumber = e.get("vehicle").asText();
 
+                            String orderIdStr = e.get("orderIdStr").asText();
+                            if ("null".equals(billNo))
+                                billNo = orderIdStr;
+
                             String content = e.get("orderContent").asText();
                             String company = e.get("shopName").asText();
 
-
-                            String dateEnd = e.get("endDateStr").asText();
+                            String dateEnd = e.get("createdTimeStr").asText();
                             dateEnd = DateUtil.formatSQLDate(dateEnd);
 
                             Bill bill = new Bill();
                             bill.setCompanyName(company);
                             bill.setDateEnd(dateEnd);
-                            bill.setCarNumber(carNumber);
+                            bill.setCarNumber(CommonUtil.formatString(carNumber));
                             bill.setBillNo(billNo);
-                            bill.setReceptionistName(receptionistName);
+                            bill.setReceptionistName(CommonUtil.formatString(receptionistName));
                             bill.setTotalAmount(totalAmount);
                             bill.setRemark(type + "," + state);
                             bill.setContent(content);
