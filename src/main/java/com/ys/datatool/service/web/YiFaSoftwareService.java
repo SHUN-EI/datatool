@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.JsonObject;
 import com.ys.datatool.domain.entity.Bill;
-import com.ys.datatool.domain.entity.BillDetail;
+import com.ys.datatool.domain.entity.CarInfo;
+import com.ys.datatool.domain.entity.MemberCard;
 import com.ys.datatool.domain.entity.Supplier;
 import com.ys.datatool.util.CommonUtil;
 import com.ys.datatool.util.ConnectionUtil;
@@ -34,11 +35,81 @@ public class YiFaSoftwareService {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    private String CARINFO_URL = "https://shop.bcgogo.com/web/customer.do?method=searchCustomerDataAction";
+
     private String BILL_URL = "https://shop.bcgogo.com/web/inquiryCenter.do?method=inquiryCenterSearchOrderAction";
 
     private String SUPPLIER_URL = "https://shop.bcgogo.com/web/supplier.do?method=searchSupplierDataAction";
 
     private String companyName = "一发软件";
+
+
+    /**
+     * 客户信息、会员及卡内项目信息
+     * 打开路径:客户管理-客户列表
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchCarInfoDataStandard() throws IOException {
+        List<CarInfo> carInfos = new ArrayList<>();
+        List<MemberCard> memberCards = new ArrayList<>();
+
+        Response response = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getSupplierParam(1), COOKIE);
+        int totalPage = getTotalPage(response);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doPostWithLeastParamJson(CARINFO_URL, getSupplierParam(i), COOKIE);
+                JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+
+                if (result != null) {
+                    JsonNode customerNode = result.get(0).get("customerSuppliers");
+
+                    if (customerNode.size() > 0) {
+                        Iterator<JsonNode> it = customerNode.elements();
+
+                        while (it.hasNext()) {
+                            JsonNode e = it.next();
+
+                            String name = e.get("name").asText();
+                            String phone = e.get("mobile").asText();
+
+                            JsonNode carNode = e.get("licenseNos");
+                            if (carNode.size() > 0) {
+
+                                Iterator<JsonNode> cars = carNode.elements();
+                                while (cars.hasNext()) {
+                                    JsonNode node = cars.next();
+                                    String carNumber = node.asText();
+
+                                    Iterator<JsonNode> carDetails = e.get("vehicleDetailList").elements();
+                                    while (carDetails.hasNext()) {
+                                        JsonNode car = carDetails.next();
+
+                                        String carModel = car.asText();
+
+                                        CarInfo carInfo = new CarInfo();
+                                        carInfo.setCompanyName(companyName);
+                                        carInfo.setName(name);
+                                        carInfo.setPhone(phone);
+                                        carInfo.setCarModel(carModel);
+                                        carInfo.setCarNumber(carNumber);
+                                        carInfos.add(carInfo);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\一发软件车辆信息.xls";
+        ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
+
+
+    }
 
 
     /**
@@ -50,7 +121,6 @@ public class YiFaSoftwareService {
     @Test
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
-        List<BillDetail> billDetails = new ArrayList<>();
 
         Response response = ConnectionUtil.doPostWithLeastParamJson(BILL_URL, getBillParam(1), COOKIE);
         int totalPage = getBillTotalPage(response);
