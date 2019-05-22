@@ -7,6 +7,7 @@ import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class HuiCheBangService {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private String SERVICE_URL = "http://crm.huichebang.cn/Config/ProjectsConfig?v=3.3";
+
     private String STOCK_URL = "http://crm.huichebang.cn/Stock/ProductSKUList?ShowWay=-1&Sort=0&IsShow=1&pageIndex=";
 
     private String BILLDETAIL_URL = "http://crm.huichebang.cn/Config/ConsumeDetail?crid=";
@@ -45,6 +48,57 @@ public class HuiCheBangService {
     private String totalRegEx = "body > div.dataTables_paginate.paging_full_numbers > div > span > a";
 
     private String companyName = "惠车邦智慧门店";
+
+
+    /**
+     * 服务项目
+     * 打开路径:首页-管理-常用项目
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchServiceData() throws IOException {
+        List<Product> products = new ArrayList<>();
+
+        String divRegEx = "#div_contents > div";
+        Response response = ConnectionUtil.doGetWith(SERVICE_URL, COOKIE);
+        String html = response.returnContent().asString();
+        Document body = Jsoup.parseBodyFragment(html);
+
+        Elements divs = body.select(divRegEx);
+        if (divs.size() > 0) {
+            for (Element div : divs) {
+
+                String firstCategoryNameRegEx = "table > thead > tr > td > input[name='pclass']";
+                String firstCategoryName = div.select(firstCategoryNameRegEx).attr("value");
+
+                String trRegEx = "table > tbody > tr";
+                Elements trs = div.select(trRegEx);
+
+                if (trs.size() > 0) {
+                    for (Element tr : trs) {
+                        Elements tds = tr.getElementsByTag("td");
+
+                        if (tds.size()>0){
+                            String productName =  tds.get(0).select("input").attr("value");
+                            String price =  tds.get(1).select("input").attr("value");
+
+                            Product product = new Product();
+                            product.setCompanyName(companyName);
+                            product.setPrice(price);
+                            product.setProductName(productName);
+                            product.setFirstCategoryName(firstCategoryName);
+                            product.setItemType("服务项");
+                            products.add(product);
+                        }
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\惠车邦服务.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
 
 
     /**
@@ -189,6 +243,8 @@ public class HuiCheBangService {
                         bill.setReceptionistName(receptionistName);
                         bill.setDateEnd(dateEnd);
 
+
+                        //商品及服务
 
                         String aaa = "";
                         bills.add(bill);
