@@ -2,9 +2,7 @@ package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.HtmlTag;
-import com.ys.datatool.domain.entity.Bill;
-import com.ys.datatool.domain.entity.CarInfo;
-import com.ys.datatool.domain.entity.Supplier;
+import com.ys.datatool.domain.entity.*;
 import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
@@ -32,6 +30,8 @@ public class HuiCheBangService {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private String STOCK_URL = "http://crm.huichebang.cn/Stock/ProductSKUList?ShowWay=-1&Sort=0&IsShow=1&pageIndex=";
+
     private String BILLDETAIL_URL = "http://crm.huichebang.cn/Config/ConsumeDetail?crid=";
 
     private String BILL_URL = "http://crm.huichebang.cn/Config/ConsumeRecordList?RoleText1=All&pageIndex=";
@@ -45,6 +45,84 @@ public class HuiCheBangService {
     private String totalRegEx = "body > div.dataTables_paginate.paging_full_numbers > div > span > a";
 
     private String companyName = "惠车邦智慧门店";
+
+
+    /**
+     * 库存及商品
+     * 打开路径:首页-库存-库存管理
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchStockDataStandard() throws IOException {
+        List<Stock> stocks = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+
+        String totalRegEx = "#form_cr > div.dataTables_paginate.paging_full_numbers > div > span > a";
+        Response response = ConnectionUtil.doGetWith(STOCK_URL + 1, COOKIE);
+        int totalPage = getTotalPage(response, totalRegEx);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+
+                Response res = ConnectionUtil.doGetWith(STOCK_URL + i, COOKIE);
+                String html = res.returnContent().asString();
+                Document body = Jsoup.parseBodyFragment(html);
+
+                String trRegEx = "#form_cr > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(body, trRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+
+                        String locationNameRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(2)";
+                        String goodsNameRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(3) > pre";
+                        String productCodeRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(3) > span";
+                        String inventoryNumRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(7)";
+                        String priceRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(10)";
+                        String brandRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(5)";
+                        String carModelRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(6)";
+                        String salePriceRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(8)";
+
+
+                        String locationName = body.select(locationNameRegEx).text();
+                        String goodsName = body.select(goodsNameRegEx).text();
+                        String productCode = body.select(productCodeRegEx).text();
+                        String inventoryNum = body.select(inventoryNumRegEx).text();
+                        String price = body.select(priceRegEx).text();
+                        String brand = body.select(brandRegEx).text();
+                        String carModel = body.select(carModelRegEx).text();
+                        String salePrice = body.select(salePriceRegEx).text();
+
+                        Stock stock = new Stock();
+                        stock.setCompanyName(companyName);
+                        stock.setGoodsName(goodsName);
+                        stock.setInventoryNum(inventoryNum);
+                        stock.setPrice(price);
+                        stock.setLocationName(locationName);
+                        stock.setProductCode(productCode);
+                        stocks.add(stock);
+
+                        Product product = new Product();
+                        product.setCompanyName(companyName);
+                        product.setProductName(goodsName);
+                        product.setItemType("商品");
+                        product.setPrice(salePrice);
+                        product.setBrandName(brand);
+                        product.setCarModel(carModel);
+                        products.add(product);
+
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\惠车邦库存.xls";
+        String pathname2 = "C:\\exportExcel\\惠车邦商品.xls";
+        ExportUtil.exportStockDataInLocal(stocks, ExcelDatas.workbook, pathname);
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname2);
+
+    }
 
 
     /**
@@ -90,7 +168,7 @@ public class HuiCheBangService {
 
                         String billNoRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(1)";
                         String carNumberRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(3)";
-                        String totalAmountRegEx =  "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(7) > span";
+                        String totalAmountRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(7) > span";
                         String receptionistNameRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(8)";
                         String dateEndRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(6)";
 
