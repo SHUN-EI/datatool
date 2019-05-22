@@ -2,12 +2,10 @@ package com.ys.datatool.service.web;
 
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.HtmlTag;
+import com.ys.datatool.domain.entity.Bill;
 import com.ys.datatool.domain.entity.CarInfo;
 import com.ys.datatool.domain.entity.Supplier;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -34,13 +32,95 @@ public class HuiCheBangService {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private String BILLDETAIL_URL = "http://crm.huichebang.cn/Config/ConsumeDetail?crid=";
+
+    private String BILL_URL = "http://crm.huichebang.cn/Config/ConsumeRecordList?RoleText1=All&pageIndex=";
+
     private String CARINFODETAIL_URL = "http://crm.huichebang.cn/CarCenter/OCarInfoEdit?id=";
 
     private String CARINFO_URL = "http://crm.huichebang.cn/CarCenter/AllIndex?v=3.3&pageIndex=";
 
     private String SUPPLIER_URL = "http://crm.huichebang.cn/Stock/ShopSupplierList?DeptState=0&RoleText1=All&pageIndex=";
 
+    private String totalRegEx = "body > div.dataTables_paginate.paging_full_numbers > div > span > a";
+
     private String companyName = "惠车邦智慧门店";
+
+
+    /**
+     * 历史消费记录和消费记录相关车辆
+     * 打开路径:首页-报表-营业流水-操作-详情
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        String totalRegEx = "body > div > div[class='dataTables_paginate paging_full_numbers'] > div > span > a";
+
+        Response response = ConnectionUtil.doGetWith(BILL_URL + 1, COOKIE);
+        int totalPage = getTotalPage(response, totalRegEx);
+
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+
+                Response res = ConnectionUtil.doGetWith(BILL_URL + i, COOKIE);
+                String html = res.returnContent().asString();
+                Document body = Jsoup.parseBodyFragment(html);
+
+                String trRegEx = "#table > tbody > tr";
+
+                int trSize = WebClientUtil.getTagSize(body, trRegEx, HtmlTag.trName);
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+
+                        String tdRegEx = trRegEx + ":nth-child(" + j + ") > td";
+                        int tdSize = WebClientUtil.getTagSize(body, tdRegEx, HtmlTag.tdName);
+                        String detailRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(" + tdSize + ") > input:nth-child(2)";
+
+                        String value = body.select(detailRegEx).attr("onclick");
+                        String cridRegEx = "(?<=')(.*)(?=')";
+                        String crid = CommonUtil.fetchString(value, cridRegEx);
+
+                        //单据明细
+                        Response resp = ConnectionUtil.doGetWith(BILLDETAIL_URL + crid, COOKIE);
+                        String content = resp.returnContent().asString();
+                        Document doc = Jsoup.parseBodyFragment(content);
+
+                        String billNoRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(1)";
+                        String carNumberRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(3)";
+                        String totalAmountRegEx =  "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(7) > span";
+                        String receptionistNameRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(8)";
+                        String dateEndRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(6)";
+
+
+                        String billNo = doc.select(billNoRegEx).text().replace("单号：", "");
+                        String carNumber = doc.select(carNumberRegEx).text().replace("车牌号码：", "");
+                        String totalAmount = doc.select(totalAmountRegEx).text();
+                        String receptionistName = doc.select(receptionistNameRegEx).text().replace("录单人：", "");
+                        String dateEnd = doc.select(dateEndRegEx).text().replace("结算时间：", "");
+                        dateEnd = DateUtil.formatSQLDate(dateEnd);
+
+
+                        Bill bill = new Bill();
+                        bill.setBillNo(billNo);
+                        bill.setCompanyName(companyName);
+                        bill.setCarNumber(carNumber);
+                        bill.setTotalAmount(totalAmount);
+                        bill.setReceptionistName(receptionistName);
+                        bill.setDateEnd(dateEnd);
+
+
+                        String aaa = "";
+                        bills.add(bill);
+
+                    }
+                }
+            }
+        }
+
+    }
 
 
     /**
@@ -54,7 +134,7 @@ public class HuiCheBangService {
         List<CarInfo> carInfos = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWith(CARINFO_URL + 1, COOKIE);
-        int totalPage = getTotalPage(response);
+        int totalPage = getTotalPage(response, totalRegEx);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -147,7 +227,7 @@ public class HuiCheBangService {
         List<Supplier> suppliers = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWith(SUPPLIER_URL + 1, COOKIE);
-        int totalPage = getTotalPage(response);
+        int totalPage = getTotalPage(response, totalRegEx);
 
         if (totalPage > 0) {
             for (int i = 1; i <= totalPage; i++) {
@@ -189,14 +269,13 @@ public class HuiCheBangService {
 
     }
 
-    private int getTotalPage(Response response) throws IOException {
+    private int getTotalPage(Response response, String regEx) throws IOException {
         int totalPage = 0;
 
         String html = response.returnContent().asString();
         Document body = Jsoup.parseBodyFragment(html);
 
-        String totalRegEx = "body > div.dataTables_paginate.paging_full_numbers > div > span > a";
-        Elements elements = body.select(totalRegEx);
+        Elements elements = body.select(regEx);
 
         if (elements.size() > 0) {
             String totalStr = elements.get(elements.size() - 1).text();
