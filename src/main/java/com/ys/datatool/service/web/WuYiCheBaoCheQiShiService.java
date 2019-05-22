@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.Test;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -54,6 +55,7 @@ public class WuYiCheBaoCheQiShiService {
      *
      * @throws IOException
      */
+    @Test
     public void fetchMemberCardItemData() throws IOException {
         List<String> memberCardNos = new ArrayList<>();
         List<MemberCardItem> memberCardItems = new ArrayList<>();
@@ -108,6 +110,7 @@ public class WuYiCheBaoCheQiShiService {
      *
      * @throws IOException
      */
+    @Test
     public void fetchCarInfoData() throws IOException {
         List<CarInfo> carInfos = new ArrayList<>();
         int totalPage = WebClientUtil.getHtmlTotalPage(CARINFO_URL, COOKIE);
@@ -138,6 +141,7 @@ public class WuYiCheBaoCheQiShiService {
      *
      * @throws IOException
      */
+    @Test
     public void fetchSupplierData() throws IOException {
         List<Supplier> suppliers = new ArrayList<>();
         int totalPage = WebClientUtil.getHtmlTotalPage(SUPPLIER_URL, COOKIE);
@@ -172,6 +176,7 @@ public class WuYiCheBaoCheQiShiService {
      *
      * @throws IOException
      */
+    @Test
     public void fetchBillDetailData() throws IOException {
         List<String> billNos = new ArrayList<>();
         List<BillDetail> billDetails = new ArrayList<>();
@@ -269,6 +274,7 @@ public class WuYiCheBaoCheQiShiService {
      *
      * @throws IOException
      */
+    @Test
     public void fetchBillData() throws IOException {
         List<Bill> bills = new ArrayList<>();
 

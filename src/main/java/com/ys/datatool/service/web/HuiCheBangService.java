@@ -79,7 +79,6 @@ public class HuiCheBangService {
                         String carNumber = body.select(carNumberRegEx).text();
                         String balance = body.select(balanceRegEx).text();
 
-
                         String tdRegEx = trRegEx + ":nth-child(" + j + ") > td";
                         int tdSize = WebClientUtil.getTagSize(body, tdRegEx, HtmlTag.tdName);
                         String detailRegEx = trRegEx + ":nth-child(" + j + ") > td:nth-child(" + tdSize + ") > input:nth-child(1)";
@@ -148,10 +147,45 @@ public class HuiCheBangService {
         List<Supplier> suppliers = new ArrayList<>();
 
         Response response = ConnectionUtil.doGetWith(SUPPLIER_URL + 1, COOKIE);
-        String html = response.returnContent().asString();
+        int totalPage = getTotalPage(response);
 
-        String sss = "";
+        if (totalPage > 0) {
+            for (int i = 1; i <= totalPage; i++) {
+                Response res = ConnectionUtil.doGetWith(SUPPLIER_URL + i, COOKIE);
 
+                String html = res.returnContent().asString();
+                Document body = Jsoup.parseBodyFragment(html);
+
+                String trRegEx = "body > div.layui-form > table > tbody > tr";
+                int trSize = WebClientUtil.getTagSize(body, trRegEx, HtmlTag.trName);
+
+                if (trSize > 0) {
+                    for (int j = 1; j <= trSize; j++) {
+
+                        String nameRegEx = "body > div.layui-form > table > tbody > tr:nth-child(" + j + ") > td:nth-child(2)";
+                        String contactNameRegEx = "body > div.layui-form > table > tbody > tr:nth-child(" + j + ") > td:nth-child(3)";
+                        String contactPhoneRegEx = "body > div.layui-form > table > tbody > tr:nth-child(" + j + ") > td:nth-child(4)";
+                        String addressRegEx = "body > div.layui-form > table > tbody > tr:nth-child(" + j + ") > td:nth-child(5)";
+
+                        String name = body.select(nameRegEx).text();
+                        String contactName = body.select(contactNameRegEx).text();
+                        String contactPhone = body.select(contactPhoneRegEx).text();
+                        String address = body.select(addressRegEx).text();
+
+                        Supplier supplier = new Supplier();
+                        supplier.setCompanyName(companyName);
+                        supplier.setName(name);
+                        supplier.setContactName(contactName);
+                        supplier.setContactPhone(contactPhone);
+                        supplier.setAddress(address);
+                        suppliers.add(supplier);
+                    }
+                }
+            }
+        }
+
+        String pathname = "C:\\exportExcel\\惠车邦供应商.xls";
+        ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
 
     }
 
