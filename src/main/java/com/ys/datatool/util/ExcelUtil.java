@@ -464,6 +464,7 @@ public class ExcelUtil {
             mapValue.put("carSeriesInput", carInfo.getCarSeriesInput());
             mapValue.put("carModelSelect", carInfo.getCarModelSelect());
             mapValue.put("carModelInput", carInfo.getCarModelInput());
+            mapValue.put("balance", carInfo.getBalance());
             listMap.add(mapValue);
 
         }

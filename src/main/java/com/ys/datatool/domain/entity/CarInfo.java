@@ -147,6 +147,11 @@ public class CarInfo {
      */
     private String userCarId;
 
+    /**
+     * 惠车邦-用户余额
+     */
+    private String balance;
+
     private String carCode;
 
     public String getCarCode() {
@@ -375,6 +380,14 @@ public class CarInfo {
 
     public void setCarModelInput(String carModelInput) {
         this.carModelInput = carModelInput;
+    }
+
+    public String getBalance() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
     }
 
     @Override
