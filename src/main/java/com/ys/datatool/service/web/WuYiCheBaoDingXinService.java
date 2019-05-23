@@ -30,11 +30,10 @@ public class WuYiCheBaoDingXinService {
     /////////////////////////////////工具使用前，请先填写COOKIE数据////////////////////////////////////////////////////////////////////////
 
 
-    private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%5D; PHPSESSID=ffc1933qqd626j55vchfaf1sl2; language=cn";
+    private String COOKIE = "hidden=value; hidden=value; store-dingxinqixiu=%5B%7B%22account%22%3A%2215978811110%22%2C%22pwd%22%3A%2215978811110%22%2C%22cur%22%3Atrue%7D%5D; PHPSESSID=p391qnoahq04g3vk3r5h5533a1; language=cn";
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
     private String BILLDETAIL_URL = "http://saas.51chebao.com/store/dingxinqixiu/order/view?order_number=";
@@ -48,7 +47,6 @@ public class WuYiCheBaoDingXinService {
     private String companyName = "鼎鑫名车";
 
 
-
     /**
      * 历史消费记录和消费记录相关车辆
      * 营销管理-订单管理
@@ -59,7 +57,6 @@ public class WuYiCheBaoDingXinService {
     public void fetchConsumptionRecordDataStandard() throws IOException {
         List<Bill> bills = new ArrayList<>();
         List<CarInfo> carInfos = new ArrayList<>();
-        List<String> billNos = new ArrayList<>();
 
         int totalPage = WebClientUtil.getHtmlTotalPage(BILL_URL, COOKIE);
         if (totalPage > 0) {
@@ -75,103 +72,99 @@ public class WuYiCheBaoDingXinService {
                     for (int j = 3; j <= trSize; j++) {
                         String billNoRegEx = trRegEx + ":nth-child(" + j + ") " + "> td:nth-child(3) > a";
                         String billNo = document.select(billNoRegEx).text();
-                        billNos.add(billNo);
+
+                        String dateEndRegEx = trRegEx + ":nth-child(" + j + ") " + "> td:nth-child(9) ";
+                        String dateEnd = document.select(dateEndRegEx).text();
+                        dateEnd = DateUtil.formatSQLDate(dateEnd);
+
+                        Response resp = ConnectionUtil.doGetWith(BILLDETAIL_URL + billNo, COOKIE);
+                        String content = resp.returnContent().asString();
+                        Document doc = Jsoup.parseBodyFragment(content);
+
+
+                        String carNumberRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(4)";
+                        String mileageRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(6)";
+                        String totalAmountRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(4)";
+                        String receptionistNameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(6)";
+                        String billTypeRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(2)";
+                        String remarkRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(4)";
+                        String nameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(2)";
+                        String phoneRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(4)";
+                        String vinRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(2)";
+                        String brandRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2)";
+
+                        String carNumber = doc.select(carNumberRegEx).text();
+                        String mileage = doc.select(mileageRegEx).text();
+                        String totalAmount = doc.select(totalAmountRegEx).text();
+                        String receptionistName = doc.select(receptionistNameRegEx).text();
+                        String billType = doc.select(billTypeRegEx).text();
+                        String remark = doc.select(remarkRegEx).text();
+                        String name = doc.select(nameRegEx).text();
+                        String phone = doc.select(phoneRegEx).text();
+                        String vin = doc.select(vinRegEx).text();
+                        String brand = doc.select(brandRegEx).text();
+
+                        String itemTrRegEx = "#content > div > div.content > div:nth-child(3) > table > tbody > tr";
+                        int itemTrSize = WebClientUtil.getTagSize(doc, itemTrRegEx, HtmlTag.trName);
+
+                        String serviceNames = "";
+                        String itemNames = "";
+                        if (itemTrSize > 0) {
+                            for (int z = 1; z < trSize; z++) {
+                                String serviceItemNamesRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(1)";
+                                String goodsNamesRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(2)";
+                                String numRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(3)";
+                                String priceRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(5)";
+
+                                String serviceItemNames = doc.select(serviceItemNamesRegEx).text();
+                                String goodsNames = doc.select(goodsNamesRegEx).text();
+                                String num = doc.select(numRegEx).text();
+                                String price = doc.select(priceRegEx).text();
+                                price = price.replace("￥", "");
+
+                                serviceItemNames = serviceItemNames + "*" + num + "(" + price + ")";
+                                if (!"".equals(serviceNames))
+                                    serviceNames = serviceNames + "," + serviceItemNames;
+
+                                if ("".equals(serviceNames))
+                                    serviceNames = serviceItemNames;
+
+                                if ("".equals(goodsNames))
+                                    continue;
+
+                                if (!"".equals(itemNames))
+                                    itemNames = itemNames + "," + goodsNames;
+
+                                if ("".equals(itemNames))
+                                    itemNames = goodsNames;
+
+                            }
+                        }
+
+                        Bill bill = new Bill();
+                        bill.setBillNo(billNo);
+                        bill.setCarNumber(carNumber);
+                        bill.setMileage(mileage);
+                        bill.setDateEnd(dateEnd);
+                        bill.setCompanyName(companyName);
+                        bill.setTotalAmount(totalAmount.replace("￥", ""));
+                        bill.setReceptionistName(receptionistName);
+                        bill.setRemark(billType + " " + remark);
+                        bill.setGoodsNames(itemNames);
+                        bill.setServiceItemNames(serviceNames);
+                        bills.add(bill);
+
+                        CarInfo carInfo = new CarInfo();
+                        carInfo.setCompanyName(companyName);
+                        carInfo.setCarNumber(carNumber);
+                        carInfo.setName(name);
+                        carInfo.setPhone(phone);
+                        carInfo.setVINcode(vin);
+                        carInfo.setBrand(brand);
+                        carInfos.add(carInfo);
+
                     }
                 }
-            }
-        }
-
-        if (billNos.size() > 0) {
-            for (String billNo : billNos) {
-                Response response = ConnectionUtil.doGetWith(BILLDETAIL_URL + billNo, COOKIE);
-                String html = response.returnContent().asString();
-                Document doc = Jsoup.parse(html);
-
-                String carNumberRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(4)";
-                String mileageRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(6)";
-                String dateEndRegEx = "#content > div > div.content > table > tbody > tr:nth-child(4) > td:nth-child(6)";
-                String totalAmountRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(4)";
-                String receptionistNameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(6)";
-                String billTypeRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(2)";
-                String remarkRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(4)";
-                String nameRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(2)";
-                String phoneRegEx = "#content > div > div.content > table > tbody > tr:nth-child(2) > td:nth-child(4)";
-                String vinRegEx = "#content > div > div.content > table > tbody > tr:nth-child(5) > td:nth-child(2)";
-                String brandRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2)";
-
-                String carNumber = doc.select(carNumberRegEx).text();
-                String mileage = doc.select(mileageRegEx).text();
-                String totalAmount = doc.select(totalAmountRegEx).text();
-                String receptionistName = doc.select(receptionistNameRegEx).text();
-                String billType = doc.select(billTypeRegEx).text();
-                String remark = doc.select(remarkRegEx).text();
-                String name = doc.select(nameRegEx).text();
-                String phone = doc.select(phoneRegEx).text();
-                String vin = doc.select(vinRegEx).text();
-                String brand = doc.select(brandRegEx).text();
-
-                String dateEnd = doc.select(dateEndRegEx).text();
-                dateEnd = DateUtil.formatSQLDate(dateEnd);
-
-                String trRegEx = "#content > div > div.content > div:nth-child(3) > table > tbody > tr";
-                int trSize = WebClientUtil.getTagSize(doc, trRegEx, HtmlTag.trName);
-
-                String serviceNames = "";
-                String itemNames = "";
-                if (trSize > 0) {
-                    for (int i = 1; i < trSize; i++) {
-                        String serviceItemNamesRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(1)";
-                        String goodsNamesRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(2)";
-                        String numRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(3)";
-                        String priceRegEx = trRegEx + ":nth-child(" + i + ") " + "> td:nth-child(5)";
-
-                        String serviceItemNames = doc.select(serviceItemNamesRegEx).text();
-                        String goodsNames = doc.select(goodsNamesRegEx).text();
-                        String num = doc.select(numRegEx).text();
-                        String price = doc.select(priceRegEx).text();
-                        price = price.replace("￥", "");
-
-                        serviceItemNames = serviceItemNames + "*" + num + "(" + price + ")";
-                        if (!"".equals(serviceNames))
-                            serviceNames = serviceNames + "," + serviceItemNames;
-
-                        if ("".equals(serviceNames))
-                            serviceNames = serviceItemNames;
-
-                        if ("".equals(goodsNames))
-                            continue;
-
-                        if (!"".equals(itemNames))
-                            itemNames = itemNames + "," + goodsNames;
-
-                        if ("".equals(itemNames))
-                            itemNames = goodsNames;
-
-                    }
-                }
-
-                Bill bill = new Bill();
-                bill.setBillNo(billNo);
-                bill.setCarNumber(carNumber);
-                bill.setMileage(mileage);
-                bill.setDateEnd(dateEnd);
-                bill.setCompanyName(companyName);
-                bill.setTotalAmount(totalAmount.replace("￥", ""));
-                bill.setReceptionistName(receptionistName);
-                bill.setRemark(billType + " " + remark);
-                bill.setGoodsNames(itemNames);
-                bill.setServiceItemNames(serviceNames);
-                bills.add(bill);
-
-                CarInfo carInfo = new CarInfo();
-                carInfo.setCompanyName(companyName);
-                carInfo.setCarNumber(carNumber);
-                carInfo.setName(name);
-                carInfo.setPhone(phone);
-                carInfo.setVINcode(vin);
-                carInfo.setBrand(brand);
-                carInfos.add(carInfo);
-
             }
         }
 
