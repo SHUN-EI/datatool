@@ -79,9 +79,9 @@ public class HuiCheBangService {
                     for (Element tr : trs) {
                         Elements tds = tr.getElementsByTag("td");
 
-                        if (tds.size()>0){
-                            String productName =  tds.get(0).select("input").attr("value");
-                            String price =  tds.get(1).select("input").attr("value");
+                        if (tds.size() > 0) {
+                            String productName = tds.get(0).select("input").attr("value");
+                            String price = tds.get(1).select("input").attr("value");
 
                             Product product = new Product();
                             product.setCompanyName(companyName);
@@ -226,7 +226,6 @@ public class HuiCheBangService {
                         String receptionistNameRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(8)";
                         String dateEndRegEx = "body > div > table > tbody:nth-child(2) > tr > td > div:nth-child(6)";
 
-
                         String billNo = doc.select(billNoRegEx).text().replace("单号：", "");
                         String carNumber = doc.select(carNumberRegEx).text().replace("车牌号码：", "");
                         String totalAmount = doc.select(totalAmountRegEx).text();
@@ -234,6 +233,84 @@ public class HuiCheBangService {
                         String dateEnd = doc.select(dateEndRegEx).text().replace("结算时间：", "");
                         dateEnd = DateUtil.formatSQLDate(dateEnd);
 
+                        int serviceIndex = 0;
+                        int itemIndex = 0;
+                        String serviceNames = "";
+                        String itemNames = "";
+
+                        String tableRegEx = "body > div > table ";
+                        Elements elements = doc.select(tableRegEx);
+                        if (elements.size() > 0) {
+                            Elements bodys = elements.get(0).children();
+
+                            if (bodys.size() > 0) {
+                                for (int z = 0; z < bodys.size(); z++) {
+                                    Element e = bodys.get(z);
+
+                                    String serviveThRegEx = "tr > th:nth-child(2)";
+                                    String serviceTh = e.select(serviveThRegEx).text();
+                                    if (serviceTh != null && "事项".equals(serviceTh)) {
+                                        serviceIndex = z + 1;
+                                        continue;
+                                    }
+
+                                    String itemThRegEx = "tr > th:nth-child(1)";
+                                    String itemTh = e.select(itemThRegEx).text();
+                                    if (itemTh != null && "产品名称".equals(itemTh)) {
+                                        itemIndex = z + 1;
+                                        continue;
+                                    }
+
+                                }
+
+                                //商品
+                                if (itemIndex > 0) {
+                                    Element tbody = bodys.get(itemIndex);
+                                    Elements trs = tbody.getElementsByTag("tr");
+
+                                    if (trs.size() > 0) {
+                                        for (Element tr : trs) {
+
+                                            String goodsNames = tr.select("td:nth-child(1)").text();
+                                            String price = tr.select("td:nth-child(2)").text().replace(" 元", "");//售价
+                                            String actualAmount = tr.select("td:nth-child(6)").text().replace(" 元", "");//实价
+                                            String cost = tr.select("td:nth-child(7)").text().replace(" 元", "");//成本
+                                            String num = tr.select("td:nth-child(3)").text();
+
+                                            goodsNames = goodsNames + "*" + num + "(" + actualAmount + ")";
+
+                                            if (!"".equals(itemNames))
+                                                itemNames = itemNames + "," + goodsNames;
+
+                                            if ("".equals(itemNames))
+                                                itemNames = goodsNames;
+                                        }
+                                    }
+                                }
+
+                                //服务
+                                if (serviceIndex > 0) {
+                                    Element tbody = bodys.get(serviceIndex);
+                                    Elements trs = tbody.getElementsByTag("tr");
+
+                                    if (trs.size() > 0) {
+                                        for (Element tr : trs) {
+
+                                            String serviceItemNames = tr.select("td:nth-child(2)").text();
+                                            String price = tr.select("td:nth-child(3)").text().replace(" 元", "");
+
+                                            serviceItemNames = serviceItemNames + "(" + price + ")";
+
+                                            if (!"".equals(serviceNames))
+                                                serviceNames = serviceNames + "," + serviceItemNames;
+
+                                            if ("".equals(serviceNames))
+                                                serviceNames = serviceItemNames;
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                         Bill bill = new Bill();
                         bill.setBillNo(billNo);
@@ -242,17 +319,16 @@ public class HuiCheBangService {
                         bill.setTotalAmount(totalAmount);
                         bill.setReceptionistName(receptionistName);
                         bill.setDateEnd(dateEnd);
-
-
-                        //商品及服务
-
-                        String aaa = "";
+                        bill.setServiceItemNames(serviceNames);
+                        bill.setGoodsNames(itemNames);
                         bills.add(bill);
-
                     }
                 }
             }
         }
+
+        String pathname = "C:\\exportExcel\\惠车邦消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
 
     }
 
