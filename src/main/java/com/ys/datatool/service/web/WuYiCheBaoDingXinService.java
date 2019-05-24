@@ -49,7 +49,7 @@ public class WuYiCheBaoDingXinService {
 
     /**
      * 历史消费记录和消费记录相关车辆
-     * 营销管理-订单管理
+     * 打开路径:营销管理-订单管理
      *
      * @throws IOException
      */
@@ -81,7 +81,6 @@ public class WuYiCheBaoDingXinService {
                         String content = resp.returnContent().asString();
                         Document doc = Jsoup.parseBodyFragment(content);
 
-
                         String carNumberRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(4)";
                         String mileageRegEx = "#content > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(6)";
                         String totalAmountRegEx = "#content > div > div.content > table > tbody > tr:nth-child(3) > td:nth-child(4)";
@@ -110,11 +109,11 @@ public class WuYiCheBaoDingXinService {
                         String serviceNames = "";
                         String itemNames = "";
                         if (itemTrSize > 0) {
-                            for (int z = 1; z < trSize; z++) {
-                                String serviceItemNamesRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(1)";
-                                String goodsNamesRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(2)";
-                                String numRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(3)";
-                                String priceRegEx = trRegEx + ":nth-child(" + z + ") " + "> td:nth-child(5)";
+                            for (int z = 1; z < itemTrSize; z++) {
+                                String serviceItemNamesRegEx = itemTrRegEx + ":nth-child(" + z + ") " + "> td:nth-child(1)";
+                                String goodsNamesRegEx = itemTrRegEx + ":nth-child(" + z + ") " + "> td:nth-child(2)";
+                                String numRegEx = itemTrRegEx + ":nth-child(" + z + ") " + "> td:nth-child(3)";
+                                String priceRegEx = itemTrRegEx + ":nth-child(" + z + ") " + "> td:nth-child(5)";
 
                                 String serviceItemNames = doc.select(serviceItemNamesRegEx).text();
                                 String goodsNames = doc.select(goodsNamesRegEx).text();
@@ -177,7 +176,7 @@ public class WuYiCheBaoDingXinService {
 
     /**
      * 服务项目
-     * 系统设置-服务项目
+     * 打开路径:系统设置-服务项目
      *
      * @throws IOException
      */
@@ -226,7 +225,7 @@ public class WuYiCheBaoDingXinService {
 
     /**
      * 财务记账数据
-     * 财务管理-财务记账
+     * 打开路径:财务管理-财务记账
      *
      * @throws IOException
      */
