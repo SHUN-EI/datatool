@@ -30,54 +30,42 @@ import java.util.Map;
 @Service
 public class CheYingJiaService {
 
-    /**
-     * ------------------- 需要填写的参数-------------------------
-     */
-
-    private String userName = "297edeb35a231435015a31ebc5521551";
-
-    private String passWord = "26632B3B9C921ED695E2DC7C6924C37A";
-
-    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
-
-    private String companyId = "297edeb3569c18dc01569cf836cd1a22";
-
-    //订单开始时间
-    private String billStartDate = "2005/01/01";
 
     /**
-     * 车辆页面总页数
+     * 工具使用前，请先填写userName、passWord、cyjToken、companyId、element、及每个方法要求的总页数
      */
-    private int carInfoNum = 431;
+    private String userName = "297edeb3576b347701576fc49df54f12";
 
-    /**
-     * 供应商页面总页数
-     */
+    private String passWord = "02CB3BA198C22193819449FE195FA1DE";
+
+    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585<";
+
+    private String companyId = "297edeb3574bb64b0157512a6d082f72";
+
+
+    //车辆页面总页数
+    private int carInfoNum = 10;
+
+    //供应商页面总页数
     private int supplierNum = 6;
 
-    /**
-     * 服务页面总页数
-     */
+    //服务页面总页数
     private int serviceNum = 20;
 
-    /**
-     * 商品页面总页数
-     */
+    //商品页面总页数
     private int itemNum = 108;
 
-    /**
-     * 会员卡页面总页数
-     */
+    //会员卡页面总页数
     private int memberCardNum = 11;//323
 
-    /**
-     * 解析返回数据传参
-     */
-    private String element = "_x0032_06";
+    //解析返回数据传参
+    private String element = "_x0031_839";
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //订单开始时间
+    private String billStartDate = "2005/01/01";
 
     private String companyName = "车赢家";
 
@@ -1220,6 +1208,7 @@ public class CheYingJiaService {
 
     /**
      * 供应商-标准模版导出
+     * 打开路径:资料查询-供应商库
      *
      * @throws IOException
      * @throws DocumentException
@@ -1343,6 +1332,7 @@ public class CheYingJiaService {
 
     /**
      * 车辆信息-标准模版导出
+     * 打开路径:客户管理-客户资料
      *
      * @throws IOException
      * @throws DocumentException
@@ -1396,12 +1386,11 @@ public class CheYingJiaService {
                 "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
 
-        String param2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-                "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a0eb000015a1baf767104da</UserName><PassWord>3844FFFB48E49782625F10D54E4AACCD</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb357fb144a01580046ab245d37</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+        String param2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>02CB3BA198C22193819449FE195FA1DE</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
                 "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:int\"&gt;3&lt;/Value&gt;\n" +
                 "  &lt;/DictionaryEntry&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
@@ -1413,7 +1402,7 @@ public class CheYingJiaService {
                 "  &lt;/DictionaryEntry&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb357fb144a01580046ab245d37'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb3574bb64b0157512a6d082f72'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
                 "  &lt;/DictionaryEntry&gt;\n" +
                 "  &lt;DictionaryEntry&gt;\n" +
                 "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
