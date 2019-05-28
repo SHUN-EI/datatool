@@ -46,7 +46,7 @@ public class CheYingJiaService {
     private String companyId = "297edeb3574bb64b0157512a6d082f72";
 
 
-    //解析返回数据传参(这参数非常重要！！！使用每个方法时都需要修改这个值)
+    //解析返回数据传参(这参数非常重要！！！使用方法前需要修改这个值----------卡内项目方法不用改)
     private String element = "_x0031_002";
 
     //车辆信息总页数
@@ -238,11 +238,12 @@ public class CheYingJiaService {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    /////////////////////////////卡内项目传参(找到 cardInfoId=，并修改为 cardInfoId='{no}' )///////////////////////////////////////////////////////////////////////////////////////
 
-    /////////////////////////////卡内项目传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+    private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>DDAA24C78B95923C337CAA59F5403763</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}' </SQLString></Query></soap:Body></soap:Envelope>";
 
 
-    private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}'</SQLString></Query></soap:Body></soap:Envelope>";
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -844,6 +845,9 @@ public class CheYingJiaService {
 
     /**
      * 卡内项目-标准模版导出
+     * 只需要修改卡内项目传参:memberCardItemParam
+     * <p>
+     * 打开路径:客户管理-会员资料
      *
      * @throws IOException
      * @throws DocumentException
@@ -853,6 +857,7 @@ public class CheYingJiaService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
+        //先获取所有会员卡
         for (int i = 1; i <= memberCardNum; i++) {
             String params = StringUtils.replace(memberCardParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
