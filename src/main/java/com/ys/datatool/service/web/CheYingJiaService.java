@@ -32,58 +32,41 @@ public class CheYingJiaService {
 
 
     /**
-     * 工具使用前，请先填写userName、passWord、cyjToken、companyId、element、及每个方法要求的总页数
+     * 工具使用前，请先填写element、每个方法要求的总页数、要求的传参
      */
-    private String userName = "297edeb3576b347701576fc49df54f12";
 
-    private String passWord = "02CB3BA198C22193819449FE195FA1DE";
+    private String userName = "97edeb3576b347701576fc49df54f12";
 
-    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585<";
+    private String passWord = "5F22DC2B20F2B382C46F37CF000E75F6";
+
+    private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
 
     private String companyId = "297edeb3574bb64b0157512a6d082f72";
 
 
+    //解析返回数据传参
+    private String element = "_x0035_8";
+
     //车辆页面总页数
-    private int carInfoNum = 10;
+    private int carInfoNum = 93;
 
     //供应商页面总页数
     private int supplierNum = 6;
 
     //服务页面总页数
-    private int serviceNum = 20;
+    private int serviceNum = 58;
 
     //商品页面总页数
     private int itemNum = 108;
 
     //会员卡页面总页数
-    private int memberCardNum = 11;//323
-
-    //解析返回数据传参
-    private String element = "_x0031_839";
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private int memberCardNum = 69;
 
     //订单开始时间
     private String billStartDate = "2005/01/01";
 
-    private String companyName = "车赢家";
-
-    private String url = "http://61.186.130.102:803/YCKService.asmx";
-
-    private String BillURL = "http://61.186.130.102:803/BCSService.asmx";
-
-    private String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
-
-    private String QUERYSOAPAction = "http://tempuri.org/Query";
-
-    private Charset charset = Charset.forName("UTF-8");
-
-    private String mentID = "13bcbcfd2ed14fccbbf20da4e2d630a8";
-
-
-    //会员卡参数
-    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>A1946272ED8B113A393FF5DD804831DA</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+    //车辆信息传参
+    private String carInfoParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -91,7 +74,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt;ID&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;LEAGUERNUM desc,LEAGUERNAME,MOBILE&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
@@ -99,7 +82,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt; MERID='297edeb3569c18dc01569cf836cd1a22' and (leaguerState is null or leaguerState = '1' or leaguerState = '3') and  isMember=1 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb3574bb64b0157512a6d082f72'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
@@ -111,78 +94,125 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
+    //供应商传参
+    private String supplierParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+            "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;comCode&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;payType,id,tenantID,tenantCode,tenantName,comCode,company,comGroup,comType,email,contacts,conTel,fax,mobile,comPage,county,province,city,post,address,openBank,bankAccount,taxNum,state,remark,createEmp,createEmpId,createDate,storeID,storeName&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;tenantID='297edeb3574bb64b0157512a6d082f72'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_supplierManager&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //单据服务参数
-    private String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<soap:Header>" +
-            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-            "<UserName>" +
-            userName +
-            "</UserName>" +
-            "<PassWord>" +
-            passWord +
-            "</PassWord>" +
-            "<CyjToken>" +
-            cyjToken +
-            "</CyjToken>" +
-            "<CompanyId>" +
-            companyId +
-            "</CompanyId>" +
-            "</MySoapHeader>" +
-            "</soap:Header>" +
-            "<soap:Body>" +
-            "<Query xmlns=\"http://tempuri.org/\">" +
-            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo,case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID,ProjectID," +
-            "PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName,minorName,shopName," +
-            "royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax," +
-            "TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID," +
-            "costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice,TirePositCode,editPrice," +
-            "TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount FROM bcs_ConSettlProject  " +
-            "where MentID='" +
-            "{mentID}" +
-            "' and ProjectType=0 order by showIndex" +
-            "</SQLString>" +
-            "</Query>" +
-            "</soap:Body>" +
-            "</soap:Envelope>";
+    //服务项目传参
+    private String serviceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+            "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;code&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;id,code,name,description,costPrice,salePrice,minSalePrice,workTime,workTimePrice,workTypeId,workType,settleType,merId,merName,storesId,storesName,commission,constructionNum,constructionCost,proCostPrice,invCostPrice,isOnlyCar,mnemonicCode,ApplyModel,costObjectId,costObjectName &lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;merid='297edeb3574bb64b0157512a6d082f72' and (bakFive ='A' or bakFive is null or bakFive = '') and (storesid like '%297edeb3576b347701576fa84c7445b7%'or storesid='ALL')  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;YCK_SERVICEITEM&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //单据配件参数
-    private String billItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<soap:Header>" +
-            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-            "<UserName>" +
-            userName +
-            "</UserName>" +
-            "<PassWord>" +
-            passWord +
-            "</PassWord>" +
-            "<CyjToken>" +
-            cyjToken +
-            "</CyjToken>" +
-            "<CompanyId>" +
-            companyId +
-            "</CompanyId>" +
-            "</MySoapHeader>" +
-            "</soap:Header>" +
-            "<soap:Body>" +
-            "<Query xmlns=\"http://tempuri.org/\">" +
-            "<SQLString>" +
-            "select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText,remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID,Brand,ProjectID," +
-            "AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num,TotalPay,IsDelete,IsUpLoad,price,SaleTime," +
-            "ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal," +
-            "Ispromotion,inSotreType,supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE," +
-            "warehouseID,costObjectID,costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId," +
-            "IsConfirm,(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText," +
-            "sourcePrice,editPrice,'1' as ISSELECT  from bcs_ConSettlProjectAccess where " +
-            "MentID ='" +
-            "{mentID}" +
-            "' order by showIndex" +
-            "</SQLString>" +
-            "</Query>" +
-            "</soap:Body>" +
-            "</soap:Envelope>";
+    //商品传参
+    private String itemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+            "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;stockno&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt; id, states, productname,'0' IsPrintCode, productcode, stockno, pinyinno, brand, specmodel, unit, supplier, supplerid, storenum, appinnum, trueinnum, appoutnum, trueoutnum, customname, customcode, customid, warehousename, warehousecode, warehouseid, createper, createperid, createdates, productcage, productcageid, protypeid, protypecode, protypename, createdate, createemp, lastupdatedate, updateemp, bakone, baktwo, bakthree, bakfour, bakfive, baksix, bakseven, bakeight, baknine, bakten, productid, applymodel, picstore, applymodelid, tenantname, tenantid, picsrc, picstore1, picstore2, picstore3, picstore4, picstore5, picstore6, picstore7, viceunit, price, saleprice, lowsaleprice, wholesaleprice1, wholesaleprice2, memsaleprice1, memsaleprice2, inprice, outnumprice, storeprice, avgprice, wholesaleprice, storesaleprice, allotsaleprice, shopsaleprice, memsaleprice, promsaleprice,storeID,storeName&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;TenantID= '297edeb3574bb64b0157512a6d082f72' and states &amp;lt;&amp;gt; 2 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_ProductInfo&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
+    //会员卡参数
+    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+            "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\" /&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;'0' as IsSelect,SALESNAME,id,cardId,cardClassId,cardClassName,subCardFlag,subOrder,tranPassId,quryPassId,membId,membName,leaguerNum,membPhone,smsFlag,makeCardDate,validDate,activeDate,closeDate,lastActiDate,makeCardFileid,sellType,cardYesdBal,cardBal,cardSubAcctNub,track1,track2,track3,cardCVV,disCrank,merId,merName,branchCompId,agentCompId,projMangId,projAssitId,stats,lastOperId,lastOperName,createEmpName,lastOperDate,batchNo,storesId,storesName,memberCarId,memberCar,ciCarNumber,bakThree,bakFour,bakFive,Remark&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb3574bb64b0157512a6d082f72' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "  &lt;DictionaryEntry&gt;\n" +
+            "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_cardInfo&lt;/Value&gt;\n" +
+            "  &lt;/DictionaryEntry&gt;\n" +
+            "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
+
+
+    //卡内项目传参
+    private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}'</SQLString></Query></soap:Body></soap:Envelope>";
 
     //单据参数
     private String billParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
@@ -232,8 +262,79 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
+    //单据服务参数
+    private String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo,case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus,WorkStatus,ID,MentID,ProjectID," +
+            "PROJECTNAME,minSalePrice,costPrice,salePrice,workTime,workTypeId,workType,majorName,minorName,shopName," +
+            "royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM,THISNUM,ProductTax," +
+            "TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID," +
+            "costObjectName,discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice,TirePositCode,editPrice," +
+            "TirePositCode,TirePositName,Tirekm,Treadpattern,TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount FROM bcs_ConSettlProject  " +
+            "where MentID='" +
+            "{mentID}" +
+            "' and ProjectType=0 order by showIndex" +
+            "</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
 
-    //卡结算单明细
+
+    //单据配件传参
+    private String billItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<soap:Header>" +
+            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
+            "<UserName>" +
+            userName +
+            "</UserName>" +
+            "<PassWord>" +
+            passWord +
+            "</PassWord>" +
+            "<CyjToken>" +
+            cyjToken +
+            "</CyjToken>" +
+            "<CompanyId>" +
+            companyId +
+            "</CompanyId>" +
+            "</MySoapHeader>" +
+            "</soap:Header>" +
+            "<soap:Body>" +
+            "<Query xmlns=\"http://tempuri.org/\">" +
+            "<SQLString>" +
+            "select IsInStore,(case IsInStore when '1' then '已确认' else '' end) as IsInStoreText,remark,ROW_NUMBER() OVER(ORDER BY id desc) as cNo,ID,MentProID,ProAccessID,Brand,ProjectID," +
+            "AccessName,AccessCode,lowSalePrice,salePrice,Discount,Num,TotalPay,IsDelete,IsUpLoad,price,SaleTime," +
+            "ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum,ProuductNo,specModel,Isgive,Issetmeal," +
+            "Ispromotion,inSotreType,supplierID,supplier,batchNumber,DiscountPrice,warehouseName,warehouseCODE," +
+            "warehouseID,costObjectID,costObjectName,discountRate,showIndex,unit,inStoreID,shopName,shopNameId," +
+            "IsConfirm,(case IsConfirm when 1 then '已确认' else '' end) as IsConfirmText," +
+            "sourcePrice,editPrice,'1' as ISSELECT  from bcs_ConSettlProjectAccess where " +
+            "MentID ='" +
+            "{mentID}" +
+            "' order by showIndex" +
+            "</SQLString>" +
+            "</Query>" +
+            "</soap:Body>" +
+            "</soap:Envelope>";
+
+    //卡结算单明细传参
     private String billServiceTypeParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
             "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
@@ -271,8 +372,7 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
-
-    //商品零售单明细
+    //商品零售单明细传参
     private String billSaleParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
@@ -311,11 +411,31 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    private String companyName = "车赢家";
+
+    private String url = "http://61.186.130.102:803/YCKService.asmx";
+
+    private String BillURL = "http://61.186.130.102:803/BCSService.asmx";
+
+    private String SOAPAction = "http://tempuri.org/RunProcedureAndGetTotalRecord";
+
+    private String QUERYSOAPAction = "http://tempuri.org/Query";
+
+    private Charset charset = Charset.forName("UTF-8");
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     /**
      * 历史消费记录和消费记录相关车辆
+     * 打开路径:前台收银-全部销售订单
+     * 服务项目-服务项目与配件
+     * 商品-商品信息
      *
      * @throws IOException
      */
@@ -427,7 +547,7 @@ public class CheYingJiaService {
                 String billId = bill.getBillId();
 
                 //商品
-                String itemParam = StringUtils.replace(billItemParam, "{mentID}", id);
+                String itemParam = StringUtils.replace(billItemParam, "{no}", id);
                 Response res2 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, itemParam);
                 String itemHtml = res2.returnContent().asString(charset);
 
@@ -479,7 +599,7 @@ public class CheYingJiaService {
                 }
 
                 //服务项目
-                String serviceParam = StringUtils.replace(billServiceParam, "{mentID}", id);
+                String serviceParam = StringUtils.replace(billServiceParam, "{no}", id);
                 Response res3 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, serviceParam);
                 String serviceHtml = res3.returnContent().asString(charset);
 
@@ -676,71 +796,8 @@ public class CheYingJiaService {
         List<MemberCardItem> memberCardItems = new ArrayList<>();
         Map<String, MemberCard> memberCardMap = new HashMap<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header>" +
-                "<soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\">" +
-                "<storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\" /&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;'0' as IsSelect,SALESNAME,id,cardId,cardClassId,cardClassName,subCardFlag,subOrder,tranPassId,quryPassId,membId,membName,leaguerNum,membPhone,smsFlag,makeCardDate,validDate,activeDate,closeDate,lastActiDate,makeCardFileid,sellType,cardYesdBal,cardBal,cardSubAcctNub,track1,track2,track3,cardCVV,disCrank,merId,merName,branchCompId,agentCompId,projMangId,projAssitId,stats,lastOperId,lastOperName,createEmpName,lastOperDate,batchNo,storesId,storesName,memberCarId,memberCar,ciCarNumber,bakThree,bakFour,bakFive,Remark&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb35d0b3080015d0ce0879e30af' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_cardInfo&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
-        String cardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\">" +
-                "<SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  " +
-                "where cardInfoId='{no}'</SQLString>" +
-                "</Query></soap:Body></soap:Envelope>";
-
         for (int i = 1; i <= memberCardNum; i++) {
-            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(memberCardParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
@@ -780,7 +837,7 @@ public class CheYingJiaService {
 
         if (memberCardMap.size() > 0) {
             for (String id : memberCardMap.keySet()) {
-                String params = StringUtils.replace(cardItemParam, "{no}", id);
+                String params = StringUtils.replace(memberCardItemParam, "{no}", id);
                 Response resp = ConnectionUtil.doPostWithSOAP(url, QUERYSOAPAction, params);
 
                 String html = resp.returnContent().asString(charset);
@@ -850,6 +907,7 @@ public class CheYingJiaService {
 
     /**
      * 会员卡-标准模版导出
+     * 打开路径:客户管理-客户卡信息
      *
      * @throws IOException
      * @throws DocumentException
@@ -857,55 +915,6 @@ public class CheYingJiaService {
     @Test
     public void fetchMemberCardData() throws IOException, DocumentException {
         List<MemberCard> memberCards = new ArrayList<>();
-
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-                "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-                "<soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader>" +
-                "</soap:Header>" +
-                "<soap:Body>" +
-                "<RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\">" +
-                "<storedProcName>up_getrecordbypage</storedProcName>" +
-                "<parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\" /&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;'0' as IsSelect,SALESNAME,id,cardId,cardClassId,cardClassName,subCardFlag,subOrder,tranPassId,quryPassId,membId,membName,leaguerNum,membPhone,smsFlag,makeCardDate,validDate,activeDate,closeDate,lastActiDate,makeCardFileid,sellType,cardYesdBal,cardBal,cardSubAcctNub,track1,track2,track3,cardCVV,disCrank,merId,merName,branchCompId,agentCompId,projMangId,projAssitId,stats,lastOperId,lastOperName,createEmpName,lastOperDate,batchNo,storesId,storesName,memberCarId,memberCar,ciCarNumber,bakThree,bakFour,bakFive,Remark&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb35d0b3080015d0ce0879e30af' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_cardInfo&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
         for (int i = 1; i <= memberCardNum; i++) {
             String params = StringUtils.replace(memberCardParam, "{no}", String.valueOf(i));
@@ -985,6 +994,7 @@ public class CheYingJiaService {
 
     /**
      * 商品-标准模版导出
+     * 打开路径:资料查询-商品库
      *
      * @throws IOException
      * @throws DocumentException
@@ -993,51 +1003,8 @@ public class CheYingJiaService {
     public void fetchItemData() throws IOException, DocumentException {
         List<Product> products = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;stockno&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt; id, states, productname,'0' IsPrintCode, productcode, stockno, pinyinno, brand, specmodel, unit, supplier, supplerid, storenum, appinnum, trueinnum, appoutnum, trueoutnum, customname, customcode, customid, warehousename, warehousecode, warehouseid, createper, createperid, createdates, productcage, productcageid, protypeid, protypecode, protypename, createdate, createemp, lastupdatedate, updateemp, bakone, baktwo, bakthree, bakfour, bakfive, baksix, bakseven, bakeight, baknine, bakten, productid, applymodel, picstore, applymodelid, tenantname, tenantid, picsrc, picstore1, picstore2, picstore3, picstore4, picstore5, picstore6, picstore7, viceunit, price, saleprice, lowsaleprice, wholesaleprice1, wholesaleprice2, memsaleprice1, memsaleprice2, inprice, outnumprice, storeprice, avgprice, wholesaleprice, storesaleprice, allotsaleprice, shopsaleprice, memsaleprice, promsaleprice,storeID,storeName&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;TenantID= '297edeb35d0b3080015d0ce0879e30af' and states &amp;lt;&amp;gt; 2 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_ProductInfo&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
-
         for (int i = 1; i <= itemNum; i++) {
-            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(itemParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
@@ -1110,6 +1077,7 @@ public class CheYingJiaService {
 
     /**
      * 服务项目-标准模版导出
+     * 打开路径:资料查询-项目库
      *
      * @throws IOException
      * @throws DocumentException
@@ -1118,50 +1086,8 @@ public class CheYingJiaService {
     public void fetchServiceData() throws IOException, DocumentException {
         List<Product> products = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;code&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;id,code,name,description,costPrice,salePrice,minSalePrice,workTime,workTimePrice,workTypeId,workType,settleType,merId,merName,storesId,storesName,commission,constructionNum,constructionCost,proCostPrice,invCostPrice,isOnlyCar,mnemonicCode,ApplyModel,costObjectId,costObjectName &lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;merid='297edeb35d0b3080015d0ce0879e30af' and (bakFive ='A' or bakFive is null or bakFive = '') and (storesid like '%297edeb35d1206b6015d169619a1254d%'or storesid='ALL')  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;YCK_SERVICEITEM&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
         for (int i = 1; i <= serviceNum; i++) {
-            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(serviceParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
             String html = response.returnContent().asString(charset);
             List<Element> dataList = getDataList(html, element);
@@ -1217,51 +1143,9 @@ public class CheYingJiaService {
     public void fetchSupplierData() throws IOException, DocumentException {
         List<Supplier> suppliers = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;comCode&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;payType,id,tenantID,tenantCode,tenantName,comCode,company,comGroup,comType,email,contacts,conTel,fax,mobile,comPage,county,province,city,post,address,openBank,bankAccount,taxNum,state,remark,createEmp,createEmpId,createDate,storeID,storeName&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;tenantID='297edeb35d0b3080015d0ce0879e30af'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_supplierManager&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
         for (int i = 1; i <= supplierNum; i++) {
 
-            String params = StringUtils.replace(param, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(supplierParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
@@ -1341,83 +1225,9 @@ public class CheYingJiaService {
     public void fetchCarInfoData() throws IOException, DocumentException {
         List<CarInfo> carInfos = new ArrayList<>();
 
-        String param = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-                "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-                "<soap:Header>" +
-                "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-                "<UserName>" +
-                userName +
-                "</UserName>" +
-                "<PassWord>" +
-                passWord +
-                "</PassWord>" +
-                "<CyjToken>" +
-                cyjToken +
-                "</CyjToken>" +
-                "<CompanyId>" +
-                companyId +
-                "</CompanyId>" +
-                "</MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;LEAGUERNUM desc,LEAGUERNAME,MOBILE&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;ID,LEAGUERNUM,MERID,LEAGUERNAME,ABBREVIATION,ZJTYPE,ZJNUM,SEX,BIRTHDAY,EMAIL,PHONE,MOBILE,ADDRESS,ZIPCODE,EDULEVEL,TRADETYPE,POST,COMTYPE,LEAGUERAREA,PIN,REGTIME,LOGOUTTIME,LEAGUERSTATE,C_SORTINDEX,CREATEDATE,CREATEEMP,LASTUPDATEDATE,UPDATEEMP,BAKONE,BAKTWO,BAKTHREE,BAKFOUR,BAKFIVE,BAKSIX,BAKSEVEN,BAKEIGHT,BAKNINE,BAKTEN,LEAGUERTYPEID,LEAGUERTYPE,MERNAME,STORESID,STORESNAME,ISONCREDIT,MAXCREDIT,ACCOUNTDAY,CLIENTMANAGERID,CLIENTMANAGER,CUSTOMERSOURCEID,CUSTOMERSOURCE,CARNUMBER,INTYPE,HYMONEY,INTEGRAL,MOBILEONE,case CUSTOMERSOURCE when '微信' then '微信' else '' end as ISWEIXIN, case leaguerState when '2' then '冻结客户' when '3' then '领养客户' else '正常客户' end as StateName,ADOPTTIME,LEVELNAME,LASTONSTORETIME,LASTVISITTIME,SumConsumptionAccount,SumConsumptionCount,FirstOnStoreDate &lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb35d0b3080015d0ce0879e30af'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_leaguerInfo&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
-
-        String param2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>02CB3BA198C22193819449FE195FA1DE</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
-                "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;3&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;LEAGUERNUM desc,LEAGUERNAME,MOBILE&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_fields&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;ID,LEAGUERNUM,MERID,LEAGUERNAME,ABBREVIATION,ZJTYPE,ZJNUM,SEX,BIRTHDAY,EMAIL,PHONE,MOBILE,ADDRESS,ZIPCODE,EDULEVEL,TRADETYPE,POST,COMTYPE,LEAGUERAREA,PIN,REGTIME,LOGOUTTIME,LEAGUERSTATE,C_SORTINDEX,CREATEDATE,CREATEEMP,LASTUPDATEDATE,UPDATEEMP,BAKONE,BAKTWO,BAKTHREE,BAKFOUR,BAKFIVE,BAKSIX,BAKSEVEN,BAKEIGHT,BAKNINE,BAKTEN,LEAGUERTYPEID,LEAGUERTYPE,MERNAME,STORESID,STORESNAME,ISONCREDIT,MAXCREDIT,ACCOUNTDAY,CLIENTMANAGERID,CLIENTMANAGER,CUSTOMERSOURCEID,CUSTOMERSOURCE,CARNUMBER,INTYPE,HYMONEY,INTEGRAL,MOBILEONE,case CUSTOMERSOURCE when '微信' then '微信' else '' end as ISWEIXIN, case leaguerState when '2' then '冻结客户' when '3' then '领养客户' else '正常客户' end as StateName,ADOPTTIME,LEVELNAME,LASTONSTORETIME,LASTVISITTIME,SumConsumptionAccount,SumConsumptionCount,FirstOnStoreDate &lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt; merid='297edeb3574bb64b0157512a6d082f72'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:int\"&gt;20&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "  &lt;DictionaryEntry&gt;\n" +
-                "    &lt;Key xsi:type=\"xsd:string\"&gt;p_tableName&lt;/Key&gt;\n" +
-                "    &lt;Value xsi:type=\"xsd:string\"&gt;yck_leaguerInfo&lt;/Value&gt;\n" +
-                "  &lt;/DictionaryEntry&gt;\n" +
-                "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
-
-
         for (int i = 1; i <= carInfoNum; i++) {
 
-            String params = StringUtils.replace(param2, "{no}", String.valueOf(i));
+            String params = StringUtils.replace(carInfoParam, "{no}", String.valueOf(i));
             Response response = ConnectionUtil.doPostWithSOAP(url, SOAPAction, params);
 
             String html = response.returnContent().asString(charset);
