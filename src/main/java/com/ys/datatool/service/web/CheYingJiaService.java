@@ -30,9 +30,11 @@ import java.util.Map;
 @Service
 public class CheYingJiaService {
 
-
     /**
-     * 工具使用前，请先填写element、每个方法要求的总页数、要求的传参
+     * 工具使用前
+     * 1.填写每个页面的总页数的值
+     * 2.填写每个方法要求的传参的值
+     * 3.填写解析返回数据传参 element的值
      */
 
     private String userName = "97edeb3576b347701576fc49df54f12";
@@ -44,29 +46,32 @@ public class CheYingJiaService {
     private String companyId = "297edeb3574bb64b0157512a6d082f72";
 
 
-    //解析返回数据传参
-    private String element = "_x0035_8";
+    //解析返回数据传参(这参数非常重要！！！使用每个方法时都需要修改这个值)
+    private String element = "_x0031_002";
 
-    //车辆页面总页数
+    //车辆信息总页数
     private int carInfoNum = 93;
 
-    //供应商页面总页数
-    private int supplierNum = 6;
+    //供应商总页数
+    private int supplierNum = 8;
 
-    //服务页面总页数
-    private int serviceNum = 58;
+    //服务项目总页数
+    private int serviceNum = 3;
 
-    //商品页面总页数
-    private int itemNum = 108;
+    //商品总页数
+    private int itemNum = 155;
 
-    //会员卡页面总页数
-    private int memberCardNum = 69;
+    //会员卡总页数
+    private int memberCardNum = 51;
 
     //订单开始时间
     private String billStartDate = "2005/01/01";
 
-    //车辆信息传参
-    private String carInfoParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+
+    //////////////////////////////车辆信息传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+
+    private String carInfoParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>7141F1540257FD4FF6B377388870EF11</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -94,8 +99,13 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //供应商传参
-    private String supplierParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    //////////////////////////////供应商传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+    private String supplierParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>D89CFE423C0F28DE35D3F2ED9AA2CF09</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -111,7 +121,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt;tenantID='297edeb3574bb64b0157512a6d082f72'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;tenantID='297edeb3569c18dc01569cf836cd1a22'  and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
@@ -123,8 +133,13 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //服务项目传参
-    private String serviceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    //////////////////////////////服务项目传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+    private String serviceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>7141F1540257FD4FF6B377388870EF11</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -152,8 +167,13 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //商品传参
-    private String itemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    //////////////////////////////商品传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+    private String itemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>D89CFE423C0F28DE35D3F2ED9AA2CF09</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -169,7 +189,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt;TenantID= '297edeb3574bb64b0157512a6d082f72' and states &amp;lt;&amp;gt; 2 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;TenantID= '297edeb3569c18dc01569cf836cd1a22' and states &amp;lt;&amp;gt; 2 and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
@@ -181,8 +201,13 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
-    //会员卡参数
-    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////会员卡传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>C0DD6A9941E8781C18888FF11C37074C</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -198,7 +223,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb3574bb64b0157512a6d082f72' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb3569c18dc01569cf836cd1a22' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
@@ -210,11 +235,22 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "&lt;/ArrayOfDictionaryEntry&gt;</parameters></RunProcedureAndGetTotalRecord></soap:Body></soap:Envelope>";
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //卡内项目传参
+
+
+    /////////////////////////////卡内项目传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+
     private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>5F22DC2B20F2B382C46F37CF000E75F6</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}'</SQLString></Query></soap:Body></soap:Envelope>";
 
-    //单据参数
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////单据传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+
     private String billParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
@@ -262,7 +298,12 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
-    //单据服务参数
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////单据服务传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
     private String billServiceParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
@@ -298,7 +339,11 @@ public class CheYingJiaService {
             "</soap:Envelope>";
 
 
-    //单据配件传参
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////单据配件传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
     private String billItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
             "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
@@ -334,7 +379,13 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
-    //卡结算单明细传参
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////卡结算单明细传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+
     private String billServiceTypeParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
             "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
@@ -372,7 +423,13 @@ public class CheYingJiaService {
             "</soap:Body>" +
             "</soap:Envelope>";
 
-    //商品零售单明细传参
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////商品零售单明细传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
+
+
     private String billSaleParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
             "<soap:Header>" +
@@ -412,7 +469,7 @@ public class CheYingJiaService {
             "</soap:Envelope>";
 
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     private String companyName = "车赢家";
@@ -901,13 +958,16 @@ public class CheYingJiaService {
         System.out.println("memberCardItems结果为" + memberCardItems.toString());
         System.out.println("memberCardItems大小为" + memberCardItems.size());
 
-        String pathname = "C:\\exportExcel\\车赢家卡内项目导出.xlsx";
+        String pathname = "C:\\exportExcel\\车赢家卡内项目.xlsx";
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 会员卡-标准模版导出
-     * 打开路径:客户管理-客户卡信息
+     * 会员卡总页数:memberCardNum
+     * 会员卡传参:memberCardParam
+     * <p>
+     * 打开路径:客户管理-会员资料
      *
      * @throws IOException
      * @throws DocumentException
@@ -988,12 +1048,15 @@ public class CheYingJiaService {
         System.out.println("结果为" + memberCards.toString());
         System.out.println("大小为" + memberCards.size());
 
-        String pathname = "C:\\exportExcel\\车赢家会员卡导出.xlsx";
+        String pathname = "C:\\exportExcel\\车赢家会员卡.xlsx";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 商品-标准模版导出
+     * 商品总页数:itemNum
+     * 商品传参:itemParam
+     * <p>
      * 打开路径:资料查询-商品库
      *
      * @throws IOException
@@ -1070,13 +1133,16 @@ public class CheYingJiaService {
         System.out.println("结果为" + products.toString());
         System.out.println("大小为" + products.size());
 
-        String pathname = "C:\\exportExcel\\车赢家商品导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家商品.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
 
     }
 
     /**
      * 服务项目-标准模版导出
+     * 服务项目总页数:serviceNum
+     * 服务项目传参:serviceParam
+     * <p>
      * 打开路径:资料查询-项目库
      *
      * @throws IOException
@@ -1128,12 +1194,15 @@ public class CheYingJiaService {
         System.out.println("结果为" + products.toString());
         System.out.println("大小为" + products.size());
 
-        String pathname = "C:\\exportExcel\\车赢家服务项目导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家服务项目.xls";
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 供应商-标准模版导出
+     * 供应商总页数:supplierNum
+     * 供应商传参:supplierParam
+     * <p>
      * 打开路径:资料查询-供应商库
      *
      * @throws IOException
@@ -1210,12 +1279,15 @@ public class CheYingJiaService {
         System.out.println("结果为" + suppliers.toString());
         System.out.println("大小为" + suppliers.size());
 
-        String pathname = "C:\\exportExcel\\车赢家供应商导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家供应商.xls";
         ExportUtil.exportSupplierDataInLocal(suppliers, ExcelDatas.workbook, pathname);
     }
 
     /**
      * 车辆信息-标准模版导出
+     * 车辆信息总页数: carInfoNum
+     * 车辆信息传参:carInfoParam
+     * <p>
      * 打开路径:客户管理-客户资料
      *
      * @throws IOException
@@ -1274,7 +1346,7 @@ public class CheYingJiaService {
         System.out.println("结果为" + carInfos.toString());
         System.out.println("结果为" + carInfos.size());
 
-        String pathname = "C:\\exportExcel\\车赢家车辆信息导出.xls";
+        String pathname = "C:\\exportExcel\\车赢家车辆信息.xls";
         ExportUtil.exportCarInfoDataInLocal(carInfos, ExcelDatas.workbook, pathname);
     }
 
