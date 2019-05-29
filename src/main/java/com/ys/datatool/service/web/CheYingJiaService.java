@@ -30,22 +30,27 @@ import java.util.Map;
 @Service
 public class CheYingJiaService {
 
+
     /**
-     * 工具使用前
-     * 1.填写每个页面的总页数的值
-     * 2.填写每个方法要求的传参的值
-     * 3.填写解析返回数据传参 element的值
+     * 使用历史消费记录工具需要填写的参数
+     * userName、passWord、cyjToken、companyId
+     *
      */
+    private String userName = "297edeb3576b347701576fc49df54f12";
 
-    private String userName = "97edeb3576b347701576fc49df54f12";
-
-    private String passWord = "5F22DC2B20F2B382C46F37CF000E75F6";
+    private String passWord = "DDAA24C78B95923C337CAA59F5403763";
 
     private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
 
     private String companyId = "297edeb3574bb64b0157512a6d082f72";
 
 
+    /**
+     * 工具使用前
+     * 1.填写每个页面的总页数的值
+     * 2.填写每个方法要求的传参的值
+     * 3.填写解析返回数据传参 element的值
+     */
     //解析返回数据传参(这参数非常重要！！！使用方法前需要修改这个值----------卡内项目方法不用改)
     private String element = "_x0031_002";
 
@@ -491,6 +496,16 @@ public class CheYingJiaService {
 
     /**
      * 历史消费记录和消费记录相关车辆
+     *
+     *
+     * 消费记录相关传参:
+     * 1.单据传参: billParam
+     * 2.单据配件传参:billItemParam
+     * 3.单据服务传参:billServiceParam
+     * 4.卡结算单明细传参:billServiceTypeParam
+     * 5.商品零售单:billSaleParam
+     *
+     *
      * 打开路径:前台收银-全部销售订单
      * 服务项目-服务项目与配件
      * 商品-商品信息
@@ -847,7 +862,7 @@ public class CheYingJiaService {
      * 卡内项目-标准模版导出
      * 只需要修改卡内项目传参:memberCardItemParam
      * <p>
-     * 打开路径:客户管理-会员资料
+     * 打开路径:客户管理-客户卡信息-详情
      *
      * @throws IOException
      * @throws DocumentException
@@ -972,7 +987,7 @@ public class CheYingJiaService {
      * 会员卡总页数:memberCardNum
      * 会员卡传参:memberCardParam
      * <p>
-     * 打开路径:客户管理-会员资料
+     * 打开路径:客户管理-客户卡信息
      *
      * @throws IOException
      * @throws DocumentException
@@ -1035,6 +1050,31 @@ public class CheYingJiaService {
                     if (balanceElement != null)
                         balance = balanceElement.getText();
 
+                    String state="";
+                    Element stateElement = node.element("STATS");
+                    if (stateElement != null){
+
+                        switch (stateElement.getText()) {
+                            case "0":
+                                state = "未激活";
+                                break;
+                            case "1":
+                                state = "正常";
+                                break;
+                            case "2":
+                                state = "冻结";
+                                break;
+                            case "3":
+                                state = "挂失";
+                                break;
+                            case "4":
+                                state = "停用";
+                                break;
+                        }
+
+                    }
+
+
                     MemberCard memberCard = new MemberCard();
                     memberCard.setMemberCardName(memberCardName);
                     memberCard.setCardCode(cardCode);
@@ -1045,6 +1085,7 @@ public class CheYingJiaService {
                     memberCard.setCompanyName(companyName);
                     memberCard.setCarNumber(carNumber);
                     memberCard.setBalance(balance);
+                    memberCard.setRemark(state);
                     memberCards.add(memberCard);
                 }
             }
