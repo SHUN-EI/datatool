@@ -52,7 +52,7 @@ public class CheYingJiaService {
      * 3.填写解析返回数据传参 element的值
      */
     //解析返回数据传参(这参数非常重要！！！使用方法前需要修改这个值----------卡内项目方法不用改)
-    private String element = "_x0031_002";
+    private String element = "_x0031_380";
 
     //车辆信息总页数
     private int carInfoNum = 93;
@@ -67,7 +67,7 @@ public class CheYingJiaService {
     private int itemNum = 155;
 
     //会员卡总页数
-    private int memberCardNum = 51;
+    private int memberCardNum = 69;
 
     //订单开始时间
     private String billStartDate = "2005/01/01";
@@ -76,11 +76,11 @@ public class CheYingJiaService {
     //////////////////////////////车辆信息传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
 
 
-    private String carInfoParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>7141F1540257FD4FF6B377388870EF11</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+    private String carInfoParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>3794B30A3ECE4999685E6144367CB911</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:int\"&gt;{no}&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:int\"&gt;4&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_sort&lt;/Key&gt;\n" +
@@ -212,7 +212,7 @@ public class CheYingJiaService {
 
     /////////////////////////////会员卡传参(找到当前页数的值，并修改为{no})///////////////////////////////////////////////////////////////////////////////////////
 
-    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb35a231435015a31ebc5521551</UserName><PassWord>C0DD6A9941E8781C18888FF11C37074C</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3569c18dc01569cf836cd1a22</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
+    private String memberCardParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>3794B30A3ECE4999685E6144367CB911</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><RunProcedureAndGetTotalRecord xmlns=\"http://tempuri.org/\"><storedProcName>up_getrecordbypage</storedProcName><parameters>&lt;?xml version=\"1.0\" encoding=\"utf-16\"?&gt;\n" +
             "&lt;ArrayOfDictionaryEntry xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_curPage&lt;/Key&gt;\n" +
@@ -228,7 +228,7 @@ public class CheYingJiaService {
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_filter&lt;/Key&gt;\n" +
-            "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb3569c18dc01569cf836cd1a22' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
+            "    &lt;Value xsi:type=\"xsd:string\"&gt;(merId='297edeb3574bb64b0157512a6d082f72' and (stats is null or stats &amp;lt;&amp;gt;'6')) and (attribute is null or attribute='N')&lt;/Value&gt;\n" +
             "  &lt;/DictionaryEntry&gt;\n" +
             "  &lt;DictionaryEntry&gt;\n" +
             "    &lt;Key xsi:type=\"xsd:string\"&gt;p_pageSize&lt;/Key&gt;\n" +
@@ -246,7 +246,7 @@ public class CheYingJiaService {
     /////////////////////////////卡内项目传参(找到 cardInfoId=，并修改为 cardInfoId='{no}' )///////////////////////////////////////////////////////////////////////////////////////
 
 
-    private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>DDAA24C78B95923C337CAA59F5403763</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}' </SQLString></Query></soap:Body></soap:Envelope>";
+    private String memberCardItemParam = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Header><MySoapHeader xmlns=\"http://tempuri.org/\"><UserName>297edeb3576b347701576fc49df54f12</UserName><PassWord>3794B30A3ECE4999685E6144367CB911</PassWord><CyjToken>2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585</CyjToken><CompanyId>297edeb3574bb64b0157512a6d082f72</CompanyId></MySoapHeader></soap:Header><soap:Body><Query xmlns=\"http://tempuri.org/\"><SQLString>select id,cardInfoId,itemId,itemCode,itemName,price,tolPrice,costprice,costtolprice,num,settleType,case when dayNum=''OR dayNum IS NULL THEN '0'ELSE dayNum END dayNum,surplusNum,useNum FROM yck_cardinfodetail  where cardInfoId='{no}'</SQLString></Query></soap:Body></soap:Envelope>";
 
 
 
@@ -904,7 +904,7 @@ public class CheYingJiaService {
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setMemberCardId(cardId);
-                    memberCard.setCardCode(cardCode);
+                    memberCard.setCardCode(cardId);
                     memberCard.setCompanyName(companyName);
                     memberCard.setValidTime(validTime);
                     memberCardMap.put(cardId, memberCard);
@@ -1010,6 +1010,11 @@ public class CheYingJiaService {
                     if (memberCardNameElement != null)
                         memberCardName = memberCardNameElement.getText();
 
+                    String cardId = "";
+                    Element cardIdElement = node.element("ID");
+                    if (cardIdElement != null)
+                        cardId = cardIdElement.getText();
+
                     String cardCode = "";
                     Element cardCodeElement = node.element("CARDID");
                     if (cardCodeElement != null)
@@ -1077,7 +1082,7 @@ public class CheYingJiaService {
 
                     MemberCard memberCard = new MemberCard();
                     memberCard.setMemberCardName(memberCardName);
-                    memberCard.setCardCode(cardCode);
+                    memberCard.setCardCode(cardId);
                     memberCard.setName(name);
                     memberCard.setPhone(phone);
                     memberCard.setDateCreated(dateCreated);
