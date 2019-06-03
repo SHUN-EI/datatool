@@ -568,45 +568,6 @@ public class CheYingJiaService {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    private  String param="<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<soap:Header>" +
-            "<MySoapHeader xmlns=\"http://tempuri.org/\">" +
-            "<UserName>" +
-            "297edeb35a231435015a31ebc5521551" +
-            "</UserName>" +
-            "<PassWord>" +
-            "D11626809E127CD55CB1BFEBFB0BC39F" +
-            "</PassWord>" +
-            "<CyjToken>" +
-            "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585" +
-            "</CyjToken>" +
-            "<CompanyId>" +
-            "297edeb3569c18dc01569cf836cd1a22" +
-            "</CompanyId>" +
-            "</MySoapHeader>" +
-            "</soap:Header>" +
-            "<soap:Body>" +
-            "<Query xmlns=\"http://tempuri.org/\">" +
-            "<SQLString>select ProjectCode Code,ROW_NUMBER() OVER(ORDER BY showIndex) as cNo," +
-            "case WorkStatus when '10' then '质检通过' when '11' then '质检失败' end ZJStatus," +
-            "WorkStatus,ID,MentID,ProjectID,PROJECTNAME,minSalePrice,costPrice," +
-            "salePrice,workTime,workTypeId,workType,majorName,minorName,shopName," +
-            "royaltyRate,Discount,TotalPay,IsDelete,IsUpLoad,NUM,SURPLUSNUM,USENUM," +
-            "THISNUM,ProductTax,TaxSalePrice,TaxTotalSum,TaxSum,CoStSum,Profitsum," +
-            "ProjectCode,WorkTimePrice,1.0 as ISSELECT,costObjectID,costObjectName," +
-            "discountRate,showIndex,remark,projectNum,shopNameId,sourcePrice," +
-            "TirePositCode,editPrice,TirePositCode,TirePositName,Tirekm,Treadpattern," +
-            "TireOutTime,brakepad,'1' as isprint,WorkTimePrice,RebatesAccount " +
-            "FROM bcs_ConSettlProject  where " +
-            "MentID='0B3B82D3-2F28-4C96-B3E4-6B9C2E92B88F' " +
-            "and ProjectType=0 " +
-            "order by showIndex" +
-            "</SQLString>" +
-            "</Query>" +
-            "</soap:Body>" +
-            "</soap:Envelope>";
-
-
     private String companyName = "车赢家";
 
     private String url = "http://61.186.130.102:803/YCKService.asmx";
@@ -748,7 +709,7 @@ public class CheYingJiaService {
 
                 /////////////////////////////单据配件////////////////////////////////////////////////////////////////////////////////
 
-                String itemParam = StringUtils.replace(billItemParam, "{no}", id);
+                String itemParam = StringUtils.replace(billItemParam, "{mentID}", id);
                 Response res2 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, itemParam);
                 String itemHtml = res2.returnContent().asString(charset);
 
@@ -802,7 +763,7 @@ public class CheYingJiaService {
 
                 /////////////////////////////单据服务////////////////////////////////////////////////////////////////////////////////
 
-                String serviceParam = StringUtils.replace(billServiceParam, "{no}", id);
+                String serviceParam = StringUtils.replace(billServiceParam, "{mentID}", id);
                 Response res3 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, serviceParam);
                 String serviceHtml = res3.returnContent().asString(charset);
 
@@ -926,7 +887,7 @@ public class CheYingJiaService {
 
                 /////////////////////////////商品零售单明细////////////////////////////////////////////////////////////////////////////////
 
-                String billSaleItemParam = StringUtils.replace(billSaleParam, "{saleId}", billId);
+                String billSaleItemParam = StringUtils.replace(billSaleParam, "{saleId}",id);
                 Response res5 = ConnectionUtil.doPostWithSOAP(BillURL, QUERYSOAPAction, billSaleItemParam);
                 String billSaleHtml = res5.returnContent().asString(charset);
 
@@ -1238,11 +1199,6 @@ public class CheYingJiaService {
                 }
             }
         }
-
-        System.out.println("memberCardMap结果为" + memberCardMap.toString());
-        System.out.println("memberCardMap大小为" + memberCardMap.size());
-        System.out.println("memberCardItems结果为" + memberCardItems.toString());
-        System.out.println("memberCardItems大小为" + memberCardItems.size());
 
         String pathname = "C:\\exportExcel\\车赢家卡内项目.xlsx";
         ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname);
