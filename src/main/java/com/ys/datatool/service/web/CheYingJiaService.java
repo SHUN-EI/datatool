@@ -33,15 +33,17 @@ public class CheYingJiaService {
 
     /**
      * 使用历史消费记录工具需要填写的参数
-     * userName、passWord、cyjToken、companyId
+     * userName、passWord、cyjToken、companyId、storeId
      */
-    private String userName = "297edeb35a231435015a31ebc5521551";
+    private String userName = "297edeb3576b347701576fc49df54f12";
 
-    private String passWord = "D11626809E127CD55CB1BFEBFB0BC39F";
+    private String passWord = "3815EFA1DB86BBBC28B24789D1C1A78F";
 
     private String cyjToken = "2016-03-07T09:57:07.8402B59263D6E3FD3F07664C26E36637585";
 
-    private String companyId = "297edeb3569c18dc01569cf836cd1a22";
+    private String companyId = "297edeb3574bb64b0157512a6d082f72";
+
+    private String storeId="297edeb3576b347701576fa84c7445b7";
 
 
     /**
@@ -290,7 +292,7 @@ public class CheYingJiaService {
             "Source,(case Source when '1' then 'APP' when '2' then '快捷开单' else '' end) as SourceName,SettUserName " +
             "from bcs_ConSettlement a  where  a.status!=-1 and  " +
             "a.StoreID='" +
-            "297edeb35a231435015a25e1070d0b1b" +
+            storeId +
             "' and ordername&lt;&gt;'积分换购单' and a.ordername&lt;&gt;'返修单' and a.ordername&lt;&gt;'结算调整单'  " +
             "and a.BillingDate &gt;= '" +
             billStartDate +
