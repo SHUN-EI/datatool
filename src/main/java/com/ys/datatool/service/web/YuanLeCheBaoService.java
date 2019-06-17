@@ -39,21 +39,21 @@ public class YuanLeCheBaoService {
      * 79(广州市花都区明杰)、113(新蔡爱卡汽车)、283(摩范汽车)、86(宜章财君)
      * 118(T-9养车汇)
      */
-    private String companyId = "118";
+    private String companyId = "271 ";
 
     /**
      * 分店编号-shopBranchId：
      * 146(路胜通汽车)、298(摩范汽车)、100(宜章财君)、132(T-9养车汇)
      */
-    private String shopBranchId = "132";
+    private String shopBranchId = "285";
 
     /**
      * staffId：
      * 2422(T-9养车汇)
      */
-    private String staffId = "2422";
+    private String staffId = "4285";
 
-    private String COOKIE = "JSESSIONID=F764741C902B765C2F2B851EA31E6895; usfl=R4rtlTGQtKVjr7F03LW; lk=30b10d2672ca57d7637b9892f0653c67";
+    private String COOKIE = "JSESSIONID=E2F59671ADDD2EFC763037783C88A2A5; usfl=5WZMVa2aFk12FlCElq0; lk=8a83584a4316d3ab05d5b2a793cd2c7b";
 
 
 

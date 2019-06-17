@@ -870,7 +870,7 @@ public class CheYingJiaService {
 
                             BillDetail billDetail = new BillDetail();
                             billDetail.setCompanyName(companyName);
-                            billDetail.setNum(num);
+                            billDetail.setNum(thisUsedNum);
                             billDetail.setThisUsedNum(thisUsedNum);
                             billDetail.setUsedNum(usedNum);
                             billDetail.setOriginalNum(originalNum);
