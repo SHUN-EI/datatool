@@ -75,7 +75,6 @@ public class ZhangShangCheDianService {
     private String companyName = "掌上车店";
 
 
-
     /**
      * 历史消费记录和消费记录相关车辆
      *
@@ -367,6 +366,7 @@ public class ZhangShangCheDianService {
                 memberCard.setDateCreated(dateCreated);
                 memberCard.setCompanyName(companyName);
                 memberCard.setRemark(m.getRemark());
+                memberCard.setMemberCardId(m.getMemberCardId());
                 memberCards.add(memberCard);
 
                 //过滤没有卡内项目
@@ -405,6 +405,8 @@ public class ZhangShangCheDianService {
                         memberCardItem.setSecondCategoryName(secondCategoryName);
                         memberCardItem.setValidTime(validTime.replace("-", "/"));
                         memberCardItem.setIsValidForever(isValidForever);
+                        memberCardItem.setMemberCardName(memberCardName);
+                        memberCardItem.setMemberCardItemId(m.getMemberCardId());
                         memberCardItems.add(memberCardItem);
 
                         Product product = new Product();
@@ -427,7 +429,7 @@ public class ZhangShangCheDianService {
         String pathname2 = "C:\\exportExcel\\掌上车店卡内项目.xls";
         String pathname3 = "C:\\exportExcel\\掌上车店卡内项目商品.xls";
         ExportUtil.exportMemberCardSomeFieldDataInLocal(memberCards, ExcelDatas.workbook, pathname);
-        ExportUtil.exportMemberCardItemDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
+        ExportUtil.exportMemberCardItemSomeFieldDataInLocal(memberCardItems, ExcelDatas.workbook, pathname2);
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname3);
     }
 
