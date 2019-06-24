@@ -612,9 +612,12 @@ public class ZhangShangCheDianService {
                 Document document = Jsoup.parse(html);
 
                 for (int j = 1; j <= 15; j++) {
-                    String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(15) > p:nth-child(1) > a";
+
+                    int index = 15;//会员卡id所在位置
+                    String cardIdRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(" + index + ") > p:nth-child(1) > a";
                     String cardId = document.select(cardIdRegEx).attr("data-id");
 
+                    //会员卡状态
                     String stateRegEx = "body > div.wrapper > div.contents > div > div.main > table > tbody > tr:nth-child(" + j + ") > td:nth-child(13) ";
                     String remark = document.select(stateRegEx).text();
 
