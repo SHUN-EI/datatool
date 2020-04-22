@@ -4,14 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ys.datatool.domain.config.ExcelDatas;
 import com.ys.datatool.domain.config.JsonObject;
 import com.ys.datatool.domain.config.WebConfig;
-import com.ys.datatool.domain.entity.CarInfo;
-import com.ys.datatool.domain.entity.MemberCard;
-import com.ys.datatool.domain.entity.MemberCardItem;
-import com.ys.datatool.domain.entity.Product;
-import com.ys.datatool.util.CommonUtil;
-import com.ys.datatool.util.ConnectionUtil;
-import com.ys.datatool.util.ExportUtil;
-import com.ys.datatool.util.WebClientUtil;
+import com.ys.datatool.domain.entity.*;
+import com.ys.datatool.util.*;
 import org.apache.http.client.fluent.Response;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
@@ -20,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by mo on 2019/4/14
@@ -34,10 +29,10 @@ public class ChePuService {
     private String COOKIE = "JSESSIONID=EFB9A09BD47E9710CFB6074E35776163-n1";
 
 
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    private String BILL_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-asorder-findAsorders4Web.do";
 
     private String MEMBERCARD_URL = "https://dm.chiefchain.cn/mnt/CRUD/CRUD-Q-mcard-findmemberCard.do";
 
@@ -51,6 +46,139 @@ public class ChePuService {
 
     private String fieldName = "result";
 
+    private String beginDate = "2017-01-01";
+
+
+    /**
+     * 历史消费记录
+     *
+     * @throws IOException
+     */
+    @Test
+    public void fetchConsumptionRecordDataStandard() throws IOException {
+        List<Bill> bills = new ArrayList<>();
+
+        //进行中的订单
+        Response res1 = ConnectionUtil.doPostWithForm(BILL_URL, getBillWorkingParam(1), COOKIE);
+
+        //已挂起的订单
+        Response res2 = ConnectionUtil.doPostWithForm(BILL_URL, getBillHoldParam(1), COOKIE);
+
+        //已挂账的订单
+        Response res3 = ConnectionUtil.doPostWithForm(BILL_URL, getBillUnPaidParam(1), COOKIE);
+
+        //已完成的订单
+        Response res4 = ConnectionUtil.doPostWithForm(BILL_URL, getBillFinishedParam(1), COOKIE);
+
+        //已失效的订单
+        Response res5 = ConnectionUtil.doPostWithForm(BILL_URL, getBillFailedParam(1), COOKIE);
+
+        int total1 = getBillTotalPage(res1);
+        int total2 = getBillTotalPage(res2);
+        int total3 = getBillTotalPage(res3);
+        int total4 = getBillTotalPage(res4);
+        int total5 = getBillTotalPage(res5);
+
+        fetchBillWorkingData(bills, total1);
+        fetchBillHoldData(bills, total2);
+        fetchBillUnPaidData(bills, total3);
+        fetchBillFinishedData(bills, total4);
+        fetchBillFailedData(bills, total5);
+
+        String pathname = "C:\\exportExcel\\车仆系统消费记录.xls";
+        ExportUtil.exportConsumptionRecordDataToExcel03InLocal(bills, ExcelDatas.workbook, pathname);
+    }
+
+
+    //进行中
+    private void fetchBillWorkingData(List<Bill> bills, int total) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithForm(BILL_URL, getBillWorkingParam(i), COOKIE);
+                analysisBillData(res, bills, "进行中");
+            }
+        }
+    }
+
+    //已挂起
+    private void fetchBillHoldData(List<Bill> bills, int total) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithForm(BILL_URL, getBillHoldParam(i), COOKIE);
+                analysisBillData(res, bills, "已挂起");
+            }
+        }
+    }
+
+    //已挂账
+    private void fetchBillUnPaidData(List<Bill> bills, int total) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithForm(BILL_URL, getBillUnPaidParam(i), COOKIE);
+                analysisBillData(res, bills, "已挂账");
+            }
+        }
+    }
+
+    //已完成
+    private void fetchBillFinishedData(List<Bill> bills, int total) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithForm(BILL_URL, getBillFinishedParam(i), COOKIE);
+                analysisBillData(res, bills, "已完成");
+            }
+        }
+    }
+
+    //已失效
+    private void fetchBillFailedData(List<Bill> bills, int total) throws IOException {
+        if (total > 0) {
+            for (int i = 1; i <= total; i++) {
+                Response res = ConnectionUtil.doPostWithForm(BILL_URL, getBillFailedParam(i), COOKIE);
+                analysisBillData(res, bills, "已失效");
+            }
+        }
+    }
+
+
+    private void analysisBillData(Response res, List<Bill> bills, String remark) throws IOException {
+        JsonNode result = JsonObject.MAPPER.readTree(res.returnContent().asString());
+
+        Iterator<JsonNode> it = result.get("result").get("rows").elements();
+        while (it.hasNext()) {
+            JsonNode element = it.next();
+
+            String billNo = element.get("orderNo").asText();
+            String carNumber = element.get("plateNumber").asText();
+            String receptionistName = element.get("pickupUname").asText();
+            String totalAmount = element.get("orderTotalAmount").asText();
+            String dateEnd = element.get("fillDate").asText();
+            dateEnd = DateUtil.formatSQLDate(dateEnd);
+
+            String serviceItemNames = "";
+            Optional<JsonNode> snode = Optional.ofNullable(element.get("services"));
+            if (snode.isPresent() && snode.get().size() > 0)
+                serviceItemNames =  snode.get().get(0).get("serviceNames").asText();
+
+            String goodsNames = "";
+            Optional<JsonNode> gnode = Optional.ofNullable(element.get("goods"));
+            if (gnode.isPresent() && gnode.get().size() > 0)
+                goodsNames = gnode.get().get(0).get("goodsNames").asText();
+
+            Bill bill = new Bill();
+            bill.setCarNumber(carNumber);
+            bill.setBillNo(billNo);
+            bill.setCompanyName(companyName);
+            bill.setServiceItemNames(serviceItemNames);
+            bill.setGoodsNames(goodsNames);
+            bill.setTotalAmount(totalAmount);
+            bill.setReceptionistName(receptionistName);
+            bill.setDateEnd(dateEnd);
+            bill.setRemark(remark);
+
+            bills.add(bill);
+        }
+    }
 
 
     /**
@@ -251,6 +379,7 @@ public class ChePuService {
         ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
     }
 
+
     private String getServiceParam(int pageNo) {
         String param = "row=15&stdsvcTag=1&page=" + pageNo;
 
@@ -261,5 +390,80 @@ public class ChePuService {
         String param = "pageSize=15&pageNo=" + pageNo;
 
         return param;
+    }
+
+    private String getBillWorkingParam(int pageNo) {
+        String param = "_os=1&beginDate4Do=" +
+                beginDate +
+                "&endDate4Do=" +
+                DateUtil.formatCurrentDate() +
+                "&orderStateId=5001,6001" +
+                "&rows=15&sidx=fillDate&sord=ASC" +
+                "&page=" + pageNo;
+
+        return param;
+    }
+
+    private String getBillHoldParam(int pageNo) {
+        String param = "_os=1&beginDate4Do=" +
+                beginDate +
+                "&endDate4Do=" +
+                DateUtil.formatCurrentDate() +
+                "&orderStateId=5002,6002" +
+                "&rows=15&sidx=fillDate&sord=ASC" +
+                "&page=" + pageNo;
+
+        return param;
+    }
+
+
+    private String getBillUnPaidParam(int pageNo) {
+        String param = "_os=1&beginDate4Done=" +
+                beginDate +
+                "&endDate4Done=" +
+                DateUtil.formatCurrentDate() +
+                "&orderStateId=5005,6005" +
+                "&rows=15&sidx=settlementTime&sord=DESC" +
+                "&page=" + pageNo;
+
+        return param;
+    }
+
+    private String getBillFailedParam(int pageNo) {
+        String param = "_os=1&beginDate4Update=" +
+                beginDate +
+                "&endDate4Update=" +
+                DateUtil.formatCurrentDate() +
+                "&orderStateId=5004,6004" +
+                "&rows=15&sidx=updateTime&sord=DESC" +
+                "&page=" + pageNo;
+
+        return param;
+    }
+
+    private String getBillFinishedParam(int pageNo) {
+        String param = "_os=1&beginDate4Done=" +
+                beginDate +
+                "&endDate4Done=" +
+                DateUtil.formatCurrentDate() +
+                "&orderStateId=5003,6003" +
+                "&rows=15&sidx=settlementTime&sord=DESC" +
+                "&page=" + pageNo;
+
+        return param;
+    }
+
+    private int getBillTotalPage(Response response) throws IOException {
+        int totalPage = 0;
+
+        if (response != null) {
+            JsonNode result = JsonObject.MAPPER.readTree(response.returnContent().asString());
+            String countStr = result.get("result").get("total").asText();
+            int count = Integer.parseInt(countStr);
+
+            if (count > 0)
+                totalPage = count;
+        }
+        return totalPage;
     }
 }
