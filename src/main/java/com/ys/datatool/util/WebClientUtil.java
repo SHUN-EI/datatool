@@ -37,7 +37,13 @@ public class WebClientUtil {
         return totalPage;
     }
 
+    //<a href="javascript:__doPostBack('AspNetPager1','2349')" style="margin-right:5px;">尾页</a>
 
+    /**
+     * 取尾页的值
+     * @param htmlPage
+     * @return
+     */
     public static String getTotalPage(HtmlPage htmlPage) {
         Document doc = Jsoup.parseBodyFragment(htmlPage.asXml());
         String lastLabelRegEx = "(?<=\\<a href=).*(?= 尾页)";

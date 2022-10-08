@@ -1,13 +1,20 @@
 package com.ys.datatool.service.web;
 
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
+import com.ys.datatool.domain.config.ExcelDatas;
+import com.ys.datatool.domain.entity.Bill;
 import com.ys.datatool.domain.entity.Product;
 import com.ys.datatool.util.CommonUtil;
+import com.ys.datatool.util.ExportUtil;
 import com.ys.datatool.util.WebClientUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.websocket.api.extensions.OutgoingFrames;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Created by mo on @date  2018/7/4.
  * 快修哥系统(好快省)
@@ -24,9 +32,13 @@ import java.util.Map;
 @Service
 public class KuaiXiuGeService {
 
-    private String PART_URL = "http://saas.hks360.com/PartsSet.aspx?page=PartsSet&cid=5188&username=fumeijing";
+    private String BILL_URL = "http://www.kuaixiuge.com/MaintenanceOrder.aspx?clientWidth=1680";
 
-    private String LOGIN_URL = "http://saas.hks360.com/default.aspx?id=0";
+    private String BILLDETAIL_URL = "http://www.kuaixiuge.com/MOrderInfoNews.aspx?morder_gch=";
+
+    private String PART_URL = "http://saas.hks360.com/PartsSet.aspx?page=PartsSet&cid=6079&username=admin";
+
+    private String LOGIN_URL = "http://www.kuaixiuge.com/";
 
     private String COMPANYID = "ucode";
 
@@ -36,11 +48,11 @@ public class KuaiXiuGeService {
 
     private String LOGINBUTTON = "Button1";
 
-    private String COMPANYNAME = "5188";
+    private String COMPANYNAME = "6079";
 
-    private String USERNAME = "fumeijing";
+    private String USERNAME = "admin";
 
-    private String PASSWORD = "hks123";
+    private String PASSWORD = "zzq2008824";
 
     private String tableRegEx = "#TreeView1 > table";
 
@@ -57,7 +69,37 @@ public class KuaiXiuGeService {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    @Test
+    public void fetchBillData() throws IOException {
+        List<Bill> bills = new ArrayList<>();
 
+        WebClient webClient = WebClientUtil.getWebClient();
+        getAllBillDetailPages(webClient);
+
+        for (HtmlPage billPage : pages) {
+            HtmlTable billTable = (HtmlTable) billPage.getElementById("GridView1");
+
+            Document document = Jsoup.parse(billTable.asXml());
+            Elements trs = document.select("tr");
+
+            for (int i = 0; i < trs.size(); i++) {
+
+                Elements tds = trs.get(i + 1).select("td");
+
+                //订单号
+                String billNo = tds.get(0).text();
+
+                HtmlPage billDetailPage = webClient.getPage(BILLDETAIL_URL + billNo);
+
+                String billDetail = billDetailPage.asXml();
+                String point = "";
+
+            }
+
+
+        }
+
+    }
 
     @Test
     public void fetchItemData() throws IOException {
@@ -128,8 +170,86 @@ public class KuaiXiuGeService {
         System.out.println("products结果为" + products.toString());
         System.out.println("products结果为" + products.size());
 
-        String pathname = "C:\\exportExcel\\快修哥商品.xls";
-        //ExportUtil.exportProductDataInLocal(products, workbook, pathname);
+        //String pathname = "C:\\exportExcel\\快修哥商品.xls";
+        String pathname = "/Users/mo/work/快修哥商品.xls";
+        ExportUtil.exportProductDataInLocal(products, ExcelDatas.workbook, pathname);
+    }
+
+    /**
+     * 获取所有订单页
+     *
+     * @param webClient
+     * @throws IOException
+     */
+    private void getAllBillDetailPages(WebClient webClient) throws IOException {
+        login(webClient);
+
+        HtmlPage billPage = webClient.getPage(BILL_URL);
+        //工单状态- 全部,在修,已结算,已付款,已作废
+        HtmlSelect billStatusSelect = (HtmlSelect) billPage.getElementById("DropDownStatus");
+        billStatusSelect.setSelectedAttribute("全部", true);
+
+        //送修日期: 2005-01-01  to  2022-10-08
+        HtmlInput billStartTimeInput = (HtmlInput) billPage.getElementById("TextTime1");
+        billStartTimeInput.setAttribute("value", "2005-01-01");
+
+        HtmlInput billEndTimeInput = (HtmlInput) billPage.getElementById("TextTime2");
+        billEndTimeInput.setValueAttribute("2022-10-08");
+
+        //搜索
+        HtmlInput searchInput = (HtmlInput) billPage.getElementById("Button3");
+        HtmlPage billAllPage = searchInput.click();
+
+        //获取总页数
+        String totalPage = WebClientUtil.getTotalPage(billAllPage);
+        //获取所有订单页
+        //nextBillPage(billAllPage, Integer.parseInt(totalPage));
+
+        //测试，先取2页
+        nextBillPage(billAllPage, 2);
+
+    }
+
+
+    /**
+     * 获取下一页订单
+     *
+     * @param page 订单页
+     * @param num  订单总页数
+     * @throws IOException
+     */
+    private void nextBillPage(HtmlPage page, int num) throws IOException {
+        ++count;
+        if (count > num)
+            return;
+
+        HtmlInput billPageInput = (HtmlInput) page.getElementById("AspNetPager1_input");
+        billPageInput.setValueAttribute(String.valueOf(count));
+
+        //go按钮,下一页
+        HtmlInput billNextInput = (HtmlInput) page.getElementById("AspNetPager1_btn");
+        HtmlPage billNextPage = billNextInput.click();
+        pages.add(billNextPage);
+
+        nextBillPage(billNextPage, num);
+    }
+
+
+    private void nextPage(HtmlPage page, int num, int end) throws IOException {
+        ++count;
+        if (count == num)
+            return;
+
+        String anchorXPath = "//*[@id=\"AspNetPager2\"]/a[13]";
+        //最后几页的下一页按钮
+        if (count > end)
+            anchorXPath = "//*[@id=\"AspNetPager2\"]/a[12]";
+
+        HtmlAnchor nextPage = page.getFirstByXPath(anchorXPath);
+
+        HtmlPage htmlPage = nextPage.click();
+        pages.add(htmlPage);
+        nextPage(htmlPage, num, end);//num为总页数
     }
 
     private void getAllItemPages(WebClient webClient) throws IOException {
@@ -149,6 +269,12 @@ public class KuaiXiuGeService {
         nextPage(allPartPage, Integer.parseInt(total), partEnd);
     }
 
+    /**
+     * 登录操作
+     *
+     * @param webClient
+     * @throws IOException
+     */
     private void login(WebClient webClient) throws IOException {
         HtmlPage loginPage = webClient.getPage(LOGIN_URL);
         HtmlInput company = loginPage.getHtmlElementById(COMPANYID);
@@ -160,23 +286,6 @@ public class KuaiXiuGeService {
         user.setValueAttribute(USERNAME);
         pwd.setValueAttribute(PASSWORD);
         btnLogin.click();
-    }
-
-    private void nextPage(HtmlPage page, int num, int end) throws IOException {
-        ++count;
-        if (count == num)
-            return;
-
-        String anchorXPath = "//*[@id=\"AspNetPager2\"]/a[13]";
-        //最后几页的下一页按钮
-        if (count > end)
-            anchorXPath = "//*[@id=\"AspNetPager2\"]/a[12]";
-
-        HtmlAnchor nextPage = page.getFirstByXPath(anchorXPath);
-
-        HtmlPage htmlPage = nextPage.click();
-        pages.add(htmlPage);
-        nextPage(htmlPage, num, end);//num为总页数
     }
 
 
